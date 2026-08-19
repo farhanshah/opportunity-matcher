@@ -1,7 +1,8 @@
 import { db } from '../lib/db.js';
 import { SOURCE_OPPORTUNITY_MAP, normalizeHtml, sha256, extractSignals, meaningfulChange, expectedContentPresent } from '../lib/monitor.js';
 
-const MAX_SOURCES_PER_RUN = 6;
+const MAX_SOURCES_PER_RUN = 10;
+const FETCH_CONCURRENCY = 5;
 
 function authorised(req) {
   const secret = process.env.CRON_SECRET;
@@ -92,11 +93,17 @@ export default async function handler(req, res) {
       FROM monitored_sources
       WHERE is_active=true
         AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))
-      ORDER BY last_checked_at NULLS FIRST, source_key
+      ORDER BY last_checked_at NULLS FIRST, check_interval_minutes ASC, source_key
       LIMIT ${MAX_SOURCES_PER_RUN}
     `;
+
     const results = [];
-    for (const source of due) results.push(await processSource(sql, source));
+    for (let i = 0; i < due.length; i += FETCH_CONCURRENCY) {
+      const batch = due.slice(i, i + FETCH_CONCURRENCY);
+      const batchResults = await Promise.all(batch.map(source => processSource(sql, source)));
+      results.push(...batchResults);
+    }
+
     return res.status(200).json({ ok: true, processed: results.length, results, ran_at: new Date().toISOString() });
   } catch (error) {
     return res.status(500).json({ ok: false, error: error.message });
