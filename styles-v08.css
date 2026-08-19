@@ -1,0 +1,11 @@
+@import url('/styles-v07.css');
+
+/* v0.8 hero cleanup — remove detached floating UI and let the visual breathe */
+.floatingCard{display:none!important}
+.heroVisual{min-height:650px}
+.slideShell{border-radius:34px;background:#171922;box-shadow:0 48px 110px rgba(0,0,0,.42)}
+.slide:after{background:linear-gradient(180deg,rgba(8,10,15,.02) 30%,rgba(8,10,15,.18) 55%,rgba(8,10,15,.82) 100%)}
+.slideInfo{left:30px;right:30px;bottom:28px}
+.slideInfo h3{max-width:360px}
+.heroVisual:after{content:'OFFICIAL SOURCE ATTACHED';position:absolute;z-index:9;right:22px;top:22px;padding:8px 11px;border-radius:999px;background:rgba(10,12,17,.62);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px);color:#f5f6f7;font-size:8px;font-weight:900;letter-spacing:.12em}
+@media(max-width:700px){.heroVisual:after{right:12px;top:12px}.heroVisual{min-height:500px}}
