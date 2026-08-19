@@ -7,7 +7,6 @@
   const isUndergrad=p=>/undergraduate student/i.test(p.edu||'');
   const hasBachelor=p=>/bachelor's degree|master's student|master's degree|phd student|phd degree/i.test(p.edu||'');
   const hasMasters=p=>/master's degree|phd student|phd degree/i.test(p.edu||'');
-  const fieldIsStem=p=>/computer|engineering|biological|physical|environmental|mathematics|medicine|agriculture/i.test(p.field||'');
   const parseDate=s=>{const t=new Date(String(s||'')+'T00:00:00Z').getTime();return Number.isFinite(t)?t:null};
 
   function degreeRoute(rule,p){
@@ -49,8 +48,8 @@
     }
     if(kind==='cambridge_trust'){
       if(!p.edu)return result(rule,'review','Add education level to assess Cambridge postgraduate funding eligibility.');
-      if(hasBachelor(p))return result(rule,'review','Your level can support a Cambridge postgraduate application; exact course level and offer status still need confirmation.');
-      return result(rule,'fail','Cambridge Trust postgraduate funding requires entry to an eligible Master’s or PhD course.');
+      if(hasBachelor(p))return result(rule,'review','Your level can support a Cambridge postgraduate application; exact course and scholarship level still need confirmation.');
+      return result(rule,'fail','Cambridge Trust postgraduate funding requires entry to an eligible postgraduate course.');
     }
     if(kind==='jjwbgsp')return hasBachelor(p)?result(rule,'pass','Your Passport shows the bachelor-degree baseline.'):p.edu?result(rule,'fail','JJ/WBGSP requires a bachelor’s degree or equivalent.'):result(rule,'review','Add education level to test the bachelor-degree requirement.');
     if(kind==='adb_jsp')return hasBachelor(p)?result(rule,'pass','Your Passport shows the bachelor-degree baseline.'):p.edu?result(rule,'fail','ADB-JSP requires a bachelor degree or equivalent.'):result(rule,'review','Add education level to test the bachelor-degree requirement.');
@@ -126,7 +125,7 @@
     if(rule.code==='home_country_v4')return homeCountry(rule,p);
     if(rule.code==='top_percent_v4')return result(rule,'review',`The scholarship expects roughly the top ${v.percent||10}% of the bachelor cohort; class percentile is not stored in the Passport.`);
     if(rule.code==='admission_v4')return result(rule,'review',rule.source_note||v.detail||'Admission to an eligible programme must be confirmed.');
-    if(rule.code==='provider_condition_v4')return result(rule,v.hard===false?'info':'review',rule.source_note||v.detail||'This provider-specific condition needs confirmation.',v.hard!==false);
+    if(rule.code&&rule.code.startsWith('provider_condition_v4'))return result(rule,v.hard===false?'info':'review',rule.source_note||v.detail||'This provider-specific condition needs confirmation.',v.hard!==false);
     return null;
   }
 
