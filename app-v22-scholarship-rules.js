@@ -1,0 +1,97 @@
+(()=>{
+  const previousEvaluate=evaluate;
+  const norm=v=>String(v||'').trim().toLowerCase();
+  const result=(rule,status,detail,hard=rule.hard!==false)=>({label:rule.label||'Eligibility rule',status,detail,hard,source_url:rule.source_url||'',source_note:rule.source_note||'',rule_code:rule.code||''});
+  const value=rule=>rule?.value&&typeof rule.value==='object'?rule.value:{};
+  const completedBachelor=p=>/bachelor's degree|master's student|master's degree|phd student|phd degree/i.test(p.edu||'');
+  const postSecondary=p=>/undergraduate student|bachelor's degree|master's student|master's degree|phd student|phd degree/i.test(p.edu||'');
+  const exactIn=(needle,list=[])=>list.some(x=>norm(x)===norm(needle));
+  const parseDate=s=>{const t=new Date(String(s||'')+'T00:00:00Z').getTime();return Number.isFinite(t)?t:null};
+
+  function educationBaseline(rule,p){
+    const v=value(rule),kind=v.kind||'';
+    if(kind==='secondary_current')return norm(p.edu)==='secondary school'?result(rule,'pass','Your Passport shows current secondary-school level.'):p.edu?result(rule,'fail','This programme is for current secondary-school students.'):result(rule,'review','Add education level to confirm current secondary-school status.');
+    if(kind==='secondary_completed'){
+      if(!p.edu)return result(rule,'review','Add education level to confirm completion of secondary school.');
+      if(postSecondary(p))return result(rule,'pass','Your post-secondary status implies the secondary-school diploma baseline is met.');
+      return result(rule,'review','The Passport shows secondary-school level but does not distinguish current enrolment from a completed diploma.');
+    }
+    if(kind==='bachelor_completed'){
+      if(!p.edu)return result(rule,'review','Add education level to confirm the bachelor-degree baseline.');
+      return completedBachelor(p)?result(rule,'pass','Your Passport indicates a completed bachelor-level degree or higher.'):result(rule,'fail','This programme requires a completed bachelor-level degree or equivalent.');
+    }
+    return null;
+  }
+
+  function workByCountry(rule,p){
+    const v=value(rule),country=p.nat||'';
+    if(!country)return result(rule,'review','Add nationality to resolve the country-specific work-experience rule.');
+    const required=v.hours_by_country||{};
+    for(const [hours,countries] of Object.entries(required)){
+      if(!exactIn(country,countries||[]))continue;
+      const needed=Number(hours),have=Number(p.workHours||0);
+      if(!have)return result(rule,'review',`Your country route requires ${needed.toLocaleString()} documented work hours; add eligible hours to the Passport.`);
+      return have>=needed?result(rule,'pass',`You meet the ${needed.toLocaleString()}-hour work-experience minimum for your country route.`):result(rule,'fail',`Your country route requires at least ${needed.toLocaleString()} documented work hours.`);
+    }
+    if(exactIn(country,v.proof_only_countries||[]))return result(rule,'review','Your country route requires documented work experience but does not set a universal minimum number of hours.');
+    return result(rule,'review','Work-experience treatment depends on the current citizenship list and scholarship call.');
+  }
+
+  function relevantExperience(rule,p){
+    const v=value(rule),months=Number(p.expMonths||0),min=Number(v.months||0);
+    if(months<min)return result(rule,'fail',`At least ${min} months of professional experience are required.`);
+    if(v.after_bachelor&&!p.graduationDate)return result(rule,'review',`You meet the quantity threshold, but the ${min} months must be after the first degree; add graduation date to verify timing.`);
+    if(v.relevance_required)return result(rule,'review',`You meet the ${min}-month quantity, but the experience must be relevant to the proposed study or professional field.`);
+    return result(rule,'pass',`You meet the ${min}-month experience threshold.`);
+  }
+
+  function degreeAge(rule,p){
+    const v=value(rule),max=Number(v.max_years||0),t=parseDate(p.graduationDate);
+    if(t==null)return result(rule,'review',`Add graduation date to check the usual ${max}-year degree-recency rule.`);
+    const years=(Date.now()-t)/(365.2425*864e5);
+    return years<=max?result(rule,'pass',`Your stored degree date is within the usual ${max}-year recency window.`):result(rule,'review',`Your stored degree is older than the usual ${max}-year window; course/provider exceptions need review.`);
+  }
+
+  function homeResidence(rule,p){
+    const v=value(rule),years=Number(v.years||0);
+    if(!p.nat||!p.residence)return result(rule,'review','Add nationality and residence to assess the home-country residence requirement.');
+    if(norm(p.nat)!==norm(p.residence))return result(rule,'review',`The scholarship normally requires ${years} years living in the home country, but official overseas-study/diplomatic exceptions may apply.`);
+    return result(rule,'review',`Nationality and current residence align, but the Passport does not yet store the required ${years}-year residence history.`);
+  }
+
+  function residenceDurationMax(rule,p){
+    const v=value(rule),country=v.country||'',months=Number(v.max_months||0);
+    if(!p.residence)return result(rule,'review','Add country of residence to test this restriction.');
+    if(norm(p.residence)!==norm(country))return result(rule,'pass',`Your current residence is outside ${country}, so the current-residence restriction is not triggered.`);
+    return result(rule,'review',`You currently reside in ${country}; eligibility depends on whether residence exceeds ${months} months, which is not stored in the Passport.`);
+  }
+
+  function softAge(rule,p){
+    const v=value(rule);if(!p.age)return result(rule,'info','Provider publishes a preferred age range; add age to compare it.',false);
+    const a=Number(p.age),max=Number(v.max);return a<max?result(rule,'pass',`Age is within the provider's preferred under-${max} profile.`,false):result(rule,'info',`There is no upper age limit, but applicants under ${max} are preferred.`,false);
+  }
+
+  function special(rule,p){
+    const v=value(rule),op=rule.operator;
+    if(rule.code==='education_baseline')return educationBaseline(rule,p);
+    if(rule.code==='work_hours_by_nationality')return workByCountry(rule,p);
+    if(rule.code==='relevant_experience_months')return relevantExperience(rule,p);
+    if(rule.code==='degree_age_years_max')return degreeAge(rule,p);
+    if(rule.code==='home_residence_years')return homeResidence(rule,p);
+    if(rule.code==='residence_duration_max')return residenceDurationMax(rule,p);
+    if(rule.code==='age'&&op==='preferred_under')return softAge(rule,p);
+    if(rule.code==='age'&&op==='country_specific_review')return result(rule,'review',rule.source_note||'Age eligibility is set by the applicant’s country route and current recruitment cycle.');
+    if(rule.code==='provider_condition_v2')return result(rule,v.hard===false?'info':'review',rule.source_note||v.detail||'This applicant-specific provider condition needs confirmation.',v.hard!==false);
+    return null;
+  }
+
+  evaluate=function(o){
+    const base=previousEvaluate(o),rules=Array.isArray(o.Eligibility_Rules)?o.Eligibility_Rules:[];let checks=[...(base.checks||[])];
+    for(const rule of rules){const s=special(rule,currentProfile);if(!s)continue;const covers=value(rule).covers||[];checks=checks.filter(c=>c.rule_code!==rule.code&&!covers.includes(c.label));checks.unshift(s)}
+    const seen=new Set();checks=checks.filter(c=>{const k=`${c.label}|${c.rule_code||''}`;if(seen.has(k))return false;seen.add(k);return true});
+    const fails=checks.filter(c=>c.status==='fail'&&c.hard!==false).length,reviews=checks.filter(c=>c.status==='review').length,passes=checks.filter(c=>c.status==='pass').length,hardReviews=checks.filter(c=>c.status==='review'&&c.hard!==false).length;
+    let label='Needs review',cls='review',rank=1;if(fails){label='Not eligible';cls='ineligible';rank=0}else if(hardReviews){if(passes>=2){label='Possible match';cls='possible';rank=3}}else if(passes>=3){label=(base.relevance||0)>=1?'Strong match':'Likely eligible';cls='eligible';rank=4}else if(passes>=2){label='Possible match';cls='possible';rank=3}
+    return{...base,checks,fails,reviews,passes,hardReviews,label,cls,rank,scholarshipEligibility:true};
+  };
+  window.evaluate=evaluate;try{renderAll()}catch{}
+})();
