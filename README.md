@@ -50,3 +50,5 @@ Then open the local URL and test:
 ## Deployment
 
 Import this GitHub repository into Vercel, add the two environment variables, and deploy. The `vercel.json` file configures the monitoring cron.
+
+Deployment trigger: 2026-08-19
