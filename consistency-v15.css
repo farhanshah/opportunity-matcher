@@ -1,0 +1,44 @@
+/* Opportunity v1.5 — consistency polish: cloud/local truth, quieter status UI, finished controls. */
+
+/* Passport summary belongs to the dark Passport surface, not a white form. */
+.filterPanel .passportSummary{gap:8px}
+.filterPanel .summaryItem{background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.085)!important;border-radius:12px!important;padding:10px 11px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+.filterPanel .summaryItem span{color:#8f97a5!important;font-size:7px!important;letter-spacing:.09em!important;text-transform:uppercase!important;font-weight:850!important}
+.filterPanel .summaryItem b{color:#f3f5f8!important;font-size:9px!important;line-height:1.25!important;margin-top:3px!important}
+.filterPanel .privacyNote{background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.075)!important;color:#929aa8!important;border-radius:11px!important;padding:10px 11px!important}
+html[data-workspace-storage="cloud"] .filterPanel .privacyNote{background:rgba(110,231,216,.07)!important;border-color:rgba(110,231,216,.14)!important;color:#a9dcd2!important}
+html[data-workspace-storage="syncing"] .filterPanel .privacyNote{background:rgba(255,211,102,.06)!important;border-color:rgba(255,211,102,.13)!important;color:#d5bd7c!important}
+
+/* Match states should inform, not compete with the opportunity title. */
+.matchBadge{width:auto!important;height:auto!important;min-width:0!important;min-height:0!important;aspect-ratio:auto!important;border-radius:999px!important;padding:6px 9px!important;font-size:7px!important;line-height:1!important;letter-spacing:.01em!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important;box-shadow:none!important}
+.matchBadge.eligible{background:#e6f7ed!important;color:#176d4c!important}
+.matchBadge.review{background:#fff2d3!important;color:#8a6410!important}
+.matchBadge.possible{background:#eeeaff!important;color:#6049d0!important}
+.matchBadge.ineligible{background:#fde9e9!important;color:#9e444b!important}
+
+/* Native selects -> finished product controls. */
+.focusStage select,.stageSelectV11,.filterPanel select,.tools select{
+  -webkit-appearance:none;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,#747b88 50%),linear-gradient(135deg,#747b88 50%,transparent 50%)!important;
+  background-position:calc(100% - 15px) 50%,calc(100% - 11px) 50%!important;
+  background-size:4px 4px,4px 4px!important;background-repeat:no-repeat!important;
+  padding-right:30px!important
+}
+.focusStage select,.stageSelectV11{border-radius:11px!important;background-color:#f7f6f2!important;border:1px solid rgba(34,40,52,.10)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)!important;font-weight:750!important;color:#2d333e!important}
+.focusStage select:focus,.stageSelectV11:focus{outline:none!important;border-color:rgba(119,91,255,.34)!important;box-shadow:0 0 0 3px rgba(119,91,255,.075)!important}
+
+/* Preparation tasks should read as actionable pills, not browser checkboxes. */
+.focusTask,.taskChip{border-radius:999px!important;padding:8px 11px!important;transition:.18s ease!important}
+.focusTask input,.taskChip input{-webkit-appearance:none;appearance:none;width:15px!important;height:15px!important;min-width:15px!important;border-radius:50%!important;border:1.5px solid #b3b9c3!important;background:#fff!important;display:inline-grid!important;place-items:center!important;margin:0!important;cursor:pointer!important}
+.focusTask input:checked,.taskChip input:checked{background:#151923!important;border-color:#151923!important;box-shadow:0 0 0 3px rgba(119,91,255,.07)!important}
+.focusTask input:checked:after,.taskChip input:checked:after{content:"✓";color:#d7ff5f;font-size:9px;font-weight:950;line-height:1}
+.focusTask.done,.taskChip.done{background:#e9f8f0!important;border-color:#cde9da!important;color:#226c50!important}
+
+/* Account status is a product control, not another pale chip. */
+.cloudAccountBtn{border-color:rgba(26,31,42,.10)!important;box-shadow:0 9px 25px rgba(19,24,34,.07)!important}
+.cloudSyncPill.ok{background:linear-gradient(135deg,#e6f8ef,#f3fff9)!important;border:1px solid #d4eee0!important;color:#176d4d!important}
+
+/* Cleaner empty states. */
+.empty,.focusEmpty,.boardEmptyV11{border:1px dashed rgba(41,47,59,.13)!important;background:rgba(255,253,249,.55)!important;color:#858c98!important}
+
+@media(max-width:700px){.matchBadge{padding:5px 7px!important;font-size:6.5px!important}.filterPanel .summaryItem{padding:9px!important}}
