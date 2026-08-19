@@ -12,12 +12,15 @@ function authorised(req) {
 
 async function fetchSource(source) {
   const headers = {
-    'user-agent': 'OpportunityMatcherBot/0.1 (+official-source freshness monitor)',
-    'accept': 'text/html,application/xhtml+xml'
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'accept-language': 'en-GB,en;q=0.9',
+    'cache-control': 'no-cache',
+    'pragma': 'no-cache'
   };
   if (source.etag) headers['if-none-match'] = source.etag;
   if (source.last_modified) headers['if-modified-since'] = source.last_modified;
-  const response = await fetch(source.source_url, { headers, redirect: 'follow', signal: AbortSignal.timeout(20000) });
+  const response = await fetch(source.source_url, { headers, redirect: 'follow', signal: AbortSignal.timeout(25000) });
   if (response.status === 304) return { notModified: true, status: 304, response };
   const html = await response.text();
   return { notModified: false, status: response.status, html, response };
