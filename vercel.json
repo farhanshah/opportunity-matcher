@@ -5,6 +5,12 @@
       "maxDuration": 60
     }
   },
+  "rewrites": [
+    { "source": "/discover", "destination": "/index.html" },
+    { "source": "/saved", "destination": "/index.html" },
+    { "source": "/tracker", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/index.html" }
+  ],
   "crons": [
     {
       "path": "/api/monitor",
