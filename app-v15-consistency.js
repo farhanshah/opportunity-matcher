@@ -46,7 +46,7 @@
     }
 
     qa('.sideFoot').forEach(side=>{
-      if(cloud&&side.textContent.includes('stored in this browser'))setHtml(side,`<b>Cloud workspace</b>Your Passport, shortlist and tracker are synced securely across devices.`);
+      if(cloud&&side.textContent.includes('stored in this browser'))setHtml(side,'<b>Cloud workspace</b>Your Passport, shortlist and tracker are synced securely across devices.');
     });
   }
 
@@ -114,7 +114,13 @@
   const observer=new MutationObserver(()=>{clearTimeout(copyTimer);copyTimer=setTimeout(()=>{applyStorageCopy();if(appVisible()&&!routeFromPath())writeRoute(visibleView(),true)},80)});
   observer.observe(document.body,{childList:true,subtree:true,characterData:true});
 
-  const css=document.createElement('link');css.rel='stylesheet';css.href='/consistency-v15.css';css.dataset.consistencyV15='true';document.head.appendChild(css);
+  let cssTries=0;
+  const mountConsistencyCss=()=>{
+    if(document.querySelector('link[data-consistency-v15]'))return;
+    if(document.querySelector('link[data-premium-v14]')||cssTries++>100){const css=document.createElement('link');css.rel='stylesheet';css.href='/consistency-v15.css';css.dataset.consistencyV15='true';document.head.appendChild(css);return}
+    setTimeout(mountConsistencyCss,50);
+  };
+  mountConsistencyCss();
   openRouteFromUrl();applyStorageCopy();
   setTimeout(openRouteFromUrl,500);setTimeout(applyStorageCopy,1000);setTimeout(applyStorageCopy,2200);
 })();
