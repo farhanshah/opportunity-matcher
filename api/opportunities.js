@@ -27,6 +27,7 @@ export default async function handler(req, res) {
       FROM opportunities
       ORDER BY external_id
     `;
+
     const ruleRows = await sql`
       SELECT opportunity_id, rule_code, rule_label, operator, value_json, hard_rule,
              certainty, source_url, source_note, effective_cycle, last_verified_at
@@ -50,6 +51,40 @@ export default async function handler(req, res) {
         last_verified: isoDate(rule.last_verified_at)
       });
     }
+
+    const routeRows = await sql`
+      SELECT opportunity_id, country_name, route_name, route_type, cycle, status,
+             application_open_date, application_close_date, local_deadline_text,
+             application_url, official_source_url, application_channel,
+             eligibility_overrides, route_notes, verification_confidence,
+             last_verified_at
+      FROM opportunity_country_routes
+      WHERE is_active = true
+      ORDER BY opportunity_id, country_name, application_close_date DESC NULLS LAST, cycle DESC
+    `;
+    const routeMap = new Map();
+    for (const route of routeRows) {
+      const key = String(route.opportunity_id);
+      if (!routeMap.has(key)) routeMap.set(key, []);
+      routeMap.get(key).push({
+        country: route.country_name || '',
+        route_name: route.route_name || '',
+        route_type: route.route_type || '',
+        cycle: route.cycle || '',
+        status: route.status || '',
+        open_date: isoDate(route.application_open_date),
+        close_date: isoDate(route.application_close_date),
+        deadline_text: route.local_deadline_text || '',
+        application_url: route.application_url || '',
+        official_source_url: route.official_source_url || '',
+        application_channel: route.application_channel || '',
+        eligibility_overrides: route.eligibility_overrides || {},
+        notes: route.route_notes || '',
+        confidence: prettyConfidence(route.verification_confidence),
+        last_verified: isoDate(route.last_verified_at)
+      });
+    }
+
     const opportunities = rows.map(row => ({
       Database_ID: row.id,
       Opportunity_ID: row.external_id,
@@ -80,8 +115,10 @@ export default async function handler(req, res) {
       Benefits: Array.isArray(row.benefits) ? row.benefits : [],
       Rule_Normalization_Status: row.rule_normalization_status || 'unreviewed',
       Rule_Normalized_At: isoDate(row.rule_normalized_at),
-      Eligibility_Rules: ruleMap.get(String(row.id)) || []
+      Eligibility_Rules: ruleMap.get(String(row.id)) || [],
+      Country_Routes: routeMap.get(String(row.id)) || []
     }));
+
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).json({ opportunities, count: opportunities.length, generated_at: new Date().toISOString() });
   } catch (error) {
