@@ -22,10 +22,34 @@ export default async function handler(req, res) {
              official_source_url, application_fee, last_verified_at,
              verification_confidence, eligible_nationalities, education_levels,
              fields_of_study, minimum_gpa, minimum_age, maximum_age,
-             work_experience_months, english_requirement, eligibility_notes, benefits
+             work_experience_months, english_requirement, eligibility_notes, benefits,
+             rule_normalization_status, rule_normalized_at
       FROM opportunities
       ORDER BY external_id
     `;
+    const ruleRows = await sql`
+      SELECT opportunity_id, rule_code, rule_label, operator, value_json, hard_rule,
+             certainty, source_url, source_note, effective_cycle, last_verified_at
+      FROM opportunity_eligibility_rules
+      ORDER BY opportunity_id, rule_code
+    `;
+    const ruleMap = new Map();
+    for (const rule of ruleRows) {
+      const key = String(rule.opportunity_id);
+      if (!ruleMap.has(key)) ruleMap.set(key, []);
+      ruleMap.get(key).push({
+        code: rule.rule_code,
+        label: rule.rule_label,
+        operator: rule.operator,
+        value: rule.value_json || {},
+        hard: Boolean(rule.hard_rule),
+        certainty: rule.certainty || 'confirmed',
+        source_url: rule.source_url || '',
+        source_note: rule.source_note || '',
+        cycle: rule.effective_cycle || '',
+        last_verified: isoDate(rule.last_verified_at)
+      });
+    }
     const opportunities = rows.map(row => ({
       Database_ID: row.id,
       Opportunity_ID: row.external_id,
@@ -53,9 +77,12 @@ export default async function handler(req, res) {
       Work_Experience_Months: row.work_experience_months,
       English_Requirement: row.english_requirement || '',
       Eligibility_Notes: row.eligibility_notes || '',
-      Benefits: Array.isArray(row.benefits) ? row.benefits : []
+      Benefits: Array.isArray(row.benefits) ? row.benefits : [],
+      Rule_Normalization_Status: row.rule_normalization_status || 'unreviewed',
+      Rule_Normalized_At: isoDate(row.rule_normalized_at),
+      Eligibility_Rules: ruleMap.get(String(row.id)) || []
     }));
-    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=900');
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).json({ opportunities, count: opportunities.length, generated_at: new Date().toISOString() });
   } catch (error) {
     return res.status(500).json({ error: 'Database query failed', detail: error.message });
