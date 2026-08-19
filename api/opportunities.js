@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   try {
     const sql = db();
     const rows = await sql`
-      SELECT external_id, title, provider, opportunity_type, destination_country,
+      SELECT id, external_id, title, provider, opportunity_type, destination_country,
              funding_type, status, application_open_date, application_close_date,
              expected_reopen_date, application_route, application_url,
              official_source_url, application_fee, last_verified_at,
@@ -27,6 +27,7 @@ export default async function handler(req, res) {
       ORDER BY external_id
     `;
     const opportunities = rows.map(row => ({
+      Database_ID: row.id,
       Opportunity_ID: row.external_id,
       Opportunity_Name: row.title,
       Provider: row.provider,
