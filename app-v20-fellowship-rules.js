@@ -63,7 +63,9 @@
       if(inList(p.field,v.passport_fields||[]))return result(rule,'pass','Your field maps clearly to one of the provider’s listed programme areas.');
       return result(rule,'review','Your field may still fit, but the provider’s programme-area taxonomy needs a manual mapping.');
     }
-    if(rule.code==='not_current_student')return result(rule,...Object.values(requirement({code:'not_current_student'},p)).reverse());
+    if(rule.code==='not_current_student'){
+      const r=requirement({code:'not_current_student'},p);return result(rule,r.status,r.detail);
+    }
     if(rule.code==='residence'&&op==='not_in'){
       if(!p.residence)return result(rule,'review','Add country of residence to test this restriction.');
       return inList(p.residence,v.values||[])?result(rule,'fail',`${p.residence} is excluded by the current residence rule.`):result(rule,'pass','Residence does not hit a verified exclusion.');
@@ -105,12 +107,11 @@
   evaluate=function(o){
     const base=previousEvaluate(o),rules=Array.isArray(o.Eligibility_Rules)?o.Eligibility_Rules:[];
     let checks=[...(base.checks||[])];
-    const handled=[];
     for(const rule of rules){
       const special=specialRule(rule,currentProfile);if(!special)continue;
       const covers=value(rule).covers||[];
       checks=checks.filter(c=>c.rule_code!==rule.code&&!covers.includes(c.label));
-      checks.unshift(special);handled.push(rule.code);
+      checks.unshift(special);
     }
     checks=correctCountry(o,checks,currentProfile);
     const seen=new Set();checks=checks.filter(c=>{const k=`${c.label}|${c.rule_code||''}`;if(seen.has(k))return false;seen.add(k);return true});
