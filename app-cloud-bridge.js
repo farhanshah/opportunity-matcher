@@ -20,7 +20,7 @@
     },
     getOpps:()=>opps,
     render:()=>renderAll(),
-    clear:()=>{currentProfile={};saved=new Set();tracks={};localStorage.removeItem(PROFILE_KEY);localStorage.removeItem('oppProfileV6');localStorage.removeItem('oppSavedV6');localStorage.removeItem('oppTracksV6');renderAll();}
+    clear:()=>{currentProfile={};saved=new Set();tracks={};localStorage.removeItem(PROFILE_KEY);localStorage.removeItem('oppProfileV6');localStorage.removeItem('oppSavedV6');localStorage.removeItem('oppTracksV6');localStorage.removeItem('oppExactTracksV1');renderAll();}
   };
   ['toggleSave','addTrack','trackStage','checklistToggle'].forEach(wrapMutation);
   const originalSave=window.saveProfileState;
