@@ -13,6 +13,7 @@ const PROVIDERS={
 
 const decode=s=>String(s||'').replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const clean=s=>decode(String(s||'').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,' ').replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim());
+const norm=s=>clean(s).toLowerCase().replace(/[‐‑–—]/g,'-').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
 function allowed(raw,cfg){try{const u=new URL(raw);if(u.protocol!=='https:')return null;const h=u.hostname.toLowerCase().replace(/^www\./,'');return cfg.hosts.some(x=>h===x||h.endsWith('.'+x))?u:null}catch{return null}}
 function parseDate(raw){const d=new Date(String(raw||'').replace(/\s+/g,' ').trim());return Number.isNaN(d.getTime())?'':d.toISOString().slice(0,10)}
 function pageTitle(html){const h1=html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);if(h1){const t=clean(h1[1]);if(t)return t.slice(0,240)}const t=html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);return t?clean(t[1]).slice(0,240):''}
@@ -29,20 +30,35 @@ function deadlineFromText(text){
 function explicitClosed(text){return /applications? (?:are|is) (?:now )?closed|this vacancy is closed|no longer accepting applications|applications? (?:are|is) no longer being accepted|application period (?:has )?closed|position has been filled|applications? closed|关闭申请/.test(String(text||'').toLowerCase())}
 async function fetchPage(url){const c=new AbortController(),timer=setTimeout(()=>c.abort(),18000);try{const r=await fetch(url,{signal:c.signal,redirect:'follow',headers:{'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36 OpportunityMatcher/1.0','Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'}});if(!r.ok)throw new Error(`Official vacancy returned HTTP ${r.status}`);const html=(await r.text()).slice(0,900000);if(html.length<300)throw new Error('Official vacancy returned too little content');return{html,url:r.url||url,status:r.status}}finally{clearTimeout(timer)}}
 function jobIdFromUrl(raw){try{return new URL(raw).pathname.match(/\/job\/(\d{5,})\b/i)?.[1]||''}catch{return''}}
-function unicefCardContext(html,jobId){if(!jobId)return'';const src=String(html||'');const re=new RegExp(`<a\\b[^>]*href=["'][^"']*\\/job\\/${jobId}(?:\\/|["'])[^>]*>[\\s\\S]*?<\\/a>`,'i');const m=re.exec(src);if(!m)return'';const start=m.index;const tail=src.slice(start+m[0].length);const next=tail.search(/<a\b[^>]*href=["'][^"']*\/job\/\d{5,}/i);const end=next>=0?start+m[0].length+next:Math.min(src.length,start+6500);return clean(src.slice(start,end))}
-async function unicefBoardStatus(target){const jobId=jobIdFromUrl(target.toString());if(!jobId)return null;const urls=[`https://jobs.unicef.org/en-us/search/?search-keyword=${encodeURIComponent(jobId)}`,'https://jobs.unicef.org/en-us/search/?work-type=internship'];for(const url of urls){try{const f=await fetchPage(url);const context=unicefCardContext(f.html,jobId);if(!context)continue;const deadline=deadlineFromText(context);const today=new Date().toISOString().slice(0,10);return{jobId,deadline,closed:!!((deadline&&deadline<today)||explicitClosed(context)),reason:deadline&&deadline<today?'deadline_passed':explicitClosed(context)?'explicitly_closed':'',source:'unicef-exact-job-card'}}catch{}}return null}
+function titleScore(a,b){const A=norm(a),B=norm(b);if(!A||!B)return 0;if(A===B)return 1;if(A.includes(B)||B.includes(A))return .94;const as=new Set(A.split(' ').filter(x=>x.length>2)),bs=new Set(B.split(' ').filter(x=>x.length>2));if(!as.size||!bs.size)return 0;let hit=0;for(const x of as)if(bs.has(x))hit++;return hit/Math.min(as.size,bs.size)}
+function unicefExactCard(html,jobId,titleHint){
+  const src=String(html||''),anchors=[...src.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{1,1200}?)<\/a>/gi)];
+  let best=null,bestScore=0;
+  for(const a of anchors){const href=a[1]||'',label=clean(a[2]);if(!label)continue;const idMatch=jobId&&new RegExp(`\\/job\\/${jobId}(?:\\/|$|[?#])`,'i').test(href);const score=idMatch?2:titleScore(label,titleHint);if(score>bestScore){bestScore=score;best={a,label}}}
+  if(!best||bestScore<.72)return null;
+  const start=best.a.index||0,after=start+best.a[0].length,tail=src.slice(after),next=tail.search(/<a\b[^>]*href=["'][^"']*\/job\/\d{5,}/i),end=next>=0?after+next:Math.min(src.length,start+8500),context=clean(src.slice(start,end));
+  return{context,label:best.label,score:bestScore};
+}
+async function unicefBoardStatus(target,titleHint){
+  const jobId=jobIdFromUrl(target.toString()),q=(titleHint||'').slice(0,120),urls=[];
+  if(jobId)urls.push(`https://jobs.unicef.org/en-us/search/?search-keyword=${encodeURIComponent(jobId)}`);
+  if(q)urls.push(`https://jobs.unicef.org/en-us/search/?search-keyword=${encodeURIComponent(q)}`);
+  urls.push('https://jobs.unicef.org/en-us/search/?work-type=internship');
+  for(const url of urls){try{const f=await fetchPage(url),card=unicefExactCard(f.html,jobId,titleHint);if(!card)continue;const deadline=deadlineFromText(card.context),today=new Date().toISOString().slice(0,10),closed=!!((deadline&&deadline<today)||explicitClosed(card.context));return{jobId,deadline,closed,reason:deadline&&deadline<today?'deadline_passed':closed?'explicitly_closed':'',source:'unicef-exact-official-card',matched_title:card.label,match_score:card.score}}catch{}}
+  return null;
+}
 
 export default async function handler(req,res){
   if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});
   const id=String(req.query?.opportunity_id||'').toUpperCase(),cfg=PROVIDERS[id];if(!cfg)return res.status(404).json({ok:false,error:'Vacancy status verification is not configured for this programme.'});
   const target=allowed(String(req.query?.url||''),cfg);if(!target)return res.status(400).json({ok:false,error:'Only approved official provider URLs can be verified.'});
-  res.setHeader('Cache-Control','public, s-maxage=180, stale-while-revalidate=600');
+  res.setHeader('Cache-Control','public, s-maxage=120, stale-while-revalidate=300');
   try{
     const f=await fetchPage(target.toString()),final=allowed(f.url,cfg);if(!final)throw new Error('Official vacancy redirected outside the approved provider domain');
     const full=clean(f.html),job=jobPosting(f.html),title=clean(job?.title)||pageTitle(f.html),context=titleContext(full,title),valid=job?.validThrough?parseDate(job.validThrough):'';
     let deadline=valid||deadlineFromText(context)||deadlineFromText(full),today=new Date().toISOString().slice(0,10),closed=!!((deadline&&deadline<today)||explicitClosed(context)),reason=deadline&&deadline<today?'deadline_passed':closed?'explicitly_closed':'',status_source=valid?'jobposting-validThrough':'detail-page';
     if(id==='INT-005'){
-      const board=await unicefBoardStatus(target);
+      const board=await unicefBoardStatus(target,title);
       if(board){if(board.deadline)deadline=board.deadline;closed=board.closed;reason=board.reason;status_source=board.source}
     }
     return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:final.toString(),title,deadline,closed,reason,status_source,fetched_at:new Date().toISOString(),http_status:f.status});
