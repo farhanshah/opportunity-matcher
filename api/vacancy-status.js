@@ -23,7 +23,7 @@ function jobPosting(html){for(const m of String(html||'').matchAll(/<script\b[^>
 function deadlineFromText(text){
   const s=String(text||'');
   const date='([0-9]{1,2}\\s+[A-Za-z]{3,9}\\s+20\\d{2}|[A-Za-z]{3,9}\\s+[0-9]{1,2},?\\s+20\\d{2})';
-  const labels=['deadline','closing\\s+date','closes?','apply\\s+by','applications?\\s+(?:close|closes|closing)','closing\\s+applications?','applications?\\s+closing','application\\s+deadline','关闭申请','截止日期','clôture\\s+des\\s+candidatures','date\\s+limite'];
+  const labels=['deadline','closing\\s+date','closes?','apply\\s+by','applications?\\s+(?:close|closes|closing)','closing\\s+applications?','applications?\\s+closing','application\\s+deadline','关闭申请','截止日期','cl[oô]ture','cl[oô]ture\\s+des\\s+candidatures','date\\s+limite'];
   for(const label of labels){const re=new RegExp(label+'\\s*[:：-]?\\s*'+date,'i');const m=s.match(re);if(m){const d=parseDate(m[1]);if(d)return d}}
   return'';
 }
@@ -48,7 +48,7 @@ async function unicefMobileStatus(target,titleHint){
     `https://jobs.unicef.org/mob/fr/job/${parts.id}/${slug}`
   ];
   for(const url of urls){try{
-    const f=await fetchPage(url),full=clean(f.html);if(!full.includes(parts.id))continue;
+    const f=await fetchPage(url),returned=jobParts(f.url);if(!returned||returned.id!==parts.id)continue;const full=clean(f.html);
     const deadline=deadlineFromText(full),today=new Date().toISOString().slice(0,10),closed=!!((deadline&&deadline<today)||explicitClosed(full));
     if(deadline||closed)return{jobId:parts.id,deadline,closed,reason:deadline&&deadline<today?'deadline_passed':closed?'explicitly_closed':'',source:'unicef-mobile-job-detail'};
   }catch{}}
