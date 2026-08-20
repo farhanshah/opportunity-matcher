@@ -45,6 +45,43 @@ function pageTitle(html){
   return title?clean(title[1]).slice(0,240):'';
 }
 
+function recursiveJobPosting(value){
+  if(!value)return null;
+  if(Array.isArray(value)){for(const v of value){const x=recursiveJobPosting(v);if(x)return x}return null}
+  if(typeof value!=='object')return null;
+  const type=value['@type'];
+  if(type==='JobPosting'||(Array.isArray(type)&&type.includes('JobPosting')))return value;
+  for(const v of Object.values(value)){const x=recursiveJobPosting(v);if(x)return x}
+  return null;
+}
+function jobPostingFrom(html){
+  const scripts=[...String(html||'').matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  for(const m of scripts){
+    try{const parsed=JSON.parse(decode(m[1]).trim());const job=recursiveJobPosting(parsed);if(job)return job}catch{}
+  }
+  return null;
+}
+function flattenJobPosting(job){
+  if(!job)return'';
+  const parts=[job.title,job.description,job.qualifications,job.responsibilities,job.skills,job.experienceRequirements,job.educationRequirements,job.incentiveCompensation,job.jobBenefits];
+  return clean(parts.filter(Boolean).join(' '));
+}
+function scopedHtml(html){
+  const candidates=[];
+  const patterns=[
+    /<main\b[^>]*>([\s\S]*?)<\/main>/ig,
+    /<article\b[^>]*>([\s\S]*?)<\/article>/ig,
+    /<(?:div|section)\b[^>]*(?:id|class)=["'][^"']*(?:job[-_ ]?(?:content|description|details)|vacancy[-_ ]?(?:content|description|details)|position[-_ ]?(?:content|description|details)|posting[-_ ]?(?:content|description|details))[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section)>/ig
+  ];
+  for(const p of patterns){let m;while((m=p.exec(html))){const c=clean(m[1]);if(c.length>=400)candidates.push(c);if(candidates.length>=8)break}if(candidates.length>=8)break}
+  candidates.sort((a,b)=>b.length-a.length);return candidates[0]||'';
+}
+function deadlineFrom(job,text){
+  if(job?.validThrough){const d=new Date(job.validThrough);if(!Number.isNaN(d.getTime()))return d.toISOString().slice(0,10)}
+  const s=String(text||'');const pats=[/Deadline\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,/Closing date\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,/Closes?\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,/Apply by\s*:?\s*([A-Za-z]{3,9}\s+[0-9]{1,2},?\s+20\d{2})/i];
+  for(const p of pats){const m=s.match(p);if(!m)continue;const d=new Date(m[1]);if(!Number.isNaN(d.getTime()))return d.toISOString().slice(0,10)}return'';
+}
+
 function snippets(text,patterns,limit=4){
   const out=[];const seen=new Set();
   for(const p of patterns){
@@ -66,13 +103,14 @@ function signals(text,title){
     /\b(?:only|must be|restricted to|open to)\s+(?:the\s+)?(?:nationals?|citizens?)\s+(?:of|from)\s+[^.;]{2,90}/ig,
     /\b[^.;()]{2,60}\s+nationals?\s+only\b/ig,
     /\b(?:national|local)\s+intern(?:ship)?\b/ig,
-    /\bonly\s+for\s+(?:national|local)\s+(?:candidates?|applicants?)\b/ig
+    /\bonly\s+for\s+(?:national|local)\s+(?:candidates?|applicants?)\b/ig,
+    /\b(?:applicants?|candidates?)\s+must\s+be\s+(?:a\s+)?(?:national|citizen)\s+of\s+[^.;]{2,90}/ig
   ];
   const educationPatterns=[/\b(?:bachelor'?s?|undergraduate|graduate|master'?s?|postgraduate|doctoral|phd|degree|university student|enrolled)\b/ig];
-  const languagePatterns=[/\b(?:English|French|Arabic|Spanish|Chinese|Russian|Khmer|Portuguese|Italian|German|Urdu|Hindi)\b/ig];
+  const languagePatterns=[/\b(?:English|French|Arabic|Spanish|Chinese|Russian|Khmer|Portuguese|Italian|German|Urdu|Hindi|Sinhala|Tamil)\b/ig];
   const experiencePatterns=[/\b(?:years? of (?:relevant )?experience|professional experience|work experience|previous experience)\b/ig];
   return{
-    national_restriction:snippets(combined,nationalPatterns,3),
+    national_restriction:snippets(combined,nationalPatterns,4),
     education:snippets(combined,educationPatterns,4),
     language:snippets(combined,languagePatterns,4),
     experience:snippets(combined,experiencePatterns,3)
@@ -106,15 +144,19 @@ export default async function handler(req,res){
   try{
     const fetched=await fetchVacancy(target.toString());
     const final=allowedUrl(fetched.final_url,cfg);if(!final)throw new Error('Official vacancy redirected outside the approved provider domain');
-    const title=pageTitle(fetched.html);const plain=clean(fetched.html).slice(0,60000);
-    const sig=signals(plain,title);
+    const job=jobPostingFrom(fetched.html);const structured=flattenJobPosting(job);const scoped=scopedHtml(fetched.html);const full=clean(fetched.html);
+    let plain='',content_scope='',evidence_quality='low';
+    if(structured.length>=300){plain=structured;content_scope='jobposting-jsonld';evidence_quality='high'}
+    else if(scoped.length>=500){plain=scoped;content_scope='scoped-job-content';evidence_quality='medium'}
+    else{plain=full.slice(0,60000);content_scope='full-page-fallback';evidence_quality='low'}
+    const title=clean(job?.title)||pageTitle(fetched.html);const deadline=deadlineFrom(job,plain);const sig=signals(plain,title);
     return res.status(200).json({
       ok:true,opportunity_id:id,provider:cfg.name,url:final.toString(),title,
-      fetched_at:new Date().toISOString(),http_status:fetched.status,
-      signals:sig,search_text:plain.slice(0,30000),
-      notice:'Vacancy text was read from the official provider page. Automated fit signals are conservative and do not replace the vacancy notice.'
+      fetched_at:new Date().toISOString(),http_status:fetched.status,deadline,
+      content_scope,evidence_quality,signals:sig,search_text:plain.slice(0,30000),
+      notice:`Vacancy text was read from the official provider page using ${content_scope}. Automated fit signals are conservative and do not replace the vacancy notice.`
     });
   }catch(e){
-    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:target.toString(),fetched_at:new Date().toISOString(),signals:{},search_text:'',notice:'The vacancy page could not be read safely. Open the official posting and review its requirements directly.',fetch_error:e.message});
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:target.toString(),fetched_at:new Date().toISOString(),signals:{},search_text:'',content_scope:'unreadable',evidence_quality:'none',notice:'The vacancy page could not be read safely. Open the official posting and review its requirements directly.',fetch_error:e.message});
   }
 }
