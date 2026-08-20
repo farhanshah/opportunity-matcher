@@ -18,6 +18,9 @@
     },
     "api/wfp-openings.js": {
       "maxDuration": 30
+    },
+    "api/unops-openings.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
