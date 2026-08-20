@@ -26,19 +26,49 @@ function locationFrom(raw){
   for(const p of patterns){const m=s.match(p);if(m)return m[1].trim().replace(/[|•]+$/,'').trim()}
   return'';
 }
-function looksLikeOpening(title,terms){const t=String(title||'').toLowerCase();return terms.some(x=>t.includes(x))&&!/^(internships?|fellowships?|early career opportunities|careers?|current vacancies|search jobs?)$/i.test(title.trim())}
+function canonical(raw){try{const u=new URL(raw);u.hash='';u.search='';return `${u.origin}${u.pathname.replace(/\/+$/,'')}`.toLowerCase()}catch{return String(raw||'').toLowerCase()}}
+function hasOpportunityTerm(title,terms){
+  const t=String(title||'').toLowerCase();
+  return terms.some(term=>{
+    if(term==='intern'||term==='internship')return /\bintern(?:ship|ships)?\b/i.test(t);
+    if(term==='fellow'||term==='fellowship')return /\bfellow(?:ship|ships)?\b/i.test(t);
+    if(term==='trainee')return /\btrainee(?:ship|ships)?\b/i.test(t);
+    return new RegExp(`\\b${String(term).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'i').test(t);
+  });
+}
+function genericTitle(title){
+  const t=String(title||'').trim();
+  return /^(internships?|fellowships?|early career opportunities|careers?|current vacancies|search jobs?|international)$/i.test(t)
+    || /what'?s new.*(?:internship|fellowship)/i.test(t)
+    || /\b(?:internship|fellowship)\s+program(?:me)?s?\b/i.test(t)
+    || /\b(?:about|learn about|our)\s+(?:internships?|fellowships?)\b/i.test(t)
+    || /\bhow to apply\b/i.test(t);
+}
+function jobLikeUrl(url){
+  try{const u=new URL(url);return /\/(?:job|jobs|vacancy|vacancies|position|positions|requisition|requisitions)(?:\/|$)/i.test(u.pathname)||/(?:jobid|job_id|jobreq|requisition|reqid|vacancyid|positionid)=/i.test(u.search)}catch{return false}
+}
+function looksLikeOpening(title,url,cfg,chunk,deadline){
+  if(!hasOpportunityTerm(title,cfg.terms))return false;
+  if(genericTitle(title))return false;
+  if(canonical(url)===canonical(cfg.board))return false;
+  if(deadline)return true;
+  if(jobLikeUrl(url))return true;
+  const c=String(chunk||'');
+  return /\b(?:deadline|closing date|apply by|duty station|job id|requisition|vacancy number|req(?:uisition)?\.?\s*(?:no|number))\b/i.test(c);
+}
 function extract(html,cfg){
   const anchors=[...String(html||'').matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{1,900}?)<\/a>/gi)];
   const out=[];const seen=new Set();
   for(const a of anchors){
-    const title=text(a[2]);if(!title||title.length<4||title.length>220||!looksLikeOpening(title,cfg.terms))continue;
+    const title=text(a[2]);if(!title||title.length<4||title.length>220)continue;
     const url=absolute(cfg.board,a[1]);if(!url||seen.has(url))continue;
     let host='';try{host=new URL(url).hostname.replace(/^www\./,'')}catch{}
     if(!host.endsWith(cfg.host))continue;
     const idx=a.index||0;const chunk=text(html.slice(Math.max(0,idx-500),Math.min(html.length,idx+a[0].length+1600)));
     if(/this vacancy is closed/i.test(chunk))continue;
     const deadline=dateFrom(chunk);if(deadline&&deadline<new Date().toISOString().slice(0,10))continue;
-    seen.add(url);out.push({title,url,location:locationFrom(chunk),deadline,source:cfg.name});
+    if(!looksLikeOpening(title,url,cfg,chunk,deadline))continue;
+    seen.add(url);out.push({title,url,location:locationFrom(chunk),deadline,source:cfg.name,quality:'vacancy-candidate'});
     if(out.length>=12)break;
   }
   return out;
@@ -59,7 +89,7 @@ export default async function handler(req,res){
   res.setHeader('Cache-Control','public, s-maxage=300, stale-while-revalidate=900');
   try{
     const result=await fetchBoard(cfg);
-    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:result.openings.length?'openings':'board',openings:result.openings,http_status:result.http_status,notice:result.openings.length?'Openings were extracted from the provider’s official vacancy board. Vacancy-level eligibility still needs to be checked against the individual posting.':'No current opening could be safely extracted from the official board. Use the official board link; this does not mean the provider has no openings.'});
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:result.openings.length?'openings':'board',openings:result.openings,http_status:result.http_status,notice:result.openings.length?'Vacancy candidates were conservatively extracted from the provider’s official board. Vacancy-level eligibility still needs to be checked against the individual posting.':'No current opening could be safely extracted from the official board. Use the official board link; this does not mean the provider has no openings.'});
   }catch(e){
     return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:'board',openings:[],notice:'The official vacancy board could not be parsed safely right now. Open it directly for the source of truth.',fetch_error:e.message});
   }
