@@ -22,17 +22,16 @@ function jobPosting(html){for(const m of String(html||'').matchAll(/<script\b[^>
 function deadlineFromText(text){
   const s=String(text||'');
   const date='([0-9]{1,2}\\s+[A-Za-z]{3,9}\\s+20\\d{2}|[A-Za-z]{3,9}\\s+[0-9]{1,2},?\\s+20\\d{2})';
-  const labels=[
-    'deadline','closing\\s+date','closes?','apply\\s+by',
-    'applications?\\s+(?:close|closes|closing)','closing\\s+applications?',
-    'applications?\\s+closing','application\\s+deadline',
-    '关闭申请','应用\\s*关闭'
-  ];
+  const labels=['deadline','closing\\s+date','closes?','apply\\s+by','applications?\\s+(?:close|closes|closing)','closing\\s+applications?','applications?\\s+closing','application\\s+deadline','关闭申请','应用\\s*关闭'];
   for(const label of labels){const re=new RegExp(label+'\\s*[:：-]?\\s*'+date,'i');const m=s.match(re);if(m){const d=parseDate(m[1]);if(d)return d}}
   return'';
 }
 function explicitClosed(text){return /applications? (?:are|is) (?:now )?closed|this vacancy is closed|no longer accepting applications|applications? (?:are|is) no longer being accepted|application period (?:has )?closed|position has been filled|applications? closed|关闭申请/.test(String(text||'').toLowerCase())}
-async function fetchPage(url){const c=new AbortController(),timer=setTimeout(()=>c.abort(),18000);try{const r=await fetch(url,{signal:c.signal,redirect:'follow',headers:{'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36 OpportunityMatcher/1.0','Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'}});if(!r.ok)throw new Error(`Official vacancy returned HTTP ${r.status}`);const html=(await r.text()).slice(0,750000);if(html.length<300)throw new Error('Official vacancy returned too little content');return{html,url:r.url||url,status:r.status}}finally{clearTimeout(timer)}}
+async function fetchPage(url){const c=new AbortController(),timer=setTimeout(()=>c.abort(),18000);try{const r=await fetch(url,{signal:c.signal,redirect:'follow',headers:{'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36 OpportunityMatcher/1.0','Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'}});if(!r.ok)throw new Error(`Official vacancy returned HTTP ${r.status}`);const html=(await r.text()).slice(0,900000);if(html.length<300)throw new Error('Official vacancy returned too little content');return{html,url:r.url||url,status:r.status}}finally{clearTimeout(timer)}}
+function jobIdFromUrl(raw){try{return new URL(raw).pathname.match(/\/job\/(\d{5,})\b/i)?.[1]||''}catch{return''}}
+function unicefCardContext(html,jobId){if(!jobId)return'';const src=String(html||'');const re=new RegExp(`<a\\b[^>]*href=["'][^"']*\\/job\\/${jobId}(?:\\/|["'])[^>]*>[\\s\\S]*?<\\/a>`,'i');const m=re.exec(src);if(!m)return'';const start=m.index;const tail=src.slice(start+m[0].length);const next=tail.search(/<a\b[^>]*href=["'][^"']*\/job\/\d{5,}/i);const end=next>=0?start+m[0].length+next:Math.min(src.length,start+6500);return clean(src.slice(start,end))}
+async function unicefBoardStatus(target){const jobId=jobIdFromUrl(target.toString());if(!jobId)return null;const urls=[`https://jobs.unicef.org/en-us/search/?search-keyword=${encodeURIComponent(jobId)}`,'https://jobs.unicef.org/en-us/search/?work-type=internship'];for(const url of urls){try{const f=await fetchPage(url);const context=unicefCardContext(f.html,jobId);if(!context)continue;const deadline=deadlineFromText(context);const today=new Date().toISOString().slice(0,10);return{jobId,deadline,closed:!!((deadline&&deadline<today)||explicitClosed(context)),reason:deadline&&deadline<today?'deadline_passed':explicitClosed(context)?'explicitly_closed':'',source:'unicef-exact-job-card'}}catch{}}return null}
+
 export default async function handler(req,res){
   if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});
   const id=String(req.query?.opportunity_id||'').toUpperCase(),cfg=PROVIDERS[id];if(!cfg)return res.status(404).json({ok:false,error:'Vacancy status verification is not configured for this programme.'});
@@ -41,7 +40,11 @@ export default async function handler(req,res){
   try{
     const f=await fetchPage(target.toString()),final=allowed(f.url,cfg);if(!final)throw new Error('Official vacancy redirected outside the approved provider domain');
     const full=clean(f.html),job=jobPosting(f.html),title=clean(job?.title)||pageTitle(f.html),context=titleContext(full,title),valid=job?.validThrough?parseDate(job.validThrough):'';
-    const deadline=valid||deadlineFromText(context)||deadlineFromText(full),today=new Date().toISOString().slice(0,10),closed=!!((deadline&&deadline<today)||explicitClosed(context));
-    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:final.toString(),title,deadline,closed,reason:deadline&&deadline<today?'deadline_passed':closed?'explicitly_closed':'',fetched_at:new Date().toISOString(),http_status:f.status});
-  }catch(e){return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:target.toString(),deadline:'',closed:false,reason:'unreadable',fetch_error:e.message,fetched_at:new Date().toISOString()})}
+    let deadline=valid||deadlineFromText(context)||deadlineFromText(full),today=new Date().toISOString().slice(0,10),closed=!!((deadline&&deadline<today)||explicitClosed(context)),reason=deadline&&deadline<today?'deadline_passed':closed?'explicitly_closed':'',status_source=valid?'jobposting-validThrough':'detail-page';
+    if(id==='INT-005'){
+      const board=await unicefBoardStatus(target);
+      if(board){if(board.deadline)deadline=board.deadline;closed=board.closed;reason=board.reason;status_source=board.source}
+    }
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:final.toString(),title,deadline,closed,reason,status_source,fetched_at:new Date().toISOString(),http_status:f.status});
+  }catch(e){return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:target.toString(),deadline:'',closed:false,reason:'unreadable',status_source:'unreadable',fetch_error:e.message,fetched_at:new Date().toISOString()})}
 }
