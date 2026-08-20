@@ -111,7 +111,7 @@ async function verifyUnicefOpening(opening){
   const today=new Date().toISOString().slice(0,10);
   for(const url of urls){
     try{
-      const f=await fetchHtml(url,10000),plain=text(f.html);if(!plain.includes(parts.id))continue;
+      const f=await fetchHtml(url,10000),returned=unicefJobParts(f.url);if(!returned||returned.id!==parts.id)continue;const plain=text(f.html);
       const deadline=dateFrom(plain),explicit=/申请已关闭|applications? (?:are|is) (?:now )?closed|no longer accepting applications|candidatures? (?:sont )?closes?/i.test(plain),closed=!!((deadline&&deadline<today)||explicit);
       if(deadline||explicit)return closed?null:{...opening,deadline:deadline||opening.deadline,status_verified:true,status_source:'unicef-mobile-job-detail',quality:'status-verified-vacancy'};
     }catch{}
