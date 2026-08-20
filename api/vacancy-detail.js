@@ -1,6 +1,6 @@
 const PROVIDERS={
   'INT-004':{name:'OECD',hosts:['oecd.org']},
-  'INT-005':{name:'UNICEF',hosts:['jobs.unicef.org']},
+  'INT-005':{name:'UNICEF',hosts:['jobs.unicef.org','careers.pageuppeople.com']},
   'INT-006':{name:'UNDP',hosts:['jobs.undp.org','undp.org']},
   'INT-013':{name:'WFP',hosts:['wfp.org']},
   'INT-014':{name:'ILO',hosts:['jobs.ilo.org','ilo.org']},
@@ -76,10 +76,38 @@ function scopedHtml(html){
   for(const p of patterns){let m;while((m=p.exec(html))){const c=clean(m[1]);if(c.length>=400)candidates.push(c);if(candidates.length>=8)break}if(candidates.length>=8)break}
   candidates.sort((a,b)=>b.length-a.length);return candidates[0]||'';
 }
-function deadlineFrom(job,text){
-  if(job?.validThrough){const d=new Date(job.validThrough);if(!Number.isNaN(d.getTime()))return d.toISOString().slice(0,10)}
-  const s=String(text||'');const pats=[/Deadline\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,/Closing date\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,/Closes?\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,/Apply by\s*:?\s*([A-Za-z]{3,9}\s+[0-9]{1,2},?\s+20\d{2})/i];
-  for(const p of pats){const m=s.match(p);if(!m)continue;const d=new Date(m[1]);if(!Number.isNaN(d.getTime()))return d.toISOString().slice(0,10)}return'';
+function parseDate(raw){const d=new Date(raw);return Number.isNaN(d.getTime())?'':d.toISOString().slice(0,10)}
+function deadlineFromText(text){
+  const s=String(text||'');
+  const pats=[
+    /Deadline\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
+    /Deadline\s*:?\s*([A-Za-z]{3,9}\s+[0-9]{1,2},?\s+20\d{2})/i,
+    /Closing date\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
+    /Closes?\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
+    /Apply by\s*:?\s*([A-Za-z]{3,9}\s+[0-9]{1,2},?\s+20\d{2})/i
+  ];
+  for(const p of pats){const m=s.match(p);if(m){const d=parseDate(m[1]);if(d)return d}}
+  return'';
+}
+function titleContext(full,title){
+  const f=String(full||''),t=String(title||'').trim();if(!t)return'';
+  const probes=[t,t.replace(/\s+/g,' ').slice(0,120),t.split(',').slice(0,2).join(',').trim()].filter(x=>x.length>12);
+  for(const probe of probes){const i=f.toLowerCase().indexOf(probe.toLowerCase());if(i>=0)return f.slice(Math.max(0,i-700),Math.min(f.length,i+probe.length+2200))}
+  return'';
+}
+function deadlineFrom(job,plain,full,title){
+  if(job?.validThrough){const d=parseDate(job.validThrough);if(d)return d}
+  const direct=deadlineFromText(plain);if(direct)return direct;
+  const context=titleContext(full,title);const local=deadlineFromText(context);if(local)return local;
+  return'';
+}
+function closureState(job,plain,full,title,deadline){
+  const today=new Date().toISOString().slice(0,10);
+  if(deadline&&deadline<today)return{closed:true,reason:'deadline_passed'};
+  const context=`${plain} ${titleContext(full,title)}`.toLowerCase();
+  if(/applications? (?:are|is) (?:now )?closed|this vacancy is closed|job applications? (?:are|is) no longer being accepted|no longer accepting applications|application period (?:has )?closed|position has been filled/.test(context))return{closed:true,reason:'explicitly_closed'};
+  const valid=job?.validThrough?parseDate(job.validThrough):'';if(valid&&valid<today)return{closed:true,reason:'valid_through_passed'};
+  return{closed:false,reason:''};
 }
 
 function snippets(text,patterns,limit=4){
@@ -96,7 +124,6 @@ function snippets(text,patterns,limit=4){
   }
   return out;
 }
-
 function signals(text,title){
   const combined=`${title} ${text}`.slice(0,120000);
   const nationalPatterns=[
@@ -104,7 +131,8 @@ function signals(text,title){
     /\b[^.;()]{2,60}\s+nationals?\s+only\b/ig,
     /\b(?:national|local)\s+intern(?:ship)?\b/ig,
     /\bonly\s+for\s+(?:national|local)\s+(?:candidates?|applicants?)\b/ig,
-    /\b(?:applicants?|candidates?)\s+must\s+be\s+(?:a\s+)?(?:national|citizen)\s+of\s+[^.;]{2,90}/ig
+    /\b(?:applicants?|candidates?)\s+must\s+be\s+(?:a\s+)?(?:national|citizen)\s+of\s+[^.;]{2,90}/ig,
+    /\b(?:a|an)\s+[A-Za-z][A-Za-z .'-]{2,40}\s+national\b/ig
   ];
   const educationPatterns=[/\b(?:bachelor'?s?|undergraduate|graduate|master'?s?|postgraduate|doctoral|phd|degree|university student|enrolled)\b/ig];
   const languagePatterns=[/\b(?:English|French|Arabic|Spanish|Chinese|Russian|Khmer|Portuguese|Italian|German|Urdu|Hindi|Sinhala|Tamil)\b/ig];
@@ -122,14 +150,11 @@ async function fetchVacancy(url){
   try{
     const r=await fetch(url,{signal:controller.signal,redirect:'follow',headers:{
       'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36 OpportunityMatcher/1.0',
-      'Accept':'text/html,application/xhtml+xml',
-      'Accept-Language':'en-GB,en;q=0.9',
-      'Cache-Control':'no-cache'
+      'Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'
     }});
     if(!r.ok)throw new Error(`Official vacancy returned HTTP ${r.status}`);
     const type=String(r.headers.get('content-type')||'');if(type&&!/html|text/i.test(type))throw new Error('Official vacancy did not return a readable page');
-    const html=(await r.text()).slice(0,750000);
-    if(html.length<300)throw new Error('Official vacancy returned too little content');
+    const html=(await r.text()).slice(0,750000);if(html.length<300)throw new Error('Official vacancy returned too little content');
     return{html,status:r.status,final_url:r.url||url};
   }finally{clearTimeout(timer)}
 }
@@ -138,25 +163,18 @@ export default async function handler(req,res){
   if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});
   const id=String(req.query?.opportunity_id||'').toUpperCase();const cfg=PROVIDERS[id];
   if(!cfg)return res.status(404).json({ok:false,error:'Vacancy inspection is not configured for this programme.'});
-  const target=allowedUrl(String(req.query?.url||''),cfg);
-  if(!target)return res.status(400).json({ok:false,error:'Only official provider vacancy URLs can be inspected.'});
-  res.setHeader('Cache-Control','public, s-maxage=600, stale-while-revalidate=1800');
+  const target=allowedUrl(String(req.query?.url||''),cfg);if(!target)return res.status(400).json({ok:false,error:'Only official provider vacancy URLs can be inspected.'});
+  res.setHeader('Cache-Control','public, s-maxage=300, stale-while-revalidate=900');
   try{
-    const fetched=await fetchVacancy(target.toString());
-    const final=allowedUrl(fetched.final_url,cfg);if(!final)throw new Error('Official vacancy redirected outside the approved provider domain');
-    const job=jobPostingFrom(fetched.html);const structured=flattenJobPosting(job);const scoped=scopedHtml(fetched.html);const full=clean(fetched.html);
+    const fetched=await fetchVacancy(target.toString());const final=allowedUrl(fetched.final_url,cfg);if(!final)throw new Error('Official vacancy redirected outside the approved provider domain');
+    const job=jobPostingFrom(fetched.html),structured=flattenJobPosting(job),scoped=scopedHtml(fetched.html),full=clean(fetched.html);
     let plain='',content_scope='',evidence_quality='low';
     if(structured.length>=300){plain=structured;content_scope='jobposting-jsonld';evidence_quality='high'}
     else if(scoped.length>=500){plain=scoped;content_scope='scoped-job-content';evidence_quality='medium'}
     else{plain=full.slice(0,60000);content_scope='full-page-fallback';evidence_quality='low'}
-    const title=clean(job?.title)||pageTitle(fetched.html);const deadline=deadlineFrom(job,plain);const sig=signals(plain,title);
-    return res.status(200).json({
-      ok:true,opportunity_id:id,provider:cfg.name,url:final.toString(),title,
-      fetched_at:new Date().toISOString(),http_status:fetched.status,deadline,
-      content_scope,evidence_quality,signals:sig,search_text:plain.slice(0,30000),
-      notice:`Vacancy text was read from the official provider page using ${content_scope}. Automated fit signals are conservative and do not replace the vacancy notice.`
-    });
+    const title=clean(job?.title)||pageTitle(fetched.html),deadline=deadlineFrom(job,plain,full,title),closure=closureState(job,plain,full,title,deadline),sig=signals(plain,title);
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:final.toString(),title,fetched_at:new Date().toISOString(),http_status:fetched.status,deadline,closed:closure.closed,closure_reason:closure.reason,content_scope,evidence_quality,signals:sig,search_text:plain.slice(0,30000),notice:`Vacancy text was read from the official provider page using ${content_scope}. Automated fit signals are conservative and do not replace the vacancy notice.`});
   }catch(e){
-    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:target.toString(),fetched_at:new Date().toISOString(),signals:{},search_text:'',content_scope:'unreadable',evidence_quality:'none',notice:'The vacancy page could not be read safely. Open the official posting and review its requirements directly.',fetch_error:e.message});
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:target.toString(),fetched_at:new Date().toISOString(),signals:{},search_text:'',deadline:'',closed:false,content_scope:'unreadable',evidence_quality:'none',notice:'The vacancy page could not be read safely. Open the official posting and review its requirements directly.',fetch_error:e.message});
   }
 }
