@@ -33,6 +33,15 @@
     else if(hardReviews){if(passes>=2){label='Possible match';cls='possible';rank=3}}
     else if(passes>=3){label=(base.relevance||0)>=1?'Strong match':'Likely eligible';cls='eligible';rank=4}
     else if(passes>=2){label='Possible match';cls='possible';rank=3}
+
+    // This layer only removes duplicate/generic evidence or replaces it with more precise evidence.
+    // It must never make a match look worse merely because a duplicate legacy PASS disappeared.
+    const baseFails=Number(base.fails||0);
+    const baseHardReviews=Number(base.hardReviews||0);
+    const burdenDidNotIncrease=fails<=baseFails&&hardReviews<=baseHardReviews;
+    if(burdenDidNotIncrease&&rank<Number(base.rank||0)){
+      label=base.label;cls=base.cls;rank=base.rank;
+    }
     return{...base,checks,fails,reviews,passes,hardReviews,label,cls,rank,dimensionCleanup:true};
   }
   evaluate=function(o){
