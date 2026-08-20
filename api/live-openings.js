@@ -1,6 +1,6 @@
 const PROVIDERS={
   'INT-005':{name:'UNICEF',board:'https://jobs.unicef.org/en-us/search/?work-type=internship',host:'jobs.unicef.org',terms:['intern','internship'],adapter:'unicef'},
-  'INT-006':{name:'UNDP',board:'https://jobs.undp.org/cj_view_jobs.cfm',host:'jobs.undp.org',terms:['intern','internship'],adapter:'generic'},
+  'INT-006':{name:'UNDP',board:'https://jobs.undp.org/cj_view_jobs.cfm',host:'jobs.undp.org',terms:['intern','internship','stagiaire'],adapter:'undp',exactHost:'estm.fa.em2.oraclecloud.com'},
   'INT-013':{name:'WFP',board:'https://www.wfp.org/careers',host:'wfp.org',terms:['intern','internship'],adapter:'generic'},
   'INT-014':{name:'ILO',board:'https://jobs.ilo.org/go/Internships/9589701/',host:'jobs.ilo.org',terms:['intern','internship'],adapter:'generic'},
   'INT-018':{name:'EBRD',board:'https://jobs.ebrd.com/go/Early-career-opportunities/1111501/?q=intern&sortColumn=referencedate&sortDirection=desc',host:'jobs.ebrd.com',terms:['intern','internship','trainee'],adapter:'ebrd'},
@@ -11,18 +11,20 @@ const PROVIDERS={
   'INT-022':{name:'IOM',board:'https://www.iom.int/careers',host:'iom.int',terms:['intern','internship'],adapter:'generic'}
 };
 
+const UNDP_INTERNSHIP_POLICY='UNDP internships are open to students in the final year of a Bachelor degree, students completing a Master degree, and recent graduates who completed their studies within the past year. Previous work experience is not required. Applicants should demonstrate interest in development and relevant expertise for the specific internship. Internships may be in-person or remote, full-time or part-time, and eligible interns normally receive a stipend unless sponsored by another institution or government.';
 const decode=s=>String(s||'').replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const text=s=>decode(String(s||'').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim());
 function absolute(base,href){try{return new URL(href,base).toString()}catch{return''}}
 function parseDate(raw){const d=new Date(String(raw||'').replace(/\s+/g,' ').trim());return Number.isNaN(d.getTime())?'':d.toISOString().slice(0,10)}
 function parseDmy(raw){const m=String(raw||'').match(/(\d{1,2})[\/-](\d{1,2})[\/-](20\d{2})/);if(!m)return'';const d=String(m[1]).padStart(2,'0'),mo=String(m[2]).padStart(2,'0');return `${m[3]}-${mo}-${d}`}
+function parseUndpDate(raw){const m=String(raw||'').match(/([A-Za-z]{3,9})[-\s]+(\d{1,2})[-,\s]+(\d{2,4})/);if(!m)return'';const year=m[3].length===2?`20${m[3]}`:m[3];return parseDate(`${m[1]} ${m[2]}, ${year}`)}
 function dateFrom(raw){
   const s=String(raw||'').replace(/\s+/g,' ').trim();
   const patterns=[
     /Posting End Date\s*[:|]?\s*(\d{1,2}[\/-]\d{1,2}[\/-]20\d{2})/i,
     /Deadline\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
     /Deadline\s*:?\s*([A-Za-z]{3,9}\s+[0-9]{1,2},?\s+20\d{2})/i,
-    /Apply by\s*:?\s*([A-Za-z]{3,9}[-\s]+\d{1,2}[-,\s]+20\d{2})/i,
+    /Apply by\s*:?\s*([A-Za-z]{3,9}[-\s]+\d{1,2}[-,\s]+(?:20)?\d{2})/i,
     /Application period\s+[0-9]{1,2}-[A-Za-z]{3}-20\d{2}\s+to\s+([0-9]{1,2}-[A-Za-z]{3}-20\d{2})/i,
     /Closing date\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
     /Closes?\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
@@ -32,7 +34,7 @@ function dateFrom(raw){
     /Cl[oô]ture\s+des\s+candidatures\s*[:：-]?\s*([A-Za-z]{3,9}\s+[0-9]{1,2}\s+20\d{2})/i,
     /Date\s+limite\s*[:：-]?\s*([A-Za-z]{3,9}\s+[0-9]{1,2}\s+20\d{2})/i
   ];
-  for(const p of patterns){const m=s.match(p);if(!m)continue;const d=/Posting End Date/i.test(String(p))?parseDmy(m[1]):parseDate(m[1]);if(d)return d}
+  for(const p of patterns){const m=s.match(p);if(!m)continue;let d='';if(/Posting End Date/i.test(String(p)))d=parseDmy(m[1]);else if(/Apply by/i.test(String(p)))d=parseUndpDate(m[1]);else d=parseDate(m[1]);if(d)return d}
   return'';
 }
 function locationFrom(raw){
@@ -48,6 +50,7 @@ function hasOpportunityTerm(title,terms){
     if(term==='intern'||term==='internship')return /\bintern(?:ship|ships)?\b/i.test(t);
     if(term==='fellow'||term==='fellowship')return /\bfellow(?:ship|ships)?\b/i.test(t);
     if(term==='trainee')return /\btrainee(?:ship|ships)?\b/i.test(t);
+    if(term==='stagiaire')return /\bstagiaire\b/i.test(t);
     return new RegExp(`\\b${String(term).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'i').test(t);
   });
 }
@@ -67,7 +70,7 @@ function looksLikeOpening(title,url,cfg,chunk,deadline){
   if(deadline||jobLikeUrl(url))return true;
   return /\b(?:deadline|closing date|apply by|duty station|job id|requisition|vacancy number|req(?:uisition)?\.?\s*(?:no|number))\b/i.test(String(chunk||''));
 }
-function localCard(html,index,anchorLength){const start=Math.max(0,index-120),end=Math.min(html.length,index+anchorLength+1100);return text(html.slice(start,end))}
+function localCard(html,index,anchorLength){const start=Math.max(0,index-180),end=Math.min(html.length,index+anchorLength+1500);return text(html.slice(start,end))}
 function extract(html,cfg){
   const anchors=[...String(html||'').matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{1,900}?)<\/a>/gi)],out=[],seen=new Set(),today=new Date().toISOString().slice(0,10);
   for(const a of anchors){
@@ -84,12 +87,28 @@ function extract(html,cfg){
   }
   return out;
 }
+function undpJobId(raw){try{const u=new URL(raw),m=u.pathname.match(/\/(?:requisitions\/)?job\/(\d+)/i);return m?m[1]:''}catch{return''}}
+function extractUndp(html,cfg){
+  const anchors=[...String(html||'').matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{1,1200}?)<\/a>/gi)],out=[],seen=new Set(),today=new Date().toISOString().slice(0,10);
+  for(const a of anchors){
+    const url=absolute(cfg.board,a[1]);let u;try{u=new URL(url)}catch{continue}
+    if(u.hostname.replace(/^www\./,'')!==cfg.exactHost||!undpJobId(url)||seen.has(undpJobId(url)))continue;
+    const chunk=localCard(html,a.index||0,a[0].length),anchorText=text(a[2]),title=anchorText.replace(/^Job Title\s*/i,'').trim();
+    const isIntern=hasOpportunityTerm(title,cfg.terms)||/Post level\s+IN\b/i.test(chunk)||/\b(?:intern|internship|stagiaire)\b/i.test(chunk);
+    if(!isIntern||!/Agency\s+UNDP\b/i.test(chunk))continue;
+    const deadline=dateFrom(chunk);if(!deadline||deadline<today)continue;
+    const location=locationFrom(chunk),id=undpJobId(url);seen.add(id);
+    out.push({title:title||`UNDP Internship ${id}`,url,location,deadline,source:cfg.name,quality:'vacancy-candidate',evidence_scope:'official-undp-board-row',status_verified:false,verification_level:'board-only',board_context:chunk.slice(0,1800)});
+    if(out.length>=12)break;
+  }
+  return out;
+}
 async function fetchHtml(url,timeout=12000){
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
   try{
     const r=await fetch(url,{signal:controller.signal,redirect:'follow',headers:{'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36 OpportunityMatcher/1.0','Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'}});
     if(!r.ok)throw new Error(`Official page returned HTTP ${r.status}`);
-    const html=await r.text();if(html.length<300)throw new Error('Official page returned too little content');
+    const html=await r.text();if(html.length<150)throw new Error('Official page returned too little content');
     return{html,status:r.status,url:r.url||url};
   }finally{clearTimeout(timer)}
 }
@@ -105,6 +124,15 @@ async function verifyUnicefOpening(opening){
     }catch{}
   }
   return null;
+}
+async function verifyUndpOpening(opening,cfg){
+  try{
+    const target=new URL(opening.url),id=undpJobId(target.toString()),today=new Date().toISOString().slice(0,10);if(!id||target.hostname.replace(/^www\./,'')!==cfg.exactHost||!opening.deadline||opening.deadline<today)return null;
+    const f=await fetchHtml(opening.url,12000),final=new URL(f.url),finalId=undpJobId(final.toString());if(final.hostname.replace(/^www\./,'')!==cfg.exactHost||finalId!==id)return null;
+    const plain=text(f.html),explicit=/job (?:is|has been) no longer available|no longer accepting applications|applications? (?:are|is) (?:now )?closed|position has been filled/i.test(plain);if(explicit)return null;
+    const detailText=`${opening.title}. ${opening.location?`Location ${opening.location}. `:''}Apply by ${opening.deadline}. ${UNDP_INTERNSHIP_POLICY}`;
+    return{...opening,url:final.toString(),status_verified:true,status_source:'undp-current-board-plus-exact-oracle-job',verification_level:'exact',quality:'status-verified-vacancy',detail_text:detailText,detail_evidence_quality:'medium',detail_scope:'official-board+undp-internship-policy'};
+  }catch{return null}
 }
 function ebrdTitle(html){const m=String(html||'').match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);return m?text(m[1]):''}
 async function verifyEbrdOpening(opening){
@@ -124,6 +152,10 @@ async function verifyProviderOpenings(openings,cfg){
     const checked=await Promise.all(openings.slice(0,10).map(verifyUnicefOpening));
     return{openings:checked.filter(Boolean),adapter_state:'exact',withheld:checked.filter(Boolean).length<openings.slice(0,10).length};
   }
+  if(cfg.adapter==='undp'){
+    const checked=await Promise.all(openings.slice(0,12).map(x=>verifyUndpOpening(x,cfg)));
+    return{openings:checked.filter(Boolean),adapter_state:'exact',withheld:checked.filter(Boolean).length<openings.slice(0,12).length};
+  }
   if(cfg.adapter==='ebrd'){
     const checked=await Promise.all(openings.slice(0,10).map(verifyEbrdOpening));
     return{openings:checked.filter(Boolean),adapter_state:'exact',withheld:checked.filter(Boolean).length<openings.slice(0,10).length};
@@ -131,7 +163,7 @@ async function verifyProviderOpenings(openings,cfg){
   return{openings:openings.map(x=>({...x,status_verified:false,verification_level:'board-only'})),adapter_state:'board-only',withheld:false};
 }
 async function fetchBoard(cfg){
-  const result=await fetchHtml(cfg.board,18000),candidates=extract(result.html,cfg),verified=await verifyProviderOpenings(candidates,cfg);
+  const result=await fetchHtml(cfg.board,18000),candidates=cfg.adapter==='undp'?extractUndp(result.html,cfg):extract(result.html,cfg),verified=await verifyProviderOpenings(candidates,cfg);
   return{...verified,http_status:result.status,candidate_count:candidates.length};
 }
 export default async function handler(req,res){
