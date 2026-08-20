@@ -9,6 +9,9 @@
     },
     "api/vacancy-detail.js": {
       "maxDuration": 30
+    },
+    "api/specific-openings.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
