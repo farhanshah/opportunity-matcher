@@ -1,0 +1,115 @@
+import { db } from '../lib/db.js';
+
+function authorised(req) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  return req.headers.authorization === `Bearer ${secret}`;
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  if (!authorised(req)) return res.status(401).json({ error: 'Unauthorized' });
+
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+
+  try {
+    const sql = db();
+    const [summary] = await sql`
+      SELECT
+        (SELECT count(*)::int FROM opportunities) AS total_opportunities,
+        (SELECT count(*)::int FROM opportunities WHERE rule_normalization_status='normalized') AS normalized_opportunities,
+        (SELECT count(*)::int FROM opportunities WHERE rule_normalization_status='partially_normalized') AS partial_opportunities,
+        (SELECT count(*)::int FROM opportunity_eligibility_rules) AS total_rules,
+        (SELECT count(*)::int FROM opportunity_eligibility_rules WHERE rule_code <> 'country_scope') AS non_country_rules,
+        (SELECT count(*)::int FROM opportunity_eligibility_rules WHERE certainty <> 'confirmed') AS uncertain_rules,
+        (SELECT count(*)::int FROM monitored_sources WHERE is_active=true) AS active_monitors,
+        (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_success_at IS NOT NULL) AS successful_monitors,
+        (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_error IS NOT NULL) AS failing_monitors,
+        (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))) AS due_monitors,
+        (SELECT count(*)::int FROM source_snapshots) AS total_snapshots,
+        (SELECT count(*)::int FROM detected_changes) AS detected_changes,
+        (SELECT count(*)::int FROM detected_changes WHERE status='pending_review') AS pending_review,
+        (SELECT max(last_success_at) FROM monitored_sources WHERE is_active=true) AS latest_monitor_success,
+        (SELECT max(fetched_at) FROM source_snapshots) AS latest_snapshot_at,
+        (SELECT max(updated_at) FROM opportunities) AS latest_opportunity_update
+    `;
+
+    const sources = await sql`
+      SELECT
+        m.id, m.source_key, m.provider, m.source_url, m.source_type,
+        m.check_interval_minutes, m.is_active, m.last_checked_at, m.last_success_at,
+        m.last_http_status, m.last_error,
+        count(s.id)::int AS snapshot_count,
+        max(s.fetched_at) AS latest_snapshot_at,
+        CASE
+          WHEN NOT m.is_active THEN 'paused'
+          WHEN m.last_error IS NOT NULL THEN 'error'
+          WHEN m.last_checked_at IS NULL OR m.last_checked_at <= now() - (m.check_interval_minutes * interval '1 minute') THEN 'due'
+          WHEN m.last_success_at IS NOT NULL THEN 'healthy'
+          ELSE 'waiting'
+        END AS health
+      FROM monitored_sources m
+      LEFT JOIN source_snapshots s ON s.source_id=m.id
+      GROUP BY m.id
+      ORDER BY
+        CASE
+          WHEN m.last_error IS NOT NULL THEN 0
+          WHEN m.last_checked_at IS NULL OR m.last_checked_at <= now() - (m.check_interval_minutes * interval '1 minute') THEN 1
+          WHEN m.last_success_at IS NULL THEN 2
+          ELSE 3
+        END,
+        m.provider, m.source_key
+    `;
+
+    const partials = await sql`
+      SELECT
+        o.external_id, o.title, o.provider, o.status, o.official_source_url,
+        o.rule_normalization_status, o.last_verified_at, o.updated_at,
+        count(r.id)::int AS rule_count,
+        count(r.id) FILTER (WHERE r.rule_code <> 'country_scope')::int AS non_country_rules,
+        count(r.id) FILTER (WHERE r.certainty <> 'confirmed')::int AS uncertain_rules,
+        count(r.id) FILTER (
+          WHERE r.rule_code='country_scope'
+            AND coalesce(r.value_json->>'scope','') IN ('provider_country_group','provider_explicit_list','cycle_specific_country_list','vacancy_specific')
+        )::int AS route_blockers
+      FROM opportunities o
+      LEFT JOIN opportunity_eligibility_rules r ON r.opportunity_id=o.id
+      WHERE o.rule_normalization_status='partially_normalized'
+      GROUP BY o.id
+      ORDER BY
+        count(r.id) FILTER (WHERE r.certainty <> 'confirmed') DESC,
+        count(r.id) FILTER (
+          WHERE r.rule_code='country_scope'
+            AND coalesce(r.value_json->>'scope','') IN ('provider_country_group','provider_explicit_list','cycle_specific_country_list','vacancy_specific')
+        ) DESC,
+        o.external_id
+    `;
+
+    const changes = await sql`
+      SELECT
+        c.id, c.change_type, c.risk_level, c.field_name, c.old_value, c.new_value,
+        c.diff_summary, c.status, c.detected_at, c.reviewed_at, c.review_note,
+        m.source_key, m.provider, m.source_url,
+        o.external_id AS opportunity_external_id, o.title AS opportunity_title
+      FROM detected_changes c
+      JOIN monitored_sources m ON m.id=c.source_id
+      LEFT JOIN opportunities o ON o.id=c.opportunity_id
+      ORDER BY
+        CASE WHEN c.status='pending_review' THEN 0 ELSE 1 END,
+        c.detected_at DESC
+      LIMIT 100
+    `;
+
+    return res.status(200).json({
+      ok: true,
+      generated_at: new Date().toISOString(),
+      summary,
+      sources,
+      partials,
+      changes
+    });
+  } catch (error) {
+    console.error('Admin health API failed', error);
+    return res.status(500).json({ ok: false, error: error.message });
+  }
+}
