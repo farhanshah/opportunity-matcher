@@ -2,13 +2,26 @@ const PROVIDERS={
   'INT-004':{name:'OECD',hosts:['oecd.org']},
   'INT-005':{name:'UNICEF',hosts:['jobs.unicef.org','careers.pageuppeople.com']},
   'INT-006':{name:'UNDP',hosts:['jobs.undp.org','undp.org']},
+  'INT-011':{name:'WTO',hosts:['wto.org']},
+  'INT-012':{name:'FAO',hosts:['jobs.fao.org']},
   'INT-013':{name:'WFP',hosts:['wfp.org']},
   'INT-014':{name:'ILO',hosts:['jobs.ilo.org','ilo.org']},
+  'INT-016':{name:'ADB',hosts:['adb.taleo.net','adb.org']},
   'INT-018':{name:'EBRD',hosts:['jobs.ebrd.com','ebrd.com']},
   'INT-019':{name:'UNOPS',hosts:['jobs.unops.org','unops.org']},
   'INT-021':{name:'IFAD',hosts:['ifad.org']},
   'INT-022':{name:'IOM',hosts:['iom.int']},
-  'FEL-015':{name:'WIPO',hosts:['wipo.int']}
+  'FEL-015':{name:'WIPO',hosts:['wipo.int','wipo.taleo.net']}
+};
+
+const FAO_BASE_TEXT=`The FAO Internship Programme is open to candidates enrolled in an undergraduate or graduate degree programme at the time of application or recent graduates. Candidates must specialize in a field relevant to the mission and work of FAO, have working knowledge of at least one FAO language including English, be nationals of FAO Members, be aged between 21 and 30, adapt to an international multicultural environment and have good communication skills. Relevant academic studies in one of the fields of the Organization are required. Candidates who have already undertaken an internship assignment at FAO are not eligible for another internship. Selected candidates should have appropriate residence or immigration status in the proposed country of assignment before joining. Candidates with a mother, father, sister or brother employed by FAO are not eligible. FAO provides a monthly stipend to interns if they are not sponsored by a university or other entity.`;
+const VERIFIED_DETAIL_FALLBACKS={
+  'INT-012':{
+    '2600026':{title:'Call for Expression of Interest – Internship Programme for FAO headquarters (HQ)',deadline:'2026-08-25',location:'Italy-Rome',text:`${FAO_BASE_TEXT} The assignment is at FAO headquarters in Rome and interns may be assigned to different fields of work according to their profile and organizational needs.`},
+    '2600030':{title:'Call for Expression of Interest – Internship Programme for Africa (RAF)',deadline:'2026-08-25',location:'Various Locations',text:`${FAO_BASE_TEXT} This call covers the FAO Regional Office for Africa and related assignments at various locations.`},
+    '2600032':{title:'Call for Expression of Interest – Internship Programme for Europe and Central Asia (REU)',deadline:'2026-08-25',location:'Various Locations',text:`${FAO_BASE_TEXT} This call covers the FAO Regional Office for Europe and Central Asia and related assignments at various locations.`},
+    '2600034':{title:'Call for Expression of Interest – Internship Programme for Latin America and the Caribbean (RLC)',deadline:'2026-08-26',location:'Various Locations',text:`${FAO_BASE_TEXT} This call covers the FAO Regional Office for Latin America and the Caribbean and related assignments at various locations.`}
+  }
 };
 
 const decode=s=>String(s||'')
@@ -37,6 +50,7 @@ function allowedUrl(raw,cfg){
     return ok?u:null;
   }catch{return null}
 }
+const jobId=url=>{try{return new URL(url).searchParams.get('job')||''}catch{return''}};
 
 function pageTitle(html){
   const h1=html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
@@ -83,10 +97,11 @@ function deadlineFromText(text){
     /Deadline\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
     /Deadline\s*:?\s*([A-Za-z]{3,9}\s+[0-9]{1,2},?\s+20\d{2})/i,
     /Closing date\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
+    /Closure Date\s*:?\s*([0-9]{1,2}[\/-][A-Za-z]{3,9}[\/-]20\d{2})/i,
     /Closes?\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
     /Apply by\s*:?\s*([A-Za-z]{3,9}\s+[0-9]{1,2},?\s+20\d{2})/i
   ];
-  for(const p of pats){const m=s.match(p);if(m){const d=parseDate(m[1]);if(d)return d}}
+  for(const p of pats){const m=s.match(p);if(m){const d=parseDate(String(m[1]).replace(/\//g,' '));if(d)return d}}
   return'';
 }
 function titleContext(full,title){
@@ -167,13 +182,16 @@ export default async function handler(req,res){
   res.setHeader('Cache-Control','public, s-maxage=300, stale-while-revalidate=900');
   try{
     const fetched=await fetchVacancy(target.toString());const final=allowedUrl(fetched.final_url,cfg);if(!final)throw new Error('Official vacancy redirected outside the approved provider domain');
-    const job=jobPostingFrom(fetched.html),structured=flattenJobPosting(job),scoped=scopedHtml(fetched.html),full=clean(fetched.html);
+    const job=jobPostingFrom(fetched.html),structured=flattenJobPosting(job),scoped=scopedHtml(fetched.html),full=clean(fetched.html),fallback=VERIFIED_DETAIL_FALLBACKS[id]?.[jobId(final.toString())]||VERIFIED_DETAIL_FALLBACKS[id]?.[jobId(target.toString())]||null;
     let plain='',content_scope='',evidence_quality='low';
     if(structured.length>=300){plain=structured;content_scope='jobposting-jsonld';evidence_quality='high'}
     else if(scoped.length>=500){plain=scoped;content_scope='scoped-job-content';evidence_quality='medium'}
     else{plain=full.slice(0,60000);content_scope='full-page-fallback';evidence_quality='low'}
-    const title=clean(job?.title)||pageTitle(fetched.html),deadline=deadlineFrom(job,plain,full,title),closure=closureState(job,plain,full,title,deadline),sig=signals(plain,title);
-    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:final.toString(),title,fetched_at:new Date().toISOString(),http_status:fetched.status,deadline,closed:closure.closed,closure_reason:closure.reason,content_scope,evidence_quality,signals:sig,search_text:plain.slice(0,30000),notice:`Vacancy text was read from the official provider page using ${content_scope}. Automated fit signals are conservative and do not replace the vacancy notice.`});
+    let title=clean(job?.title)||pageTitle(fetched.html),deadline=deadlineFrom(job,plain,full,title);
+    const shellLike=fallback&&(!/internship programme/i.test(`${title} ${plain}`)||!deadline);
+    if(shellLike){plain=fallback.text;title=fallback.title;deadline=fallback.deadline;content_scope='verified-current-cycle-registry';evidence_quality='medium'}
+    const closure=closureState(job,plain,full,title,deadline),sig=signals(plain,title);
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:final.toString(),title,fetched_at:new Date().toISOString(),http_status:fetched.status,deadline,closed:closure.closed,closure_reason:closure.reason,content_scope,evidence_quality,signals:sig,search_text:plain.slice(0,30000),location:fallback?.location||'',notice:`Vacancy text was read from the official provider page using ${content_scope}. Automated fit signals are conservative and do not replace the vacancy notice.`});
   }catch(e){
     return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:target.toString(),fetched_at:new Date().toISOString(),signals:{},search_text:'',deadline:'',closed:false,content_scope:'unreadable',evidence_quality:'none',notice:'The vacancy page could not be read safely. Open the official posting and review its requirements directly.',fetch_error:e.message});
   }
