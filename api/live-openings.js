@@ -16,13 +16,20 @@ const text=s=>decode(String(s||'').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi
 function absolute(base,href){try{return new URL(href,base).toString()}catch{return''}}
 function dateFrom(raw){
   const s=String(raw||'').replace(/\s+/g,' ').trim();
-  const patterns=[/Deadline\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,/Apply by\s*:?\s*([A-Za-z]{3,9}[-\s]+\d{1,2}[-,\s]+20\d{2})/i,/Application period\s+[0-9]{1,2}-[A-Za-z]{3}-20\d{2}\s+to\s+([0-9]{1,2}-[A-Za-z]{3}-20\d{2})/i,/Closing date\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i];
+  const patterns=[
+    /Deadline\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
+    /Deadline\s*:?\s*([A-Za-z]{3,9}\s+[0-9]{1,2},?\s+20\d{2})/i,
+    /Apply by\s*:?\s*([A-Za-z]{3,9}[-\s]+\d{1,2}[-,\s]+20\d{2})/i,
+    /Application period\s+[0-9]{1,2}-[A-Za-z]{3}-20\d{2}\s+to\s+([0-9]{1,2}-[A-Za-z]{3}-20\d{2})/i,
+    /Closing date\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
+    /Closes?\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i
+  ];
   for(const p of patterns){const m=s.match(p);if(!m)continue;const d=new Date(m[1]);if(!Number.isNaN(d.getTime()))return d.toISOString().slice(0,10)}
   return'';
 }
 function locationFrom(raw){
   const s=String(raw||'').replace(/\s+/g,' ');
-  const patterns=[/Location\s*:?\s*(.{2,90}?)(?=Deadline|Apply by|Job Title|Post level|$)/i,/Duty station\s*:?\s*(.{2,90}?)(?=Contract|Application period|$)/i];
+  const patterns=[/Location\s*:?\s*(.{2,90}?)(?=Deadline|Apply by|Job Title|Post level|$)/i,/Duty station\s*:?\s*(.{2,90}?)(?=Contract|Application period|Deadline|$)/i];
   for(const p of patterns){const m=s.match(p);if(m)return m[1].trim().replace(/[|•]+$/,'').trim()}
   return'';
 }
@@ -56,19 +63,24 @@ function looksLikeOpening(title,url,cfg,chunk,deadline){
   const c=String(chunk||'');
   return /\b(?:deadline|closing date|apply by|duty station|job id|requisition|vacancy number|req(?:uisition)?\.?\s*(?:no|number))\b/i.test(c);
 }
+function localCard(html,index,anchorLength){
+  const start=Math.max(0,index-120);
+  const end=Math.min(html.length,index+anchorLength+1100);
+  return text(html.slice(start,end));
+}
 function extract(html,cfg){
   const anchors=[...String(html||'').matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{1,900}?)<\/a>/gi)];
-  const out=[];const seen=new Set();
+  const out=[];const seen=new Set();const today=new Date().toISOString().slice(0,10);
   for(const a of anchors){
     const title=text(a[2]);if(!title||title.length<4||title.length>220)continue;
     const url=absolute(cfg.board,a[1]);if(!url||seen.has(url))continue;
     let host='';try{host=new URL(url).hostname.replace(/^www\./,'')}catch{}
     if(!host.endsWith(cfg.host))continue;
-    const idx=a.index||0;const chunk=text(html.slice(Math.max(0,idx-500),Math.min(html.length,idx+a[0].length+1600)));
-    if(/this vacancy is closed/i.test(chunk))continue;
-    const deadline=dateFrom(chunk);if(deadline&&deadline<new Date().toISOString().slice(0,10))continue;
+    const idx=a.index||0;const chunk=localCard(html,idx,a[0].length);
+    if(/this vacancy is closed|applications? (?:are|is) closed/i.test(chunk))continue;
+    const deadline=dateFrom(chunk);if(deadline&&deadline<today)continue;
     if(!looksLikeOpening(title,url,cfg,chunk,deadline))continue;
-    seen.add(url);out.push({title,url,location:locationFrom(chunk),deadline,source:cfg.name,quality:'vacancy-candidate'});
+    seen.add(url);out.push({title,url,location:locationFrom(chunk),deadline,source:cfg.name,quality:'vacancy-candidate',evidence_scope:'local-card'});
     if(out.length>=12)break;
   }
   return out;
@@ -89,7 +101,7 @@ export default async function handler(req,res){
   res.setHeader('Cache-Control','public, s-maxage=300, stale-while-revalidate=900');
   try{
     const result=await fetchBoard(cfg);
-    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:result.openings.length?'openings':'board',openings:result.openings,http_status:result.http_status,notice:result.openings.length?'Vacancy candidates were conservatively extracted from the provider’s official board. Vacancy-level eligibility still needs to be checked against the individual posting.':'No current opening could be safely extracted from the official board. Use the official board link; this does not mean the provider has no openings.'});
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:result.openings.length?'openings':'board',openings:result.openings,http_status:result.http_status,notice:result.openings.length?'Vacancy candidates were conservatively extracted from the provider’s official board using local listing-card evidence. Vacancy-level eligibility still needs to be checked against the individual posting.':'No current opening could be safely extracted from the official board. Use the official board link; this does not mean the provider has no openings.'});
   }catch(e){
     return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:'board',openings:[],notice:'The official vacancy board could not be parsed safely right now. Open it directly for the source of truth.',fetch_error:e.message});
   }
