@@ -14,6 +14,7 @@ const PROVIDERS={
 const decode=s=>String(s||'').replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const text=s=>decode(String(s||'').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim());
 function absolute(base,href){try{return new URL(href,base).toString()}catch{return''}}
+function parseDate(raw){const d=new Date(String(raw||'').replace(/\s+/g,' ').trim());return Number.isNaN(d.getTime())?'':d.toISOString().slice(0,10)}
 function dateFrom(raw){
   const s=String(raw||'').replace(/\s+/g,' ').trim();
   const patterns=[
@@ -22,9 +23,13 @@ function dateFrom(raw){
     /Apply by\s*:?\s*([A-Za-z]{3,9}[-\s]+\d{1,2}[-,\s]+20\d{2})/i,
     /Application period\s+[0-9]{1,2}-[A-Za-z]{3}-20\d{2}\s+to\s+([0-9]{1,2}-[A-Za-z]{3}-20\d{2})/i,
     /Closing date\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
-    /Closes?\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i
+    /Closes?\s*:?\s*([0-9]{1,2}\s+[A-Za-z]{3,9}\s+20\d{2})/i,
+    /关闭申请\s*[:：-]?\s*([A-Za-z]{3,9}\s+[0-9]{1,2}\s+20\d{2})/i,
+    /截止日期\s*[:：-]?\s*([A-Za-z]{3,9}\s+[0-9]{1,2}\s+20\d{2})/i,
+    /Cl[oô]ture\s+des\s+candidatures\s*[:：-]?\s*([A-Za-z]{3,9}\s+[0-9]{1,2}\s+20\d{2})/i,
+    /Date\s+limite\s*[:：-]?\s*([A-Za-z]{3,9}\s+[0-9]{1,2}\s+20\d{2})/i
   ];
-  for(const p of patterns){const m=s.match(p);if(!m)continue;const d=new Date(m[1]);if(!Number.isNaN(d.getTime()))return d.toISOString().slice(0,10)}
+  for(const p of patterns){const m=s.match(p);if(!m)continue;const d=parseDate(m[1]);if(d)return d}
   return'';
 }
 function locationFrom(raw){
@@ -85,24 +90,53 @@ function extract(html,cfg){
   }
   return out;
 }
-async function fetchBoard(cfg){
-  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),18000);
+async function fetchHtml(url,timeout=12000){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
   try{
-    const r=await fetch(cfg.board,{signal:controller.signal,headers:{'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36 OpportunityMatcher/1.0','Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'}});
-    if(!r.ok)throw new Error(`Official board returned HTTP ${r.status}`);
-    const html=await r.text();if(html.length<300)throw new Error('Official board returned too little content');
-    return{openings:extract(html,cfg),http_status:r.status};
+    const r=await fetch(url,{signal:controller.signal,redirect:'follow',headers:{'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36 OpportunityMatcher/1.0','Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'}});
+    if(!r.ok)throw new Error(`Official page returned HTTP ${r.status}`);
+    const html=await r.text();if(html.length<300)throw new Error('Official page returned too little content');
+    return{html,status:r.status,url:r.url||url};
   }finally{clearTimeout(timer)}
+}
+function unicefJobParts(raw){try{const u=new URL(raw),m=u.pathname.match(/\/job\/(\d{5,})(?:\/([^?#]*))?/i);return m?{id:m[1],slug:(m[2]||'').replace(/\/+$/,'')}:null}catch{return null}}
+async function verifyUnicefOpening(opening){
+  const parts=unicefJobParts(opening.url);if(!parts)return null;
+  const slug=parts.slug||String(opening.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const urls=[
+    `https://jobs.unicef.org/mob/cw/zh-s/job/${parts.id}/${slug}`,
+    `https://jobs.unicef.org/mob/fr/job/${parts.id}/${slug}`
+  ];
+  const today=new Date().toISOString().slice(0,10);
+  for(const url of urls){
+    try{
+      const f=await fetchHtml(url,10000),plain=text(f.html);if(!plain.includes(parts.id))continue;
+      const deadline=dateFrom(plain),explicit=/申请已关闭|applications? (?:are|is) (?:now )?closed|no longer accepting applications|candidatures? (?:sont )?closes?/i.test(plain),closed=!!((deadline&&deadline<today)||explicit);
+      if(deadline||explicit)return closed?null:{...opening,deadline:deadline||opening.deadline,status_verified:true,status_source:'unicef-mobile-job-detail',quality:'status-verified-vacancy'};
+    }catch{}
+  }
+  return null;
+}
+async function verifyProviderOpenings(openings,cfg){
+  if(cfg.name!=='UNICEF')return openings;
+  const checked=await Promise.all(openings.slice(0,10).map(verifyUnicefOpening));
+  return checked.filter(Boolean);
+}
+async function fetchBoard(cfg){
+  const result=await fetchHtml(cfg.board,18000);
+  const candidates=extract(result.html,cfg);
+  const openings=await verifyProviderOpenings(candidates,cfg);
+  return{openings,http_status:result.status,candidate_count:candidates.length};
 }
 export default async function handler(req,res){
   if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});
   const id=String(req.query?.opportunity_id||'').toUpperCase();const cfg=PROVIDERS[id];
   if(!cfg)return res.status(404).json({ok:false,error:'No live-opening connector is configured for this programme.'});
-  res.setHeader('Cache-Control','public, s-maxage=300, stale-while-revalidate=900');
+  res.setHeader('Cache-Control','public, s-maxage=120, stale-while-revalidate=300');
   try{
     const result=await fetchBoard(cfg);
-    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:result.openings.length?'openings':'board',openings:result.openings,http_status:result.http_status,notice:result.openings.length?'Vacancy candidates were conservatively extracted from the provider’s official board using local listing-card evidence. Vacancy-level eligibility still needs to be checked against the individual posting.':'No current opening could be safely extracted from the official board. Use the official board link; this does not mean the provider has no openings.'});
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:result.openings.length?'openings':'board',openings:result.openings,http_status:result.http_status,candidate_count:result.candidate_count,status_verified:cfg.name==='UNICEF',notice:result.openings.length?'Vacancies were conservatively extracted from the official board. UNICEF candidates are additionally verified against the exact official mobile job page before they are returned. Vacancy-level eligibility still needs to be checked against the individual posting.':'No currently open vacancy could be safely verified from the official board. Use the official board link; this does not mean the provider has no openings.'});
   }catch(e){
-    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:'board',openings:[],notice:'The official vacancy board could not be parsed safely right now. Open it directly for the source of truth.',fetch_error:e.message});
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,source_url:cfg.board,fetched_at:new Date().toISOString(),mode:'board',openings:[],notice:'The official vacancy board could not be parsed or verified safely right now. Open it directly for the source of truth.',fetch_error:e.message});
   }
 }
