@@ -12,6 +12,9 @@
     },
     "api/specific-openings.js": {
       "maxDuration": 30
+    },
+    "api/undp-openings.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
