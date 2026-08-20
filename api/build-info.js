@@ -1,0 +1,1 @@
+export default function handler(req,res){res.setHeader('Cache-Control','no-store');res.status(200).json({build:'opportunity-e2eb9156',unicef_live_openings:'mobile-url-id-check',unicef_deadline_parser:'short-french-cloture-enabled',generated_at:'2026-08-20T05:05:00Z'});}
