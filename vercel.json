@@ -3,6 +3,9 @@
   "functions": {
     "api/monitor.js": {
       "maxDuration": 60
+    },
+    "api/live-openings.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
