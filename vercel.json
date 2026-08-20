@@ -6,6 +6,9 @@
     },
     "api/live-openings.js": {
       "maxDuration": 30
+    },
+    "api/vacancy-detail.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
