@@ -9,12 +9,13 @@
     .routeWorkHead h3{margin:4px 0 4px;font-size:17px;letter-spacing:-.025em;color:#171b24}
     .routeWorkHead p{margin:0;color:#858c99;font-size:10px;line-height:1.5;max-width:690px}
     .routeWorkGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
-    .routeWorkCard{border:1px solid #e8eaf0;background:#fbfcfd;border-radius:13px;padding:13px;min-height:118px;display:flex;flex-direction:column}
+    .routeWorkCard{border:1px solid #e8eaf0;background:#fbfcfd;border-radius:13px;padding:13px;min-height:145px;display:flex;flex-direction:column}
     .routeWorkCard.primary{background:linear-gradient(145deg,#f6f3ff,#fbfcff);border-color:#ded6ff}
     .routeWorkCard .rwTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
     .routeWorkCard .rwTop span{font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:#7a8190;font-weight:800}
     .routeWorkCard .rwTop b{font-size:18px;color:#171b24;letter-spacing:-.04em}
     .routeWorkCard h4{font-size:11px;color:#20252e;margin:12px 0 4px}.routeWorkCard p{font-size:8px;line-height:1.45;color:#8f96a3;margin:0}
+    .rwExamples{margin-top:8px;padding-top:8px;border-top:1px solid #eceef3;font-size:7.5px;line-height:1.45;color:#5f6674}.rwExamples b{color:#343a46;font-size:7.5px;font-weight:780}
     .routeWorkCard small{margin-top:auto;padding-top:10px;color:#6f58ee;font-size:8px;font-weight:750}
     .routeWorkNext{margin-top:10px;border-radius:12px;background:#171b25;color:#fff;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:16px}
     .routeWorkNext div{min-width:0}.routeWorkNext span{display:block;color:#aab1c0;font-size:8px;text-transform:uppercase;letter-spacing:.1em}.routeWorkNext b{display:block;font-size:11px;margin-top:3px}.routeWorkNext button{border:0;border-radius:9px;background:#d9ff67;color:#11150a;height:34px;padding:0 12px;font-size:9px;font-weight:850;cursor:pointer;white-space:nowrap}
@@ -30,15 +31,22 @@
     return{key:'evidence',label:'Applicant evidence',copy:'A declaration, admission choice or provider-specific fact is still needed.'};
   }
   function collect(){
-    const buckets={vacancy:{checks:0,opps:new Set()},cycle:{checks:0,opps:new Set()},provider:{checks:0,opps:new Set()},evidence:{checks:0,opps:new Set()}};
+    const make=()=>({checks:0,opps:new Set(),names:new Map()});
+    const buckets={vacancy:make(),cycle:make(),provider:make(),evidence:make()};
     for(const o of (opps||[]).filter(isActive)){
       const ev=evaluate(o);if(!['review','possible'].includes(ev.cls))continue;
       for(const c of ev.checks||[]){
         if(c.status!=='review'||c.hard===false)continue;
-        const b=bucket(c);buckets[b.key].checks++;buckets[b.key].opps.add(o.Opportunity_ID);
+        const b=bucket(c),id=o.Opportunity_ID,name=o.Opportunity_Name||o.Provider||id;
+        buckets[b.key].checks++;buckets[b.key].opps.add(id);if(id&&!buckets[b.key].names.has(id))buckets[b.key].names.set(id,name);
       }
     }
     return buckets;
+  }
+  function examples(bucket){
+    const names=[...bucket.names.values()],shown=names.slice(0,2),more=Math.max(0,names.length-shown.length);
+    if(!shown.length)return'';
+    return `<div class="rwExamples"><b>Affected:</b> ${shown.map(esc).join(' · ')}${more?` · +${more} more`:''}</div>`;
   }
   function markup(){
     const b=collect();
@@ -56,7 +64,7 @@
       provider:'Continue a targeted provider-route normalization sprint using official lists and country pages.',
       evidence:'Expose only the evidence questions that are actually needed on an opportunity-by-opportunity basis.'
     }[top];
-    const cards=order.map((k,i)=>`<article class="routeWorkCard ${i===0?'primary':''}"><div class="rwTop"><span>${esc(meta[k].label)}</span><b>${b[k].checks}</b></div><h4>${b[k].opps.size} affected route${b[k].opps.size===1?'':'s'}</h4><p>${esc(meta[k].copy)}</p><small>${i===0?'highest current workload':'kept conservative'}</small></article>`).join('');
+    const cards=order.map((k,i)=>`<article class="routeWorkCard ${i===0?'primary':''}"><div class="rwTop"><span>${esc(meta[k].label)}</span><b>${b[k].checks}</b></div><h4>${b[k].opps.size} affected route${b[k].opps.size===1?'':'s'}</h4><p>${esc(meta[k].copy)}</p>${examples(b[k])}<small>${i===0?'highest current workload':'kept conservative'}</small></article>`).join('');
     return `<section class="routeWorkQueue"><div class="routeWorkHead"><div><div class="matchIntelEy" style="color:#6c54ee">Route work queue</div><h3>Turn uncertainty into a concrete product task.</h3><p>These buckets separate uncertainty we can solve with a specific opening, a fresh cycle, provider normalization, or applicant evidence. This keeps the matcher conservative without leaving “Needs review” as a dead end.</p></div></div><div class="routeWorkGrid">${cards}</div><div class="routeWorkNext"><div><span>Recommended next build</span><b>${esc(next)}</b></div><button onclick="setView('discover')">Review affected routes ↗</button></div></section>`;
   }
   function mount(){
