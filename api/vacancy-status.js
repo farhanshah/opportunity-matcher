@@ -23,13 +23,14 @@ function jobPosting(html){for(const m of String(html||'').matchAll(/<script\b[^>
 function deadlineFromText(text){
   const s=String(text||'');
   const date='([0-9]{1,2}\\s+[A-Za-z]{3,9}\\s+20\\d{2}|[A-Za-z]{3,9}\\s+[0-9]{1,2},?\\s+20\\d{2})';
-  const labels=['deadline','closing\\s+date','closes?','apply\\s+by','applications?\\s+(?:close|closes|closing)','closing\\s+applications?','applications?\\s+closing','application\\s+deadline','关闭申请','应用\\s*关闭'];
+  const labels=['deadline','closing\\s+date','closes?','apply\\s+by','applications?\\s+(?:close|closes|closing)','closing\\s+applications?','applications?\\s+closing','application\\s+deadline','关闭申请','截止日期','clôture\\s+des\\s+candidatures','date\\s+limite'];
   for(const label of labels){const re=new RegExp(label+'\\s*[:：-]?\\s*'+date,'i');const m=s.match(re);if(m){const d=parseDate(m[1]);if(d)return d}}
   return'';
 }
-function explicitClosed(text){return /applications? (?:are|is) (?:now )?closed|this vacancy is closed|no longer accepting applications|applications? (?:are|is) no longer being accepted|application period (?:has )?closed|position has been filled|applications? closed|关闭申请/.test(String(text||'').toLowerCase())}
+function explicitClosed(text){return /applications? (?:are|is) (?:now )?closed|this vacancy is closed|no longer accepting applications|applications? (?:are|is) no longer being accepted|application period (?:has )?closed|position has been filled|applications? closed|申请已关闭|candidatures? (?:sont )?closes?/.test(String(text||'').toLowerCase())}
 async function fetchPage(url){const c=new AbortController(),timer=setTimeout(()=>c.abort(),18000);try{const r=await fetch(url,{signal:c.signal,redirect:'follow',headers:{'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36 OpportunityMatcher/1.0','Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'}});if(!r.ok)throw new Error(`Official vacancy returned HTTP ${r.status}`);const html=(await r.text()).slice(0,900000);if(html.length<300)throw new Error('Official vacancy returned too little content');return{html,url:r.url||url,status:r.status}}finally{clearTimeout(timer)}}
-function jobIdFromUrl(raw){try{return new URL(raw).pathname.match(/\/job\/(\d{5,})\b/i)?.[1]||''}catch{return''}}
+function jobParts(raw){try{const u=new URL(raw),m=u.pathname.match(/\/job\/(\d{5,})(?:\/([^?#]*))?/i);return m?{id:m[1],slug:(m[2]||'').replace(/\/+$/,'')}:null}catch{return null}}
+function jobIdFromUrl(raw){return jobParts(raw)?.id||''}
 function titleScore(a,b){const A=norm(a),B=norm(b);if(!A||!B)return 0;if(A===B)return 1;if(A.includes(B)||B.includes(A))return .94;const as=new Set(A.split(' ').filter(x=>x.length>2)),bs=new Set(B.split(' ').filter(x=>x.length>2));if(!as.size||!bs.size)return 0;let hit=0;for(const x of as)if(bs.has(x))hit++;return hit/Math.min(as.size,bs.size)}
 function unicefExactCard(html,jobId,titleHint){
   const src=String(html||''),anchors=[...src.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{1,1200}?)<\/a>/gi)];
@@ -38,6 +39,20 @@ function unicefExactCard(html,jobId,titleHint){
   if(!best||bestScore<.72)return null;
   const start=best.a.index||0,after=start+best.a[0].length,tail=src.slice(after),next=tail.search(/<a\b[^>]*href=["'][^"']*\/job\/\d{5,}/i),end=next>=0?after+next:Math.min(src.length,start+8500),context=clean(src.slice(start,end));
   return{context,label:best.label,score:bestScore};
+}
+async function unicefMobileStatus(target,titleHint){
+  const parts=jobParts(target.toString());if(!parts)return null;
+  const slug=parts.slug||String(titleHint||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const urls=[
+    `https://jobs.unicef.org/mob/cw/zh-s/job/${parts.id}/${slug}`,
+    `https://jobs.unicef.org/mob/fr/job/${parts.id}/${slug}`
+  ];
+  for(const url of urls){try{
+    const f=await fetchPage(url),full=clean(f.html);if(!full.includes(parts.id))continue;
+    const deadline=deadlineFromText(full),today=new Date().toISOString().slice(0,10),closed=!!((deadline&&deadline<today)||explicitClosed(full));
+    if(deadline||closed)return{jobId:parts.id,deadline,closed,reason:deadline&&deadline<today?'deadline_passed':closed?'explicitly_closed':'',source:'unicef-mobile-job-detail'};
+  }catch{}}
+  return null;
 }
 async function unicefBoardStatus(target,titleHint){
   const jobId=jobIdFromUrl(target.toString()),q=(titleHint||'').slice(0,120),urls=[];
@@ -58,7 +73,8 @@ export default async function handler(req,res){
     const full=clean(f.html),job=jobPosting(f.html),title=clean(job?.title)||pageTitle(f.html),context=titleContext(full,title),valid=job?.validThrough?parseDate(job.validThrough):'';
     let deadline=valid||deadlineFromText(context)||deadlineFromText(full),today=new Date().toISOString().slice(0,10),closed=!!((deadline&&deadline<today)||explicitClosed(context)),reason=deadline&&deadline<today?'deadline_passed':closed?'explicitly_closed':'',status_source=valid?'jobposting-validThrough':'detail-page';
     if(id==='INT-005'){
-      const board=await unicefBoardStatus(target,title);
+      const mobile=await unicefMobileStatus(target,title);
+      const board=mobile||await unicefBoardStatus(target,title);
       if(board){if(board.deadline)deadline=board.deadline;closed=board.closed;reason=board.reason;status_source=board.source}
     }
     return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,url:final.toString(),title,deadline,closed,reason,status_source,fetched_at:new Date().toISOString(),http_status:f.status});
