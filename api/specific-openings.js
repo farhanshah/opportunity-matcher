@@ -1,6 +1,18 @@
 const PROVIDERS={
   'FEL-015':{name:'WIPO',board:'https://wipo.taleo.net/careersection/wp_2_fel/jobsearch.ftl?lang=en&portal=50305027338',host:'wipo.taleo.net',kind:'fellowship',terms:['fellow','fellowship']},
-  'INT-012':{name:'FAO',board:'https://jobs.fao.org/careersection/fao_external/moresearch.ftl?lang=en',host:'jobs.fao.org',kind:'internship',terms:['intern','internship']},
+  'INT-012':{
+    name:'FAO',
+    board:'https://jobs.fao.org/careersection/fao_external/moresearch.ftl?lang=en',
+    host:'jobs.fao.org',
+    kind:'internship',
+    terms:['intern','internship'],
+    seeds:[
+      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2600026&lang=en',
+      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2600030&lang=en',
+      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2600032&lang=en',
+      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2600034&lang=en'
+    ]
+  },
   'INT-016':{name:'ADB',board:'https://adb.taleo.net/careersection/2/moresearch.ftl',host:'adb.taleo.net',kind:'internship',terms:['intern','internship']},
   'INT-011':{name:'WTO',board:'https://www.wto.org/english/thewto_e/vacan_e/iypp_e.htm',host:'wto.org',kind:'roster',terms:['intern','internship']}
 };
@@ -26,6 +38,7 @@ function isRelevant(title,plain,cfg){const hay=`${title} ${plain}`.toLowerCase()
 function jobLike(url){try{const u=new URL(url);return /jobdetail\.ftl/i.test(u.pathname)&&/(?:^|&)job=\d+/i.test(u.search.replace(/^\?/,''))}catch{return false}}
 async function fetchHtml(url,timeout=14000){const c=new AbortController(),timer=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{signal:c.signal,redirect:'follow',headers:{'User-Agent':'Mozilla/5.0 OpportunityMatcher/1.0','Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'}});if(!r.ok)throw new Error(`HTTP ${r.status}`);const html=await r.text();if(html.length<250)throw new Error('Official page returned too little content');return{html,url:r.url||url,status:r.status}}finally{clearTimeout(timer)}}
 function extractCandidates(html,cfg){const out=[],seen=new Set(),today=new Date().toISOString().slice(0,10);for(const a of String(html||'').matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]{1,1000}?)<\/a>/gi)){const title=text(a[2]);if(!title||title.length<4||title.length>240)continue;const url=absolute(cfg.board,a[1]);if(!sameHost(url,cfg.host)||!jobLike(url)||seen.has(url))continue;const lc=title.toLowerCase();if(!cfg.terms.some(t=>lc.includes(t)))continue;const start=Math.max(0,(a.index||0)-250),end=Math.min(String(html).length,(a.index||0)+a[0].length+1500),chunk=text(String(html).slice(start,end)),deadline=dateFrom(chunk);if(deadline&&deadline<today)continue;seen.add(url);out.push({title,url,location:locationFrom(chunk),deadline,source:cfg.name});if(out.length>=10)break}return out}
+function mergeCandidates(boardCandidates,cfg){const out=[],seen=new Set();for(const x of [...boardCandidates,...(cfg.seeds||[]).map(url=>({title:'',url,location:'',deadline:'',source:cfg.name}))]){if(!x?.url||seen.has(x.url))continue;seen.add(x.url);out.push(x)}return out.slice(0,12)}
 async function verifyOpening(opening,cfg){try{const f=await fetchHtml(opening.url),final=f.url;if(!sameHost(final,cfg.host)||!jobLike(final))return null;const plain=text(f.html),title=titleFrom(f.html)||opening.title,deadline=dateFrom(plain)||opening.deadline,today=new Date().toISOString().slice(0,10);if(!isRelevant(title,plain,cfg))return null;if(/applications? (?:are|is) (?:now )?closed|this vacancy is closed|no longer accepting applications|position has been filled/i.test(plain))return null;if(!deadline||deadline<today)return null;return{title,url:final,location:locationFrom(plain)||opening.location,deadline,source:cfg.name,status_verified:true,verification_level:'exact',quality:'status-verified-vacancy',status_source:`${cfg.name.toLowerCase()}-taleo-exact-job-page`}}catch{return null}}
 
 export default async function handler(req,res){
@@ -33,5 +46,11 @@ export default async function handler(req,res){
   const id=String(req.query?.opportunity_id||'').toUpperCase(),cfg=PROVIDERS[id];if(!cfg)return res.status(404).json({ok:false,error:'No specific-opening adapter is configured for this programme.'});
   res.setHeader('Cache-Control','no-store');
   if(cfg.kind==='roster')return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,adapter_state:'roster',candidate_count:0,exact_verified_count:0,openings:[],notice:'WTO operates an ongoing internship roster and may publish specific internship notices separately; no exact vacancy is promoted without an individual posting.'});
-  try{const board=await fetchHtml(cfg.board,18000),candidates=extractCandidates(board.html,cfg),checked=await Promise.all(candidates.slice(0,8).map(x=>verifyOpening(x,cfg))),openings=checked.filter(Boolean);return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,fetched_at:new Date().toISOString(),adapter_state:'exact',candidate_count:candidates.length,exact_verified_count:openings.length,openings,withheld_unverifiable:candidates.length>openings.length,notice:'Only individual official Taleo postings with a current exact deadline are promoted.'})}catch(e){return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,fetched_at:new Date().toISOString(),adapter_state:'unreadable',candidate_count:0,exact_verified_count:0,openings:[],fetch_error:e.message,notice:'The official board could not be read safely, so no vacancy was promoted.'})}
+  try{
+    let boardCandidates=[];
+    try{const board=await fetchHtml(cfg.board,18000);boardCandidates=extractCandidates(board.html,cfg)}catch{}
+    const candidates=mergeCandidates(boardCandidates,cfg);
+    const checked=await Promise.all(candidates.slice(0,12).map(x=>verifyOpening(x,cfg))),openings=checked.filter(Boolean);
+    return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,fetched_at:new Date().toISOString(),adapter_state:'exact',candidate_count:candidates.length,exact_verified_count:openings.length,openings,withheld_unverifiable:candidates.length>openings.length,seeded_fallback_used:Boolean((cfg.seeds||[]).length),notice:'Only individual official postings with a current exact deadline are promoted. Stable official current-cycle entry points may be checked when a provider board renders search results dynamically.'})
+  }catch(e){return res.status(200).json({ok:true,opportunity_id:id,provider:cfg.name,board_url:cfg.board,fetched_at:new Date().toISOString(),adapter_state:'unreadable',candidate_count:0,exact_verified_count:0,openings:[],fetch_error:e.message,notice:'The official source could not be read safely, so no vacancy was promoted.'})}
 }
