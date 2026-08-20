@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0d12">
+  <title>Opportunity — Operations Console</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/admin-v1.css">
+</head>
+<body>
+  <div id="lockScreen" class="lockScreen">
+    <div class="lockCard">
+      <div class="lockBrand"><span class="brandMark">O</span><div><b>Opportunity</b><small>operations console</small></div></div>
+      <div class="lockEyebrow">Protected workspace</div>
+      <h1>Freshness, coverage<br>and review — in one place.</h1>
+      <p>This console reads production monitoring data and review queues. Use the same protected key configured for the production freshness monitor.</p>
+      <label class="secretField"><span>Operations key</span><input id="adminSecret" type="password" autocomplete="off" placeholder="Enter protected key"></label>
+      <button id="unlockBtn" class="primaryBtn">Open operations console <span>↗</span></button>
+      <div id="lockError" class="lockError"></div>
+      <div class="lockMeta"><span>🔒 Stored for this browser tab only</span><a href="/">Back to Opportunity</a></div>
+    </div>
+  </div>
+
+  <div id="console" class="console hidden">
+    <aside class="opsSide">
+      <a href="/" class="opsBrand"><span class="brandMark">O</span><div><b>Opportunity</b><small>operations</small></div></a>
+      <nav class="opsNav">
+        <button class="opsNavBtn active" data-view="overview"><span>⌁</span>Overview</button>
+        <button class="opsNavBtn" data-view="sources"><span>◉</span>Sources <em id="navSourceCount">—</em></button>
+        <button class="opsNavBtn" data-view="reviews"><span>◇</span>Review queue <em id="navReviewCount">0</em></button>
+        <button class="opsNavBtn" data-view="partials"><span>◐</span>Partial records <em id="navPartialCount">—</em></button>
+      </nav>
+      <div class="sideStatus">
+        <span class="statusDot"></span>
+        <div><b>Production monitor</b><small id="sideStatusText">Checking health…</small></div>
+      </div>
+      <button id="lockBtn" class="lockBtn">Lock console</button>
+    </aside>
+
+    <main class="opsMain">
+      <header class="opsTop">
+        <div><div class="opsKicker">Production intelligence</div><h1 id="viewTitle">Freshness overview</h1><p id="viewSubtitle">Monitor coverage, rule depth and anything that needs a human decision.</p></div>
+        <div class="topActions"><div class="refreshStamp"><span>Last refreshed</span><b id="lastRefresh">—</b></div><button id="refreshBtn" class="ghostBtn">Refresh data</button></div>
+      </header>
+
+      <section id="view-overview" class="view active">
+        <div class="metricGrid">
+          <article class="metricCard heroMetric"><div class="metricLabel">Opportunity coverage</div><div class="coverageWrap"><div id="coverageRing" class="coverageRing"><div><strong id="coveragePct">—</strong><span>normalized</span></div></div><div class="coverageCopy"><h2><span id="normalizedCount">—</span> of <span id="totalOppCount">—</span></h2><p>Fully structured eligibility. Partial records stay conservative until the source supports more certainty.</p></div></div></article>
+          <article class="metricCard"><div class="metricLabel">Official-source monitors</div><strong class="metricBig" id="monitorSuccess">—</strong><div class="metricBottom"><span id="monitorTotal">— active</span><span id="monitorFailPill" class="pill">— issues</span></div></article>
+          <article class="metricCard"><div class="metricLabel">Structured eligibility rules</div><strong class="metricBig" id="ruleCount">—</strong><div class="metricBottom"><span id="nonCountryRules">— non-country</span><span id="uncertainRules" class="pill neutral">— uncertain</span></div></article>
+          <article class="metricCard"><div class="metricLabel">Change review queue</div><strong class="metricBig" id="pendingCount">—</strong><div class="metricBottom"><span id="snapshotCount">— snapshots</span><button class="textAction" data-jump="reviews">Open queue →</button></div></article>
+        </div>
+
+        <div class="overviewGrid">
+          <article class="panel sourceHealthPanel"><div class="panelHead"><div><span class="panelEyebrow">Source monitor</span><h2>Coverage health</h2></div><button class="textAction" data-jump="sources">View all sources →</button></div><div id="healthBars" class="healthBars"></div><div id="sourceIssuePreview" class="issuePreview"></div></article>
+          <article class="panel"><div class="panelHead"><div><span class="panelEyebrow">Normalization</span><h2>What remains partial</h2></div><button class="textAction" data-jump="partials">Open records →</button></div><div id="partialPreview" class="partialPreview"></div></article>
+        </div>
+
+        <article class="panel pulsePanel"><div class="panelHead"><div><span class="panelEyebrow">System pulse</span><h2>Freshness timeline</h2></div><span class="liveChip"><i></i>production</span></div><div id="pulseTimeline" class="pulseTimeline"></div></article>
+      </section>
+
+      <section id="view-sources" class="view">
+        <div class="toolbar"><div class="searchBox">⌕<input id="sourceSearch" placeholder="Search provider or source"></div><div class="segmented" id="sourceFilters"><button class="active" data-filter="all">All</button><button data-filter="healthy">Healthy</button><button data-filter="error">Issues</button><button data-filter="due">Due</button></div></div>
+        <div class="panel tablePanel"><div class="tableHead sourcesGrid"><span>Source</span><span>Health</span><span>Snapshots</span><span>Last success</span><span>Interval</span><span></span></div><div id="sourceRows"></div></div>
+      </section>
+
+      <section id="view-reviews" class="view">
+        <div class="reviewIntro"><div><span class="panelEyebrow">Human-in-the-loop</span><h2>Nothing high-impact changes silently.</h2><p>Deadline, country and eligibility changes stay reviewable before they affect matching.</p></div><div class="reviewLegend"><span><i class="riskDot high"></i>high</span><span><i class="riskDot medium"></i>medium</span><span><i class="riskDot low"></i>low</span></div></div>
+        <div id="reviewQueue" class="reviewQueue"></div>
+      </section>
+
+      <section id="view-partials" class="view">
+        <div class="toolbar"><div class="searchBox">⌕<input id="partialSearch" placeholder="Search opportunity or provider"></div><div class="segmented" id="partialFilters"><button class="active" data-filter="all">All partial</button><button data-filter="uncertain">Cycle uncertainty</button><button data-filter="route">Route-specific</button><button data-filter="confirmed">Confirmed-only</button></div></div>
+        <div class="panel tablePanel"><div class="tableHead partialsGrid"><span>Opportunity</span><span>Status</span><span>Rules</span><span>Uncertain</span><span>Route</span><span></span></div><div id="partialRows"></div></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="/admin-v1.js"></script>
+</body>
+</html>
