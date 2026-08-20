@@ -9,7 +9,8 @@
     { "source": "/discover", "destination": "/index.html" },
     { "source": "/saved", "destination": "/index.html" },
     { "source": "/tracker", "destination": "/index.html" },
-    { "source": "/dashboard", "destination": "/index.html" }
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/admin.html" }
   ],
   "crons": [
     {
