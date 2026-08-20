@@ -15,6 +15,9 @@
     },
     "api/undp-openings.js": {
       "maxDuration": 30
+    },
+    "api/wfp-openings.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
@@ -22,7 +25,7 @@
     { "source": "/saved", "destination": "/index.html" },
     { "source": "/tracker", "destination": "/index.html" },
     { "source": "/dashboard", "destination": "/index.html" },
-    { "source": "/admin", "destination": "/admin.html" }
+    { "source": "/admin", "destination": "/index.html" }
   ],
   "crons": [
     {
