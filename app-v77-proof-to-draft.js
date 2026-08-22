@@ -1,9 +1,9 @@
 (()=>{
-  const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
+  const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const canon=u=>{try{const x=new URL(String(u||''),location.origin);x.hash='';x.search='';return x.href.replace(/\/$/,'')}catch{return String(u||'').trim().replace(/[?#].*$/,'').replace(/\/$/,'')}};
   const style=document.createElement('style');
   style.textContent=`
-    .proofFlow{border:1px solid #dfe4ea;border-radius:14px;background:#fff;padding:13px;display:grid;gap:10px}.proofFlowHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.proofFlowEy{font-size:6.6px;text-transform:uppercase;letter-spacing:.12em;font-weight:950;color:#7658ef}.proofFlowHead h4{margin:3px 0 2px;font-size:11px;color:#1c2330}.proofFlowHead p{margin:0;font-size:7.2px;line-height:1.45;color:#818996;max-width:650px}.proofFlowScore{white-space:nowrap;border-radius:999px;padding:6px 8px;background:#171c26;color:#fff;font-size:6.8px;font-weight:900}.proofFlowNote{padding:8px 9px;border-radius:9px;background:#f7f9ed;border:1px solid #e6eccf;color:#59633e;font-size:6.9px;line-height:1.45}.proofReq{border:1px solid #e2e6eb;border-radius:12px;background:#fbfbfc;overflow:hidden}.proofReq summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px}.proofReq summary::-webkit-details-marker{display:none}.proofReqTitle b{display:block;font-size:8.6px;color:#222936}.proofReqTitle span{display:block;margin-top:2px;font-size:7px;line-height:1.4;color:#818996}.proofReqState{font-size:6.4px;font-weight:900;border-radius:999px;padding:5px 7px;background:#fff4d9;color:#8b681c;border:1px solid #f0dda7}.proofReqState.ready{background:#edf8e6;color:#48742f;border-color:#d5e9c8}.proofReqState.drafted{background:#eef0ff;color:#5f56bf;border-color:#d9d7f8}.proofReqBody{padding:0 11px 11px;display:grid;gap:9px}.proofStep{display:grid;gap:5px}.proofStepTop{display:flex;align-items:center;justify-content:space-between;gap:8px}.proofStepTop b{font-size:7.6px;color:#2a303b}.proofStepTop span{font-size:6.6px;color:#8b929d}.proofText{width:100%;box-sizing:border-box;min-height:78px;resize:vertical;border:1px solid #dde2e8;border-radius:9px;background:#fff;padding:8px 9px;font:inherit;font-size:8px;line-height:1.45;color:#252b36}.proofText:focus{outline:2px solid rgba(117,89,239,.12);border-color:#b9aae9}.proofActions{display:flex;gap:6px;flex-wrap:wrap}.proofBtn{border:1px solid #dfe3e8;border-radius:8px;background:#fff;color:#282f39;padding:7px 9px;font-size:6.8px;font-weight:900;cursor:pointer}.proofBtn.primary{background:#171c26;color:#fff;border-color:#171c26}.proofBtn:disabled{opacity:.45;cursor:not-allowed}.proofMini{font-size:6.6px;line-height:1.4;color:#8d949f}.proofDivider{height:1px;background:#e6e9ed}.proofFlowFlash{position:fixed;left:50%;bottom:42px;z-index:13020;transform:translateX(-50%);padding:10px 14px;border-radius:10px;background:#171c26;color:#fff;font-size:8px;font-weight:900;box-shadow:0 12px 32px rgba(0,0,0,.22)}@media(max-width:780px){.proofFlowHead{flex-direction:column}.proofReq summary{align-items:flex-start}.proofActions{display:grid;grid-template-columns:1fr}.proofBtn{width:100%}}
+    .proofFlow{border:1px solid #dfe4ea;border-radius:14px;background:#fff;padding:13px;display:grid;gap:10px}.proofFlowHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.proofFlowEy{font-size:6.6px;text-transform:uppercase;letter-spacing:.12em;font-weight:950;color:#7658ef}.proofFlowHead h4{margin:3px 0 2px;font-size:11px;color:#1c2330}.proofFlowHead p{margin:0;font-size:7.2px;line-height:1.45;color:#818996;max-width:650px}.proofFlowScore{white-space:nowrap;border-radius:999px;padding:6px 8px;background:#171c26;color:#fff;font-size:6.8px;font-weight:900}.proofFlowNote{padding:8px 9px;border-radius:9px;background:#f7f9ed;border:1px solid #e6eccf;color:#59633e;font-size:6.9px;line-height:1.45}.proofReq{border:1px solid #e2e6eb;border-radius:12px;background:#fbfbfc;overflow:hidden}.proofReq summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px}.proofReq summary::-webkit-details-marker{display:none}.proofReqTitle b{display:block;font-size:8.6px;color:#222936}.proofReqTitle span{display:block;margin-top:2px;font-size:7px;line-height:1.4;color:#818996}.proofReqState{font-size:6.4px;font-weight:900;border-radius:999px;padding:5px 7px;background:#fff4d9;color:#8b681c;border:1px solid #f0dda7}.proofReqState.ready{background:#edf8e6;color:#48742f;border-color:#d5e9c8}.proofReqState.partial{background:#eef4ff;color:#4f61a9;border-color:#d7e0f6}.proofReqState.drafted{background:#eef0ff;color:#5f56bf;border-color:#d9d7f8}.proofReqBody{padding:0 11px 11px;display:grid;gap:9px}.proofStep{display:grid;gap:5px}.proofStepTop{display:flex;align-items:center;justify-content:space-between;gap:8px}.proofStepTop b{font-size:7.6px;color:#2a303b}.proofStepTop span{font-size:6.6px;color:#8b929d}.proofText{width:100%;box-sizing:border-box;min-height:78px;resize:vertical;border:1px solid #dde2e8;border-radius:9px;background:#fff;padding:8px 9px;font:inherit;font-size:8px;line-height:1.45;color:#252b36}.proofText:focus{outline:2px solid rgba(117,89,239,.12);border-color:#b9aae9}.proofActions{display:flex;gap:6px;flex-wrap:wrap}.proofBtn{border:1px solid #dfe3e8;border-radius:8px;background:#fff;color:#282f39;padding:7px 9px;font-size:6.8px;font-weight:900;cursor:pointer}.proofBtn.primary{background:#171c26;color:#fff;border-color:#171c26}.proofBtn:disabled{opacity:.45;cursor:not-allowed}.proofMini{font-size:6.6px;line-height:1.4;color:#8d949f}.proofDivider{height:1px;background:#e6e9ed}.proofFlowFlash{position:fixed;left:50%;bottom:42px;z-index:13020;transform:translateX(-50%);padding:10px 14px;border-radius:10px;background:#171c26;color:#fff;font-size:8px;font-weight:900;box-shadow:0 12px 32px rgba(0,0,0,.22)}@media(max-width:780px){.proofFlowHead{flex-direction:column}.proofReq summary{align-items:flex-start}.proofActions{display:grid;grid-template-columns:1fr}.proofBtn{width:100%}}
   `;
   document.head.appendChild(style);
 
@@ -15,10 +15,11 @@
     return entry?{id:entry[0],t:entry[1],m:entry[1].exactVacancy}:null;
   }
   function packOf(row){
-    row.t.preparation={...(row.t.preparation||{})};
-    row.t.preparation.rolePack={cvNotes:'',evidenceBank:'',motivationDraftText:'',gapsQuestions:'',requirementEvidence:{},...(row.t.preparation.rolePack||{})};
-    row.t.preparation.rolePack.requirementEvidence={...(row.t.preparation.rolePack.requirementEvidence||{})};
-    return row.t.preparation.rolePack;
+    row.t.preparation=row.t.preparation||{};
+    const pack=row.t.preparation.rolePack||(row.t.preparation.rolePack={cvNotes:'',evidenceBank:'',motivationDraftText:'',gapsQuestions:'',requirementEvidence:{}});
+    pack.cvNotes=String(pack.cvNotes||'');pack.evidenceBank=String(pack.evidenceBank||'');pack.motivationDraftText=String(pack.motivationDraftText||'');pack.gapsQuestions=String(pack.gapsQuestions||'');
+    pack.requirementEvidence=pack.requirementEvidence||{};
+    return pack;
   }
   function targetsFromIntel(shell){
     return [...shell.querySelectorAll('.appIntelTarget')].map(card=>{
@@ -28,7 +29,14 @@
   }
   const meaningful=v=>String(v||'').trim().replace(/^\[[^\]]+\]\s*/,'').length>=40;
   const drafted=v=>String(v||'').trim().length>=45;
-  function stateFor(item){if(drafted(item?.cvBullet)&&drafted(item?.motivation))return['Drafted','drafted'];if(meaningful(item?.evidence))return['Evidence ready','ready'];return['Needs evidence','']}
+  function stateFor(item){
+    const ev=meaningful(item?.evidence),cv=drafted(item?.cvBullet),mot=drafted(item?.motivation);
+    if(ev&&cv&&mot)return['Drafted','drafted'];
+    if(ev&&cv)return['CV draft ready','partial'];
+    if(ev&&mot)return['Motivation draft ready','partial'];
+    if(ev)return['Evidence ready','ready'];
+    return['Needs evidence',''];
+  }
   function persistRow(row){
     row.t.preparation.updatedAt=new Date().toISOString();
     clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{if(typeof persist==='function')persist()}catch{};try{window.OpportunityExactTrackDurability?.save?.()}catch{};try{window.dispatchEvent(new CustomEvent('opportunity:statechange'))}catch{}},160);
@@ -39,19 +47,27 @@
     if(!current.includes(block))field.value=[current,block].filter(Boolean).join('\n\n');field.dispatchEvent(new Event('input',{bubbles:true}));return true;
   }
   const cap=s=>s?String(s).charAt(0).toUpperCase()+String(s).slice(1):'';
-  function evidenceToBullet(evidence){
+  function splitEvidence(evidence){
     let raw=String(evidence||'').trim().replace(/\s+/g,' '),context='';
     const m=raw.match(/^During\s+(.+?),\s*I\s+(.+)$/i);if(m){context=m[1].trim();raw=m[2].trim()}
-    raw=raw.replace(/\bI\s+/g,'').replace(/\bI['’]ve\s+/gi,'').replace(/\bI['’]d\s+/gi,'');
-    raw=raw.replace(/\.\s+(?=[A-Z])/g,'; ').replace(/\s*;\s*/g,'; ').replace(/[.]+$/,'').trim();
-    let bullet=cap(raw);
-    if(context&&!/\b(teesside|university|module|coursework|project)\b/i.test(bullet))bullet+=` — ${context.replace(/^my\s+/i,'')}`;
-    return bullet.replace(/\s+/g,' ').trim()+'.';
+    return{context,body:raw};
+  }
+  function evidenceToBullet(evidence){
+    let {body}=splitEvidence(evidence);
+    body=body.replace(/\bI\s+/gi,'').replace(/\bI['’]ve\s+/gi,'').replace(/\bI['’]d\s+/gi,'');
+    body=body.replace(/compared the results to understand business performance/gi,'compared performance indicators')
+      .replace(/turned the analysis into/gi,'translated findings into')
+      .replace(/explaining the financial position and its business implications/gi,'of financial position and business implications');
+    body=body.replace(/\.\s+(?=[A-Z])/g,'; ').replace(/\s*;\s*/g,'; ').replace(/[.]+$/,'').trim();
+    return cap(body).replace(/\s+/g,' ').trim()+'.';
   }
   function scaffoldCv(label,evidence){return evidenceToBullet(evidence)}
   function scaffoldMotivation(label,evidence){
-    const clean=String(evidence||'').trim().replace(/\s+/g,' ');
-    return `My experience provides evidence relevant to ${String(label||'this requirement').toLowerCase()}. ${clean} This example shows the analytical approach I would bring to the role while adapting it to the organisation’s specific priorities.`;
+    const {context,body}=splitEvidence(evidence),clean=body.replace(/^I\s+/i,'').replace(/\s+/g,' ').replace(/[.]+$/,'');
+    const capability={finance:'interpret financial information and turn analysis into business-relevant conclusions',private:'understand business and market problems and connect evidence to practical recommendations',research:'analyse and synthesise evidence into clear findings',strategy:'structure problems and translate analysis into practical recommendations',policy:'connect evidence to wider development and policy questions'};
+    const key=String(label||'').toLowerCase().includes('finance')?'finance':String(label||'').toLowerCase().includes('private')?'private':String(label||'').toLowerCase().includes('research')?'research':String(label||'').toLowerCase().includes('strategy')?'strategy':String(label||'').toLowerCase().includes('policy')?'policy':'';
+    const opening=context?`Through ${context}, I ${clean}.`:`I ${clean}.`;
+    return `${opening} This experience strengthened my ability to ${capability[key]||'apply evidence and analysis to practical problems'}, which I would bring to this role.`;
   }
   function syncIntel(shell,row){
     const pack=packOf(row),items=pack.requirementEvidence||{};let linked=0,total=0;
@@ -61,8 +77,17 @@
     });
     const score=shell.querySelector('.appIntelScore');if(score&&total)score.textContent=`Evidence linked ${linked}/${total}`;
   }
+  function hydrateItems(section,items,targets){
+    targets.forEach(t=>{
+      const req=section.querySelector(`[data-proof-req="${t.id}"]`);if(!req)return;
+      const current={...(items[t.id]||{})};
+      ['evidence','cvBullet','motivation'].forEach(key=>{const el=req.querySelector(`[data-proof-field="${key}"]`);if(el)current[key]=String(el.value||'')});
+      items[t.id]=current;
+    });
+  }
   function updateProgress(section,row){
     const pack=packOf(row),targets=targetsFromIntel(document.getElementById('prepShell')),items=pack.requirementEvidence||{};
+    hydrateItems(section,items,targets);
     const mapped=targets.filter(t=>meaningful(items[t.id]?.evidence)).length,drafts=targets.filter(t=>drafted(items[t.id]?.cvBullet)&&drafted(items[t.id]?.motivation)).length;
     const score=section.querySelector('[data-proof-score]');if(score)score.textContent=`${mapped}/${targets.length} evidence mapped · ${drafts}/${targets.length} drafted`;
     targets.forEach(t=>{const req=section.querySelector(`[data-proof-req="${t.id}"]`),state=req?.querySelector('[data-proof-state]');if(!state)return;const [txt,cls]=stateFor(items[t.id]||{});state.textContent=txt;state.className=`proofReqState ${cls}`.trim()});
