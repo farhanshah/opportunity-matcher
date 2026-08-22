@@ -25,8 +25,13 @@
     const els=[...shell.querySelectorAll('[data-prep-key]')].filter(x=>/eligibility|language|nationality|educationChecked|fieldChecked/.test(x.dataset.prepKey||''));
     return{done:els.filter(x=>x.checked).length,total:els.length};
   }
+  function substantiveValue(el){
+    const raw=String(el?.value||'').trim();if(!raw)return'';
+    if(el?.dataset?.rolePack!=='evidenceBank')return raw;
+    return raw.split(/\n+/).filter(line=>!/add one concrete example\s*[—-]\s*situation\/project/i.test(line)).join('\n').trim();
+  }
   function packStats(shell){
-    const els=[...shell.querySelectorAll('[data-role-pack]')];return{done:els.filter(x=>String(x.value||'').trim().length>0).length,total:els.length||4};
+    const els=[...shell.querySelectorAll('[data-role-pack]')];return{done:els.filter(x=>substantiveValue(x).length>0).length,total:els.length||4};
   }
   function apply(shell,body,tab,scroll=false){
     const cmd=body.querySelector('.prepCommand'),panels=[...body.children].filter(x=>x.classList?.contains('prepPanel')),stage=body.querySelector('.prepStageBar'),pack=body.querySelector('.rolePack');
