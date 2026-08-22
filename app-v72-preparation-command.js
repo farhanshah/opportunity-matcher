@@ -40,8 +40,8 @@
     if(e.done<e.total)return'Finish the remaining eligibility checks on the official posting before investing further.';
     if(!p.cvReady)return'Tailor the CV to the role and mark the CV / résumé task complete.';
     if(!p.motivationDraft)return'Draft the motivation or cover response using the vacancy language and your strongest evidence.';
-    if(a.done<a.total)return'Finish the remaining application-pack checks, then run one final official-source review.';
-    return'Application pack is prepared. Run a final eligibility check and move the application toward submission.';
+    if(a.done<a.total)return'Finish the remaining application checklist, then run one final official-source review.';
+    return'Application checklist is prepared. Run a final eligibility check and move the application toward submission.';
   }
   function evidenceChips(row){
     const text=String(liveItem(row.m?.url)?.detail_text||row.m?.detail_text||'').toLowerCase();
@@ -78,7 +78,7 @@
     let cmd=body.querySelector('.prepCommand');if(!cmd){cmd=document.createElement('section');cmd.className='prepCommand';body.insertBefore(cmd,body.firstChild)}
     const due=d==null?'Check posting':d<0?'Expired':d===0?'Closes today':`${d} day${d===1?'':'s'} left`;
     const chips=evidenceChips(row).map((x,i)=>`<span class="prepSignalChip ${i?'muted':''}">${safe(x)}</span>`).join('');
-    cmd.innerHTML=`<div><div class="prepCommandEy">Application command view</div><h3>${safe(nextAction(row,shell))}</h3><p>Readiness here measures preparation progress only. It does not replace the provider's official eligibility decision.</p></div><div class="prepCommandStats"><div class="prepCommandStat"><span>Eligibility checks</span><b>${e.done}/${e.total||0}</b></div><div class="prepCommandStat"><span>Application pack</span><b>${a.done}/${a.total||0}</b></div><div class="prepCommandStat"><span>Overall preparation</span><b>${all.pct}%</b></div><div class="prepCommandStat"><span>Deadline pressure</span><b>${safe(due)}</b></div></div><div class="prepSignalBar">${chips}</div>`;
+    cmd.innerHTML=`<div><div class="prepCommandEy">Application command view</div><h3>${safe(nextAction(row,shell))}</h3><p>Readiness here measures preparation progress only. It does not replace the provider's official eligibility decision.</p></div><div class="prepCommandStats"><div class="prepCommandStat"><span>Eligibility checks</span><b>${e.done}/${e.total||0}</b></div><div class="prepCommandStat"><span>Application checklist</span><b>${a.done}/${a.total||0}</b></div><div class="prepCommandStat"><span>Overall preparation</span><b>${all.pct}%</b></div><div class="prepCommandStat"><span>Deadline pressure</span><b>${safe(due)}</b></div></div><div class="prepSignalBar">${chips}</div>`;
     let stage=body.querySelector('.prepStageBar');if(!stage){stage=document.createElement('div');stage.className='prepStageBar';const actions=body.querySelector('.prepActions');body.insertBefore(stage,actions||null)}
     const act=stageAction(row,shell);stage.innerHTML=`<div><b>Pipeline stage: ${safe(row.t.stage||'Researching')}</b><span>Move stages only when the preparation evidence supports it.</span></div><button class="prepStageBtn ${act.ready?'ready':''}" ${act.disabled?'disabled':''}>${safe(act.label)}</button>`;
     const btn=stage.querySelector('button');if(btn&&!act.disabled)btn.onclick=()=>{try{if(typeof trackStage==='function')trackStage(row.id,act.next);else{row.t.stage=act.next;persistNow(row,shell)}}catch{row.t.stage=act.next;persistNow(row,shell)};setTimeout(()=>{try{window.renderTracker?.()}catch{};enhance()},50)};
