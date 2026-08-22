@@ -6,6 +6,7 @@
   const card=()=>document.getElementById('cloudAuthCard');
   const show=()=>modal()?.classList.remove('hide');
   const feedback=(text,error=false)=>{const el=document.getElementById('cloudAuthFeedback');if(el)el.innerHTML=`<div class="${error?'cloudError':'cloudMessage'}">${html(text)}</div>`};
+  let recoveryHandled=false;
 
   function decorateSignIn(){
     const c=card();
@@ -19,8 +20,14 @@
     submit.insertAdjacentElement('afterend',b);
   }
 
+  function clearRecoveryUrl(){
+    if(location.search)history.replaceState({},'',location.pathname);
+    recoveryHandled=false;
+  }
+
   function renderForgot(){
     const c=card();if(!c)return;
+    c.dataset.recoveryView='forgot';
     c.innerHTML=`<button class="cloudClose" data-recover-close>×</button><div class="cloudEy">Password recovery</div><h2>Reset your password.</h2><p class="cloudLead">Enter the email used for your OppMatcher account. We’ll send a secure reset link.</p><div class="cloudField"><label>Email</label><input id="recoverEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><button id="recoverSend" class="cloudSubmit">Send reset link</button><button id="recoverBack" class="cloudGoogle" style="margin-top:10px">Back to sign in</button><div id="cloudAuthFeedback"></div>`;
     c.querySelector('[data-recover-close]').onclick=()=>modal()?.classList.add('hide');
     c.querySelector('#recoverBack').onclick=()=>window.OpportunityCloud?.setMode?.('signin');
@@ -45,11 +52,16 @@
     const {token,error,reset}=resetParams();
     if(!token&&!error&&reset!=='1')return;
     const c=card();if(!c)return;
+    const key=error?`error:${error}`:token?`token:${token}`:'reset';
+    if(recoveryHandled&&c.dataset.recoveryKey===key)return;
+    recoveryHandled=true;c.dataset.recoveryKey=key;
     if(error){
+      c.dataset.recoveryView='error';
       c.innerHTML=`<button class="cloudClose" data-recover-close>×</button><div class="cloudEy">Password recovery</div><h2>That reset link can’t be used.</h2><p class="cloudLead">It may have expired or already been used. Request a new password reset email.</p><button id="recoverAgain" class="cloudSubmit">Request a new link</button>`;
-      c.querySelector('[data-recover-close]').onclick=cleanAndClose;c.querySelector('#recoverAgain').onclick=renderForgot;show();return;
+      c.querySelector('[data-recover-close]').onclick=cleanAndClose;c.querySelector('#recoverAgain').onclick=()=>{clearRecoveryUrl();renderForgot()};show();return;
     }
     if(!token)return;
+    c.dataset.recoveryView='reset';
     c.innerHTML=`<button class="cloudClose" data-recover-close>×</button><div class="cloudEy">Password recovery</div><h2>Choose a new password.</h2><p class="cloudLead">Use at least 8 characters. After saving it, you can sign in normally.</p><div class="cloudField"><label>New password</label><input id="recoverPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters"></div><div class="cloudField"><label>Confirm password</label><input id="recoverConfirm" type="password" autocomplete="new-password" placeholder="Repeat password"></div><button id="recoverSave" class="cloudSubmit">Save new password</button><div id="cloudAuthFeedback"></div>`;
     c.querySelector('[data-recover-close]').onclick=cleanAndClose;c.querySelector('#recoverSave').onclick=()=>savePassword(token);show();
   }
@@ -62,15 +74,15 @@
     try{
       const result=await client.auth.resetPassword({newPassword:password,token});
       if(result?.error)throw new Error(result.error.message||String(result.error));
-      history.replaceState({},'',location.pathname);
+      history.replaceState({},'',location.pathname);recoveryHandled=false;
       feedback('Password updated. You can sign in with your new password.');
       if(btn){btn.disabled=false;btn.textContent='Password updated'}
       setTimeout(()=>window.OpportunityCloud?.setMode?.('signin'),1200);
     }catch(e){feedback(e.message||'Could not reset the password. Request a new reset link and try again.',true);if(btn){btn.disabled=false;btn.textContent='Save new password'}}
   }
-  function cleanAndClose(){history.replaceState({},'',location.pathname);modal()?.classList.add('hide')}
+  function cleanAndClose(){clearRecoveryUrl();modal()?.classList.add('hide')}
 
-  const obs=new MutationObserver(()=>{decorateSignIn();maybeOpenReset()});
+  const obs=new MutationObserver(()=>{decorateSignIn();if(!recoveryHandled)maybeOpenReset()});
   obs.observe(document.body,{subtree:true,childList:true});
   setTimeout(()=>{decorateSignIn();maybeOpenReset()},300);
   window.OpportunityPasswordRecovery={forgot:renderForgot,openReset:maybeOpenReset};
