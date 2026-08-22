@@ -1,6 +1,7 @@
 (()=>{
   const ROUTE_FLAG='oppCloudRouteAfterAuth';
   const STAY_PUBLIC='oppCloudStayPublic';
+  const WORKSPACE_ROUTES=new Set(['discover','saved','tracker','dashboard']);
   let routed=false,patched=false;
 
   const tracksCount=()=>{
@@ -11,6 +12,10 @@
   };
   const cloudReady=()=>document.getElementById('cloudSyncPill')?.textContent?.trim()==='Cloud synced';
   const signedIn=()=>document.getElementById('cloudAccountEntry')?.classList.contains('cloudAccountBtn')&&!document.getElementById('cloudAccountEntry')?.classList.contains('signedOut');
+  const routeFromPath=()=>{
+    const p=location.pathname.replace(/^\/+|\/+$/g,'').toLowerCase();
+    return WORKSPACE_ROUTES.has(p)?p:'';
+  };
 
   function enterWorkspace(force=false){
     if(routed)return false;
@@ -19,9 +24,10 @@
     try{
       sessionStorage.removeItem(ROUTE_FLAG);
       sessionStorage.removeItem(STAY_PUBLIC);
+      const requested=routeFromPath();
       window.showApp?.();
-      const view=tracksCount()>0?'tracker':'discover';
-      window.setView?.(view);
+      const view=requested||(tracksCount()>0?'tracker':'discover');
+      window.setView?.(view,{replace:true});
       routed=true;
       return true;
     }catch(e){console.warn('Cloud route restore failed',e);return false}
