@@ -13,6 +13,7 @@
       const m=t?.exactVacancy;if(!m?.url||String(m.programmeId||'')!=='INT-005')continue;
       if(live.has(canon(m.url)))continue;
       archive[id]={...t,archivedAt:new Date().toISOString(),archiveReason:'No longer present in UNICEF current exact vacancy feed'};
+      try{window.OpportunityExactTrackDurability?.remove?.(id)}catch{}
       delete tracks[id];changed=true;
     }
     if(changed){saveArchive(archive);persistAll();window.dispatchEvent(new CustomEvent('opportunity:exacttrackarchived',{detail:{provider:'UNICEF'}}));}
