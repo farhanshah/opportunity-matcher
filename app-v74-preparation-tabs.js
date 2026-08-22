@@ -45,9 +45,9 @@
     let tabs=body.querySelector('.prepTabs');
     if(!tabs){
       tabs=document.createElement('div');tabs.className='prepTabs';tabs.setAttribute('role','tablist');
-      tabs.innerHTML='<button type="button" class="prepTab" data-prep-tab="checks">Checks & readiness <span class="prepTabBadge" data-tab-checks>0/0</span></button><button type="button" class="prepTab" data-prep-tab="pack">Application pack <span class="prepTabBadge" data-tab-pack>0/4</span></button>';
+      tabs.innerHTML='<button type="button" class="prepTab" data-prep-tab="checks">Checks & readiness <span class="prepTabBadge" data-tab-checks>0/0</span></button><button type="button" class="prepTab" data-prep-tab="pack">Draft workspace <span class="prepTabBadge" data-tab-pack>0/4</span></button>';
       body.insertBefore(tabs,body.firstChild);
-      const hint=document.createElement('div');hint.className='prepTabsHint';hint.textContent='Complete official-source checks first, then build the tailored application pack.';body.insertBefore(hint,tabs.nextSibling);
+      const hint=document.createElement('div');hint.className='prepTabsHint';hint.textContent='Complete official-source checks first, then build the tailored CV, evidence and motivation drafts.';body.insertBefore(hint,tabs.nextSibling);
       tabs.querySelectorAll('.prepTab').forEach(btn=>btn.onclick=()=>{flushTransient(shell);apply(shell,body,btn.dataset.prepTab,true)});
     }
     const e=eligibilityStats(shell),p=packStats(shell),eb=tabs.querySelector('[data-tab-checks]'),pb=tabs.querySelector('[data-tab-pack]');
