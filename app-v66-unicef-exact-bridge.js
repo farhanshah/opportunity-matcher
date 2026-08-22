@@ -1,7 +1,18 @@
 (()=>{
   const ID='INT-005',CACHE='oppUnicefExactFeedV2',TTL=15*60*1000;
   const now=()=>Date.now(),today=()=>new Date().toISOString().slice(0,10);
-  const validItems=items=>(Array.isArray(items)?items:[]).filter(x=>x?.url&&x?.status_verified===true&&x?.verification_level==='exact'&&(!x.deadline||x.deadline>=today()));
+  const genericTitle=t=>/^(?:current vacancies|current vacancy|job search|careers?|vacancies|internships?|job opportunities)$/i.test(String(t||'').trim());
+  function titleFromUrl(url){
+    try{
+      const u=new URL(url),m=u.pathname.match(/\/job\/\d{5,}\/([^/?#]+)/i);if(!m)return'';
+      let s=decodeURIComponent(m[1]).replace(/[-_]+/g,' ').replace(/\s+/g,' ').trim();
+      if(!s)return'';
+      s=s.replace(/\breq(?:uest)?\s*no\s*\d+\b/ig,'').replace(/\s+/g,' ').trim();
+      return s.charAt(0).toUpperCase()+s.slice(1);
+    }catch{return''}
+  }
+  const normalizeItem=x=>{const t=String(x?.title||'').trim();return genericTitle(t)?{...x,title:titleFromUrl(x?.url)||t}:x};
+  const validItems=items=>(Array.isArray(items)?items:[]).map(normalizeItem).filter(x=>x?.url&&x?.status_verified===true&&x?.verification_level==='exact'&&(!x.deadline||x.deadline>=today()));
   function readCache(){try{const c=JSON.parse(localStorage.getItem(CACHE)||'null');if(!c||now()-Number(c.at||0)>TTL)return[];return validItems(c.items)}catch{return[]}}
   function writeCache(items){try{localStorage.setItem(CACHE,JSON.stringify({at:now(),items:validItems(items)}))}catch{}}
   const state={at:0,items:readCache(),loading:false,degraded:false};
@@ -31,7 +42,7 @@
       console.warn('UNICEF exact bridge used resilience path',e);
     }finally{state.loading=false}
   }
-  function status(){const base=baseStatus()||{},baseItems=(Array.isArray(base.items)?base.items:[]).filter(x=>String(x?.programmeId||'')!==ID),merged=[],seen=new Set();for(const x of [...baseItems,...state.items]){const k=`${x?.programmeId||''}|${x?.url||''}`;if(!x?.url||seen.has(k))continue;seen.add(k);merged.push(x)}return{...base,items:merged,unicef_exact_items:state.items.length,unicef_bridge_at:state.at,unicef_authority:'dedicated-exact-resilient-adapter',unicef_degraded:state.degraded}}
+  function status(){const base=baseStatus()||{},baseItems=(Array.isArray(base.items)?base.items:[]).filter(x=>String(x?.programmeId||'')!==ID),merged=[],seen=new Set();for(const x of [...baseItems,...state.items]){const k=`${x?.programmeId||''}|${x?.url||''}`;if(!x?.url||seen.has(k))continue;seen.add(k);merged.push(normalizeItem(x))}return{...base,items:merged,unicef_exact_items:state.items.length,unicef_bridge_at:state.at,unicef_authority:'dedicated-exact-resilient-adapter',unicef_degraded:state.degraded}}
   function refresh(){baseRefresh?.();state.at=0;setTimeout(()=>load(true),160)}
   window.OpportunityBestLive={...original,status,refresh};window.OpportunityUnicefExactBridge={refresh:()=>load(true),status:()=>({at:state.at,items:[...state.items],authority:'dedicated-exact-resilient-adapter',degraded:state.degraded})};
   if(state.items.length)setTimeout(()=>window.dispatchEvent(new CustomEvent('opportunity:verifiedfeedchange',{detail:{unicef_exact:state.items.length,cache:true}})),250);
