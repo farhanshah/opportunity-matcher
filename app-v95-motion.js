@@ -5,11 +5,11 @@
   let publicIO=null;
 
   function addHotfixCss(){
-    if(document.querySelector('link[data-om-hotfix-v127]'))return;
+    if(document.querySelector('link[data-om-hotfix-v128]'))return;
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='/hotfix-v127.css';
-    link.dataset.omHotfixV127='true';
+    link.href='/hotfix-v128.css';
+    link.dataset.omHotfixV128='true';
     document.head.appendChild(link);
   }
 
@@ -26,8 +26,8 @@
 
   function bindPublic(scope=document){
     scope.querySelectorAll?.(PUBLIC_TARGETS).forEach((el,i)=>{
-      if(el.dataset.omMotionV127)return;
-      el.dataset.omMotionV127='1';
+      if(el.dataset.omMotionV128)return;
+      el.dataset.omMotionV128='1';
       el.style.setProperty('--om-stagger',Math.min(i,7));
       if(reduce()){
         el.classList.add('omMotionIn','omRevealed');
@@ -67,8 +67,8 @@
 
   function watchViews(){
     document.querySelectorAll('#app .appBody > section').forEach(section=>{
-      if(section.dataset.omViewWatchV127)return;
-      section.dataset.omViewWatchV127='1';
+      if(section.dataset.omViewWatchV128)return;
+      section.dataset.omViewWatchV128='1';
       let wasHidden=section.classList.contains('hide');
       new MutationObserver(()=>{
         const hidden=section.classList.contains('hide');
