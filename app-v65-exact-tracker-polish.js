@@ -46,6 +46,7 @@
       const title=norm(card.querySelector('.focusTitle')?.textContent||'');
       const row=map.get(title);if(!row)return;
       const {id,t,m}=row;card.classList.add('exactTracked');card.dataset.exactTrackId=id;
+      const studio=window.OpportunityStudioTruth?.getState?.(t);
       const identity=card.querySelector('.focusIdentity > div:last-child');
       if(identity){
         let badge=identity.querySelector('.exactTrackBadge');
@@ -53,10 +54,13 @@
         badge.textContent='Exact live vacancy · tracked';
         let context=identity.querySelector('.exactTrackContext');
         if(!context){context=document.createElement('div');context.className='exactTrackContext';identity.appendChild(context)}
-        context.innerHTML=`${m.why?`<div class="exactTrackLine"><b>Why it fits:</b> ${safe(m.why)}</div>`:''}${m.readiness?`<div class="exactTrackLine"><b>Before applying:</b> ${safe(m.readiness)}</div>`:''}`;
+        if(!studio||!context.children.length)context.innerHTML=`${m.why?`<div class="exactTrackLine"><b>Why it fits:</b> ${safe(m.why)}</div>`:''}${m.readiness?`<div class="exactTrackLine"><b>Before applying:</b> ${safe(m.readiness)}</div>`:''}`;
       }
       const action=card.querySelector('.focusAction');
-      if(action){action.classList.add('exactAction');const b=action.querySelector('b');if(b)b.textContent=nextExactAction(m,t);const s=action.querySelector('span');if(s)s.textContent='Do next · exact vacancy'}
+      if(action){
+        action.classList.add('exactAction');
+        if(!studio){const b=action.querySelector('b');if(b)b.textContent=nextExactAction(m,t);const s=action.querySelector('span');if(s)s.textContent='Do next · exact vacancy'}
+      }
       const tasks=card.querySelector('.focusTasks');
       if(tasks){
         let wrap=tasks.querySelector('.exactTrackActions');
@@ -69,6 +73,7 @@
         link.href=m.url;link.textContent='Official vacancy ↗';
       }
     });
+    if(window.OpportunityStudioTruth?.refresh)setTimeout(()=>window.OpportunityStudioTruth.refresh(),0);
   }
 
   const oldRender=window.renderTracker;
