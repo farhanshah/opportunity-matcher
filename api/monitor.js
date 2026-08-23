@@ -1,8 +1,13 @@
 import { db } from '../lib/db.js';
 import { SOURCE_OPPORTUNITY_MAP, normalizeHtml, sha256, extractSignals, meaningfulChange, expectedContentPresent } from '../lib/monitor.js';
 
-const MAX_SOURCES_PER_RUN = 10;
-const FETCH_CONCURRENCY = 5;
+// The public product currently advertises 20 monitored official sources. Process the
+// whole current registry in one scheduled run so a source is not forced to wait for
+// the following day's cron simply because it fell outside an arbitrary batch of 10.
+// Two waves of up to 10 fetches keep the 60s function budget conservative even when
+// some providers are slow.
+const MAX_SOURCES_PER_RUN = 20;
+const FETCH_CONCURRENCY = 10;
 
 function authorised(req) {
   const secret = process.env.CRON_SECRET;
@@ -89,6 +94,7 @@ export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!authorised(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
+    const startedAt = Date.now();
     const sql = db();
     const due = await sql`
       SELECT id, source_key, provider, source_url, expected_terms, etag, last_modified,
@@ -107,7 +113,22 @@ export default async function handler(req, res) {
       results.push(...batchResults);
     }
 
-    return res.status(200).json({ ok: true, processed: results.length, results, ran_at: new Date().toISOString() });
+    const counts = results.reduce((acc, item) => {
+      acc[item.result] = (acc[item.result] || 0) + 1;
+      return acc;
+    }, {});
+
+    return res.status(200).json({
+      ok: true,
+      processed: results.length,
+      due_selected: due.length,
+      max_sources_per_run: MAX_SOURCES_PER_RUN,
+      concurrency: FETCH_CONCURRENCY,
+      counts,
+      duration_ms: Date.now() - startedAt,
+      results,
+      ran_at: new Date().toISOString()
+    });
   } catch (error) {
     return res.status(500).json({ ok: false, error: error.message });
   }
