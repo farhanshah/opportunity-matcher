@@ -1,0 +1,132 @@
+@import url('/hotfix-v131.css');
+
+/* v132 — application-studio visibility + tracker truthfulness.
+   Make the guided journey impossible to miss and keep the exact-vacancy card
+   consistent with the preparation state stored inside Application Studio. */
+
+/* ---------- APPLICATION STUDIO ROADMAP ---------- */
+.appStudioRoadmapV132{
+  padding:14px 18px 0;
+  background:var(--om-bg-2);
+}
+.appStudioRoadmapV132Inner{
+  display:grid;
+  grid-template-columns:minmax(240px,.9fr) minmax(0,2.1fr);
+  gap:14px;
+  align-items:stretch;
+  border:1px solid var(--om-line);
+  border-radius:17px;
+  background:
+    radial-gradient(circle at 82% -30%,rgba(124,92,255,.16),transparent 35%),
+    linear-gradient(145deg,var(--om-surface),color-mix(in srgb,var(--om-violet) 3%,var(--om-surface)));
+  padding:13px;
+}
+.appStudioNextV132{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-width:0;
+  padding:4px 3px;
+}
+.appStudioNextV132 .ey{
+  font-size:8px;
+  text-transform:uppercase;
+  letter-spacing:.13em;
+  font-weight:900;
+  color:var(--om-lime);
+}
+.appStudioNextV132 b{
+  display:block;
+  margin-top:5px;
+  font-size:16px;
+  line-height:1.25;
+  color:var(--om-heading);
+}
+.appStudioNextV132 p{
+  margin:5px 0 0;
+  font-size:9px;
+  line-height:1.48;
+  color:var(--om-muted);
+}
+.appStudioStepsV132{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+}
+.appStudioStepV132{
+  min-height:78px;
+  border:1px solid var(--om-line);
+  border-radius:12px;
+  background:var(--om-surface-2);
+  color:var(--om-text);
+  text-align:left;
+  padding:9px 10px;
+  cursor:pointer;
+  transition:transform .2s ease,border-color .2s ease,background .2s ease;
+}
+.appStudioStepV132:hover{transform:translateY(-2px);border-color:rgba(167,139,250,.30)}
+.appStudioStepV132.current{
+  background:linear-gradient(145deg,rgba(124,92,255,.17),var(--om-surface-2));
+  border-color:rgba(167,139,250,.34);
+}
+.appStudioStepV132.done{border-color:rgba(216,255,105,.23)}
+.appStudioStepV132 .num{
+  display:grid;
+  place-items:center;
+  width:21px;
+  height:21px;
+  border-radius:7px;
+  background:#0d141d;
+  color:var(--om-lime);
+  font-size:8px;
+  font-weight:900;
+}
+.appStudioStepV132 b{display:block;margin-top:6px;font-size:10px;color:var(--om-heading)}
+.appStudioStepV132 small{display:block;margin-top:3px;font-size:7.5px;line-height:1.35;color:var(--om-muted)}
+
+/* If v131's first roadmap appears as well, v132 owns the guided layer. */
+.appStudioRoadmap{display:none!important}
+
+/* ---------- TAB COPY ---------- */
+#prepShell .prepTab{font-size:10px!important}
+#prepShell .prepTabsHint{font-size:9px!important;line-height:1.45!important}
+
+/* ---------- EXACT TRACKER STATUS ---------- */
+#tracker .exactTracked .exactAction{
+  background:linear-gradient(145deg,rgba(124,92,255,.08),var(--om-surface-2))!important;
+  border-color:rgba(167,139,250,.16)!important;
+}
+#tracker .exactTracked .exactAction span{color:var(--om-violet-2)!important}
+#tracker .exactTracked .exactAction small{color:var(--om-muted)!important}
+#tracker .exactPackStatusV132{
+  padding:8px 10px!important;
+  border:1px solid var(--om-line)!important;
+  border-radius:9px!important;
+  background:rgba(216,255,105,.045)!important;
+  color:var(--om-muted)!important;
+  font-size:8px!important;
+  line-height:1.45!important;
+}
+#tracker .exactPackStatusV132 b{color:var(--om-lime)!important}
+#tracker .focusRing.exactStudioProgress{
+  background:conic-gradient(var(--om-violet) calc(var(--p)*1%),var(--om-surface-3) 0)!important;
+}
+#tracker .focusRing.exactStudioProgress b{color:var(--om-heading)!important}
+
+/* Prepare is now the obvious primary action on an exact vacancy. */
+#tracker .exactTracked .prepOpen{
+  min-height:38px;
+  padding:9px 14px!important;
+  font-size:9px!important;
+  box-shadow:0 8px 24px rgba(216,255,105,.10);
+}
+
+@media(max-width:900px){
+  .appStudioRoadmapV132Inner{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .appStudioStepsV132{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .appStudioStepsV132{grid-template-columns:1fr}
+}
