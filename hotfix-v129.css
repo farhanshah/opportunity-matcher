@@ -1,0 +1,163 @@
+@import url('/hotfix-v128.css');
+
+/* v129 — product hierarchy pass
+   Goal: keep the intelligence, but make the default experience student-facing.
+   Advanced matcher machinery stays available on demand instead of dominating the dashboard. */
+
+/* ---------- DASHBOARD: user-facing order ---------- */
+#dashboard .dashPremium{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:14px!important;
+}
+#dashboard .dashHero{order:1!important}
+#dashboard .matchIntel{order:2!important}
+#dashboard .omActionHub{order:3!important}
+#dashboard .deepLiveV2{order:4!important}
+#dashboard .bestLiveFeed,#dashboard .deepLive{order:5!important}
+#dashboard .specificWorkbench{order:7!important}
+
+/* Internal matcher diagnostics are useful, but not the default dashboard story. */
+#dashboard:not(.omDiagnosticsOpen) .reviewDrivers,
+#dashboard:not(.omDiagnosticsOpen) .routeWorkQueue,
+#dashboard:not(.omDiagnosticsOpen) .specificWorkbench{
+  display:none!important;
+}
+#dashboard.omDiagnosticsOpen .reviewDrivers,
+#dashboard.omDiagnosticsOpen .routeWorkQueue,
+#dashboard.omDiagnosticsOpen .specificWorkbench{
+  display:block!important;
+}
+
+/* When diagnostics are expanded, keep the two analysis blocks balanced. */
+@media(min-width:1101px){
+  #dashboard.omDiagnosticsOpen .matchIntel .reviewDrivers{grid-column:1/2!important}
+  #dashboard.omDiagnosticsOpen .matchIntel .routeWorkQueue{grid-column:2/3!important}
+}
+
+/* ---------- WHAT TO DO NEXT ---------- */
+.omActionHub{
+  border:1px solid var(--om-line)!important;
+  border-radius:22px!important;
+  background:
+    radial-gradient(circle at 92% -10%,rgba(124,92,255,.14),transparent 32%),
+    linear-gradient(145deg,var(--om-surface),color-mix(in srgb,var(--om-mint) 2%,var(--om-surface)))!important;
+  padding:18px!important;
+  box-shadow:0 14px 42px rgba(0,0,0,.07)!important;
+}
+.omActionHubHead{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:13px}
+.omActionHubEy{font-size:9px;text-transform:uppercase;letter-spacing:.13em;color:var(--om-violet-2);font-weight:850}
+.omActionHubHead h3{font-size:21px!important;line-height:1.12!important;margin:4px 0 0!important;color:var(--om-heading)!important}
+.omActionHubHead p{max-width:520px;margin:0!important;color:var(--om-muted)!important;font-size:10px!important;line-height:1.55!important}
+.omActionGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.omActionCard{
+  min-height:132px;
+  display:flex;
+  flex-direction:column;
+  border:1px solid var(--om-line)!important;
+  border-radius:16px!important;
+  background:var(--om-surface-2)!important;
+  padding:14px!important;
+}
+.omActionCard:nth-child(1){box-shadow:inset 0 3px 0 var(--om-lime)}
+.omActionCard:nth-child(2){box-shadow:inset 0 3px 0 var(--om-violet)}
+.omActionCard:nth-child(3){box-shadow:inset 0 3px 0 var(--om-mint)}
+.omActionCard span{font-size:8px;text-transform:uppercase;letter-spacing:.11em;color:var(--om-muted);font-weight:850}
+.omActionCard b{display:block;margin-top:8px;font-size:16px;line-height:1.28;color:var(--om-heading);letter-spacing:-.025em}
+.omActionCard p{font-size:9px!important;line-height:1.48!important;color:var(--om-muted)!important;margin:6px 0 12px!important}
+.omActionCard button{margin-top:auto;align-self:flex-start;border:0;border-radius:10px;background:#0e141d;color:#fff;padding:9px 11px;font-size:9px!important;font-weight:820;cursor:pointer}
+.omActionCard:first-child button{background:var(--om-lime);color:#11160a}
+.omDiagnosticsBar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--om-line)}
+.omDiagnosticsBar span{font-size:9px;color:var(--om-muted);line-height:1.45}
+.omDiagnosticsToggle{border:1px solid var(--om-line-strong);border-radius:10px;background:transparent;color:var(--om-text);padding:8px 11px;font-size:9px!important;font-weight:800;cursor:pointer;white-space:nowrap}
+.omDiagnosticsToggle:hover{border-color:rgba(167,139,250,.35)}
+
+/* Make profile precision more compact now that it is a supporting signal, not the main event. */
+#dashboard .precisionNext{padding:14px 16px!important}
+#dashboard .precisionSignals{margin-top:10px!important}
+#dashboard .precisionSignal{min-height:82px!important;padding:10px!important}
+#dashboard .precisionSignal b{font-size:10px!important}
+#dashboard .precisionSignal span{font-size:8px!important}
+
+/* ---------- BEST LIVE OPENINGS: promote action over engine detail ---------- */
+#dashboard .deepLiveV2{margin-top:0!important;padding:20px!important}
+#dashboard .deepV2Head h3{font-size:23px!important;max-width:680px}
+#dashboard .deepV2Head p{font-size:10px!important;line-height:1.58!important;max-width:720px}
+#dashboard .deepV2Grid{gap:10px!important;margin-top:17px!important}
+#dashboard .deepV2Card{min-height:210px!important;padding:15px!important;background:linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.035))!important}
+#dashboard .deepV2Card h4{font-size:13px!important;line-height:1.34!important;margin:10px 0 6px!important}
+#dashboard .deepV2Card p{font-size:9px!important}
+#dashboard .deepV2Signal{padding:8px!important}
+#dashboard .deepV2Signal span{font-size:7px!important}
+#dashboard .deepV2Signal b{font-size:8.5px!important}
+#dashboard .deepV2Actions a,#dashboard .deepV2Actions button{height:34px!important;font-size:8.5px!important}
+
+/* Advanced modules should read like diagnostics when opened, not primary content. */
+#dashboard .reviewDrivers,#dashboard .routeWorkQueue,#dashboard .specificWorkbench{box-shadow:none!important}
+#dashboard.omDiagnosticsOpen .specificWorkbench{margin-top:0!important}
+
+/* ---------- TRACKER: Focus view becomes the polished default for a small pipeline ---------- */
+#tracker .focusSummary{gap:10px!important;margin-bottom:14px!important}
+#tracker .focusSummaryHero{
+  background:
+    radial-gradient(circle at 90% 0%,rgba(124,92,255,.22),transparent 35%),
+    linear-gradient(135deg,#111823,#20293a)!important;
+  border:1px solid var(--om-line)!important;
+  padding:20px 22px!important;
+}
+#tracker .focusSummaryHero h2{font-size:26px!important;line-height:1.08!important}
+#tracker .focusSummaryStat{background:var(--om-surface)!important;border:1px solid var(--om-line)!important;color:var(--om-text)!important}
+#tracker .focusSummaryStat:nth-child(2){box-shadow:inset 0 3px 0 var(--om-amber)!important}
+#tracker .focusSummaryStat:nth-child(3){box-shadow:inset 0 3px 0 var(--om-mint)!important}
+#tracker .focusSummaryStat:nth-child(4){box-shadow:inset 0 3px 0 var(--om-violet)!important}
+#tracker .focusSummaryStat b{color:var(--om-heading)!important}
+#tracker .focusSummaryStat span{color:var(--om-muted)!important;font-size:8px!important}
+#tracker .focusQueue{gap:12px!important}
+#tracker .focusCard{
+  background:linear-gradient(145deg,var(--om-surface),color-mix(in srgb,var(--om-violet) 2%,var(--om-surface)))!important;
+  border:1px solid var(--om-line)!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.07)!important;
+  padding:18px 18px!important;
+  grid-template-columns:minmax(285px,1.25fr) minmax(235px,.85fr) minmax(235px,.85fr)!important;
+  gap:18px!important;
+}
+#tracker .focusTitle{font-size:16px!important;line-height:1.2!important;color:var(--om-heading)!important}
+#tracker .focusProvider{font-size:9.5px!important;line-height:1.4!important;color:var(--om-muted)!important}
+#tracker .focusMeta span{font-size:8px!important;background:var(--om-surface-2)!important;border-color:var(--om-line)!important;color:var(--om-muted)!important}
+#tracker .focusAction{background:var(--om-surface-2)!important;border-color:var(--om-line)!important}
+#tracker .focusAction span{font-size:8px!important;color:var(--om-violet-2)!important}
+#tracker .focusAction b{font-size:11px!important;line-height:1.42!important;color:var(--om-heading)!important}
+#tracker .focusAction small{font-size:8.5px!important;color:var(--om-muted)!important}
+#tracker .focusRing:after{background:var(--om-surface)!important}
+#tracker .focusStage b{font-size:10px!important;color:var(--om-heading)!important}
+#tracker .focusStage span{font-size:8.5px!important;color:var(--om-muted)!important}
+#tracker .focusStage select{font-size:9px!important;background:var(--om-surface-2)!important;border-color:var(--om-line)!important;color:var(--om-text)!important}
+#tracker .focusTasks{border-color:var(--om-line)!important;gap:8px!important}
+#tracker .focusTask{font-size:8.5px!important;background:var(--om-surface-2)!important;border-color:var(--om-line)!important;color:var(--om-muted)!important}
+#tracker .focusTask.done{background:rgba(99,230,210,.08)!important;border-color:rgba(99,230,210,.18)!important;color:#8cebdd!important}
+#tracker .focusOpen{font-size:9px!important;min-height:36px!important}
+
+/* Exact-vacancy decorations had their own light palette. Bring them into the global system. */
+#tracker .focusCard.exactTracked{border-color:rgba(216,255,105,.20)!important}
+#tracker .exactTrackBadge{background:rgba(216,255,105,.09)!important;border-color:rgba(216,255,105,.18)!important;color:var(--om-lime)!important}
+#tracker .exactTrackLine{background:var(--om-surface-2)!important;border-color:var(--om-line)!important;color:var(--om-muted)!important}
+#tracker .exactTrackLine b{color:var(--om-heading)!important}
+#tracker .exactOfficial{background:rgba(216,255,105,.10)!important;border-color:rgba(216,255,105,.20)!important;color:var(--om-lime)!important}
+
+/* Board view remains available for larger pipelines, but should read as a secondary power view. */
+#tracker .trackerModeBar{margin-bottom:14px!important}
+#tracker .viewToggle{background:var(--om-surface-2)!important;border-color:var(--om-line)!important}
+#tracker .viewToggle button{font-size:9px!important;color:var(--om-muted)!important}
+#tracker .viewToggle button.active{color:#fff!important}
+
+@media(max-width:1100px){
+  .omActionGrid{grid-template-columns:1fr 1fr}
+  .omActionCard:last-child{grid-column:1/-1}
+  #tracker .focusCard{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:760px){
+  .omActionHubHead,.omDiagnosticsBar{align-items:flex-start;flex-direction:column}
+  .omActionGrid{grid-template-columns:1fr}
+  .omActionCard:last-child{grid-column:auto}
+  #tracker .focusCard{grid-template-columns:1fr!important}
+}
