@@ -9,7 +9,12 @@
     dash.classList.toggle('omDiagnosticsOpen',!!open);
     try{localStorage.setItem(OPEN_KEY,open?'1':'0')}catch{}
     const btn=dash.querySelector('.omDiagnosticsToggle');
-    if(btn){btn.textContent=open?'Hide advanced diagnostics':'Show advanced diagnostics';btn.setAttribute('aria-expanded',open?'true':'false')}
+    if(btn){
+      const text=open?'Hide advanced diagnostics':'Show advanced diagnostics';
+      const expanded=open?'true':'false';
+      if(btn.textContent!==text)btn.textContent=text;
+      if(btn.getAttribute('aria-expanded')!==expanded)btn.setAttribute('aria-expanded',expanded);
+    }
   }
 
   function countState(){
@@ -66,9 +71,12 @@
 
   function simplifyLiveCopy(){
     const section=document.querySelector('#dashboard .deepLiveV2');if(!section)return;
-    const ey=section.querySelector('.matchIntelEy');if(ey)ey.textContent='Live opportunities for you';
+    const ey=section.querySelector('.matchIntelEy');
+    const eyebrow='Live opportunities for you';
+    if(ey&&ey.textContent!==eyebrow)ey.textContent=eyebrow;
     const p=section.querySelector('.deepV2Head p');
-    if(p)p.textContent='Verified current openings are ranked using your Passport, vacancy evidence, deadlines and explicit blockers. Open the official vacancy before applying.';
+    const copy='Verified current openings are ranked using your Passport, vacancy evidence, deadlines and explicit blockers. Open the official vacancy before applying.';
+    if(p&&p.textContent!==copy)p.textContent=copy;
   }
 
   function refresh(){
