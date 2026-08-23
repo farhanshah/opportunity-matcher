@@ -1,0 +1,71 @@
+@import url('/hotfix-v129.css');
+
+/* v130 — hierarchy + tracker integrity polish.
+   Keep the user-facing flow stable and make exact-vacancy tracks render everywhere. */
+
+/* ---------- DASHBOARD ORDER ----------
+   v129 made dashPremium a flex column, but legacy blocks without an explicit order
+   fell back to order:0 and jumped above the command-centre hero. Give every direct
+   dashboard block a deterministic place in the story. */
+#dashboard .dashPremium > .dashHero{order:1!important}
+#dashboard .dashPremium > .matchIntel{order:2!important}
+#dashboard .dashPremium > .omActionHub{order:3!important}
+#dashboard .dashPremium > .deepLiveV2{order:4!important}
+#dashboard .dashPremium > .bestLiveFeed,
+#dashboard .dashPremium > .deepLive,
+#dashboard .dashPremium > .exactFeedAuthorityEmpty{order:4!important}
+#dashboard .dashPremium > .dashMainGrid{order:5!important}
+#dashboard .dashPremium > .dashPanel{order:6!important}
+#dashboard .dashPremium > .reviewDrivers{order:7!important}
+#dashboard .dashPremium > .routeWorkQueue{order:8!important}
+#dashboard .dashPremium > .specificWorkbench{order:9!important}
+
+/* If dynamic modules are inserted later, they should not silently leap to the top. */
+#dashboard .dashPremium > :not(.dashHero):not(.matchIntel):not(.omActionHub):not(.deepLiveV2):not(.bestLiveFeed):not(.deepLive):not(.exactFeedAuthorityEmpty):not(.dashMainGrid):not(.dashPanel):not(.reviewDrivers):not(.routeWorkQueue):not(.specificWorkbench){order:10}
+
+/* Priority/deadline/pipeline are supporting planning views now, not the opening story. */
+#dashboard .dashMainGrid{margin-top:0!important}
+#dashboard .dashPremium > .dashPanel{margin-top:0!important}
+#dashboard .dashPanelHead > span{color:var(--om-muted)!important}
+
+/* ---------- TRACKER ---------- */
+/* Focus view is the primary experience for a small pipeline; give exact vacancies
+   the same visual weight as programme-level tracks. */
+#tracker .focusCard.exactTracked,
+#tracker .boardCardV11.exactBoardTracked{
+  border-color:color-mix(in srgb,var(--om-lime) 24%,var(--om-line))!important;
+}
+#tracker .exactTrackBadge,
+#tracker .exactBoardBadge{
+  background:rgba(216,255,105,.09)!important;
+  border-color:rgba(216,255,105,.20)!important;
+  color:var(--om-lime)!important;
+}
+#tracker .exactTrackLine{
+  background:var(--om-surface-2)!important;
+  border-color:var(--om-line)!important;
+  color:var(--om-muted)!important;
+}
+#tracker .exactTrackLine b{color:var(--om-heading)!important}
+#tracker .exactOfficial,
+#tracker .exactOfficialBoard{
+  background:rgba(216,255,105,.09)!important;
+  border-color:rgba(216,255,105,.22)!important;
+  color:var(--om-lime)!important;
+}
+
+/* Keep board mode compact, but improve scanning and reduce the feeling of a tiny card
+   trapped in a huge column. */
+#tracker .boardColumnV11{padding:10px!important}
+#tracker .boardCardV11{padding:11px!important}
+#tracker .boardTitleV11{font-size:12px!important;line-height:1.25!important}
+#tracker .boardProviderV11{font-size:8.5px!important;line-height:1.35!important}
+#tracker .boardEmptyV11{min-height:118px!important}
+
+/* Synced product language should not contradict the cloud status shown in the header. */
+#dashboard .dashPanelHead .omCloudWorkspaceLabel{color:var(--om-muted)!important}
+
+@media(max-width:900px){
+  #dashboard .dashPremium > .dashMainGrid{order:5!important}
+  #dashboard .dashPremium > .dashPanel{order:6!important}
+}
