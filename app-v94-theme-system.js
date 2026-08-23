@@ -13,7 +13,7 @@
 
   function addThemeCss(){
     if(document.querySelector('link[data-om-theme-css]'))return;
-    const link=document.createElement('link');link.rel='stylesheet';link.href='/theme-v1.css';link.dataset.omThemeCss='true';document.head.appendChild(link);
+    const link=document.createElement('link');link.rel='stylesheet';link.href='/theme-v2.css';link.dataset.omThemeCss='true';document.head.appendChild(link);
   }
 
   function autoTheme(){
@@ -26,7 +26,7 @@
   function apply(){
     const theme=resolved();
     root.dataset.omTheme=theme;root.dataset.omThemeMode=mode;
-    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=theme==='dark'?'#0d1118':'#f5f2eb';
+    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=theme==='dark'?'#0b1017':'#f5f3ee';
     document.querySelectorAll('.omThemeToggle').forEach(btn=>{
       btn.setAttribute('aria-label',`Theme: ${label()}. Click to change.`);
       btn.title=`Theme: ${label()} · ${theme==='dark'?'night':'day'} appearance`;

@@ -1,0 +1,265 @@
+@import url('/theme-v1.css');
+
+/* Opportunity Matcher — Reference-led visual system v2
+   Keeps the dark command-centre foundation, but uses the full accent family
+   (lime / violet / mint / amber / coral) instead of leaning on purple alone. */
+
+:root{
+  --om-violet:#7c5cff;
+  --om-violet-2:#a78bfa;
+  --om-lime:#d8ff69;
+  --om-lime-2:#bff24e;
+  --om-mint:#63e6d2;
+  --om-amber:#ffc45f;
+  --om-coral:#ff8585;
+  --om-blue:#72a7ff;
+  --om-ease-out:cubic-bezier(.16,1,.3,1);
+  --om-ease-spring:cubic-bezier(.2,.85,.25,1.15);
+}
+
+html[data-om-theme='dark']{
+  --om-bg:#0b1017;
+  --om-bg-2:#0f151e;
+  --om-surface:#151d28;
+  --om-surface-2:#1b2532;
+  --om-surface-3:#202b39;
+  --om-surface-glass:rgba(18,25,35,.86);
+  --om-text:#edf2f8;
+  --om-heading:#fbfcfe;
+  --om-muted:#b7c1ce;
+  --om-faint:#929dab;
+  --om-line:rgba(255,255,255,.09);
+  --om-line-strong:rgba(255,255,255,.16);
+}
+
+html[data-om-theme='light']{
+  --om-bg:#f5f3ee;
+  --om-bg-2:#fbfaf7;
+  --om-surface:#fffefb;
+  --om-surface-2:#f0eee8;
+  --om-surface-3:#e9e6df;
+  --om-surface-glass:rgba(255,254,251,.88);
+  --om-text:#171b22;
+  --om-heading:#0d1117;
+  --om-muted:#596575;
+  --om-faint:#748091;
+  --om-line:rgba(16,22,31,.11);
+  --om-line-strong:rgba(16,22,31,.18);
+}
+
+/* ---------- Readability ---------- */
+.provider,.providerName,.oppProvider,.oppCard .provider,.savedTile .provider,
+.boardProviderV11,.focusProvider,.priorityCard p,.deadlineInfoV9 span,
+.intelStat small,.metricHint,.boardProgressText span,.focusStage span,
+.routeWorkHead p,.routeWorkCard p,.reviewDriversHead p,.driverRow small,
+.nextSignalCard p,.activeScopeNote,.rwExamples,.boardEmptyV11,
+.savedHero p,.intelHero p,.trackerOverviewHero p{
+  color:var(--om-muted)!important;
+}
+
+.tag,.oppMeta,.focusMeta span,.intelChip,.savedDeadline,.boardBottomV11 small,
+.reviewDriversMeta span,.routeWorkCard .rwTop span{
+  color:var(--om-muted)!important;
+}
+
+.oppCard h3,.savedTile h3,.focusTitle,.boardTitleV11,.priorityCard h4,
+.reviewDriversHead h3,.routeWorkHead h3,.driverRow b,.nextSignalCard h4,
+.routeWorkCard h4,.deadlineInfoV9 b,.dashPanelHead h3{
+  color:var(--om-heading)!important;
+}
+
+/* ---------- Workspace shell ---------- */
+.workspace{
+  background:
+    radial-gradient(circle at 86% 1%,rgba(124,92,255,.10),transparent 24%),
+    radial-gradient(circle at 10% 88%,rgba(99,230,210,.045),transparent 23%),
+    var(--om-bg)!important;
+}
+.appBody{background:transparent!important}
+.appTop{border-bottom-color:var(--om-line)!important}
+.navbtn{position:relative;overflow:hidden;transition:background .26s var(--om-ease-out),color .26s var(--om-ease-out),transform .26s var(--om-ease-out)!important}
+.navbtn:hover{transform:translateX(3px)}
+.navbtn.active{background:linear-gradient(90deg,rgba(124,92,255,.20),rgba(124,92,255,.07))!important;border-color:rgba(167,139,250,.30)!important}
+.navbtn.active .ico{background:linear-gradient(145deg,var(--om-violet),#9a7aff)!important;color:#fff!important;box-shadow:0 8px 22px rgba(124,92,255,.24);transition:transform .35s var(--om-ease-spring)}
+
+/* ---------- Discover ---------- */
+.metric,.intelStat,.savedStat,.trackerMiniStat,.focusSummaryStat{
+  background:var(--om-surface)!important;
+  border:1px solid var(--om-line)!important;
+  color:var(--om-text)!important;
+}
+.metric b,.intelStat b,.savedStat b,.trackerMiniStat b,.focusSummaryStat b{color:var(--om-heading)!important}
+.metric:nth-child(2){box-shadow:inset 0 3px 0 var(--om-mint)!important}
+.metric:nth-child(3){box-shadow:inset 0 3px 0 var(--om-violet)!important}
+.metric:nth-child(4){box-shadow:inset 0 3px 0 var(--om-amber)!important}
+
+.oppCard.upgraded,.savedTile{
+  background:linear-gradient(180deg,var(--om-surface),color-mix(in srgb,var(--om-surface-2) 34%,var(--om-surface)))!important;
+  border:1px solid var(--om-line)!important;
+}
+.oppCard.upgraded:before,.savedTile:before{height:3px!important;background:linear-gradient(90deg,var(--om-violet),var(--om-mint),var(--om-lime))!important}
+.oppGrid>.oppCard:nth-child(4n+2):before,.savedGridPremium>.savedTile:nth-child(4n+2):before{background:linear-gradient(90deg,var(--om-mint),var(--om-blue))!important}
+.oppGrid>.oppCard:nth-child(4n+3):before,.savedGridPremium>.savedTile:nth-child(4n+3):before{background:linear-gradient(90deg,var(--om-amber),var(--om-coral))!important}
+.oppGrid>.oppCard:nth-child(4n+4):before,.savedGridPremium>.savedTile:nth-child(4n+4):before{background:linear-gradient(90deg,var(--om-lime),var(--om-violet))!important}
+.oppLogo,.priorityLogo,.focusLogo,.boardLogoV11{background:color-mix(in srgb,var(--om-violet) 15%,var(--om-surface-2))!important;color:var(--om-violet-2)!important;border:1px solid rgba(167,139,250,.15)}
+.matchWhy,.focusAction,.nextAction{background:var(--om-surface-2)!important;border-color:var(--om-line)!important;color:var(--om-text)!important}
+.matchWhy b,.focusAction b,.nextAction b{color:var(--om-heading)!important}
+.tag,.focusMeta span{background:rgba(255,255,255,.025)!important;border-color:var(--om-line-strong)!important}
+html[data-om-theme='light'] .tag,html[data-om-theme='light'] .focusMeta span{background:rgba(15,20,28,.025)!important}
+.smallBtn,.savedTileActions button{transition:transform .22s var(--om-ease-out),border-color .22s ease,background .22s ease!important}
+.smallBtn:hover,.savedTileActions button:hover{transform:translateY(-2px)}
+
+/* ---------- Saved ---------- */
+.savedHero,.intelHero,.trackerOverviewHero,.focusSummaryHero,.dashHero{
+  background:
+    radial-gradient(circle at 90% -10%,rgba(124,92,255,.28),transparent 38%),
+    radial-gradient(circle at 70% 120%,rgba(99,230,210,.09),transparent 30%),
+    linear-gradient(135deg,#111823,#1c2433 72%,#23283b)!important;
+}
+.savedHero:after,.intelHero:after,.trackerOverviewHero:after,.dashHero:after{border-color:rgba(216,255,105,.10)!important;box-shadow:0 0 0 30px rgba(124,92,255,.07)!important}
+.savedTileBottom{border-color:var(--om-line)!important}
+
+/* ---------- Tracker: remove the light-board-inside-dark-app look ---------- */
+.trackerPremium{gap:18px!important}
+.trackerOverview{gap:12px!important}
+.trackerMiniStat{min-height:132px;box-shadow:none!important}
+.trackerMiniStat:nth-child(2){box-shadow:inset 0 3px 0 var(--om-amber)!important}
+.trackerMiniStat:nth-child(3){box-shadow:inset 0 3px 0 var(--om-mint)!important}
+.trackerMiniStat:nth-child(4){box-shadow:inset 0 3px 0 var(--om-violet)!important}
+.trackerBoardV11{gap:14px!important;padding:2px 2px 12px!important}
+.boardColumnV11{
+  min-height:250px!important;
+  padding:11px!important;
+  background:color-mix(in srgb,var(--om-surface) 84%,transparent)!important;
+  border:1px solid var(--om-line)!important;
+  backdrop-filter:blur(14px);
+  box-shadow:0 18px 45px rgba(0,0,0,.10)!important;
+}
+.boardColumnV11.shortlist{box-shadow:inset 0 3px 0 var(--om-violet),0 18px 45px rgba(0,0,0,.10)!important}
+.boardColumnV11.preparing{box-shadow:inset 0 3px 0 var(--om-lime),0 18px 45px rgba(0,0,0,.10)!important}
+.boardColumnV11.submitted{box-shadow:inset 0 3px 0 var(--om-mint),0 18px 45px rgba(0,0,0,.10)!important}
+.boardColumnV11.outcome{box-shadow:inset 0 3px 0 var(--om-amber),0 18px 45px rgba(0,0,0,.10)!important}
+.boardHeadV11 b{color:var(--om-heading)!important;font-size:12px!important}
+.boardHeadV11 span{background:var(--om-surface-2)!important;border-color:var(--om-line)!important;color:var(--om-text)!important}
+.boardCardV11{
+  background:linear-gradient(180deg,var(--om-surface-2),var(--om-surface))!important;
+  border:1px solid var(--om-line-strong)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.13)!important;
+  transition:transform .28s var(--om-ease-out),border-color .28s ease,box-shadow .28s ease!important;
+}
+.boardCardV11:hover{transform:translateY(-4px);border-color:rgba(167,139,250,.28)!important;box-shadow:0 18px 38px rgba(0,0,0,.18)!important}
+.boardTitleV11{font-size:11.5px!important;color:var(--om-heading)!important}
+.boardProviderV11{color:var(--om-muted)!important}
+.boardDaysV11{background:rgba(124,92,255,.14)!important;color:#c8bcff!important;border:1px solid rgba(124,92,255,.16)}
+.boardDaysV11.urgent{background:rgba(255,196,95,.13)!important;color:#ffd88b!important;border-color:rgba(255,196,95,.18)}
+.progressRing{background:conic-gradient(var(--om-violet) calc(var(--p)*1%),var(--om-surface-3) 0)!important}
+.progressRing:after,.focusRing:after{background:var(--om-surface-2)!important}
+.progressRing b,.focusRing b{color:var(--om-heading)!important}
+.stageSelectV11,.focusStage select{background:var(--om-surface-2)!important;color:var(--om-text)!important;border-color:var(--om-line-strong)!important}
+.nextAction{background:rgba(255,255,255,.025)!important}
+.taskChip,.focusTask{background:var(--om-surface-2)!important;border-color:var(--om-line)!important;color:var(--om-muted)!important}
+.taskChip.done,.focusTask.done{background:rgba(99,230,210,.09)!important;border-color:rgba(99,230,210,.20)!important;color:#90f0e2!important}
+.boardBottomV11{border-color:var(--om-line)!important}.boardBottomV11 button{color:var(--om-violet-2)!important}
+.boardEmptyV11{background:rgba(255,255,255,.018)!important;border-color:var(--om-line-strong)!important;color:var(--om-muted)!important}.boardEmptyV11 b{color:var(--om-text)!important}
+html[data-om-theme='light'] .boardColumnV11{background:rgba(245,243,238,.80)!important}
+html[data-om-theme='light'] .boardCardV11{background:var(--om-surface)!important;box-shadow:0 10px 28px rgba(22,28,38,.06)!important}
+html[data-om-theme='light'] .boardDaysV11{color:#654be8!important;background:#f0ecff!important}
+html[data-om-theme='light'] .boardDaysV11.urgent{color:#8d5f0d!important;background:#fff1d9!important}
+html[data-om-theme='light'] .taskChip.done,html[data-om-theme='light'] .focusTask.done{color:#14715d!important;background:#eefaf5!important}
+
+/* ---------- Dashboard: replace injected white panels with theme surfaces ---------- */
+.reviewDrivers,.routeWorkQueue,.dashPanel,.precisionNext{
+  background:var(--om-surface)!important;
+  border:1px solid var(--om-line)!important;
+  color:var(--om-text)!important;
+  box-shadow:0 16px 42px rgba(0,0,0,.08)!important;
+}
+.reviewDriversHead h3,.routeWorkHead h3{color:var(--om-heading)!important}
+.reviewDriversMeta span{background:var(--om-surface-2)!important;border-color:var(--om-line)!important;color:var(--om-muted)!important}
+.driverRow,.routeWorkCard,.priorityCard,.deadlineRowV9,.pipeStage{
+  background:var(--om-surface-2)!important;
+  border:1px solid var(--om-line)!important;
+  color:var(--om-text)!important;
+}
+.driverCount{background:#0f151f!important;color:#fff!important;border:1px solid rgba(255,255,255,.07)}
+.driverType{background:rgba(124,92,255,.11)!important;border-color:rgba(124,92,255,.22)!important;color:#b8a9ff!important}
+.nextSignalCard,.routeWorkCard.primary{
+  background:linear-gradient(145deg,color-mix(in srgb,var(--om-violet) 12%,var(--om-surface-2)),var(--om-surface-2))!important;
+  border-color:rgba(124,92,255,.23)!important;
+}
+.nextSignalCard h4,.routeWorkCard h4,.routeWorkCard .rwTop b{color:var(--om-heading)!important}
+.nextSignalCard .ey,.matchIntelEy{color:var(--om-violet-2)!important}
+.routeWorkCard small{color:var(--om-violet-2)!important}
+.rwExamples{border-color:var(--om-line)!important;color:var(--om-muted)!important}.rwExamples b{color:var(--om-text)!important}
+.routeWorkNext{background:#101720!important;border:1px solid var(--om-line)!important}
+.priorityCard{transition:transform .25s var(--om-ease-out),background .25s ease,border-color .25s ease!important}
+.priorityCard:hover{background:var(--om-surface-3)!important;border-color:rgba(124,92,255,.23)!important}
+.priorityFoot{border-color:var(--om-line)!important}.priorityFoot b{color:var(--om-violet-2)!important}
+.dayBubble{background:#0d131c!important;border:1px solid var(--om-line)!important}
+.deadlineState{background:rgba(99,230,210,.11)!important;color:#8cebdc!important}.deadlineState.soon{background:rgba(255,196,95,.12)!important;color:#ffd285!important}
+.pipeStage:nth-child(1){box-shadow:inset 0 3px 0 var(--om-violet)}
+.pipeStage:nth-child(2){box-shadow:inset 0 3px 0 var(--om-lime)}
+.pipeStage:nth-child(3){box-shadow:inset 0 3px 0 var(--om-mint)}
+.pipeStage:nth-child(4){box-shadow:inset 0 3px 0 var(--om-amber)}
+html[data-om-theme='light'] .driverType{color:#664be4!important;background:#f2efff!important}
+html[data-om-theme='light'] .deadlineState{color:#146e5b!important;background:#edf9f5!important}
+html[data-om-theme='light'] .deadlineState.soon{color:#8c6010!important;background:#fff3df!important}
+
+/* ---------- Controls ---------- */
+.tools,.filterPanel{background:color-mix(in srgb,var(--om-surface) 92%,transparent)!important;border-color:var(--om-line)!important}
+.tools input,.tools select,.filterPanel input,.filterPanel select{background:var(--om-surface-2)!important;border-color:var(--om-line)!important;color:var(--om-text)!important}
+.viewToggle{background:var(--om-surface-2)!important;border-color:var(--om-line)!important}
+.viewToggle button{color:var(--om-muted)!important}.viewToggle button.active{background:#0d131b!important;color:#fff!important}
+.livePill{border-color:rgba(99,230,210,.18)!important}
+
+/* ---------- Motion: visible, premium, not decorative noise ---------- */
+.omMotionPrimed .hero .kicker,
+.omMotionPrimed .hero h1,
+.omMotionPrimed .hero .heroCopy,
+.omMotionPrimed .hero .heroActions,
+.omMotionPrimed .hero .microTrust,
+.omMotionPrimed .heroVisual{
+  opacity:0;
+  transform:translateY(24px);
+}
+.omMotionReady .hero .kicker{animation:omHeroIn .72s var(--om-ease-out) .05s forwards}
+.omMotionReady .hero h1{animation:omHeroIn .84s var(--om-ease-out) .13s forwards}
+.omMotionReady .hero .heroCopy{animation:omHeroIn .78s var(--om-ease-out) .23s forwards}
+.omMotionReady .hero .heroActions{animation:omHeroIn .76s var(--om-ease-out) .32s forwards}
+.omMotionReady .hero .microTrust{animation:omHeroIn .72s var(--om-ease-out) .40s forwards}
+.omMotionReady .heroVisual{animation:omHeroVisualIn .95s var(--om-ease-out) .18s forwards}
+
+.omMotionPrimed .omMotionTarget{
+  opacity:0;
+  transform:translateY(30px) scale(.987);
+  filter:blur(3px);
+  transition:opacity .72s var(--om-ease-out),transform .82s var(--om-ease-out),filter .64s ease;
+  transition-delay:calc(var(--om-stagger,0)*70ms);
+}
+.omMotionPrimed .omMotionTarget.omMotionIn{opacity:1;transform:none;filter:none}
+.omViewEnter{animation:omViewIn .52s var(--om-ease-out) both}
+.omMetricPop b{animation:omMetricPop .55s var(--om-ease-spring) both}
+.trackerBoardV11 .boardColumnV11,.savedGridPremium .savedTile,.oppGrid .oppCard.upgraded{will-change:transform,opacity}
+
+.btn,.smallBtn,.focusOpen,.boardBottomV11 button,.dashBtn,.routeWorkNext button,.nextSignalCard button{
+  position:relative;
+  transition:transform .22s var(--om-ease-out),box-shadow .22s var(--om-ease-out),filter .22s ease!important;
+}
+.btn:hover,.smallBtn:hover,.focusOpen:hover,.dashBtn:hover,.routeWorkNext button:hover,.nextSignalCard button:hover{transform:translateY(-2px)!important;filter:brightness(1.03)}
+.btn:active,.smallBtn:active,.focusOpen:active,.dashBtn:active,.routeWorkNext button:active,.nextSignalCard button:active{transform:translateY(0) scale(.985)!important}
+.slide.active{animation:omImageDrift 13s ease-in-out infinite alternate}
+
+@keyframes omHeroIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes omHeroVisualIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes omViewIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes omMetricPop{0%{transform:translateY(7px) scale(.94);opacity:.35}100%{transform:none;opacity:1}}
+@keyframes omImageDrift{from{background-position:50% 50%}to{background-position:54% 47%}}
+
+@media(max-width:900px){
+  .boardColumnV11{min-height:220px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .omMotionPrimed .hero .kicker,.omMotionPrimed .hero h1,.omMotionPrimed .hero .heroCopy,.omMotionPrimed .hero .heroActions,.omMotionPrimed .hero .microTrust,.omMotionPrimed .heroVisual,.omMotionPrimed .omMotionTarget{opacity:1!important;transform:none!important;filter:none!important;animation:none!important;transition:none!important}
+  .omViewEnter,.omMetricPop b,.slide.active{animation:none!important}
+}
