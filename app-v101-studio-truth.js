@@ -19,12 +19,15 @@
   }
 
   function relevantVerifyKeys(t){
-    const m=t?.exactVacancy||{},raw=norm(JSON.stringify(m.signals||[])+' '+String(m.readiness||'')+' '+String(m.badge||''));
+    const m=t?.exactVacancy||{};
+    const labels=(Array.isArray(m.signals)?m.signals:[]).map(s=>norm(s?.label||s?.text||s)).filter(Boolean);
+    const readiness=norm(String(m.readiness||'')+' '+String(m.badge||''));
+    const unresolved=[...labels,readiness].join(' | ');
     const keys=['eligibilityReviewed'];
-    if(/language|english|french|arabic/.test(raw))keys.push('languageChecked');
-    if(/nationality|residence|citizen/.test(raw))keys.push('nationalityChecked');
-    if(/education|degree|enrol|student|graduate/.test(raw))keys.push('educationChecked');
-    if(/field|discipline|academic field|study area/.test(raw))keys.push('fieldChecked');
+    if(/check language|language requirement|verify language/.test(unresolved))keys.push('languageChecked');
+    if(/check nationality|check residence|nationality requirement|residence rule/.test(unresolved))keys.push('nationalityChecked');
+    if(/check education|check enrol|education requirement|enrolment requirement/.test(unresolved))keys.push('educationChecked');
+    if(/check field|check discipline|accepted academic fields|accepted field/.test(unresolved))keys.push('fieldChecked');
     return [...new Set(keys)];
   }
 
@@ -66,13 +69,13 @@
   function setTabLabels(shell,s){
     const tabs=shell.querySelector('.prepTabs');if(!tabs)return;
     const checks=tabs.querySelector('[data-prep-tab="checks"]'),pack=tabs.querySelector('[data-prep-tab="pack"]');
-    if(checks){const badge=checks.querySelector('.prepTabBadge');checks.innerHTML=`Verify & readiness <span class="prepTabBadge" data-tab-checks>${s.verifyDone}/${s.verifyTotal}</span>`;checks.onclick=()=>window.OpportunityPreparationTabs?.refresh?.()}
-    if(pack){const badgeText=s.evidenceTotal?`${s.drafted}/${s.evidenceTotal}`:`${[s.cvReady,s.motReady].filter(Boolean).length}/2`;pack.innerHTML=`Evidence & documents <span class="prepTabBadge" data-tab-pack>${badgeText}</span>`;}
+    if(checks){checks.innerHTML=`Verify & readiness <span class="prepTabBadge" data-tab-checks>${s.verifyDone}/${s.verifyTotal}</span>`}
+    if(pack){const badgeText=s.evidenceTotal?`${s.drafted}/${s.evidenceTotal}`:`${[s.cvReady,s.motReady].filter(Boolean).length}/2`;pack.innerHTML=`Evidence & documents <span class="prepTabBadge" data-tab-pack>${badgeText}</span>`}
     const hint=shell.querySelector('.prepTabsHint');if(hint)hint.textContent='Verify the exact rules, map real evidence, assemble the pack, then complete the final provider check.';
   }
 
   function activateTab(shell,tab){
-    const btn=shell.querySelector(`.prepTab[data-prep-tab="${tab}"]`);if(btn){btn.dispatchEvent(new MouseEvent('click',{bubbles:true}));return true}return false;
+    const btn=shell.querySelector(`.prepTab[data-prep-tab="${tab}"]`);if(btn){btn.click();return true}return false;
   }
   function jump(shell,key){
     if(key==='checks'){activateTab(shell,'checks');setTimeout(()=>shell.querySelector('.prepCommand,.prepPanel')?.scrollIntoView({behavior:'smooth',block:'start'}),80);return}
@@ -99,7 +102,7 @@
       const id=card.dataset.exactTrackId,t=tracks[id];if(!t)return;const s=getState(t),copy=next(s);
       const action=card.querySelector('.focusAction');if(action){const label=action.querySelector('span'),b=action.querySelector('b'),small=action.querySelector('small');if(label)label.textContent='Do next · Application Studio';if(b)b.textContent=copy;if(small)small.textContent=`${s.verifyDone}/${s.verifyTotal} official checks · ${s.evidenceMapped}/${s.evidenceTotal||0} proof areas mapped`}
       const ring=card.querySelector('.focusRing');if(ring){ring.style.setProperty('--p',s.progress);ring.classList.add('exactStudioProgressV133');const b=ring.querySelector('b');if(b)b.textContent=`${s.progress}%`}
-      const context=[...card.querySelectorAll('.exactTrackLine')];if(context[1])context[1].innerHTML=s.verified?`<b>Before applying:</b> Official checks recorded. ${copy}`:context[1].innerHTML;
+      const context=[...card.querySelectorAll('.exactTrackLine')];if(context[1]&&s.verified)context[1].innerHTML=`<b>Before applying:</b> Official checks recorded. ${copy}`;
       const status=[...card.querySelectorAll('div,span,p')].find(el=>/^Application pack:/i.test(String(el.textContent||'').trim())&&el.children.length<3);if(status){status.classList.add('exactPackStatusV133');status.innerHTML=`<b>Application pack:</b> ${s.evidenceTotal?`${s.drafted}/${s.evidenceTotal} proof areas drafted`:'Evidence mapping in progress'} · ${s.assembled?'Pack assembled':'Pack not assembled'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`}
       const stage=card.querySelector('.focusStage span');if(stage)stage.textContent=s.finalReady?'Ready / beyond':'Application Studio progress';
     });
