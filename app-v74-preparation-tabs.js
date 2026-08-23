@@ -10,7 +10,9 @@
   document.head.appendChild(style);
 
   function rowFromShell(shell=document.getElementById('prepShell')){
-    const href=shell?.querySelector('a.prepBtn.official')?.href;if(!href||typeof tracks!=='object'||!tracks)return null;
+    if(!shell||typeof tracks!=='object'||!tracks)return null;
+    const stored=shell.dataset?.exactTrackId;if(stored&&tracks[stored])return{id:stored,t:tracks[stored]};
+    const href=shell.querySelector('a.prepBtn.official')?.href;if(!href)return null;
     const target=canon(href),entry=Object.entries(tracks).find(([,t])=>canon(t?.exactVacancy?.url)===target);
     return entry?{id:entry[0],t:entry[1]}:null;
   }
@@ -50,9 +52,9 @@
     let tabs=body.querySelector('.prepTabs');
     if(!tabs){
       tabs=document.createElement('div');tabs.className='prepTabs';tabs.setAttribute('role','tablist');
-      tabs.innerHTML='<button type="button" class="prepTab" data-prep-tab="checks">Checks & readiness <span class="prepTabBadge" data-tab-checks>0/0</span></button><button type="button" class="prepTab" data-prep-tab="pack">Draft workspace <span class="prepTabBadge" data-tab-pack>0/4</span></button>';
+      tabs.innerHTML='<button type="button" class="prepTab" data-prep-tab="checks">Verify & readiness <span class="prepTabBadge" data-tab-checks>0/0</span></button><button type="button" class="prepTab" data-prep-tab="pack">Evidence & documents <span class="prepTabBadge" data-tab-pack>0/4</span></button>';
       body.insertBefore(tabs,body.firstChild);
-      const hint=document.createElement('div');hint.className='prepTabsHint';hint.textContent='Complete official-source checks first, then build the tailored CV, evidence and motivation drafts.';body.insertBefore(hint,tabs.nextSibling);
+      const hint=document.createElement('div');hint.className='prepTabsHint';hint.textContent='Verify the exact rules, map real evidence, assemble the pack, then complete the final provider check.';body.insertBefore(hint,tabs.nextSibling);
       tabs.querySelectorAll('.prepTab').forEach(btn=>btn.onclick=()=>{flushTransient(shell);apply(shell,body,btn.dataset.prepTab,true)});
     }
     const e=eligibilityStats(shell),p=packStats(shell),eb=tabs.querySelector('[data-tab-checks]'),pb=tabs.querySelector('[data-tab-pack]');
@@ -66,5 +68,5 @@
   document.addEventListener('input',e=>{if(e.target?.matches?.('#prepShell [data-role-pack]'))setTimeout(mount,0)},true);
   const obs=new MutationObserver(()=>setTimeout(mount,30));obs.observe(document.body,{subtree:true,childList:true});
   setInterval(mount,1000);setTimeout(mount,600);
-  window.OpportunityPreparationTabs={refresh:mount,flush:flushTransient};
+  window.OpportunityPreparationTabs={refresh:mount,flush:flushTransient,apply};
 })();
