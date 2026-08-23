@@ -1,11 +1,12 @@
 import { db } from '../lib/db.js';
 import { SOURCE_OPPORTUNITY_MAP, normalizeHtml, sha256, extractSignals, meaningfulChange, expectedContentPresent } from '../lib/monitor.js';
+import { ingestExactVacancies } from '../lib/exact-ingest.js';
 
 // The public product currently advertises 20 monitored official sources. Process the
 // whole current registry in one scheduled run so a source is not forced to wait for
 // the following day's cron simply because it fell outside an arbitrary batch of 10.
-// Two waves of up to 10 fetches keep the 60s function budget conservative even when
-// some providers are slow.
+// The exact-vacancy ingestion runs in parallel with these source checks so the same
+// daily cron powers both programme freshness and individual live-vacancy persistence.
 const MAX_SOURCES_PER_RUN = 20;
 const FETCH_CONCURRENCY = 10;
 
@@ -90,6 +91,16 @@ async function processSource(sql, source) {
   }
 }
 
+async function processDueSources(sql, due) {
+  const results = [];
+  for (let i = 0; i < due.length; i += FETCH_CONCURRENCY) {
+    const batch = due.slice(i, i + FETCH_CONCURRENCY);
+    const batchResults = await Promise.all(batch.map(source => processSource(sql, source)));
+    results.push(...batchResults);
+  }
+  return results;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   if (!authorised(req)) return res.status(401).json({ error: 'Unauthorized' });
@@ -106,17 +117,17 @@ export default async function handler(req, res) {
       LIMIT ${MAX_SOURCES_PER_RUN}
     `;
 
-    const results = [];
-    for (let i = 0; i < due.length; i += FETCH_CONCURRENCY) {
-      const batch = due.slice(i, i + FETCH_CONCURRENCY);
-      const batchResults = await Promise.all(batch.map(source => processSource(sql, source)));
-      results.push(...batchResults);
-    }
+    const [results, exactIngest] = await Promise.all([
+      processDueSources(sql, due),
+      ingestExactVacancies(sql, req).catch(error => ([{ provider: 'INGESTION', status: 'degraded', exact: 0, authoritative: false, error: error.message }]))
+    ]);
 
     const counts = results.reduce((acc, item) => {
       acc[item.result] = (acc[item.result] || 0) + 1;
       return acc;
     }, {});
+    const exactHealthy = exactIngest.filter(item => item.status === 'healthy').length;
+    const exactDegraded = exactIngest.filter(item => item.status !== 'healthy').length;
 
     return res.status(200).json({
       ok: true,
@@ -125,6 +136,12 @@ export default async function handler(req, res) {
       max_sources_per_run: MAX_SOURCES_PER_RUN,
       concurrency: FETCH_CONCURRENCY,
       counts,
+      exact_ingest: {
+        providers: exactIngest.length,
+        healthy: exactHealthy,
+        degraded: exactDegraded,
+        results: exactIngest
+      },
       duration_ms: Date.now() - startedAt,
       results,
       ran_at: new Date().toISOString()
