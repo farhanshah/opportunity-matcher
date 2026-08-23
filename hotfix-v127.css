@@ -1,0 +1,108 @@
+/* v127 — visual QA polish: dashboard composition + tracker/readability */
+
+/* DASHBOARD — remove the awkward empty left column beneath Match Intelligence. */
+@media(min-width:1101px){
+  #dashboard .matchIntel{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.65fr) minmax(360px,.85fr)!important;
+    grid-template-areas:
+      "hero dist"
+      "scope scope"
+      "precision precision"!important;
+    gap:12px!important;
+    align-items:stretch!important;
+  }
+  #dashboard .matchIntelHero{
+    grid-area:hero!important;
+    min-height:155px!important;
+    height:100%!important;
+  }
+  #dashboard .matchDist{
+    grid-area:dist!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-self:stretch!important;
+  }
+  #dashboard .matchIntel>.matchDist+div{
+    grid-area:scope!important;
+    margin:0!important;
+    padding:0 2px!important;
+    min-height:12px!important;
+  }
+  #dashboard .precisionNext{
+    grid-area:precision!important;
+    margin:0!important;
+  }
+}
+
+#dashboard .matchDistCard{
+  min-height:104px!important;
+  padding:14px 15px!important;
+}
+#dashboard .matchDistCard span{font-size:8.5px!important}
+#dashboard .matchDistCard b{font-size:29px!important}
+#dashboard .matchDistCard small{font-size:8.5px!important;line-height:1.35!important}
+#dashboard .precisionNext{padding:16px 18px!important}
+#dashboard .precisionSignals{gap:9px!important}
+#dashboard .precisionSignal{min-height:96px!important;padding:11px!important}
+#dashboard .precisionSignal b{font-size:10.5px!important}
+#dashboard .precisionSignal span{font-size:8.5px!important;line-height:1.4!important}
+
+/* TRACKER — keep Kanban compact, but stop making its application cards feel microscopic. */
+#tracker .boardTitleV11{
+  font-size:12.5px!important;
+  line-height:1.24!important;
+  letter-spacing:-.018em!important;
+}
+#tracker .boardProviderV11{
+  font-size:8.8px!important;
+  line-height:1.38!important;
+  margin-top:3px!important;
+}
+#tracker .boardDaysV11{font-size:8.3px!important;padding:5px 7px!important}
+#tracker .boardProgressText b{font-size:9.3px!important}
+#tracker .boardProgressText span{font-size:8.2px!important;line-height:1.35!important}
+#tracker .stageSelectV11{font-size:9.3px!important;padding:8px 9px!important}
+#tracker .nextAction span{font-size:7.2px!important}
+#tracker .nextAction b{font-size:9px!important;line-height:1.4!important}
+#tracker .taskChip{font-size:7.8px!important;padding:7px 5px!important}
+#tracker .boardBottomV11 button{font-size:8.5px!important}
+#tracker .boardBottomV11 small{font-size:7.2px!important}
+#tracker .boardHeadV11 b{font-size:12px!important}
+
+@media(min-width:901px){
+  #tracker .trackerBoardV11{
+    height:clamp(455px,calc(100vh - 345px),690px)!important;
+  }
+  #tracker .boardColumnV11{
+    padding:10px!important;
+  }
+  #tracker .boardEmptyV11{
+    min-height:130px!important;
+    background:linear-gradient(145deg,rgba(255,255,255,.018),rgba(124,92,255,.018))!important;
+  }
+}
+
+/* DISCOVER + SAVED — the hierarchy is good now; lift only the small supporting text. */
+#discover .oppCard .provider,
+#saved .savedTile .provider{
+  font-size:9.5px!important;
+  line-height:1.42!important;
+}
+#discover .oppTag,
+#saved .savedTile .tag{
+  font-size:8.4px!important;
+  line-height:1.2!important;
+  padding:5px 8px!important;
+}
+#discover .deadline,
+#saved .savedDeadline{
+  font-size:8.8px!important;
+}
+#discover .matchWhy b{font-size:9px!important;line-height:1.4!important}
+#discover .matchWhy span{font-size:8.4px!important}
+
+/* Keep tablet and phone layouts stacked and predictable. */
+@media(max-width:1100px){
+  #dashboard .matchIntel{display:grid!important;grid-template-columns:1fr!important}
+  #dashboard .matchIntelHero,#dashboard .matchDist,#dashboard .precisionNext,#dashboard .matchIntel>.matchDist+div{grid-column:1!important;grid-row:auto!important}
+}
