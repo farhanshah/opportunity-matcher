@@ -1,141 +1,113 @@
 (()=>{
   const root=document.documentElement;
   const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const TARGETS=[
-    '.section.reveal','.feature','.liveCard','.step','.oppCard.upgraded','.savedTile',
-    '.trackerOverviewHero','.trackerMiniStat','.boardColumnV11','.focusCard','.focusSummaryHero','.focusSummaryStat',
-    '.dashHero','.dashPanel','.reviewDrivers','.routeWorkQueue','.intelHero','.intelStat','.priorityCard','.deadlineRowV9','.pipeStage','.deepV2Card'
-  ].join(',');
-  const GROUPS=[
-    '.featureGrid','.liveGrid','.steps','.oppGrid','.savedGridPremium','.trackerOverview','.trackerBoardV11',
-    '.focusSummary','.focusQueue','.intelSide','.priorityGrid','.pipelinePanel','.routeWorkGrid','.driverList','.deepV2Grid'
-  ].join(',');
-  let io=null;
+  const PUBLIC_TARGETS='#landing .section.reveal,#landing .feature,#landing .liveCard,#landing .step';
+  let publicIO=null;
 
-  function makeObserver(){
-    if(io||reduce())return;
-    io=new IntersectionObserver(entries=>{
+  function addHotfixCss(){
+    if(document.querySelector('link[data-om-hotfix-v125]'))return;
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='/hotfix-v125.css';
+    link.dataset.omHotfixV125='true';
+    document.head.appendChild(link);
+  }
+
+  function publicObserver(){
+    if(publicIO||reduce())return;
+    publicIO=new IntersectionObserver(entries=>{
       for(const entry of entries){
         if(!entry.isIntersecting)continue;
-        entry.target.classList.add('omMotionIn');
-        io.unobserve(entry.target);
+        entry.target.classList.add('omMotionIn','omRevealed');
+        publicIO.unobserve(entry.target);
       }
-    },{threshold:.10,rootMargin:'0px 0px -34px 0px'});
+    },{threshold:.08,rootMargin:'0px 0px -28px 0px'});
   }
 
-  function bindGroup(group){
-    if(group.dataset.omMotionGroup)return;
-    group.dataset.omMotionGroup='1';
-    [...group.children].forEach((child,i)=>child.style.setProperty('--om-stagger',Math.min(i,7)));
-  }
-
-  function bindTarget(el){
-    if(el.dataset.omMotionV2)return;
-    el.dataset.omMotionV2='1';
-    el.classList.add('omMotionTarget');
-    if(reduce()){
-      el.classList.add('omMotionIn');
-      return;
-    }
-    makeObserver();
-    io?.observe(el);
-  }
-
-  function bindAll(scope=document){
-    scope.querySelectorAll?.(GROUPS).forEach(bindGroup);
-    scope.querySelectorAll?.(TARGETS).forEach(bindTarget);
-  }
-
-  function metricPop(scope=document){
-    const selectors='.metric,.intelStat,.savedStat,.trackerMiniStat,.focusSummaryStat,.pipeStage';
-    scope.querySelectorAll?.(selectors).forEach((el,i)=>{
-      if(el.dataset.omMetricBound)return;
-      el.dataset.omMetricBound='1';
-      el.style.setProperty('--om-stagger',Math.min(i,6));
-      if(!reduce()){
-        setTimeout(()=>{
-          el.classList.remove('omMetricPop');
-          void el.offsetWidth;
-          el.classList.add('omMetricPop');
-        },120+i*55);
+  function bindPublic(scope=document){
+    scope.querySelectorAll?.(PUBLIC_TARGETS).forEach((el,i)=>{
+      if(el.dataset.omMotionV125)return;
+      el.dataset.omMotionV125='1';
+      el.style.setProperty('--om-stagger',Math.min(i,7));
+      if(reduce()){
+        el.classList.add('omMotionIn','omRevealed');
+        return;
       }
+      el.classList.add('omMotionTarget');
+      publicObserver();
+      publicIO?.observe(el);
     });
+  }
+
+  function clearWorkspaceMotion(){
+    document.querySelectorAll('#app .omMotionTarget,#app .omRevealTarget').forEach(el=>{
+      el.classList.add('omMotionIn','omRevealed');
+    });
+    document.querySelectorAll('#app .appBody > section').forEach(section=>{
+      section.style.opacity='';
+      section.style.transform='';
+      section.style.filter='';
+    });
+  }
+
+  function enterSection(section){
+    if(!section||section.classList.contains('hide')||reduce())return;
+    section.animate(
+      [{opacity:.88,transform:'translateY(7px)'},{opacity:1,transform:'translateY(0)'}],
+      {duration:260,easing:'cubic-bezier(.16,1,.3,1)'}
+    );
   }
 
   function enterVisibleView(){
     const visible=[...document.querySelectorAll('#app .appBody > section')].find(s=>!s.classList.contains('hide'));
     if(!visible)return;
-    visible.classList.remove('omViewEnter');
-    void visible.offsetWidth;
-    visible.classList.add('omViewEnter');
-    bindAll(visible);
-    metricPop(visible);
+    clearWorkspaceMotion();
+    enterSection(visible);
   }
 
   function watchViews(){
     document.querySelectorAll('#app .appBody > section').forEach(section=>{
-      if(section.dataset.omViewWatch)return;
-      section.dataset.omViewWatch='1';
-      new MutationObserver(muts=>{
-        if(muts.some(m=>m.attributeName==='class')&&!section.classList.contains('hide')){
-          requestAnimationFrame(()=>enterVisibleView());
-        }
+      if(section.dataset.omViewWatchV125)return;
+      section.dataset.omViewWatchV125='1';
+      let wasHidden=section.classList.contains('hide');
+      new MutationObserver(()=>{
+        const hidden=section.classList.contains('hide');
+        if(hidden===wasHidden)return;
+        wasHidden=hidden;
+        if(!hidden)requestAnimationFrame(()=>{clearWorkspaceMotion();enterSection(section)});
       }).observe(section,{attributes:true,attributeFilter:['class']});
     });
   }
 
   function dynamicWatch(){
     const mo=new MutationObserver(muts=>{
-      let changed=false;
-      for(const m of muts){
-        if(m.addedNodes?.length){changed=true;break}
-      }
-      if(!changed)return;
+      if(!muts.some(m=>m.addedNodes?.length))return;
       clearTimeout(mo._t);
-      mo._t=setTimeout(()=>{bindAll();watchViews();metricPop();},55);
+      mo._t=setTimeout(()=>{
+        bindPublic();
+        watchViews();
+        clearWorkspaceMotion();
+      },70);
     });
     mo.observe(document.body,{subtree:true,childList:true});
   }
 
   function prime(){
-    if(reduce()){
-      root.classList.add('omMotionReady');
-      bindAll();watchViews();metricPop();
-      return;
-    }
-    root.classList.add('omMotionPrimed');
-    bindAll();watchViews();
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      root.classList.add('omMotionReady');
-      enterVisibleView();
-      metricPop();
-    }));
-  }
-
-  function waitForTheme(){
-    const link=document.querySelector('link[data-om-theme-css]');
-    if(link?.sheet){prime();return}
-    if(link){
-      let done=false;
-      const go=()=>{if(done)return;done=true;prime()};
-      link.addEventListener('load',go,{once:true});
-      setTimeout(go,1600);
-      return;
-    }
-    setTimeout(waitForTheme,40);
+    addHotfixCss();
+    root.classList.add('omMotionPrimed','omMotionReady');
+    bindPublic();
+    watchViews();
+    clearWorkspaceMotion();
+    setTimeout(enterVisibleView,80);
   }
 
   document.addEventListener('click',e=>{
-    const btn=e.target.closest?.('.navbtn[data-v]');
-    if(btn&&!reduce())setTimeout(enterVisibleView,20);
+    if(e.target.closest?.('.navbtn[data-v]'))setTimeout(enterVisibleView,40);
   });
-
-  window.addEventListener('opportunity:themechange',()=>{
-    document.body.classList.add('omThemeChanging');
-    setTimeout(()=>document.body.classList.remove('omThemeChanging'),420);
-  });
+  window.addEventListener('focus',()=>{clearWorkspaceMotion();bindPublic()});
+  window.addEventListener('opportunity:themechange',()=>setTimeout(clearWorkspaceMotion,30));
 
   dynamicWatch();
-  waitForTheme();
-  window.OpportunityMotion={refresh:()=>{bindAll();watchViews();enterVisibleView();metricPop()}};
+  prime();
+  window.OpportunityMotion={refresh:()=>{bindPublic();watchViews();clearWorkspaceMotion();enterVisibleView()}};
 })();
