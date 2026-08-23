@@ -16,7 +16,16 @@
   function openWorkspace(view){
     try{window.showApp?.();window.setView?.(view||((tracksCount()>0)?'tracker':'discover'))}catch(e){console.warn('Public CTA workspace route failed',e)}
   }
-  function wire(btn,label,handler){if(!btn)return;btn.innerHTML=label;btn.onclick=handler}
+  function wire(btn,label,handler){
+    if(!btn)return;
+    if(btn.dataset.oppPublicLabel!==label){
+      btn.innerHTML=label;
+      btn.dataset.oppPublicLabel=label;
+    }
+    btn.onclick=handler;
+  }
+  function setText(el,text){if(el&&el.textContent!==text)el.textContent=text}
+  function setHtml(el,html){if(el&&el.innerHTML!==html)el.innerHTML=html}
   function apply(){
     const authed=signedIn();
     const tracks=tracksCount();
@@ -32,9 +41,9 @@
     const footerTag=q('.footer .brandword small');
     const footerCopy=q('.footer > div:last-child');
 
-    if(finalCopy)finalCopy.textContent='Discover live opportunities, check eligibility against official sources, and keep your shortlist and applications together in one workspace.';
-    if(footerTag)footerTag.textContent='global matcher';
-    if(footerCopy)footerCopy.innerHTML='Official-source links remain the source of truth for applications and eligibility.<br>© 2026 Opportunity.';
+    setText(finalCopy,'Discover live opportunities, check eligibility against official sources, and keep your shortlist and applications together in one workspace.');
+    setText(footerTag,'global matcher');
+    setHtml(footerCopy,'Official-source links remain the source of truth for applications and eligibility.<br>© 2026 Opportunity.');
 
     if(authed){
       wire(navCta,'Open workspace <span>↗</span>',()=>openWorkspace());
@@ -53,9 +62,9 @@
     }
   }
 
-  const schedule=()=>{clearTimeout(timer);timer=setTimeout(apply,60)};
+  const schedule=()=>{clearTimeout(timer);timer=setTimeout(apply,80)};
   const observer=new MutationObserver(schedule);
-  observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class']});
+  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
   window.addEventListener('opportunity:statechange',schedule);
   apply();setTimeout(apply,400);setTimeout(apply,1200);setTimeout(apply,2600);
 })();
