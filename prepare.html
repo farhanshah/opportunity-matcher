@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1119">
+  <title>Application Studio · Opportunity</title>
+  <link rel="stylesheet" href="/prepare-v1.css?v=1">
+</head>
+<body>
+  <div id="prepareApp" class="prepareApp">
+    <header class="topbar">
+      <a class="brand" href="/tracker" aria-label="Back to Opportunity Tracker">
+        <span class="brandMark"><i></i></span>
+        <span><b>Opportunity</b><small>APPLICATION STUDIO</small></span>
+      </a>
+      <div class="topActions">
+        <span id="saveState" class="saveState">Saved on this device</span>
+        <a class="ghostBtn" href="/tracker">← Back to tracker</a>
+      </div>
+    </header>
+
+    <main class="pageShell">
+      <div id="emptyState" class="emptyState hide">
+        <div class="emptyMark">O</div>
+        <h1>No tracked exact vacancy found.</h1>
+        <p>Return to Tracker, open a verified live vacancy and track it first.</p>
+        <a class="primaryBtn" href="/tracker">Open Tracker</a>
+      </div>
+
+      <div id="workspace" class="workspace hide">
+        <section class="heroCard">
+          <div class="heroMain">
+            <div class="eyebrow">APPLICATION PREPARATION WORKSPACE</div>
+            <div class="trackSwitchRow">
+              <h1 id="roleTitle">Application</h1>
+              <select id="trackPicker" class="trackPicker" aria-label="Choose tracked application"></select>
+            </div>
+            <p id="roleMeta" class="roleMeta"></p>
+            <div class="heroActions">
+              <a id="officialLink" class="primaryBtn" target="_blank" rel="noopener">Open official vacancy ↗</a>
+              <span id="deadlinePill" class="deadlinePill"></span>
+            </div>
+          </div>
+          <div class="progressCard">
+            <div class="progressTop"><span>Preparation</span><b id="progressPct">0%</b></div>
+            <div class="progressTrack"><i id="progressBar"></i></div>
+            <p id="nextAction">Start with the official-source checks.</p>
+          </div>
+        </section>
+
+        <nav class="stageNav" aria-label="Application preparation stages">
+          <button class="stageBtn active" data-stage="overview"><span>01</span><b>Overview</b><small>Vacancy & next move</small></button>
+          <button class="stageBtn" data-stage="verify"><span>02</span><b>Verify</b><small>Official-source checks</small></button>
+          <button class="stageBtn" data-stage="documents"><span>03</span><b>Documents</b><small>CV, cover & sample</small></button>
+          <button class="stageBtn" data-stage="final"><span>04</span><b>Final review</b><small>Provider check</small></button>
+        </nav>
+
+        <section id="stage-overview" class="stagePanel active">
+          <div class="panelGrid twoOne">
+            <article class="surfaceCard">
+              <div class="sectionEy">VACANCY SNAPSHOT</div>
+              <h2>Keep the official source attached to every decision.</h2>
+              <div id="factsGrid" class="factsGrid"></div>
+            </article>
+            <article class="surfaceCard actionCard">
+              <div class="sectionEy">NEXT BEST ACTION</div>
+              <h2 id="overviewNext">Review the vacancy.</h2>
+              <p id="overviewWhy"></p>
+              <button class="darkBtn" data-jump="verify">Continue preparation →</button>
+            </article>
+          </div>
+          <article class="surfaceCard notesCard">
+            <div class="sectionHead"><div><div class="sectionEy">APPLICATION NOTES</div><h2>Keep role-specific evidence and questions in one place.</h2></div><span class="autosave">Autosaves locally</span></div>
+            <textarea id="notesField" class="largeText" placeholder="Add questions, evidence reminders, provider wording or next steps…"></textarea>
+          </article>
+        </section>
+
+        <section id="stage-verify" class="stagePanel">
+          <article class="surfaceCard">
+            <div class="sectionHead"><div><div class="sectionEy">OFFICIAL-SOURCE VERIFICATION</div><h2>Verify before you invest more time.</h2><p>These checks are evidence of preparation, not an eligibility verdict.</p></div><a id="verifyOfficial" class="ghostBtn" target="_blank" rel="noopener">Open provider page ↗</a></div>
+            <div id="verifyList" class="checkList"></div>
+          </article>
+        </section>
+
+        <section id="stage-documents" class="stagePanel">
+          <div id="documentCards" class="documentGrid"></div>
+          <div id="lazyWorkspace" class="lazyWorkspace hide"></div>
+        </section>
+
+        <section id="stage-final" class="stagePanel">
+          <div class="panelGrid twoOne">
+            <article class="surfaceCard">
+              <div class="sectionEy">SUBMISSION READINESS</div>
+              <h2>Finish the files, then re-check the provider page.</h2>
+              <div id="finalGates" class="gateGrid"></div>
+              <div class="notice">The combined-PDF checkbox remains manual in this lightweight rebuild. The browser-heavy PDF assembler is intentionally disabled until it is rebuilt off the main UI thread.</div>
+            </article>
+            <article class="surfaceCard finalCard">
+              <div class="sectionEy">FINAL PROVIDER CHECK</div>
+              <h2 id="providerTitle">Provider check required.</h2>
+              <p>Open the current vacancy and compare its upload/form requirements with the files you are about to submit.</p>
+              <a id="finalOfficial" class="primaryBtn" target="_blank" rel="noopener">Open official vacancy ↗</a>
+              <label class="confirmRow"><input id="providerConfirm" type="checkbox"><span>I re-checked the final provider requirements.</span></label>
+              <button id="readyBtn" class="readyBtn" disabled>Mark ready to submit</button>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="/prepare-v1.js?v=1"></script>
+</body>
+</html>
