@@ -58,5 +58,5 @@
   setTimeout(reveal,1800);
   window.OpportunityBootFinalize={reveal,applyRoute};
 
-  import('/app-v108-prepare-route.js?v=1').catch(err=>console.warn('Dedicated preparation route failed to load',err));
+  import('/app-v108-prepare-route.js?v=2').catch(err=>console.warn('Dedicated preparation route failed to load',err));
 })();
