@@ -57,4 +57,6 @@
   if(document.fonts?.ready)document.fonts.ready.then(()=>{if(cssReady())setTimeout(reveal,40)}).catch(()=>{});
   setTimeout(reveal,1800);
   window.OpportunityBootFinalize={reveal,applyRoute};
+
+  import('/app-v108-prepare-route.js?v=1').catch(err=>console.warn('Dedicated preparation route failed to load',err));
 })();
