@@ -28,6 +28,7 @@
     { "source": "/saved", "destination": "/index.html" },
     { "source": "/tracker", "destination": "/index.html" },
     { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/prepare", "destination": "/prepare.html" },
     { "source": "/admin", "destination": "/admin.html" }
   ],
   "crons": [
