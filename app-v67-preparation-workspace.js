@@ -1,53 +1,104 @@
 (()=>{
-  const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
-  const norm=v=>String(v||'').toLowerCase().replace(/\s+/g,' ').trim();
-  const defaults=()=>({eligibilityReviewed:false,languageChecked:false,nationalityChecked:false,educationChecked:false,fieldChecked:false,cvReady:false,educationEvidence:false,idReady:false,motivationDraft:false,referencesChecked:false,notes:''});
-  const daysLeft=d=>{if(!d)return null;const x=new Date(`${d}T23:59:59`);if(Number.isNaN(x.getTime()))return null;return Math.max(0,Math.ceil((x-Date.now())/86400000))};
-  const persistTrack=()=>{try{persist?.()}catch{};try{window.OpportunityExactTrackDurability?.save?.()}catch{};window.dispatchEvent(new CustomEvent('opportunity:statechange'))};
+  // Legacy preparation compatibility layer.
+  // The old in-Tracker modal was intentionally retired: it duplicated the
+  // Application Studio, added a large DOM subtree and could make Tracker
+  // unresponsive. Every preparation entry point now uses /prepare?id=… .
+  const hash=s=>{let h=2166136261;for(const ch of String(s||'')){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)};
+  const exactId=url=>`exact_${hash(url)}`;
 
-  const style=document.createElement('style');style.textContent=`
-    .prepOpen{border:0;background:#d8ff69;color:#192008;border-radius:10px;padding:9px 12px;font-size:8px;font-weight:950;white-space:nowrap}.prepOpen:hover{filter:brightness(.98)}
-    .prepModal{position:fixed;inset:0;z-index:9999;background:rgba(12,15,22,.58);backdrop-filter:blur(10px);display:grid;place-items:center;padding:28px}.prepModal.hide{display:none}.prepShell{width:min(980px,96vw);max-height:90vh;overflow:auto;background:#f6f7f9;border:1px solid rgba(255,255,255,.38);border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.25)}
-    .prepHead{display:grid;grid-template-columns:1fr auto;gap:20px;padding:24px 26px;background:linear-gradient(135deg,#171b25,#24293a);color:#fff;border-radius:24px 24px 0 0}.prepEy{font-size:8px;text-transform:uppercase;letter-spacing:.15em;color:#d8ff69;font-weight:950}.prepHead h2{font-size:24px;line-height:1.08;margin:7px 0 6px;letter-spacing:-.035em}.prepHead p{margin:0;font-size:10px;color:#adb4c0}.prepClose{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:20px;cursor:pointer}
-    .prepBody{padding:18px 20px 22px;display:grid;grid-template-columns:1.05fr .95fr;gap:14px}.prepPanel{background:#fff;border:1px solid #e1e4e9;border-radius:16px;padding:16px}.prepPanel h3{font-size:13px;margin:0 0 4px}.prepPanel>p{font-size:8.5px;color:#828995;margin:0 0 12px;line-height:1.5}.prepChecklist{display:grid;gap:8px}.prepCheck{display:flex;gap:9px;align-items:flex-start;padding:9px 10px;border:1px solid #e6e9ed;border-radius:11px;background:#fbfbfc}.prepCheck input{margin-top:2px;accent-color:#7458ff}.prepCheck b{display:block;font-size:9px}.prepCheck span{display:block;font-size:7.5px;color:#858b96;margin-top:2px;line-height:1.4}.prepCheck.done{background:#f2faea;border-color:#dbe9bf}
-    .prepWhy{padding:10px 11px;border-radius:11px;background:#f4f7e8;border:1px solid #dce8bb;font-size:8.5px;line-height:1.5;color:#5b653c;margin-bottom:10px}.prepWhy b{color:#27300d}.prepFacts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.prepFact{padding:10px;border:1px solid #e5e8ec;border-radius:11px}.prepFact span{display:block;font-size:7px;text-transform:uppercase;letter-spacing:.09em;color:#8c929d}.prepFact b{display:block;font-size:9px;margin-top:3px}.prepNotes{width:100%;min-height:118px;resize:vertical;border:1px solid #dfe3e8;border-radius:11px;padding:10px;font:inherit;font-size:9px;background:#fff;box-sizing:border-box}.prepActions{grid-column:1/-1;display:flex;justify-content:space-between;gap:10px;align-items:center}.prepStatus{font-size:8px;color:#7f8691}.prepBtns{display:flex;gap:8px}.prepBtn{border:1px solid #dfe3e8;background:#fff;border-radius:10px;padding:10px 13px;font-size:8px;font-weight:900;text-decoration:none;color:#222}.prepBtn.primary{background:#11151e;color:#fff;border-color:#11151e}.prepBtn.official{background:#d8ff69;color:#1a210a;border-color:#cfe95f}.prepProgress{height:6px;border-radius:999px;background:#e8ebef;overflow:hidden;margin-top:10px}.prepProgress i{display:block;height:100%;background:linear-gradient(90deg,#7658ff,#d8ff69);width:0}
-    @media(max-width:780px){.prepBody{grid-template-columns:1fr}.prepActions{align-items:stretch;flex-direction:column}.prepBtns{display:grid;grid-template-columns:1fr}.prepBtn{text-align:center}.prepFacts{grid-template-columns:1fr}}
-  `;document.head.appendChild(style);
+  const style=document.createElement('style');
+  style.textContent=`
+    .prepOpen{border:0;background:#d8ff69;color:#192008;border-radius:10px;padding:9px 12px;font-size:8px;font-weight:950;white-space:nowrap;cursor:pointer}
+    .prepOpen:hover{filter:brightness(.98)}
+  `;
+  document.head.appendChild(style);
 
-  function mount(){if(document.getElementById('prepModal'))return;document.body.insertAdjacentHTML('beforeend','<div id="prepModal" class="prepModal hide"><div class="prepShell" id="prepShell"></div></div>');document.getElementById('prepModal').addEventListener('click',e=>{if(e.target.id==='prepModal')close()})}
-  function getPrep(t){t.preparation={...defaults(),...(t.preparation||{})};return t.preparation}
-  function unresolved(m){const labels=(m?.signals||[]).map(s=>norm(s.label));return{
-    language:labels.some(x=>x.includes('check language')),
-    nationality:labels.some(x=>x.includes('check nationality')||x.includes('check residence')),
-    education:labels.some(x=>x.includes('check education')||x.includes('enrol')),
-    field:labels.some(x=>x.includes('check field')||x.includes('discipline'))
-  }}
-  function checklistRows(id,t,m){const p=getPrep(t),u=unresolved(m);const rows=[
-    ['eligibilityReviewed','Review the official eligibility section','Confirm the posting is still open and read every eligibility condition on the provider page.'],
-    ...(u.language?[['languageChecked','Confirm language requirement','Check the exact language requirement and whether evidence/certification is requested.']]:[]),
-    ...(u.nationality?[['nationalityChecked','Confirm nationality / residence rule','Verify that the posting accepts your nationality or current residence.']]:[]),
-    ...(u.education?[['educationChecked','Confirm education / enrolment rule','Check degree level, student status and recent-graduate window.']]:[]),
-    ...(u.field?[['fieldChecked','Confirm accepted academic fields','Verify your degree discipline is accepted for this vacancy.']]:[]),
-    ['cvReady','CV / résumé ready','Tailor the CV to the exact role before uploading.'],
-    ['educationEvidence','Education evidence ready','Prepare transcript, degree certificate or enrolment evidence if requested.'],
-    ['idReady','ID / passport file ready','Keep a clear scan available if the application asks for identification.'],
-    ['motivationDraft','Motivation / cover response drafted','Use the vacancy language and your strongest matching evidence.'],
-    ['referencesChecked','Reference requirement checked','Confirm whether referees, letters or contact details are required.']
-  ];
-    return rows.map(([key,title,desc])=>`<label class="prepCheck ${p[key]?'done':''}"><input type="checkbox" data-prep-key="${key}" ${p[key]?'checked':''}><div><b>${safe(title)}</b><span>${safe(desc)}</span></div></label>`).join('')
+  function go(id){
+    if(!id)return;
+    location.assign(`/prepare?id=${encodeURIComponent(id)}`);
   }
-  function progress(p){const keys=['eligibilityReviewed','cvReady','educationEvidence','idReady','motivationDraft','referencesChecked'];const done=keys.filter(k=>p[k]).length;return Math.round(done/keys.length*100)}
-  function render(id){mount();const t=tracks?.[id],m=t?.exactVacancy;if(!t||!m)return;const p=getPrep(t),pct=progress(p),left=daysLeft(m.deadline),shell=document.getElementById('prepShell');
-    shell.dataset.exactTrackId=id;
-    shell.innerHTML=`<div class="prepHead"><div><div class="prepEy">Application preparation workspace</div><h2>${safe(m.title)}</h2><p>${safe(m.provider||'Official provider')} · ${safe(m.location||'See posting')} ${m.deadline?`· deadline ${safe(m.deadline)}`:''}</p><div class="prepProgress"><i style="width:${pct}%"></i></div></div><button class="prepClose" data-prep-close>×</button></div><div class="prepBody"><section class="prepPanel"><h3>1. Verify before you invest time</h3><p>These checks keep “strong fit” separate from actual eligibility.</p><div class="prepChecklist">${checklistRows(id,t,m)}</div></section><section class="prepPanel"><h3>2. Build the application pack</h3><p>Use the ranking evidence as a starting point, then tailor everything to the official posting.</p><div class="prepWhy"><b>Why this route:</b> ${safe(m.why||'This exact vacancy ranked strongly against your Passport.')}</div><div class="prepWhy"><b>Readiness:</b> ${safe(m.readiness||'Confirm all vacancy-specific requirements before applying.')}</div><div class="prepFacts"><div class="prepFact"><span>Deadline</span><b>${safe(m.deadline||'Check posting')}</b></div><div class="prepFact"><span>Time left</span><b>${left==null?'Check posting':`${left} day${left===1?'':'s'}`}</b></div><div class="prepFact"><span>Stage</span><b>${safe(t.stage||'Researching')}</b></div><div class="prepFact"><span>Preparation</span><b>${pct}% complete</b></div></div><h3 style="margin-top:14px">Application notes</h3><p>Save role-specific evidence, questions or wording you want to use later.</p><textarea id="prepNotes" class="prepNotes" placeholder="Example: Check whether English certificate is required; tailor CV bullets to finance/private-sector research...">${safe(p.notes||'')}</textarea></section><div class="prepActions"><div class="prepStatus">Saved to this tracked exact vacancy. The official posting remains the source of truth.</div><div class="prepBtns"><button class="prepBtn" data-prep-close>Close</button><a class="prepBtn official" target="_blank" rel="noopener" href="${safe(m.url)}">Open official vacancy ↗</a><button class="prepBtn primary" data-prep-save>Save preparation</button></div></div></div>`;
-    document.getElementById('prepModal').classList.remove('hide');
-    shell.querySelectorAll('[data-prep-close]').forEach(b=>b.onclick=close);
-    shell.querySelectorAll('[data-prep-key]').forEach(inp=>inp.onchange=()=>{p[inp.dataset.prepKey]=inp.checked;inp.closest('.prepCheck')?.classList.toggle('done',inp.checked);persistTrack();render(id)});
-    shell.querySelector('[data-prep-save]').onclick=()=>{p.notes=String(shell.querySelector('#prepNotes')?.value||'').trim();persistTrack();close();setTimeout(()=>window.renderTracker?.(),30)};
-    setTimeout(()=>{window.OpportunityPreparationTabs?.refresh?.();window.OpportunityStudioTruth?.refresh?.();window.OpportunityApplicationStudio?.refresh?.()},40);
+
+  function cardId(card){
+    return card?.dataset?.exactTrackId||'';
   }
-  function close(){const el=document.getElementById('prepModal');if(el)el.classList.add('hide')}
-  function decorate(){document.querySelectorAll('#tracker .focusCard.exactTracked').forEach(card=>{const id=card.dataset.exactTrackId;if(!id||!tracks?.[id]?.exactVacancy)return;const wrap=card.querySelector('.exactTrackActions')||card.querySelector('.focusTasks');if(!wrap||wrap.querySelector('.prepOpen'))return;const b=document.createElement('button');b.className='prepOpen';b.textContent='Prepare application';b.onclick=()=>render(id);wrap.insertBefore(b,wrap.firstChild)})}
-  const obs=new MutationObserver(()=>setTimeout(decorate,20));obs.observe(document.body,{subtree:true,childList:true});setInterval(decorate,1000);setTimeout(decorate,500);
-  window.OpportunityPreparationWorkspace={open:render,close,refresh:decorate};
+
+  function dashboardId(btn){
+    const card=btn?.closest?.('.deepV2Card');
+    if(!card)return'';
+    const url=card.querySelector('.deepV2Actions a[href]')?.href||'';
+    return url?exactId(url):'';
+  }
+
+  function decorate(){
+    document.querySelectorAll('#tracker .focusCard.exactTracked').forEach(card=>{
+      const id=cardId(card);
+      if(!id||!window.tracks?.[id]?.exactVacancy)return;
+      const wrap=card.querySelector('.exactTrackActions')||card.querySelector('.focusTasks');
+      if(!wrap)return;
+      let b=wrap.querySelector('.prepOpen');
+      if(!b){
+        b=document.createElement('button');
+        b.className='prepOpen';
+        b.textContent='Prepare application';
+        wrap.insertBefore(b,wrap.firstChild);
+      }
+      b.dataset.exactTrackId=id;
+      b.onclick=e=>{e.preventDefault();e.stopPropagation();go(id)};
+    });
+  }
+
+  // Capture clicks so later legacy modules cannot replace the preparation
+  // behaviour with the retired in-page modal or a Tracker-only redirect.
+  document.addEventListener('click',e=>{
+    const prep=e.target.closest?.('.prepOpen');
+    if(prep){
+      const id=prep.dataset.exactTrackId||cardId(prep.closest('.focusCard'));
+      if(!id)return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      go(id);
+      return;
+    }
+
+    const exact=e.target.closest?.('.exactPrepare');
+    if(!exact)return;
+    const id=dashboardId(exact);
+    if(!id)return;
+    const tracked=Boolean(window.tracks?.[id])||exact.classList.contains('tracked')||/in tracker/i.test(exact.textContent||'');
+    if(tracked){
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      go(id);
+      return;
+    }
+
+    // On the first Dashboard click, allow the existing workflow to create the
+    // exact tracked record, then continue directly into Application Studio.
+    try{sessionStorage.setItem('opp_prepare_pending',id)}catch{}
+    setTimeout(()=>{
+      if(window.tracks?.[id]){
+        try{sessionStorage.removeItem('opp_prepare_pending')}catch{}
+        go(id);
+      }
+    },180);
+  },true);
+
+  // Complete a pending Dashboard -> Tracker transition from a legacy handler.
+  function resumePending(){
+    let id='';
+    try{id=sessionStorage.getItem('opp_prepare_pending')||''}catch{}
+    if(!id||!window.tracks?.[id])return;
+    try{sessionStorage.removeItem('opp_prepare_pending')}catch{}
+    go(id);
+  }
+
+  const obs=new MutationObserver(()=>setTimeout(()=>{decorate();resumePending()},20));
+  obs.observe(document.body,{subtree:true,childList:true});
+  window.addEventListener('opportunity:statechange',()=>setTimeout(()=>{decorate();resumePending()},20));
+  setInterval(decorate,1200);
+  setTimeout(()=>{decorate();resumePending()},400);
+
+  window.OpportunityPreparationWorkspace={open:go,close:()=>{},refresh:decorate};
 })();
