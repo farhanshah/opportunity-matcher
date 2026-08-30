@@ -1,6 +1,7 @@
 (()=>{
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const text=el=>String(el?.textContent||'').replace(/\s+/g,' ').trim();
 
   const style=document.createElement('style');
   style.textContent=`
@@ -27,6 +28,7 @@
     }
     return map;
   }
+
   function nextExactAction(m,t){
     const r=norm(m?.readiness),b=norm(m?.badge);
     if(/check language/.test(r)||/check language/.test(b))return'Confirm the language requirement on the official vacancy.';
@@ -36,10 +38,27 @@
     if(/key checks clear/.test(r)||/key checks clear/.test(b))return'Review the required documents and start application preparation.';
     const c=t?.checklist||{};
     if(!c.documents)return'Confirm required documents and start gathering evidence.';
-    if(!c.statement)return'Draft or refine the statement / motivation response.';
+    if(!c.statement)return'Draft or refine your statement / motivation response.';
     if(!c.references)return'Confirm referee and reference requirements.';
-    return'Move the application to the next stage when ready.';
+    return'Move this application to the next stage when ready.';
   }
+
+  function canonicalPack(card,studio){
+    if(!studio||studio.sourceMode!=='dedicatedPrepare')return;
+    const docsDone=[studio.cvReady,studio.motReady,studio.writingReady,studio.pdfReady].filter(Boolean).length;
+    const html=`<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${studio.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${studio.verifyDone}/${studio.verifyTotal} official checks recorded`;
+    const matches=[...card.querySelectorAll('*')].filter(el=>{
+      if(el.closest('.focusAction,.focusTasks,.exactTrackActions'))return false;
+      const v=text(el);if(!v||v.length>260)return false;
+      return /^Application pack:/i.test(v)||/\bproof areas drafted\b/i.test(v)||/\bPack not assembled\b/i.test(v);
+    });
+    const leaves=matches.filter(el=>![...el.children].some(ch=>matches.includes(ch)));
+    (leaves.length?leaves:matches).forEach(el=>{
+      el.classList.add('exactPackStatusV133','exactPackStatusCanonical');
+      if(el.innerHTML!==html)el.innerHTML=html;
+    });
+  }
+
   function decorate(){
     const map=exactByTitle();
     document.querySelectorAll('#tracker .focusCard').forEach(card=>{
@@ -47,6 +66,7 @@
       const row=map.get(title);if(!row)return;
       const {id,t,m}=row;card.classList.add('exactTracked');card.dataset.exactTrackId=id;
       const studio=window.OpportunityStudioTruth?.getState?.(t);
+
       const identity=card.querySelector('.focusIdentity > div:last-child');
       if(identity){
         let badge=identity.querySelector('.exactTrackBadge');
@@ -56,11 +76,15 @@
         if(!context){context=document.createElement('div');context.className='exactTrackContext';identity.appendChild(context)}
         if(!studio||!context.children.length)context.innerHTML=`${m.why?`<div class="exactTrackLine"><b>Why it fits:</b> ${safe(m.why)}</div>`:''}${m.readiness?`<div class="exactTrackLine"><b>Before applying:</b> ${safe(m.readiness)}</div>`:''}`;
       }
+
       const action=card.querySelector('.focusAction');
       if(action){
         action.classList.add('exactAction');
         if(!studio){const b=action.querySelector('b');if(b)b.textContent=nextExactAction(m,t);const s=action.querySelector('span');if(s)s.textContent='Do next · exact vacancy'}
       }
+
+      canonicalPack(card,studio);
+
       const tasks=card.querySelector('.focusTasks');
       if(tasks){
         let wrap=tasks.querySelector('.exactTrackActions');
@@ -82,7 +106,7 @@
     try{renderTracker=wrapped}catch{}window.renderTracker=wrapped;
   }
   const obs=new MutationObserver(()=>setTimeout(decorate,20));
-  obs.observe(document.body,{subtree:true,childList:true});
-  setInterval(decorate,1200);setTimeout(decorate,500);
+  obs.observe(document.body,{subtree:true,childList:true,characterData:true});
+  setInterval(decorate,350);setTimeout(decorate,120);
   window.OpportunityExactTrackerPolish={refresh:decorate};
 })();
