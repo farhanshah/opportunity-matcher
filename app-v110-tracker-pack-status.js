@@ -1,7 +1,6 @@
 (()=>{
-  // v109 is the only source of application-preparation truth.
-  // This module only guarantees that the tracker has one canonical pack-status node
-  // and removes any legacy status strip left behind by older renderers.
+  // Single, event-driven owner of the tracker Application Pack status.
+  // State comes only from OpportunityStudioTruth (v109). No observers or polling.
   let scheduled=false;
   let running=false;
 
@@ -17,8 +16,7 @@
   }
 
   function packNodes(card){
-    const nodes=[...card.querySelectorAll('div,p,span')].filter(el=>clean(el.textContent).includes('application pack:'));
-    // Keep only the deepest matching elements so a parent container is never removed.
+    const nodes=[...card.querySelectorAll('div,p,span')].filter(el=>clean(el.textContent).startsWith('application pack:'));
     return nodes.filter(el=>!nodes.some(other=>other!==el&&el.contains(other)));
   }
 
@@ -32,13 +30,22 @@
     if(!state)return;
 
     let canonical=card.querySelector('[data-om-canonical-pack-status="true"]');
-    for(const node of packNodes(card)){
+    const nodes=packNodes(card);
+
+    // Remove only leaf status rows. Never remove an identity/context parent.
+    for(const node of nodes){
       if(node!==canonical)node.remove();
     }
 
     if(!canonical?.isConnected){
-      const context=card.querySelector('.exactTrackContext');
-      if(!context)return;
+      const identity=card.querySelector('.focusIdentity > div:last-child');
+      if(!identity)return;
+      let context=identity.querySelector('.exactTrackContext');
+      if(!context){
+        context=document.createElement('div');
+        context.className='exactTrackContext';
+        identity.appendChild(context);
+      }
       canonical=document.createElement('div');
       canonical.className='exactTrackLine exactPackStatusV133';
       canonical.dataset.omCanonicalPackStatus='true';
@@ -54,7 +61,7 @@
     if(running)return;
     running=true;
     try{
-      document.querySelectorAll('#tracker .focusCard[data-exact-track-id]').forEach(ensureCard);
+      document.querySelectorAll('#tracker .focusCard.exactTracked[data-exact-track-id]').forEach(ensureCard);
     }finally{
       running=false;
     }
@@ -67,33 +74,24 @@
   }
 
   const previousRender=window.renderTracker;
-  if(typeof previousRender==='function'&&!previousRender.__omPackDomGuard){
+  if(typeof previousRender==='function'&&!previousRender.__omPackStatusOwner){
     const wrapped=function(...args){
       const out=previousRender.apply(this,args);
-      schedule(35);
+      schedule(0);
       return out;
     };
-    wrapped.__omPackDomGuard=true;
+    wrapped.__omPackStatusOwner=true;
     wrapped.__omPrior=previousRender;
     try{renderTracker=wrapped}catch{}
     window.renderTracker=wrapped;
   }
 
-  const tracker=document.getElementById('tracker');
-  if(tracker){
-    const observer=new MutationObserver(mutations=>{
-      if(running)return;
-      if(mutations.some(m=>m.type==='childList'))schedule(0);
-    });
-    observer.observe(tracker,{subtree:true,childList:true});
-  }
-
-  window.addEventListener('opportunity:statechange',()=>schedule(30));
-  window.addEventListener('opportunity:hydrated',()=>schedule(30));
+  window.addEventListener('opportunity:statechange',()=>schedule(0));
+  window.addEventListener('opportunity:hydrated',()=>schedule(0));
   document.addEventListener('click',e=>{
-    if(e.target.closest?.('.navbtn[data-v="tracker"],#tracker .viewToggle button,.prepOpen'))schedule(60);
+    if(e.target.closest?.('.navbtn[data-v="tracker"],.viewToggle,.prepOpen'))schedule(20);
   },true);
 
-  setTimeout(refresh,120);
+  setTimeout(refresh,80);
   window.OpportunityTrackerPackStatus={refresh,schedule};
 })();
