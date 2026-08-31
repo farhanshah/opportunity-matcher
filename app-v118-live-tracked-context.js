@@ -79,7 +79,8 @@
 
   function apply(){
     fixActionGrammar();
-    decorateLive();
+    const liveReady=decorateLive();
+    if(liveReady)queueMicrotask(()=>window.OpportunityReadinessLabels?.refresh?.());
   }
 
   function schedule(){
