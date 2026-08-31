@@ -4,6 +4,7 @@
   const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const hash=s=>{let h=2166136261;for(const ch of String(s||'')){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)};
   const exactId=url=>`exact_${hash(url)}`;
+  let decorateScheduled=false;
 
   const style=document.createElement('style');
   style.textContent=`
@@ -11,37 +12,18 @@
   `;
   document.head.appendChild(style);
 
-  function currentItems(){
-    try{const s=window.OpportunityBestLive?.status?.();return Array.isArray(s?.items)?s.items:[]}catch{return[]}
-  }
-  function itemMap(){
-    const map=new Map();
-    for(const x of currentItems()){
-      const key=`${providerName(x)}|${norm(x.title)}`;
-      if(!map.has(key))map.set(key,x);
-    }
-    return map;
-  }
+  function currentItems(){try{const s=window.OpportunityBestLive?.status?.();return Array.isArray(s?.items)?s.items:[]}catch{return[]}}
+  function itemMap(){const map=new Map();for(const x of currentItems()){const key=`${providerName(x)}|${norm(x.title)}`;if(!map.has(key))map.set(key,x)}return map}
   function cardMeta(card,item){
     const signals=[...card.querySelectorAll('.deepV2Signal')].map(el=>({name:String(el.querySelector('span')?.textContent||'').trim(),label:String(el.querySelector('b')?.textContent||'').trim()}));
     const why=String(card.querySelector('.deepV2RankWhy')?.textContent||'').replace(/^Why ranked:\s*/i,'').trim();
     const readiness=String(card.querySelector('.deepV2Readiness')?.textContent||'').replace(/^Readiness:\s*/i,'').trim();
     const badge=String(card.querySelector('.deepV2Verdict')?.textContent||'').replace(/^#\d+\s*·?\s*/,'').trim();
-    return{
-      title:String(card.querySelector('h4')?.textContent||item.title||'Verified vacancy').trim(),
-      provider:String(card.querySelector('.deepV2Provider')?.textContent||item.provider||item.source||'').trim(),
-      programmeId:item.programmeId||'',url:item.url||'',deadline:item.deadline||'',location:item.location||'',
-      why,readiness,badge,signals,addedAt:new Date().toISOString()
-    };
+    return{title:String(card.querySelector('h4')?.textContent||item.title||'Verified vacancy').trim(),provider:String(card.querySelector('.deepV2Provider')?.textContent||item.provider||item.source||'').trim(),programmeId:item.programmeId||'',url:item.url||'',deadline:item.deadline||'',location:item.location||'',why,readiness,badge,signals,addedAt:new Date().toISOString()};
   }
   function synthetic(id,m){
     const base=Array.isArray(opps)?opps.find(o=>o.Opportunity_ID===m.programmeId):null;
-    return{
-      Opportunity_ID:id,Opportunity_Name:m.title||'Verified vacancy',Provider:m.provider||base?.Provider||'Official provider',
-      Type:base?.Type||'Internship',Destination:m.location||base?.Destination||'See vacancy',Funding:base?.Funding||'Varies',Status:'Open',
-      Close_Date:m.deadline||'',Application_URL:m.url||'',Official_Source_URL:m.url||'',Last_Verified:(m.addedAt||'').slice(0,10),
-      Benefits:Array.isArray(base?.Benefits)?base.Benefits:[],Eligibility_Notes:'Tracked from a verified exact vacancy. Re-check the official posting before submission.'
-    };
+    return{Opportunity_ID:id,Opportunity_Name:m.title||'Verified vacancy',Provider:m.provider||base?.Provider||'Official provider',Type:base?.Type||'Internship',Destination:m.location||base?.Destination||'See vacancy',Funding:base?.Funding||'Varies',Status:'Open',Close_Date:m.deadline||'',Application_URL:m.url||'',Official_Source_URL:m.url||'',Last_Verified:(m.addedAt||'').slice(0,10),Benefits:Array.isArray(base?.Benefits)?base.Benefits:[],Eligibility_Notes:'Tracked from a verified exact vacancy. Re-check the official posting before submission.'};
   }
   function exactEntries(){return Object.entries(tracks||{}).filter(([,t])=>t?.exactVacancy?.url)}
   function withExactOpps(fn){
@@ -62,12 +44,12 @@
     setTimeout(()=>window.renderTracker?.(),20);
   }
   function decorate(){
+    decorateScheduled=false;
     const byTitle=itemMap();
     document.querySelectorAll('#dashboard .deepV2Card').forEach(card=>{
       const provider=String(card.querySelector('.deepV2Provider')?.textContent||'').toUpperCase();
       const title=norm(card.querySelector('h4')?.textContent||'');
-      const item=byTitle.get(`${provider}|${title}`);
-      if(!item?.url)return;
+      const item=byTitle.get(`${provider}|${title}`);if(!item?.url)return;
       const actions=card.querySelector('.deepV2Actions');if(!actions)return;
       let btn=actions.querySelector('button.exactPrepare')||actions.querySelector('button');if(!btn)return;
       btn.classList.add('exactPrepare');
@@ -77,23 +59,34 @@
       btn.onclick=()=>tracked?(typeof setView==='function'&&setView('tracker')):start(cardMeta(card,item));
     });
   }
+  function scheduleDecorate(delay=0){if(decorateScheduled)return;decorateScheduled=true;setTimeout(decorate,delay)}
 
   const previousRenderTracker=window.renderTracker;
-  if(typeof previousRenderTracker==='function'){
-    const wrapped=()=>withExactOpps(()=>previousRenderTracker());
+  if(typeof previousRenderTracker==='function'&&!previousRenderTracker.__omExactWorkflow){
+    const wrapped=(...args)=>withExactOpps(()=>previousRenderTracker(...args));
+    wrapped.__omExactWorkflow=true;
     try{renderTracker=wrapped}catch{}window.renderTracker=wrapped;
   }
+
+  const previousRenderDashboard=window.renderDashboard;
+  if(typeof previousRenderDashboard==='function'&&!previousRenderDashboard.__omExactWorkflow){
+    const wrappedDashboard=function(...args){const out=previousRenderDashboard.apply(this,args);scheduleDecorate(0);return out};
+    wrappedDashboard.__omExactWorkflow=true;
+    try{renderDashboard=wrappedDashboard}catch{}window.renderDashboard=wrappedDashboard;
+  }
+
   const previousSetView=window.setView;
-  if(typeof previousSetView==='function'){
-    const wrappedSet=v=>{const out=previousSetView(v);if(v==='tracker')setTimeout(()=>window.renderTracker?.(),0);return out};
+  if(typeof previousSetView==='function'&&!previousSetView.__omExactWorkflow){
+    const wrappedSet=v=>{const out=previousSetView(v);if(v==='tracker')setTimeout(()=>window.renderTracker?.(),0);if(v==='dashboard')scheduleDecorate(0);return out};
+    wrappedSet.__omExactWorkflow=true;
     try{setView=wrappedSet}catch{}window.setView=wrappedSet;
     document.querySelectorAll('.navbtn[data-v]').forEach(b=>{b.onclick=()=>wrappedSet(b.dataset.v)});
   }
+
   const previousOpenDetail=window.openDetail||openDetail;
   function openExactDetail(id){
     const t=tracks?.[id],m=t?.exactVacancy;if(!m)return false;
-    const o=synthetic(id,m);
-    const signals=Array.isArray(m.signals)?m.signals:[];
+    const o=synthetic(id,m),signals=Array.isArray(m.signals)?m.signals:[];
     const deadlineText=typeof deadline==='function'?deadline(o):(m.deadline||'Check posting');
     const detail=document.getElementById('detail'),inner=document.getElementById('detailInner');if(!detail||!inner)return false;
     detail.classList.add('detailDrawer');
@@ -103,10 +96,10 @@
   const wrappedOpen=id=>openExactDetail(id)||previousOpenDetail(id);
   try{openDetail=wrappedOpen}catch{}window.openDetail=wrappedOpen;
 
-  const obs=new MutationObserver(()=>setTimeout(decorate,30));
-  obs.observe(document.body,{subtree:true,childList:true});
-  window.addEventListener('opportunity:statechange',()=>setTimeout(decorate,180));
-  window.addEventListener('opportunity:verifiedfeedchange',()=>setTimeout(decorate,180));
-  setInterval(decorate,1500);setTimeout(decorate,700);
+  window.addEventListener('opportunity:statechange',()=>scheduleDecorate(20));
+  window.addEventListener('opportunity:verifiedfeedchange',()=>scheduleDecorate(40));
+  window.addEventListener('opportunity:hydrated',()=>scheduleDecorate(20));
+  setTimeout(()=>scheduleDecorate(0),300);
+
   window.OpportunityActionWorkflow={refresh:decorate,start};
 })();
