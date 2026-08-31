@@ -31,7 +31,7 @@
       if(official)wrap.insertBefore(btn,official);else wrap.appendChild(btn);
     }
     btn.dataset.exactTrackId=id;
-    btn.textContent='Mark submitted ✓';
+    btn.textContent='Mark as submitted';
     btn.title='Use only after you have actually submitted on the provider site';
   }
 
