@@ -6,14 +6,20 @@ const state=window.OpportunityState;
 const client=createClient({auth:{url:AUTH_URL},dataApi:{url:DATA_API_URL}});
 window.OpportunityCloudClient=client;
 
-let session=null,passportId=null,ready=false,syncing=false,pending=false,syncTimer=null,mode='signin';
+let session=null,passportId=null,ready=false,syncing=false,pending=false,syncTimer=null,mode='signin',sessionState='checking';
 const css=document.createElement('link');css.rel='stylesheet';css.href='/cloud-v13.css';document.head.appendChild(css);
 
 const initials=user=>String(user?.name||user?.email||'U').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
 const html=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const unwrap=result=>{if(result?.error)throw new Error(result.error.message||String(result.error));return result?.data??result};
-const normalizeSession=result=>{const data=result?.data??result;if(data?.user)return data;return null};
+const normalizeSession=result=>{
+  const data=result?.data??result;
+  const candidate=data?.session??data?.data??data;
+  if(candidate?.user)return candidate;
+  if(data?.user)return data;
+  return null;
+};
 
 function mountUI(){
   if(!document.getElementById('cloudAuthModal')){
@@ -22,10 +28,10 @@ function mountUI(){
   }
   const topRight=document.querySelector('.topRight');
   if(topRight&&!document.getElementById('cloudSyncPill')){
-    const pill=document.createElement('span');pill.id='cloudSyncPill';pill.className='cloudSyncPill';pill.textContent='Local only';topRight.insertBefore(pill,topRight.querySelector('.avatar'));
+    const pill=document.createElement('span');pill.id='cloudSyncPill';pill.className='cloudSyncPill';pill.textContent='Connecting…';topRight.insertBefore(pill,topRight.querySelector('.avatar'));
   }
   const avatar=document.querySelector('.topRight .avatar');
-  if(avatar){avatar.id='cloudAccountEntry';avatar.onclick=()=>openAuth();}
+  if(avatar){avatar.id='cloudAccountEntry';avatar.onclick=()=>sessionState==='error'?refreshSession(true):openAuth();}
   const nav=document.querySelector('.landing .nav');
   if(nav&&!document.getElementById('cloudLandingAuth')){
     const primary=nav.querySelector('.btnPrimary');const b=document.createElement('button');b.id='cloudLandingAuth';b.className='cloudNavAuth';b.textContent='Sign in';b.onclick=()=>openAuth();if(primary)nav.insertBefore(b,primary);else nav.appendChild(b);
@@ -39,11 +45,22 @@ function updateAccountUI(){
   const entry=document.getElementById('cloudAccountEntry');const landing=document.getElementById('cloudLandingAuth');
   if(entry){
     if(session?.user){entry.className='cloudAccountBtn';entry.innerHTML=`<span class="cloudAvatar">${html(initials(session.user))}</span><span>${html((session.user.name||session.user.email||'Account').split(' ')[0])}</span>`}
+    else if(sessionState==='checking'){entry.className='cloudAccountBtn signedOut';entry.innerHTML='<span>Checking…</span>'}
+    else if(sessionState==='error'){entry.className='cloudAccountBtn signedOut';entry.innerHTML='<span>Reconnect</span>'}
     else{entry.className='cloudAccountBtn signedOut';entry.innerHTML='<span>Sign in</span>'}
   }
   if(landing)landing.textContent=session?.user?'My account':'Sign in';
-  const side=document.querySelector('.sideFoot');if(side)side.innerHTML=session?.user?`<b>Cloud workspace</b>Signed in as ${html(session.user.email||session.user.name||'user')}. Changes sync across devices.`:'<b>Local workspace</b>Your profile, saves and tracker are stored in this browser until you sign in.';
-  if(session?.user)setCloudStatus(ready?'Cloud synced':'Connecting…',ready?'ok':'syncing');else setCloudStatus('Local only');
+  const side=document.querySelector('.sideFoot');
+  if(side){
+    if(session?.user)side.innerHTML=`<b>Cloud workspace</b>Signed in as ${html(session.user.email||session.user.name||'user')}. Changes sync across devices.`;
+    else if(sessionState==='checking')side.innerHTML='<b>Cloud workspace</b>Restoring your signed-in session. Your browser copy remains available while we connect.';
+    else if(sessionState==='error')side.innerHTML='<b>Cloud reconnect needed</b>Your browser workspace is safe. Select Reconnect to try the cloud session again.';
+    else side.innerHTML='<b>Local workspace</b>Your profile, saves and tracker are stored in this browser until you sign in.';
+  }
+  if(session?.user)setCloudStatus(ready?'Cloud synced':'Connecting…',ready?'ok':'syncing');
+  else if(sessionState==='checking')setCloudStatus('Connecting…','syncing');
+  else if(sessionState==='error')setCloudStatus('Reconnect','error');
+  else setCloudStatus('Local only');
 }
 
 function renderAuth(){
@@ -88,7 +105,7 @@ async function bootstrapCloud(user){
     const rows=await query(client.from('user_passports').select('*').eq('auth_user_id',user.id).limit(1));
     if(rows?.length){passportId=rows[0].id;await loadCloudState(rows[0]);toast('Workspace restored','Your cloud Passport, shortlist and tracker are loaded on this device.')}
     else{const local=state.getProfile();const created=await query(client.from('user_passports').insert(profileInsertPayload(local,user)).select('*'));if(!created?.length)throw new Error('Could not create your cloud Passport.');passportId=created[0].id;await importLocalChildren();toast('Browser workspace imported','Your existing Passport, saves and tracker are now attached to your account.')}
-    ready=true;updateAccountUI();setCloudStatus('Cloud synced','ok');state.render();renderAuth();
+    ready=true;sessionState='signedin';updateAccountUI();setCloudStatus('Cloud synced','ok');state.render();renderAuth();
   }catch(e){console.error('Cloud bootstrap failed',e);setCloudStatus('Sync issue','error');toast('Cloud sync needs attention',e.message||'Please try signing in again.')}
 }
 async function loadCloudState(passportRow){
@@ -117,13 +134,33 @@ function scheduleSync(){if(!session?.user||!ready)return;clearTimeout(syncTimer)
 async function syncNow(){await performSync();toast('Sync complete','Your current workspace is saved to the cloud.');renderAuth()}
 async function signOut(){
   try{if(ready)await performSync();await client.auth.signOut()}catch(e){console.warn(e)}
-  session=null;passportId=null;ready=false;state.clear();updateAccountUI();closeAuth();try{window.showLanding?.()}catch{}toast('Signed out','The browser copy was cleared. Sign back in to restore your workspace.')
+  session=null;passportId=null;ready=false;sessionState='signedout';state.clear();updateAccountUI();closeAuth();try{window.showLanding?.()}catch{}toast('Signed out','The browser copy was cleared. Sign back in to restore your workspace.')
 }
 async function refreshSession(bootstrap=false){
-  try{session=normalizeSession(await client.auth.getSession());updateAccountUI();if(session?.user&&(bootstrap||!ready))await bootstrapCloud(session.user)}catch(e){console.warn('Session check failed',e);session=null;updateAccountUI()}
+  sessionState='checking';updateAccountUI();
+  let lastError=null;
+  for(let attempt=0;attempt<4;attempt++){
+    try{
+      const restored=normalizeSession(await client.auth.getSession());
+      session=restored;
+      sessionState=restored?.user?'signedin':'signedout';
+      updateAccountUI();
+      if(session?.user&&(bootstrap||!ready))await bootstrapCloud(session.user);
+      return session;
+    }catch(e){
+      lastError=e;
+      console.warn(`Session check failed (attempt ${attempt+1}/4)`,e);
+      if(attempt<3){setCloudStatus('Reconnecting…','syncing');await sleep(350*(attempt+1));}
+    }
+  }
+  sessionState='error';
+  updateAccountUI();
+  console.warn('Session restore unavailable after retries',lastError);
+  toast('Cloud reconnect needed','Your browser workspace is safe. Select Reconnect to try again.');
+  return null;
 }
 
-window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,signOut,syncNow};
+window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,signOut,syncNow,retrySession:()=>refreshSession(true)};
 window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
 await refreshSession(true);
