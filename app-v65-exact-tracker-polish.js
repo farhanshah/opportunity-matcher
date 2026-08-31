@@ -88,6 +88,9 @@
       }
     });
     window.OpportunityTrackerPackStatus?.schedule?.(0);
+    // Exact IDs now exist, so let the dedicated prepare-route module insert/update
+    // its state-aware action exactly once. This replaces the old polling bridge.
+    window.OpportunityPrepareRoute?.refresh?.();
   }
 
   let scheduled=false;
