@@ -15,7 +15,6 @@
     .focusAction.exactAction{background:#151923;color:#fff;border-color:#151923}
     .focusAction.exactAction span,.focusAction.exactAction small{color:#aab1bd}
     .focusAction.exactAction b{color:#fff}
-    /* Only the known legacy status element is hidden. Never hide ancestors. */
     .focusCard.exactTracked .exactPackStatusV132{display:none!important}
     @media(max-width:760px){.exactTrackActions{grid-column:1/-1}.exactOfficial{width:100%;justify-content:center;display:flex}}
   `;
@@ -43,23 +42,6 @@
     if(!c.statement)return'Draft or refine your statement / motivation response.';
     if(!c.references)return'Confirm referee and reference requirements.';
     return'Move this application to the next stage when ready.';
-  }
-
-  function ensureCanonicalStatus(card,studio){
-    if(!studio||studio.sourceMode!=='dedicatedPrepare')return;
-    let status=card.querySelector('.exactPackStatusV133:not(.exactPackStatusV132)');
-    if(!status){
-      status=document.createElement('div');
-      status.className='exactTrackLine exactPackStatusV133';
-      const identity=card.querySelector('.focusIdentity > div:last-child');
-      let context=identity?.querySelector('.exactTrackContext');
-      if(!context&&identity){context=document.createElement('div');context.className='exactTrackContext';identity.appendChild(context)}
-      context?.appendChild(status);
-    }
-    if(!status)return;
-    const docsDone=[studio.cvReady,studio.motReady,studio.writingReady,studio.pdfReady].filter(Boolean).length;
-    const html=`<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${studio.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${studio.verifyDone}/${studio.verifyTotal} official checks recorded`;
-    if(status.innerHTML!==html)status.innerHTML=html;
   }
 
   function decorate(){
@@ -92,8 +74,6 @@
         }
       }
 
-      ensureCanonicalStatus(card,studio);
-
       const tasks=card.querySelector('.focusTasks');
       if(tasks){
         let wrap=tasks.querySelector('.exactTrackActions');
@@ -107,6 +87,7 @@
         if(link.textContent!=='Official vacancy ↗')link.textContent='Official vacancy ↗';
       }
     });
+    window.OpportunityTrackerPackStatus?.schedule?.(0);
   }
 
   let scheduled=false;
