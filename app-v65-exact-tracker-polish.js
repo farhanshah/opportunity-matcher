@@ -1,7 +1,6 @@
 (()=>{
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const text=el=>String(el?.textContent||'').replace(/\s+/g,' ').trim();
 
   const style=document.createElement('style');
   style.textContent=`
@@ -43,22 +42,6 @@
     return'Move this application to the next stage when ready.';
   }
 
-  function canonicalPack(card,studio){
-    if(!studio||studio.sourceMode!=='dedicatedPrepare')return;
-    const docsDone=[studio.cvReady,studio.motReady,studio.writingReady,studio.pdfReady].filter(Boolean).length;
-    const html=`<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${studio.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${studio.verifyDone}/${studio.verifyTotal} official checks recorded`;
-    const matches=[...card.querySelectorAll('*')].filter(el=>{
-      if(el.closest('.focusAction,.focusTasks,.exactTrackActions'))return false;
-      const v=text(el);if(!v||v.length>260)return false;
-      return /^Application pack:/i.test(v)||/\bproof areas drafted\b/i.test(v)||/\bPack not assembled\b/i.test(v);
-    });
-    const leaves=matches.filter(el=>![...el.children].some(ch=>matches.includes(ch)));
-    (leaves.length?leaves:matches).forEach(el=>{
-      el.classList.add('exactPackStatusV133','exactPackStatusCanonical');
-      if(el.innerHTML!==html)el.innerHTML=html;
-    });
-  }
-
   function decorate(){
     const map=exactByTitle();
     document.querySelectorAll('#tracker .focusCard').forEach(card=>{
@@ -71,19 +54,21 @@
       if(identity){
         let badge=identity.querySelector('.exactTrackBadge');
         if(!badge){badge=document.createElement('div');badge.className='exactTrackBadge';identity.insertBefore(badge,identity.firstChild)}
-        badge.textContent='Exact live vacancy · tracked';
+        if(badge.textContent!=='Exact live vacancy · tracked')badge.textContent='Exact live vacancy · tracked';
         let context=identity.querySelector('.exactTrackContext');
         if(!context){context=document.createElement('div');context.className='exactTrackContext';identity.appendChild(context)}
-        if(!studio||!context.children.length)context.innerHTML=`${m.why?`<div class="exactTrackLine"><b>Why it fits:</b> ${safe(m.why)}</div>`:''}${m.readiness?`<div class="exactTrackLine"><b>Before applying:</b> ${safe(m.readiness)}</div>`:''}`;
+        if(!studio&&!context.children.length)context.innerHTML=`${m.why?`<div class="exactTrackLine"><b>Why it fits:</b> ${safe(m.why)}</div>`:''}${m.readiness?`<div class="exactTrackLine"><b>Before applying:</b> ${safe(m.readiness)}</div>`:''}`;
       }
 
       const action=card.querySelector('.focusAction');
       if(action){
         action.classList.add('exactAction');
-        if(!studio){const b=action.querySelector('b');if(b)b.textContent=nextExactAction(m,t);const s=action.querySelector('span');if(s)s.textContent='Do next · exact vacancy'}
+        if(!studio){
+          const b=action.querySelector('b'),s=action.querySelector('span'),copy=nextExactAction(m,t);
+          if(b&&b.textContent!==copy)b.textContent=copy;
+          if(s&&s.textContent!=='Do next · exact vacancy')s.textContent='Do next · exact vacancy';
+        }
       }
-
-      canonicalPack(card,studio);
 
       const tasks=card.querySelector('.focusTasks');
       if(tasks){
@@ -94,10 +79,10 @@
         if(!wrap.querySelector('.focusOpen')){const btn=document.createElement('button');btn.className='focusOpen';btn.textContent='Open analysis ↗';btn.onclick=()=>window.openDetail?.(id);wrap.appendChild(btn)}
         let link=wrap.querySelector('.exactOfficial');
         if(!link){link=document.createElement('a');link.className='exactOfficial';link.target='_blank';link.rel='noopener';wrap.appendChild(link)}
-        link.href=m.url;link.textContent='Official vacancy ↗';
+        if(link.href!==m.url)link.href=m.url;
+        if(link.textContent!=='Official vacancy ↗')link.textContent='Official vacancy ↗';
       }
     });
-    if(window.OpportunityStudioTruth?.refresh)setTimeout(()=>window.OpportunityStudioTruth.refresh(),0);
   }
 
   const oldRender=window.renderTracker;
@@ -105,8 +90,8 @@
     const wrapped=()=>{const out=oldRender();setTimeout(decorate,0);return out};
     try{renderTracker=wrapped}catch{}window.renderTracker=wrapped;
   }
-  const obs=new MutationObserver(()=>setTimeout(decorate,20));
-  obs.observe(document.body,{subtree:true,childList:true,characterData:true});
-  setInterval(decorate,350);setTimeout(decorate,120);
+  const obs=new MutationObserver(()=>{clearTimeout(obs._t);obs._t=setTimeout(decorate,60)});
+  obs.observe(document.body,{subtree:true,childList:true});
+  setTimeout(decorate,180);
   window.OpportunityExactTrackerPolish={refresh:decorate};
 })();
