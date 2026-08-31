@@ -1,11 +1,18 @@
 (()=>{
-  // Single, event-driven owner of the tracker Application Pack status.
-  // State comes only from OpportunityStudioTruth (v109). No observers or polling.
+  // Single event-driven owner for the canonical tracker Application Pack status.
+  // v109 owns state; this module only presents that state. No observers or polling.
   let scheduled=false;
   let running=false;
-
-  const clean=v=>String(v||'').replace(/\s+/g,' ').trim().toLowerCase();
   const store=()=>window.tracks||(typeof tracks==='object'&&tracks?tracks:null);
+
+  const style=document.createElement('style');
+  style.textContent=`
+    /* Once a canonical status exists, the old context is presentation-only legacy.
+       Hide it rather than deleting/recreating DOM, which prevents flicker and loops. */
+    .focusCard.exactTracked:has([data-om-canonical-pack-status="true"]) .exactTrackContext{display:none!important}
+    .focusCard.exactTracked [data-om-canonical-pack-status="true"]{display:block!important;margin-top:9px}
+  `;
+  document.head.appendChild(style);
 
   function packHtml(s){
     if(s.sourceMode==='dedicatedPrepare'){
@@ -15,42 +22,27 @@
     return `<b>Application pack:</b> ${s.evidenceTotal?`${s.drafted}/${s.evidenceTotal} proof areas drafted`:'Evidence mapping in progress'} · ${s.assembled?'Pack assembled':'Pack not assembled'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`;
   }
 
-  function packNodes(card){
-    const nodes=[...card.querySelectorAll('div,p,span')].filter(el=>clean(el.textContent).startsWith('application pack:'));
-    return nodes.filter(el=>!nodes.some(other=>other!==el&&el.contains(other)));
-  }
-
   function ensureCard(card){
     const id=card?.dataset?.exactTrackId;
     const tracksStore=store();
     const truth=window.OpportunityStudioTruth;
     if(!id||!tracksStore?.[id]||typeof truth?.getState!=='function')return;
-
     const state=truth.getState(tracksStore[id]);
     if(!state)return;
 
+    const identity=card.querySelector('.focusIdentity > div:last-child');
+    if(!identity)return;
+
     let canonical=card.querySelector('[data-om-canonical-pack-status="true"]');
-    const nodes=packNodes(card);
-
-    // Remove only leaf status rows. Never remove an identity/context parent.
-    for(const node of nodes){
-      if(node!==canonical)node.remove();
-    }
-
-    if(!canonical?.isConnected){
-      const identity=card.querySelector('.focusIdentity > div:last-child');
-      if(!identity)return;
-      let context=identity.querySelector('.exactTrackContext');
-      if(!context){
-        context=document.createElement('div');
-        context.className='exactTrackContext';
-        identity.appendChild(context);
-      }
+    if(!canonical){
       canonical=document.createElement('div');
-      canonical.className='exactTrackLine exactPackStatusV133';
+      canonical.className='exactTrackLine exactPackStatusV133 omCanonicalPackStatus';
       canonical.dataset.omCanonicalPackStatus='true';
-      context.appendChild(canonical);
     }
+
+    // Keep canonical status OUTSIDE the legacy exactTrackContext so CSS can hide
+    // the entire legacy context without hiding the source-of-truth status.
+    if(canonical.parentElement!==identity)identity.appendChild(canonical);
 
     const html=packHtml(state);
     if(canonical.innerHTML!==html)canonical.innerHTML=html;
@@ -62,9 +54,7 @@
     running=true;
     try{
       document.querySelectorAll('#tracker .focusCard.exactTracked[data-exact-track-id]').forEach(ensureCard);
-    }finally{
-      running=false;
-    }
+    }finally{running=false}
   }
 
   function schedule(delay=0){
