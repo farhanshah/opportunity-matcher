@@ -2,6 +2,8 @@
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const canon=u=>{try{const x=new URL(String(u||''),location.origin);x.hash='';x.search='';return x.href.replace(/\/$/,'')}catch{return String(u||'').trim().replace(/[?#].*$/,'').replace(/\/$/,'')}};
   const meaningful=v=>String(v||'').trim().length>=40;
+  const setText=(el,value)=>{if(el&&el.textContent!==value)el.textContent=value};
+  const setHtml=(el,value)=>{if(el&&el.innerHTML!==value)el.innerHTML=value};
 
   function addCss(){
     if(document.querySelector('link[data-om-hotfix-v133]'))return;
@@ -57,7 +59,7 @@
     const evidenceReady=evidenceTotal>0&&evidenceMapped===evidenceTotal;
     const assembled=Boolean(role.assembledAt)||(String(role.assembledCv||'').trim().length>80&&String(role.assembledMotivation||'').trim().length>80);
     const cvReady=Boolean(p.cvReady),motReady=Boolean(p.motivationDraft);
-    let progress=0;progress+=Math.round((verifyDone/verifyTotal)*20);progress+=evidenceTotal?Math.round((evidenceMapped/evidenceTotal)*25):0;progress+=assembled?10:0;progress+=cvReady?15:0;progress+=motReady?15:0;progress+=finalReady?15:0;progress=Math.min(100,progress);
+    let progress=0;progress+=verifyTotal?Math.round((verifyDone/verifyTotal)*20):0;progress+=evidenceTotal?Math.round((evidenceMapped/evidenceTotal)*25):0;progress+=assembled?10:0;progress+=cvReady?15:0;progress+=motReady?15:0;progress+=finalReady?15:0;progress=Math.min(100,progress);
     return{sourceMode:'legacy',p,role,f,verifyKeys,verifyDone,verifyTotal,verified,evidenceTotal,evidenceMapped,drafted,evidenceReady,assembled,cvReady,motReady,writingReady:false,pdfReady:false,providerReady:false,stage,finalReady,progress};
   }
 
@@ -108,9 +110,9 @@
   function setTabLabels(shell,s){
     const tabs=shell.querySelector('.prepTabs');if(!tabs)return;
     const checks=tabs.querySelector('[data-prep-tab="checks"]'),pack=tabs.querySelector('[data-prep-tab="pack"]');
-    if(checks)checks.innerHTML=`Verify & readiness <span class="prepTabBadge" data-tab-checks>${s.verifyDone}/${s.verifyTotal}</span>`;
-    if(pack){const badgeText=s.sourceMode==='dedicatedPrepare'?`${[s.cvReady,s.motReady,s.writingReady,s.pdfReady].filter(Boolean).length}/4`:(s.evidenceTotal?`${s.drafted}/${s.evidenceTotal}`:`${[s.cvReady,s.motReady].filter(Boolean).length}/2`);pack.innerHTML=`Evidence & documents <span class="prepTabBadge" data-tab-pack>${badgeText}</span>`}
-    const hint=shell.querySelector('.prepTabsHint');if(hint)hint.textContent=s.sourceMode==='dedicatedPrepare'?'Complete the official checks, finish the application files, then run the final provider check.':'Verify the exact rules, map real evidence, assemble the pack, then complete the final provider check.';
+    if(checks)setHtml(checks,`Verify & readiness <span class="prepTabBadge" data-tab-checks>${s.verifyDone}/${s.verifyTotal}</span>`);
+    if(pack){const badgeText=s.sourceMode==='dedicatedPrepare'?`${[s.cvReady,s.motReady,s.writingReady,s.pdfReady].filter(Boolean).length}/4`:(s.evidenceTotal?`${s.drafted}/${s.evidenceTotal}`:`${[s.cvReady,s.motReady].filter(Boolean).length}/2`);setHtml(pack,`Evidence & documents <span class="prepTabBadge" data-tab-pack>${badgeText}</span>`)}
+    const hint=shell.querySelector('.prepTabsHint');if(hint)setText(hint,s.sourceMode==='dedicatedPrepare'?'Complete the official checks, finish the application files, then run the final provider check.':'Verify the exact rules, map real evidence, assemble the pack, then complete the final provider check.');
   }
 
   function activateTab(shell,tab){const btn=shell.querySelector(`.prepTab[data-prep-tab="${tab}"]`);if(btn){btn.click();return true}return false}
@@ -133,31 +135,51 @@
     wrap.querySelectorAll('[data-v133-step]').forEach(btn=>btn.onclick=()=>jump(shell,btn.dataset.v133Step));
   }
 
+  function trackerStatusNode(card){
+    return card.querySelector('.exactPackStatusV133')||[...card.querySelectorAll('div,span,p')].find(el=>/^Application pack:/i.test(String(el.textContent||'').replace(/\s+/g,' ').trim()));
+  }
+
   function decorateTracker(){
     if(typeof tracks!=='object'||!tracks)return;
     document.querySelectorAll('#tracker .focusCard.exactTracked[data-exact-track-id]').forEach(card=>{
       const id=card.dataset.exactTrackId,t=tracks[id];if(!t)return;const s=getState(t),copy=next(s);
-      const action=card.querySelector('.focusAction');if(action){const label=action.querySelector('span'),b=action.querySelector('b'),small=action.querySelector('small');if(label)label.textContent='Do next · Application Studio';if(b)b.textContent=copy;if(small)small.textContent=s.sourceMode==='dedicatedPrepare'?`${s.verifyDone}/${s.verifyTotal} official checks · ${[s.cvReady,s.motReady,s.writingReady,s.pdfReady].filter(Boolean).length}/4 document gates ready`:`${s.verifyDone}/${s.verifyTotal} official checks · ${s.evidenceMapped}/${s.evidenceTotal||0} proof areas mapped`}
-      const ring=card.querySelector('.focusRing');if(ring){ring.style.setProperty('--p',s.progress);ring.classList.add('exactStudioProgressV133');const b=ring.querySelector('b');if(b)b.textContent=`${s.progress}%`}
-      const context=[...card.querySelectorAll('.exactTrackLine')];if(context[1]&&s.verified)context[1].innerHTML=`<b>Before applying:</b> Official checks recorded. ${copy}`;
-      const status=[...card.querySelectorAll('div,span,p')].find(el=>/^Application pack:/i.test(String(el.textContent||'').trim())&&el.children.length<3);
+      const action=card.querySelector('.focusAction');
+      if(action){
+        const label=action.querySelector('span'),b=action.querySelector('b'),small=action.querySelector('small');
+        setText(label,'Do next · Application Studio');setText(b,copy);
+        setText(small,s.sourceMode==='dedicatedPrepare'?`${s.verifyDone}/${s.verifyTotal} official checks · ${[s.cvReady,s.motReady,s.writingReady,s.pdfReady].filter(Boolean).length}/4 document gates ready`:`${s.verifyDone}/${s.verifyTotal} official checks · ${s.evidenceMapped}/${s.evidenceTotal||0} proof areas mapped`);
+      }
+      const ring=card.querySelector('.focusRing');if(ring){ring.style.setProperty('--p',s.progress);ring.classList.add('exactStudioProgressV133');setText(ring.querySelector('b'),`${s.progress}%`)}
+      const context=[...card.querySelectorAll('.exactTrackLine')];if(context[1]&&s.verified)setHtml(context[1],`<b>Before applying:</b> Official checks recorded. ${copy}`);
+      const status=trackerStatusNode(card);
       if(status){
         status.classList.add('exactPackStatusV133');
+        let html='';
         if(s.sourceMode==='dedicatedPrepare'){
           const docsDone=[s.cvReady,s.motReady,s.writingReady,s.pdfReady].filter(Boolean).length;
-          status.innerHTML=`<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${s.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`;
-        }else status.innerHTML=`<b>Application pack:</b> ${s.evidenceTotal?`${s.drafted}/${s.evidenceTotal} proof areas drafted`:'Evidence mapping in progress'} · ${s.assembled?'Pack assembled':'Pack not assembled'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`;
+          html=`<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${s.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`;
+        }else html=`<b>Application pack:</b> ${s.evidenceTotal?`${s.drafted}/${s.evidenceTotal} proof areas drafted`:'Evidence mapping in progress'} · ${s.assembled?'Pack assembled':'Pack not assembled'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`;
+        setHtml(status,html);
       }
-      const stage=card.querySelector('.focusStage span');if(stage)stage.textContent=s.finalReady?'Ready / beyond':'Application Studio progress';
+      setText(card.querySelector('.focusStage span'),s.finalReady?'Ready / beyond':'Application Studio progress');
     });
   }
 
   function refresh(){addCss();mountRoadmap();decorateTracker()}
   addCss();
-  document.addEventListener('click',e=>{if(e.target.closest?.('.prepOpen'))setTimeout(mountRoadmap,120);if(e.target.closest?.('.viewToggle,.navbtn[data-v="tracker"]'))setTimeout(decorateTracker,120)},true);
+
+  const previousRender=window.renderTracker;
+  if(typeof previousRender==='function'){
+    const wrapped=(...args)=>{const out=previousRender(...args);setTimeout(refresh,30);return out};
+    try{renderTracker=wrapped}catch{}window.renderTracker=wrapped;
+  }
+
+  document.addEventListener('click',e=>{
+    if(e.target.closest?.('.prepOpen'))setTimeout(refresh,120);
+    if(e.target.closest?.('.viewToggle,.navbtn[data-v="tracker"]'))setTimeout(refresh,80);
+  },true);
   document.addEventListener('change',e=>{if(e.target.matches?.('#prepShell [data-prep-key],#prepShell [data-final-ready]'))setTimeout(refresh,80)},true);
-  window.addEventListener('opportunity:statechange',()=>setTimeout(refresh,90));
-  const mo=new MutationObserver(()=>{clearTimeout(mo._t);mo._t=setTimeout(refresh,100)});mo.observe(document.body,{subtree:true,childList:true});
-  setInterval(refresh,900);setTimeout(refresh,350);
-  window.OpportunityStudioTruth={refresh,getState,relevantVerifyKeys};
+  window.addEventListener('opportunity:statechange',()=>setTimeout(refresh,70));
+  setTimeout(refresh,300);
+  window.OpportunityStudioTruth={refresh,getState,relevantVerifyKeys,next};
 })();
