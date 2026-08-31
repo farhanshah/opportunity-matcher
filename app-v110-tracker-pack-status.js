@@ -1,18 +1,10 @@
 (()=>{
-  // Single event-driven owner for the canonical tracker Application Pack status.
-  // v109 owns state; this module only presents that state. No observers or polling.
+  // Single event-driven owner for the Tracker Application Pack status.
+  // v109 owns truth; this module only adopts/presents one existing row.
   let scheduled=false;
   let running=false;
   const store=()=>window.tracks||(typeof tracks==='object'&&tracks?tracks:null);
-
-  const style=document.createElement('style');
-  style.textContent=`
-    /* Once a canonical status exists, the old context is presentation-only legacy.
-       Hide it rather than deleting/recreating DOM, which prevents flicker and loops. */
-    .focusCard.exactTracked:has([data-om-canonical-pack-status="true"]) .exactTrackContext{display:none!important}
-    .focusCard.exactTracked [data-om-canonical-pack-status="true"]{display:block!important;margin-top:9px}
-  `;
-  document.head.appendChild(style);
+  const text=el=>String(el?.textContent||'').replace(/\s+/g,' ').trim();
 
   function packHtml(s){
     if(s.sourceMode==='dedicatedPrepare'){
@@ -20,6 +12,13 @@
       return `<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${s.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`;
     }
     return `<b>Application pack:</b> ${s.evidenceTotal?`${s.drafted}/${s.evidenceTotal} proof areas drafted`:'Evidence mapping in progress'} · ${s.assembled?'Pack assembled':'Pack not assembled'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`;
+  }
+
+  function leafPackRows(card){
+    return [...card.querySelectorAll('div,span,p,small')].filter(el=>{
+      if(!/^Application pack:/i.test(text(el)))return false;
+      return ![...el.querySelectorAll('div,span,p,small')].some(ch=>ch!==el&&/^Application pack:/i.test(text(ch)));
+    });
   }
 
   function ensureCard(card){
@@ -30,22 +29,37 @@
     const state=truth.getState(tracksStore[id]);
     if(!state)return;
 
-    const identity=card.querySelector('.focusIdentity > div:last-child');
-    if(!identity)return;
-
+    let rows=leafPackRows(card);
     let canonical=card.querySelector('[data-om-canonical-pack-status="true"]');
+
+    // Adopt the legacy cream row when it exists rather than creating a second row.
     if(!canonical){
-      canonical=document.createElement('div');
-      canonical.className='exactTrackLine exactPackStatusV133 omCanonicalPackStatus';
+      canonical=rows.find(el=>/proof areas drafted|pack not assembled/i.test(text(el)))||rows[0];
+      if(!canonical){
+        const identity=card.querySelector('.focusIdentity > div:last-child');
+        if(!identity)return;
+        canonical=document.createElement('div');
+        canonical.className='exactTrackLine';
+        identity.appendChild(canonical);
+      }
       canonical.dataset.omCanonicalPackStatus='true';
+      canonical.classList.add('exactPackStatusV133','omCanonicalPackStatus');
     }
 
-    // Keep canonical status OUTSIDE the legacy exactTrackContext so CSS can hide
-    // the entire legacy context without hiding the source-of-truth status.
-    if(canonical.parentElement!==identity)identity.appendChild(canonical);
-
+    canonical.hidden=false;
+    canonical.style.removeProperty('display');
+    canonical.removeAttribute('aria-hidden');
     const html=packHtml(state);
     if(canonical.innerHTML!==html)canonical.innerHTML=html;
+
+    // Hide only extra leaf-level pack rows. No observers, removals or parent hiding.
+    rows=leafPackRows(card);
+    rows.forEach(el=>{
+      if(el===canonical)return;
+      el.hidden=true;
+      el.style.display='none';
+      el.setAttribute('aria-hidden','true');
+    });
   }
 
   function refresh(){
