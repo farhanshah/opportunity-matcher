@@ -12,9 +12,6 @@
   const currentExact=()=>valid(tracks||{});
   const preservedExact=()=>({...readKey(JOURNAL),...readKey(EXACT_KEY),...currentExact()});
 
-  // Exact vacancies are local-first today. Restore them before cloud bootstrap and
-  // before the later vacancy-ranking scripts finish loading so /tracker does not
-  // wait several seconds for a second render cycle.
   const earlyExact=preservedExact();
   if(Object.keys(earlyExact).length){
     tracks={...(tracks||{}),...earlyExact};
@@ -52,8 +49,6 @@
     }
   }
 
-  // The base tracker filters tracks against the opportunity array. Wrap it here,
-  // early in boot, so exact tracks are renderable on the first tracker render.
   const originalRenderTracker=window.renderTracker;
   if(typeof originalRenderTracker==='function'){
     const wrappedTracker=function(){return withExactOpps(()=>originalRenderTracker())};
@@ -86,5 +81,5 @@
     window.saveProfileState=function(...args){const r=originalSave.apply(this,args);emit();return r};
     try{saveProfileState=window.saveProfileState}catch{}
   }
-  import('/app-cloud-v13.js').catch(err=>console.error('Cloud workspace module failed',err));
+  import('/app-cloud-v13.js?build=20260831-v184').catch(err=>console.error('Cloud workspace module failed',err));
 })();
