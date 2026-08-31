@@ -50,19 +50,23 @@
   }
   function readiness(state,item){
     if(state.blocks)return{label:'Blocked signal',cls:'low',detail:'An explicit blocker was detected; open the vacancy before taking action.'};
-    const reasons=Array.isArray(item?._passport_rank_reasons)?item._passport_rank_reasons:[];
+    const reasons=Array.isArray(item?._passport_rank_reasons)?item._passport_rank_reasons.filter(Boolean):[];
     const delta=Number(item?._passport_rank_delta||0);
     const reviews=state.keyReviews.length;
     const action=reviewAction(state);
+    const weakField=state.keyReviews.some(r=>/(no clear field|check field|discipline|study field)/.test(r.label));
     if(state.passes>=3&&reviews===0&&delta>=5)return{label:'High fit · key checks clear',cls:'ready',detail:'Strong Passport alignment; no unresolved key checks are flagged on this screen.'};
     if(state.passes>=2&&reviews<=1&&delta>=5)return{label:`Strong fit · ${action}`,cls:'verify',detail:reviews===1?`Strong role fit; ${action} on the exact posting before applying.`:'Strong role fit; open the exact posting for a final confirmation before applying.'};
     if(state.passes>=2&&delta>=3)return{label:`Good fit · ${action}`,cls:'verify',detail:'Relevant match, but one or more eligibility details still need confirmation.'};
-    if(reasons.length)return{label:'Worth checking',cls:'good',detail:'Role relevance is positive, but evidence is not strong enough for a higher readiness label.'};
-    return{label:'Worth checking',cls:'good',detail:'Open the exact posting and verify the remaining requirements.'};
+    if(weakField&&state.passes<2)return{label:'Possible · verify role fit',cls:'low',detail:'The route may still be eligible, but the vacancy evidence does not show a clear match to your study field yet.'};
+    if(reasons.length)return{label:'Worth checking',cls:'good',detail:'Some Passport relevance is positive, but the evidence is not strong enough for a higher readiness label.'};
+    return{label:'Lower relevance',cls:'low',detail:'No strong role-relevance signal is resolved yet; inspect the posting before spending preparation time.'};
   }
   function decorate(){
+    const root=document.querySelector('#dashboard .deepLiveV2');
+    if(!root)return false;
     const byTitle=mapItems();
-    document.querySelectorAll('#dashboard .deepV2Card').forEach(card=>{
+    root.querySelectorAll('.deepV2Card').forEach(card=>{
       const provider=String(card.querySelector('.deepV2Provider')?.textContent||'').toUpperCase();
       const title=norm(card.querySelector('h4')?.textContent||'');
       const item=byTitle.get(`${provider}|${title}`);
@@ -87,14 +91,18 @@
       if(note)note.innerHTML=`<b>Readiness:</b> ${esc(r.detail)}`;
     });
 
-    const head=document.querySelector('#dashboard .deepLiveV2 .deepV2Head p');
+    const head=root.querySelector('.deepV2Head p');
     if(head)head.textContent='Every exact opening is checked first, then ranked using vacancy evidence plus Passport-aware role relevance, academic recency and location signals. Readiness labels separate strong fit from conditions that still need verification.';
+    return true;
   }
 
-  const obs=new MutationObserver(()=>setTimeout(decorate,20));
-  obs.observe(document.body,{subtree:true,childList:true});
-  window.addEventListener('opportunity:statechange',()=>setTimeout(decorate,180));
-  window.addEventListener('opportunity:verifiedfeedchange',()=>setTimeout(decorate,160));
-  setInterval(decorate,1400);setTimeout(decorate,650);
+  const refresh=()=>queueMicrotask(decorate);
+  window.addEventListener('opportunity:statechange',refresh);
+  window.addEventListener('opportunity:verifiedfeedchange',()=>setTimeout(decorate,120));
+  window.addEventListener('opportunity:hydrated',refresh);
+  window.addEventListener('focus',refresh);
+  document.addEventListener('click',e=>{if(e.target.closest?.('.navbtn[data-v="dashboard"]'))setTimeout(decorate,0)},true);
+  setTimeout(decorate,1200);
+  setTimeout(decorate,2600);
   window.OpportunityReadinessLabels={refresh:decorate};
 })();
