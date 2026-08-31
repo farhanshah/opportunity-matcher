@@ -30,11 +30,13 @@
   }
 
   function fixActionGrammar(){
-    const exact=/^1 tracked application need attention soon\.?$/i;
-    document.querySelectorAll('#dashboard b,#dashboard strong,#dashboard h1,#dashboard h2,#dashboard h3,#dashboard h4,#dashboard p,#dashboard div').forEach(el=>{
+    const hub=document.querySelector('#dashboard .omActionHub');
+    if(!hub)return;
+    hub.querySelectorAll('b,strong,h1,h2,h3,h4,p,div').forEach(el=>{
       if(el.children.length)return;
-      const text=String(el.textContent||'').trim();
-      if(exact.test(text))el.textContent='1 tracked application needs attention soon.';
+      if(/^1 tracked application need attention soon\.?$/i.test(String(el.textContent||'').trim())){
+        el.textContent='1 tracked application needs attention soon.';
+      }
     });
   }
 
@@ -67,7 +69,6 @@
     }
 
     progressedCards.forEach(card=>grid.appendChild(card));
-
     [...grid.querySelectorAll(':scope > .deepV2Card')].forEach((card,index)=>{
       const verdict=card.querySelector('.deepV2Verdict');
       if(!verdict)return;
@@ -83,15 +84,11 @@
     if(liveReady)queueMicrotask(()=>window.OpportunityReadinessLabels?.refresh?.());
   }
 
-  function schedule(){
-    [0,350,1100,2400,4800].forEach(ms=>setTimeout(apply,ms));
-  }
+  window.addEventListener('opportunity:statechange',apply);
+  window.addEventListener('opportunity:hydrated',apply);
+  window.addEventListener('opportunity:verifiedfeedchange',apply);
+  document.addEventListener('click',e=>{if(e.target.closest?.('.navbtn[data-v="dashboard"]'))queueMicrotask(apply)},true);
+  queueMicrotask(apply);
 
-  window.addEventListener('opportunity:statechange',schedule);
-  window.addEventListener('opportunity:hydrated',schedule);
-  window.addEventListener('opportunity:verifiedfeedchange',schedule);
-  document.addEventListener('click',e=>{if(e.target.closest?.('.navbtn[data-v="dashboard"]'))schedule()},true);
-  schedule();
-
-  window.OpportunityLiveTrackedContext={refresh:schedule};
+  window.OpportunityLiveTrackedContext={refresh:apply};
 })();
