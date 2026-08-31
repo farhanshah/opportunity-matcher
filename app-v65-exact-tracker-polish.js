@@ -1,6 +1,8 @@
 (()=>{
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
+  const flatText=el=>String(el?.textContent||'').replace(/\s+/g,' ').trim();
+  const legacyPackText=txt=>/proof areas drafted|pack not assembled/i.test(String(txt||''));
 
   const style=document.createElement('style');
   style.textContent=`
@@ -15,6 +17,7 @@
     .focusAction.exactAction{background:#151923;color:#fff;border-color:#151923}
     .focusAction.exactAction span,.focusAction.exactAction small{color:#aab1bd}
     .focusAction.exactAction b{color:#fff}
+    .focusCard.exactTracked .exactPackStatusV132{display:none!important}
     @media(max-width:760px){.exactTrackActions{grid-column:1/-1}.exactOfficial{width:100%;justify-content:center;display:flex}}
   `;
   document.head.appendChild(style);
@@ -42,23 +45,59 @@
     return'Move this application to the next stage when ready.';
   }
 
+  function legacyPackNodes(card){
+    const found=[];
+    for(const el of card.querySelectorAll('*')){
+      const txt=flatText(el);
+      if(!legacyPackText(txt)||txt.length>360)continue;
+      let top=el,p=el.parentElement;
+      while(p&&p!==card){
+        const pt=flatText(p);
+        if(/^Application pack:/i.test(pt)&&legacyPackText(pt)&&pt.length<=360){top=p;p=p.parentElement;continue}
+        break;
+      }
+      if(top!==card&&!found.some(x=>x===top||x.contains(top)))found.push(top);
+    }
+    return found.filter((el,i,arr)=>!arr.some((other,j)=>j!==i&&other.contains(el)));
+  }
+
+  function purgeLegacyPack(card){
+    let removed=false;
+    card.querySelectorAll('.exactPackStatusV132').forEach(el=>{
+      if(legacyPackText(flatText(el))){el.remove();removed=true}
+    });
+    legacyPackNodes(card).forEach(el=>{if(el.isConnected){el.remove();removed=true}});
+    return removed;
+  }
+
   function packStatusTarget(card){
     const matches=[...card.querySelectorAll('*')].filter(el=>{
       if(el.closest('.focusAction,.focusTasks,.exactTrackActions'))return false;
-      const txt=String(el.textContent||'').replace(/\s+/g,' ').trim();
-      return /^Application pack:/i.test(txt)&&txt.length<320;
+      const txt=flatText(el);
+      return /^Application pack:/i.test(txt)&&!legacyPackText(txt)&&txt.length<320;
     });
-    return matches.find(el=>![...el.children].some(ch=>/^Application pack:/i.test(String(ch.textContent||'').replace(/\s+/g,' ').trim())))||matches[0]||null;
+    return matches.find(el=>![...el.children].some(ch=>/^Application pack:/i.test(flatText(ch))))||matches[0]||null;
   }
 
-  function syncPackStatus(card,studio){
+  function ensurePackStatus(card,studio){
     if(!studio||studio.sourceMode!=='dedicatedPrepare')return;
-    const status=packStatusTarget(card);if(!status)return;
+    purgeLegacyPack(card);
+    let status=packStatusTarget(card);
+    if(!status){
+      status=document.createElement('div');
+      status.className='exactTrackLine exactPackStatusV133';
+      const identity=card.querySelector('.focusIdentity > div:last-child');
+      const context=identity?.querySelector('.exactTrackContext');
+      if(context)context.appendChild(status);
+      else identity?.appendChild(status);
+    }
+    if(!status)return;
     const docsDone=[studio.cvReady,studio.motReady,studio.writingReady,studio.pdfReady].filter(Boolean).length;
     const html=`<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${studio.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${studio.verifyDone}/${studio.verifyTotal} official checks recorded`;
     if(status.innerHTML!==html)status.innerHTML=html;
     status.classList.remove('exactPackStatusV132');
     status.classList.add('exactPackStatusV133');
+    purgeLegacyPack(card);
   }
 
   function decorate(){
@@ -68,6 +107,8 @@
       const row=map.get(title);if(!row)return;
       const {id,t,m}=row;card.classList.add('exactTracked');card.dataset.exactTrackId=id;
       const studio=window.OpportunityStudioTruth?.getState?.(t);
+
+      purgeLegacyPack(card);
 
       const identity=card.querySelector('.focusIdentity > div:last-child');
       if(identity){
@@ -89,7 +130,7 @@
         }
       }
 
-      syncPackStatus(card,studio);
+      ensurePackStatus(card,studio);
 
       const tasks=card.querySelector('.focusTasks');
       if(tasks){
@@ -108,12 +149,26 @@
 
   const oldRender=window.renderTracker;
   if(typeof oldRender==='function'){
-    const wrapped=()=>{const out=oldRender();setTimeout(decorate,0);return out};
+    const wrapped=()=>{const out=oldRender();queueMicrotask(decorate);return out};
     try{renderTracker=wrapped}catch{}window.renderTracker=wrapped;
   }
-  const obs=new MutationObserver(()=>{clearTimeout(obs._t);obs._t=setTimeout(decorate,60)});
+
+  const obs=new MutationObserver(mutations=>{
+    let needsDecorate=false;
+    for(const m of mutations){
+      for(const node of m.addedNodes){
+        if(node.nodeType!==1)continue;
+        const card=node.matches?.('.focusCard')?node:node.closest?.('.focusCard')||node.querySelector?.('.focusCard');
+        if(card){
+          if(legacyPackText(flatText(node))||node.querySelector?.('.exactPackStatusV132'))purgeLegacyPack(card);
+          needsDecorate=true;
+        }
+      }
+    }
+    if(needsDecorate)queueMicrotask(decorate);
+  });
   obs.observe(document.body,{subtree:true,childList:true});
-  window.addEventListener('opportunity:statechange',()=>setTimeout(decorate,30));
-  setTimeout(decorate,180);
-  window.OpportunityExactTrackerPolish={refresh:decorate};
+  window.addEventListener('opportunity:statechange',()=>queueMicrotask(decorate));
+  queueMicrotask(decorate);
+  window.OpportunityExactTrackerPolish={refresh:decorate,purgeLegacyPack};
 })();
