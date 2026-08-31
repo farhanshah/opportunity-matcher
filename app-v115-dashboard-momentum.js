@@ -36,6 +36,14 @@
     return{tracked,momentum:Math.round(total/tracked),ready,submitted,checks};
   }
 
+  function statusCopy(m){
+    if(!m.tracked)return'Track an opportunity to start building application momentum.';
+    if(m.submitted>0)return`Pipeline active — ${m.submitted} application${m.submitted===1?'':'s'} submitted or beyond.`;
+    if(m.ready>0)return`Momentum building — ${m.ready} application pack${m.ready===1?'':'s'} ready to submit.`;
+    if(m.momentum>0)return'In progress — keep completing preparation tasks to build momentum.';
+    return'Not started yet — complete one preparation task to build momentum.';
+  }
+
   function patch(){
     scheduled=false;
     const box=document.querySelector('#dashboard .momentum');
@@ -53,6 +61,12 @@
         ?`${m.ready}/${m.tracked} application packs ready or beyond · ${m.checks} official/preparation checks complete · ${m.submitted} submitted or beyond`
         :'Track an opportunity and this becomes your preparation pulse.';
     }
+    const legacy=[...box.querySelectorAll('*')].find(el=>{
+      if(el.children.length)return false;
+      const text=String(el.textContent||'').replace(/\s+/g,' ').trim();
+      return /Not started yet|complete one preparation task|Momentum building|Pipeline active|In progress/i.test(text);
+    });
+    if(legacy)legacy.textContent=statusCopy(m);
   }
 
   function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(patch)}
