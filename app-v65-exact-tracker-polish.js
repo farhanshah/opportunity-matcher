@@ -88,9 +88,10 @@
       }
     });
     window.OpportunityTrackerPackStatus?.schedule?.(0);
-    // Exact IDs now exist, so let the dedicated prepare-route module insert/update
-    // its state-aware action exactly once. This replaces the old polling bridge.
+    // Exact IDs and the modern action bar now exist, so refresh the state-aware
+    // preparation and submission actions exactly once. No polling required.
     window.OpportunityPrepareRoute?.refresh?.();
+    window.OpportunitySubmissionStage?.refresh?.();
   }
 
   let scheduled=false;
