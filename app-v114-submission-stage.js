@@ -1,7 +1,7 @@
 (()=>{
   let scheduled=false,activeId='';
   const BEYOND=new Set(['Submitted','Interview','Offer received','Unsuccessful']);
-  const html=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const html=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
   const localDate=()=>{const d=new Date(),off=d.getTimezoneOffset();return new Date(d.getTime()-off*60000).toISOString().slice(0,10)};
   const prettyDate=v=>{if(!v)return'';const d=new Date(`${v}T12:00:00`);return Number.isFinite(d.getTime())?d.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):v};
 
@@ -15,8 +15,8 @@
     .submissionIntelTop{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.submissionIntelEy{font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-weight:900;color:#bfa8ff}.submissionIntelCard h2{font-size:24px;line-height:1.08;margin:7px 0 7px}.submissionIntelLead{margin:0;color:#9ca9bc;font-size:12px;line-height:1.55}.submissionIntelClose{width:34px;height:34px;border-radius:10px;border:1px solid #334158;background:#172235;color:#fff;font-size:19px;cursor:pointer}
     .submissionIntelChecklist{display:grid;gap:8px;margin:20px 0;padding:14px;border:1px solid rgba(190,255,74,.18);background:rgba(190,255,74,.04);border-radius:14px}.submissionIntelChecklist div{display:flex;gap:9px;align-items:flex-start;font-size:11px;line-height:1.35;color:#cbd4e2}.submissionIntelChecklist i{font-style:normal;color:#c8ff50;font-weight:900}.submissionIntelOfficial{display:inline-flex;width:max-content;text-decoration:none;border:1px solid rgba(190,255,74,.28);background:#c8ff50;color:#07101b;padding:9px 12px;border-radius:10px;font-size:9px;font-weight:900}
     .submissionIntelGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.submissionIntelField{display:grid;gap:7px}.submissionIntelField.full{grid-column:1/-1}.submissionIntelField label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#9aa8bc}.submissionIntelField input,.submissionIntelField textarea{width:100%;box-sizing:border-box;border:1px solid #334158;background:#0b1421;color:#f7f9fd;border-radius:11px;padding:11px 12px;font:inherit;font-size:12px;outline:none}.submissionIntelField textarea{min-height:94px;resize:vertical}.submissionIntelField input:focus,.submissionIntelField textarea:focus{border-color:#8c6cff;box-shadow:0 0 0 3px rgba(140,108,255,.12)}
-    .submissionIntelConfirm{margin-top:14px;padding:12px 13px;border:1px solid #334158;border-radius:12px;display:flex;align-items:flex-start;gap:10px;color:#cbd4e2;font-size:11px;line-height:1.4}.submissionIntelConfirm input{margin-top:2px}.submissionIntelError{margin-top:10px;color:#ff9d9d;font-size:11px;font-weight:800}.submissionIntelActions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}.submissionIntelActions button{border-radius:11px;padding:10px 14px;font-size:10px;font-weight:900;cursor:pointer}.submissionIntelCancel{border:1px solid #334158;background:#172235;color:#eef3fb}.submissionIntelSave{border:1px solid #c8ff50;background:#c8ff50;color:#07101b}.submissionIntelSave:disabled{opacity:.55;cursor:not-allowed}
-    html[data-om-theme="light"] .submissionIntelCard{background:#fff;color:#111827;border-color:#d9dce3;box-shadow:0 30px 90px rgba(18,24,38,.2)}html[data-om-theme="light"] .submissionIntelLead,html[data-om-theme="light"] .submissionIntelChecklist div,html[data-om-theme="light"] .submissionIntelConfirm{color:#667085}html[data-om-theme="light"] .submissionIntelClose,html[data-om-theme="light"] .submissionIntelCancel{background:#f3f4f6;color:#111827;border-color:#d8dce3}html[data-om-theme="light"] .submissionIntelField input,html[data-om-theme="light"] .submissionIntelField textarea{background:#fff;color:#111827;border-color:#d8dce3}html[data-om-theme="light"] .submissionIntelChecklist{background:#f7faef}
+    .submissionIntelConfirm{margin-top:14px;padding:12px 13px;border:1px solid #334158;border-radius:12px;display:flex;align-items:flex-start;gap:10px;color:#cbd4e2;font-size:11px;line-height:1.4}.submissionIntelConfirm input{margin-top:2px}.submissionIntelError{margin-top:10px;color:#ff9d9d;font-size:11px;font-weight:800}.submissionIntelActions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}.submissionIntelActions button{border-radius:11px;padding:10px 14px;font-size:10px;font-weight:900;cursor:pointer}.submissionIntelCancel{border:1px solid #334158;background:#172235;color:#eef3fb}.submissionIntelSave{border:1px solid #c8ff50;background:#c8ff50;color:#07101b}.submissionIntelSave:disabled{border-color:#344155;background:#253143;color:#8290a4;opacity:1;cursor:not-allowed;box-shadow:none}
+    html[data-om-theme="light"] .submissionIntelCard{background:#fff;color:#111827;border-color:#d9dce3;box-shadow:0 30px 90px rgba(18,24,38,.2)}html[data-om-theme="light"] .submissionIntelLead,html[data-om-theme="light"] .submissionIntelChecklist div,html[data-om-theme="light"] .submissionIntelConfirm{color:#667085}html[data-om-theme="light"] .submissionIntelClose,html[data-om-theme="light"] .submissionIntelCancel{background:#f3f4f6;color:#111827;border-color:#d8dce3}html[data-om-theme="light"] .submissionIntelField input,html[data-om-theme="light"] .submissionIntelField textarea{background:#fff;color:#111827;border-color:#d8dce3}html[data-om-theme="light"] .submissionIntelChecklist{background:#f7faef}html[data-om-theme="light"] .submissionIntelSave:disabled{border-color:#d0d5dd;background:#eaecf0;color:#98a2b3}
     @media(max-width:760px){#tracker .markSubmitted,#tracker .submissionRecord{width:100%}.submissionIntelGrid{grid-template-columns:1fr}.submissionIntelField.full{grid-column:auto}.submissionIntelCard{padding:20px;border-radius:18px}}
   `;
   document.head.appendChild(style);
@@ -34,13 +34,23 @@
     return o?.Provider||'the provider';
   }
 
+  function syncSaveState(){
+    const modal=document.getElementById('submissionIntelModal'),t=source()[activeId];if(!modal||!t)return;
+    const beyond=BEYOND.has(String(t.stage||'')),confirmed=modal.querySelector('#submissionIntelConfirmed')?.checked,date=modal.querySelector('#submissionIntelDate')?.value;
+    const save=modal.querySelector('.submissionIntelSave');if(!save)return;
+    save.disabled=!date||(!beyond&&!confirmed);
+    save.setAttribute('aria-disabled',save.disabled?'true':'false');
+  }
+
   function ensureModal(){
     if(document.getElementById('submissionIntelModal'))return;
-    document.body.insertAdjacentHTML('beforeend',`<div id="submissionIntelModal" class="hide" role="dialog" aria-modal="true" aria-labelledby="submissionIntelTitle"><div class="submissionIntelCard"><div class="submissionIntelTop"><div><div class="submissionIntelEy">Submission intelligence</div><h2 id="submissionIntelTitle">Record provider submission</h2><p class="submissionIntelLead" id="submissionIntelLead"></p></div><button type="button" class="submissionIntelClose" aria-label="Close">×</button></div><div id="submissionIntelChecklist" class="submissionIntelChecklist"></div><a id="submissionIntelOfficial" class="submissionIntelOfficial" target="_blank" rel="noopener">Open official vacancy ↗</a><div class="submissionIntelGrid"><div class="submissionIntelField"><label for="submissionIntelDate">Submission date *</label><input id="submissionIntelDate" type="date"></div><div class="submissionIntelField"><label for="submissionIntelRef">Confirmation / reference</label><input id="submissionIntelRef" maxlength="160" placeholder="Optional provider reference"></div><div class="submissionIntelField full"><label for="submissionIntelNote">Submission note</label><textarea id="submissionIntelNote" maxlength="1600" placeholder="Optional: portal used, extra form completed, anything you may need later"></textarea></div></div><label class="submissionIntelConfirm"><input id="submissionIntelConfirmed" type="checkbox"><span>I have actually submitted this application on the provider site. Opportunity records the submission; it does not submit externally.</span></label><div id="submissionIntelError" class="submissionIntelError hide"></div><div class="submissionIntelActions"><button type="button" class="submissionIntelCancel">Cancel</button><button type="button" class="submissionIntelSave">Save submission</button></div></div></div>`);
+    document.body.insertAdjacentHTML('beforeend',`<div id="submissionIntelModal" class="hide" role="dialog" aria-modal="true" aria-labelledby="submissionIntelTitle"><div class="submissionIntelCard"><div class="submissionIntelTop"><div><div class="submissionIntelEy">Submission intelligence</div><h2 id="submissionIntelTitle">Record provider submission</h2><p class="submissionIntelLead" id="submissionIntelLead"></p></div><button type="button" class="submissionIntelClose" aria-label="Close">×</button></div><div id="submissionIntelChecklist" class="submissionIntelChecklist"></div><a id="submissionIntelOfficial" class="submissionIntelOfficial" target="_blank" rel="noopener">Open official vacancy ↗</a><div class="submissionIntelGrid"><div class="submissionIntelField"><label for="submissionIntelDate">Submission date *</label><input id="submissionIntelDate" type="date"></div><div class="submissionIntelField"><label for="submissionIntelRef">Confirmation / reference</label><input id="submissionIntelRef" maxlength="160" placeholder="Optional provider reference"></div><div class="submissionIntelField full"><label for="submissionIntelNote">Submission note</label><textarea id="submissionIntelNote" maxlength="1600" placeholder="Optional: portal used, extra form completed, anything you may need later"></textarea></div></div><label class="submissionIntelConfirm"><input id="submissionIntelConfirmed" type="checkbox"><span>I have actually submitted this application on the provider site. Opportunity records the submission; it does not submit externally.</span></label><div id="submissionIntelError" class="submissionIntelError hide"></div><div class="submissionIntelActions"><button type="button" class="submissionIntelCancel">Cancel</button><button type="button" class="submissionIntelSave" disabled aria-disabled="true">Save submission</button></div></div></div>`);
     const modal=document.getElementById('submissionIntelModal');
     modal.querySelector('.submissionIntelClose').onclick=closeModal;
     modal.querySelector('.submissionIntelCancel').onclick=closeModal;
     modal.querySelector('.submissionIntelSave').onclick=saveRecord;
+    modal.querySelector('#submissionIntelConfirmed').addEventListener('change',syncSaveState);
+    modal.querySelector('#submissionIntelDate').addEventListener('input',syncSaveState);
     modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.classList.contains('hide'))closeModal()});
   }
@@ -55,12 +65,13 @@
     modal.querySelector('#submissionIntelChecklist').innerHTML=`<div><i>1</i><span>Submit the finished application on the official provider page.</span></div><div><i>2</i><span>Complete any provider-only form, upload or acknowledgement shown there.</span></div><div><i>3</i><span>Save the confirmation/reference if the provider issues one.</span></div>`;
     const official=modal.querySelector('#submissionIntelOfficial');
     if(url){official.href=url;official.style.display='inline-flex'}else{official.removeAttribute('href');official.style.display='none'}
-    modal.querySelector('#submissionIntelDate').value=r.submissionDate||localDate();
+    const dateInput=modal.querySelector('#submissionIntelDate');dateInput.max=localDate();dateInput.value=r.submissionDate||localDate();
     modal.querySelector('#submissionIntelRef').value=r.confirmationRef||'';
     modal.querySelector('#submissionIntelNote').value=r.note||'';
     const confirmed=modal.querySelector('#submissionIntelConfirmed');confirmed.checked=beyond||Boolean(r.providerConfirmed);confirmed.disabled=beyond;
     modal.querySelector('.submissionIntelSave').textContent=beyond?'Save record changes':'Save submission';
     modal.querySelector('#submissionIntelError').classList.add('hide');
+    syncSaveState();
     modal.classList.remove('hide');
     setTimeout(()=>modal.querySelector('#submissionIntelDate')?.focus(),30);
   }
@@ -71,6 +82,7 @@
     const date=modal.querySelector('#submissionIntelDate').value,ref=modal.querySelector('#submissionIntelRef').value.trim(),note=modal.querySelector('#submissionIntelNote').value.trim(),confirmed=modal.querySelector('#submissionIntelConfirmed').checked,beyond=BEYOND.has(String(t.stage||''));
     const err=modal.querySelector('#submissionIntelError');
     if(!date){err.textContent='Add the date you submitted the application.';err.classList.remove('hide');return}
+    if(date>localDate()){err.textContent='Submission date cannot be in the future.';err.classList.remove('hide');return}
     if(!beyond&&!confirmed){err.textContent='Confirm that the application was actually submitted on the provider site before recording it.';err.classList.remove('hide');return}
     t.checklist??={documents:false,statement:false,references:false};
     const previous=t.checklist.submission||{},now=new Date().toISOString();
