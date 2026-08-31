@@ -2,6 +2,8 @@
   const OPEN_KEY='oppAdvancedDiagnosticsV129';
   const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const isActive=o=>String(o?.Status||'').toLowerCase()!=='closed';
+  const beyond=new Set(['Submitted','Interview','Offer received','Unsuccessful']);
+  const readyStages=new Set(['Ready to submit','Submitted','Interview','Offer received','Unsuccessful']);
 
   function diagnosticsOpen(){try{return localStorage.getItem(OPEN_KEY)==='1'}catch{return false}}
   function setDiagnostics(open){
@@ -17,26 +19,39 @@
     }
   }
 
+  function studioState(t){try{return window.OpportunityStudioTruth?.getState?.(t)||null}catch{return null}}
+  function legacyChecks(t){return ['documents','statement','references'].filter(k=>t?.checklist?.[k]).length}
+  function needsPreparation(t){
+    const stage=String(t?.stage||'Saved');
+    if(readyStages.has(stage))return false;
+    const s=studioState(t);
+    if(s?.sourceMode==='dedicatedPrepare')return !s.finalReady;
+    return legacyChecks(t)<3;
+  }
+
   function countState(){
     let active=[],strong=0,review=0;
     try{active=(opps||[]).filter(isActive)}catch{}
     try{
       for(const o of active){const e=evaluate(o);if(e?.cls==='eligible')strong++;if(['review','possible'].includes(e?.cls))review++}
     }catch{}
-    let tracked=0,due=0,incomplete=0;
+    let tracked=0,due=0,incomplete=0,ready=0,submitted=0;
     try{
       const byId=new Map((opps||[]).map(o=>[o.Opportunity_ID,o]));
       const entries=Object.entries(tracks||{});tracked=entries.length;
       for(const [id,t] of entries){
         const o=byId.get(id),d=o&&typeof days==='function'?days(o):99999;
         if(d>=0&&d<=14)due++;
-        const c=t?.checklist||{},done=['documents','statement','references'].filter(k=>c[k]).length;
-        if(done<3&&!['Submitted','Interview','Offer received','Unsuccessful'].includes(t?.stage||''))incomplete++;
+        const stage=String(t?.stage||'Saved');
+        const s=studioState(t);
+        if(readyStages.has(stage)||s?.finalReady)ready++;
+        if(beyond.has(stage))submitted++;
+        if(needsPreparation(t))incomplete++;
       }
     }catch{}
     let live=0;
     try{live=document.querySelectorAll('#dashboard .deepV2Card').length||window.OpportunityBestLive?.status?.()?.items?.filter?.(x=>x?.status_verified===true&&x?.verification_level==='exact')?.length||0}catch{}
-    return{active:active.length,strong,review,tracked,due,incomplete,live};
+    return{active:active.length,strong,review,tracked,due,incomplete,ready,submitted,live};
   }
 
   function actionCopy(s){
@@ -44,6 +59,8 @@
       label:'Deadline attention',title:`${s.due} tracked application${s.due===1?'':'s'} need attention soon.`,body:'Move the nearest deadline forward before researching anything new.',action:'Open tracker',cmd:'tracker'
     }:s.incomplete?{
       label:'Application momentum',title:'Move one application forward today.',body:`${s.incomplete} tracked route${s.incomplete===1?'':'s'} still have preparation work outstanding.`,action:'Open tracker',cmd:'tracker'
+    }:s.ready&&!s.submitted?{
+      label:'Ready to submit',title:`${s.ready} application pack${s.ready===1?' is':'s are'} ready for the provider site.`,body:'Your preparation is complete. Submit on the official provider site, then update the Tracker.',action:'Open tracker',cmd:'tracker'
     }:{
       label:'Start here',title:'Turn one strong match into an application.',body:'Your tracker has room for a deliberate next move instead of more browsing.',action:'Review matches',cmd:'discover'
     };
@@ -79,12 +96,14 @@
     if(p&&p.textContent!==copy)p.textContent=copy;
   }
 
+  let scheduled=false;
   function refresh(){
+    scheduled=false;
     const dash=document.getElementById('dashboard');
     const premium=dash?.querySelector('.dashPremium');
     const intel=premium?.querySelector('.matchIntel');
     if(!dash||!premium||!intel)return;
-    const s=countState();const sig=[s.strong,s.review,s.tracked,s.due,s.incomplete,s.live].join('|');
+    const s=countState();const sig=[s.strong,s.review,s.tracked,s.due,s.incomplete,s.ready,s.submitted,s.live].join('|');
     let hub=premium.querySelector(':scope > .omActionHub');
     if(!hub){
       hub=document.createElement('div');
@@ -99,20 +118,35 @@
     setDiagnostics(diagnosticsOpen());
     simplifyLiveCopy();
   }
+  function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(refresh)}
 
   document.addEventListener('click',e=>{
     const action=e.target.closest?.('[data-om-action]');if(action){go(action.dataset.omAction);return}
     if(e.target.closest?.('.omDiagnosticsToggle'))setDiagnostics(!document.getElementById('dashboard')?.classList.contains('omDiagnosticsOpen'));
   });
 
-  const observer=new MutationObserver(muts=>{
-    if(!muts.some(m=>m.addedNodes?.length||m.removedNodes?.length))return;
-    clearTimeout(observer._t);observer._t=setTimeout(refresh,90);
-  });
-  observer.observe(document.body,{subtree:true,childList:true});
-  window.addEventListener('opportunity:verifiedfeedchange',()=>setTimeout(refresh,80));
-  window.addEventListener('focus',()=>setTimeout(refresh,80));
-  document.addEventListener('click',e=>{if(e.target.closest?.('.navbtn[data-v="dashboard"]'))setTimeout(refresh,120)},true);
-  setTimeout(refresh,250);setTimeout(refresh,900);setTimeout(refresh,1800);
-  window.OpportunityProductUX={refresh,setDiagnostics};
+  const oldRender=window.renderDashboard;
+  if(typeof oldRender==='function'&&!oldRender.__omProductUXV173){
+    const wrapped=(...args)=>{const out=oldRender(...args);schedule();return out};
+    wrapped.__omProductUXV173=true;
+    try{renderDashboard=wrapped}catch{}
+    window.renderDashboard=wrapped;
+  }
+
+  const oldSet=window.setView;
+  if(typeof oldSet==='function'&&!oldSet.__omProductUXV173){
+    const wrapped=(v,...args)=>{const out=oldSet(v,...args);if(v==='dashboard')schedule();return out};
+    wrapped.__omProductUXV173=true;
+    try{setView=wrapped}catch{}
+    window.setView=wrapped;
+    document.querySelectorAll('.navbtn[data-v]').forEach(b=>{b.onclick=()=>wrapped(b.dataset.v)});
+  }
+
+  window.addEventListener('opportunity:verifiedfeedchange',schedule);
+  window.addEventListener('opportunity:statechange',schedule);
+  window.addEventListener('opportunity:hydrated',schedule);
+  window.addEventListener('focus',schedule);
+  document.addEventListener('click',e=>{if(e.target.closest?.('.navbtn[data-v="dashboard"]'))schedule()},true);
+  schedule();
+  window.OpportunityProductUX={refresh:schedule,setDiagnostics,countState};
 })();
