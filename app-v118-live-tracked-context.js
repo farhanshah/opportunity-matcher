@@ -30,12 +30,11 @@
   }
 
   function fixActionGrammar(){
-    document.querySelectorAll('#dashboard .omActionCard').forEach(card=>{
-      const label=norm(card.querySelector('span')?.textContent);
-      const title=card.querySelector('b');
-      if(label==='deadline attention'&&title&&/^1 tracked application need attention soon\.?$/i.test(title.textContent.trim())){
-        title.textContent='1 tracked application needs attention soon.';
-      }
+    const exact=/^1 tracked application need attention soon\.?$/i;
+    document.querySelectorAll('#dashboard b,#dashboard strong,#dashboard h1,#dashboard h2,#dashboard h3,#dashboard h4,#dashboard p,#dashboard div').forEach(el=>{
+      if(el.children.length)return;
+      const text=String(el.textContent||'').trim();
+      if(exact.test(text))el.textContent='1 tracked application needs attention soon.';
     });
   }
 
@@ -67,8 +66,6 @@
       }
     }
 
-    // Keep the live pool visible, but put applications already ready/submitted
-    // behind genuinely new opportunities so discovery slots stay useful.
     progressedCards.forEach(card=>grid.appendChild(card));
 
     [...grid.querySelectorAll(':scope > .deepV2Card')].forEach((card,index)=>{
