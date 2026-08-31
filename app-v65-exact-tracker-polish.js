@@ -17,14 +17,15 @@
     .focusAction.exactAction{background:#151923;color:#fff;border-color:#151923}
     .focusAction.exactAction span,.focusAction.exactAction small{color:#aab1bd}
     .focusAction.exactAction b{color:#fff}
-    .focusCard.exactTracked .exactPackStatusV132{display:none!important}
+    .focusCard.exactTracked .exactPackStatusV132,
+    .focusCard.exactTracked .exactPackLegacyHidden{display:none!important}
     @media(max-width:760px){.exactTrackActions{grid-column:1/-1}.exactOfficial{width:100%;justify-content:center;display:flex}}
   `;
   document.head.appendChild(style);
 
   function exactByTitle(){
     const map=new Map();
-    for(const [id,t] of Object.entries(tracks||{})){
+    for(const [id,t] of Object.entries(window.tracks||tracks||{})){
       const m=t?.exactVacancy;if(!m?.url)continue;
       map.set(norm(m.title),{id,t,m});
     }
@@ -45,8 +46,9 @@
     return'Move this application to the next stage when ready.';
   }
 
-  function legacyPackNodes(card){
-    const found=[];
+  function tagLegacyPack(card){
+    if(!card)return;
+    card.querySelectorAll('.exactPackStatusV132').forEach(el=>el.classList.add('exactPackLegacyHidden'));
     for(const el of card.querySelectorAll('*')){
       const txt=flatText(el);
       if(!legacyPackText(txt)||txt.length>360)continue;
@@ -56,23 +58,14 @@
         if(/^Application pack:/i.test(pt)&&legacyPackText(pt)&&pt.length<=360){top=p;p=p.parentElement;continue}
         break;
       }
-      if(top!==card&&!found.some(x=>x===top||x.contains(top)))found.push(top);
+      if(top!==card)top.classList.add('exactPackLegacyHidden');
     }
-    return found.filter((el,i,arr)=>!arr.some((other,j)=>j!==i&&other.contains(el)));
-  }
-
-  function purgeLegacyPack(card){
-    let removed=false;
-    card.querySelectorAll('.exactPackStatusV132').forEach(el=>{
-      if(legacyPackText(flatText(el))){el.remove();removed=true}
-    });
-    legacyPackNodes(card).forEach(el=>{if(el.isConnected){el.remove();removed=true}});
-    return removed;
   }
 
   function packStatusTarget(card){
     const matches=[...card.querySelectorAll('*')].filter(el=>{
       if(el.closest('.focusAction,.focusTasks,.exactTrackActions'))return false;
+      if(el.classList.contains('exactPackLegacyHidden')||el.classList.contains('exactPackStatusV132'))return false;
       const txt=flatText(el);
       return /^Application pack:/i.test(txt)&&!legacyPackText(txt)&&txt.length<320;
     });
@@ -81,7 +74,7 @@
 
   function ensurePackStatus(card,studio){
     if(!studio||studio.sourceMode!=='dedicatedPrepare')return;
-    purgeLegacyPack(card);
+    tagLegacyPack(card);
     let status=packStatusTarget(card);
     if(!status){
       status=document.createElement('div');
@@ -95,9 +88,15 @@
     const docsDone=[studio.cvReady,studio.motReady,studio.writingReady,studio.pdfReady].filter(Boolean).length;
     const html=`<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${studio.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${studio.verifyDone}/${studio.verifyTotal} official checks recorded`;
     if(status.innerHTML!==html)status.innerHTML=html;
-    status.classList.remove('exactPackStatusV132');
+    status.classList.remove('exactPackStatusV132','exactPackLegacyHidden');
     status.classList.add('exactPackStatusV133');
-    purgeLegacyPack(card);
+  }
+
+  let scheduled=false;
+  function scheduleDecorate(){
+    if(scheduled)return;
+    scheduled=true;
+    setTimeout(()=>{scheduled=false;decorate()},0);
   }
 
   function decorate(){
@@ -108,7 +107,7 @@
       const {id,t,m}=row;card.classList.add('exactTracked');card.dataset.exactTrackId=id;
       const studio=window.OpportunityStudioTruth?.getState?.(t);
 
-      purgeLegacyPack(card);
+      tagLegacyPack(card);
 
       const identity=card.querySelector('.focusIdentity > div:last-child');
       if(identity){
@@ -149,26 +148,24 @@
 
   const oldRender=window.renderTracker;
   if(typeof oldRender==='function'){
-    const wrapped=()=>{const out=oldRender();queueMicrotask(decorate);return out};
+    const wrapped=(...args)=>{const out=oldRender(...args);scheduleDecorate();return out};
     try{renderTracker=wrapped}catch{}window.renderTracker=wrapped;
   }
 
+  // One-way observer only: hide newly inserted legacy status nodes.
+  // It never calls decorate and never removes nodes, so it cannot create a feedback loop.
   const obs=new MutationObserver(mutations=>{
-    let needsDecorate=false;
     for(const m of mutations){
       for(const node of m.addedNodes){
         if(node.nodeType!==1)continue;
         const card=node.matches?.('.focusCard')?node:node.closest?.('.focusCard')||node.querySelector?.('.focusCard');
-        if(card){
-          if(legacyPackText(flatText(node))||node.querySelector?.('.exactPackStatusV132'))purgeLegacyPack(card);
-          needsDecorate=true;
-        }
+        if(card&&(legacyPackText(flatText(node))||node.querySelector?.('.exactPackStatusV132')))tagLegacyPack(card);
       }
     }
-    if(needsDecorate)queueMicrotask(decorate);
   });
   obs.observe(document.body,{subtree:true,childList:true});
-  window.addEventListener('opportunity:statechange',()=>queueMicrotask(decorate));
-  queueMicrotask(decorate);
-  window.OpportunityExactTrackerPolish={refresh:decorate,purgeLegacyPack};
+
+  window.addEventListener('opportunity:statechange',scheduleDecorate);
+  scheduleDecorate();
+  window.OpportunityExactTrackerPolish={refresh:decorate,tagLegacyPack};
 })();
