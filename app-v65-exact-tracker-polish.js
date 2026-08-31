@@ -1,6 +1,6 @@
 (()=>{
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
-  const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
 
   const style=document.createElement('style');
   style.textContent=`
@@ -42,6 +42,25 @@
     return'Move this application to the next stage when ready.';
   }
 
+  function packStatusTarget(card){
+    const matches=[...card.querySelectorAll('*')].filter(el=>{
+      if(el.closest('.focusAction,.focusTasks,.exactTrackActions'))return false;
+      const txt=String(el.textContent||'').replace(/\s+/g,' ').trim();
+      return /^Application pack:/i.test(txt)&&txt.length<320;
+    });
+    return matches.find(el=>![...el.children].some(ch=>/^Application pack:/i.test(String(ch.textContent||'').replace(/\s+/g,' ').trim())))||matches[0]||null;
+  }
+
+  function syncPackStatus(card,studio){
+    if(!studio||studio.sourceMode!=='dedicatedPrepare')return;
+    const status=packStatusTarget(card);if(!status)return;
+    const docsDone=[studio.cvReady,studio.motReady,studio.writingReady,studio.pdfReady].filter(Boolean).length;
+    const html=`<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${studio.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${studio.verifyDone}/${studio.verifyTotal} official checks recorded`;
+    if(status.innerHTML!==html)status.innerHTML=html;
+    status.classList.remove('exactPackStatusV132');
+    status.classList.add('exactPackStatusV133');
+  }
+
   function decorate(){
     const map=exactByTitle();
     document.querySelectorAll('#tracker .focusCard').forEach(card=>{
@@ -70,6 +89,8 @@
         }
       }
 
+      syncPackStatus(card,studio);
+
       const tasks=card.querySelector('.focusTasks');
       if(tasks){
         let wrap=tasks.querySelector('.exactTrackActions');
@@ -92,6 +113,7 @@
   }
   const obs=new MutationObserver(()=>{clearTimeout(obs._t);obs._t=setTimeout(decorate,60)});
   obs.observe(document.body,{subtree:true,childList:true});
+  window.addEventListener('opportunity:statechange',()=>setTimeout(decorate,30));
   setTimeout(decorate,180);
   window.OpportunityExactTrackerPolish={refresh:decorate};
 })();
