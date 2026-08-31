@@ -1,8 +1,6 @@
 (()=>{
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[m]));
-  const flatText=el=>String(el?.textContent||'').replace(/\s+/g,' ').trim();
-  const legacyPackText=txt=>/proof areas drafted|pack not assembled/i.test(String(txt||''));
 
   const style=document.createElement('style');
   style.textContent=`
@@ -17,15 +15,16 @@
     .focusAction.exactAction{background:#151923;color:#fff;border-color:#151923}
     .focusAction.exactAction span,.focusAction.exactAction small{color:#aab1bd}
     .focusAction.exactAction b{color:#fff}
-    .focusCard.exactTracked .exactPackStatusV132,
-    .focusCard.exactTracked .exactPackLegacyHidden{display:none!important}
+    /* Only the known legacy status element is hidden. Never hide ancestors. */
+    .focusCard.exactTracked .exactPackStatusV132{display:none!important}
     @media(max-width:760px){.exactTrackActions{grid-column:1/-1}.exactOfficial{width:100%;justify-content:center;display:flex}}
   `;
   document.head.appendChild(style);
 
   function exactByTitle(){
     const map=new Map();
-    for(const [id,t] of Object.entries(window.tracks||tracks||{})){
+    const source=(typeof tracks==='object'&&tracks)||window.tracks||{};
+    for(const [id,t] of Object.entries(source)){
       const m=t?.exactVacancy;if(!m?.url)continue;
       map.set(norm(m.title),{id,t,m});
     }
@@ -46,57 +45,21 @@
     return'Move this application to the next stage when ready.';
   }
 
-  function tagLegacyPack(card){
-    if(!card)return;
-    card.querySelectorAll('.exactPackStatusV132').forEach(el=>el.classList.add('exactPackLegacyHidden'));
-    for(const el of card.querySelectorAll('*')){
-      const txt=flatText(el);
-      if(!legacyPackText(txt)||txt.length>360)continue;
-      let top=el,p=el.parentElement;
-      while(p&&p!==card){
-        const pt=flatText(p);
-        if(/^Application pack:/i.test(pt)&&legacyPackText(pt)&&pt.length<=360){top=p;p=p.parentElement;continue}
-        break;
-      }
-      if(top!==card)top.classList.add('exactPackLegacyHidden');
-    }
-  }
-
-  function packStatusTarget(card){
-    const matches=[...card.querySelectorAll('*')].filter(el=>{
-      if(el.closest('.focusAction,.focusTasks,.exactTrackActions'))return false;
-      if(el.classList.contains('exactPackLegacyHidden')||el.classList.contains('exactPackStatusV132'))return false;
-      const txt=flatText(el);
-      return /^Application pack:/i.test(txt)&&!legacyPackText(txt)&&txt.length<320;
-    });
-    return matches.find(el=>![...el.children].some(ch=>/^Application pack:/i.test(flatText(ch))))||matches[0]||null;
-  }
-
-  function ensurePackStatus(card,studio){
+  function ensureCanonicalStatus(card,studio){
     if(!studio||studio.sourceMode!=='dedicatedPrepare')return;
-    tagLegacyPack(card);
-    let status=packStatusTarget(card);
+    let status=card.querySelector('.exactPackStatusV133:not(.exactPackStatusV132)');
     if(!status){
       status=document.createElement('div');
       status.className='exactTrackLine exactPackStatusV133';
       const identity=card.querySelector('.focusIdentity > div:last-child');
-      const context=identity?.querySelector('.exactTrackContext');
-      if(context)context.appendChild(status);
-      else identity?.appendChild(status);
+      let context=identity?.querySelector('.exactTrackContext');
+      if(!context&&identity){context=document.createElement('div');context.className='exactTrackContext';identity.appendChild(context)}
+      context?.appendChild(status);
     }
     if(!status)return;
     const docsDone=[studio.cvReady,studio.motReady,studio.writingReady,studio.pdfReady].filter(Boolean).length;
     const html=`<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${studio.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${studio.verifyDone}/${studio.verifyTotal} official checks recorded`;
     if(status.innerHTML!==html)status.innerHTML=html;
-    status.classList.remove('exactPackStatusV132','exactPackLegacyHidden');
-    status.classList.add('exactPackStatusV133');
-  }
-
-  let scheduled=false;
-  function scheduleDecorate(){
-    if(scheduled)return;
-    scheduled=true;
-    setTimeout(()=>{scheduled=false;decorate()},0);
   }
 
   function decorate(){
@@ -104,10 +67,10 @@
     document.querySelectorAll('#tracker .focusCard').forEach(card=>{
       const title=norm(card.querySelector('.focusTitle')?.textContent||'');
       const row=map.get(title);if(!row)return;
-      const {id,t,m}=row;card.classList.add('exactTracked');card.dataset.exactTrackId=id;
+      const {id,t,m}=row;
+      card.classList.add('exactTracked');
+      card.dataset.exactTrackId=id;
       const studio=window.OpportunityStudioTruth?.getState?.(t);
-
-      tagLegacyPack(card);
 
       const identity=card.querySelector('.focusIdentity > div:last-child');
       if(identity){
@@ -129,7 +92,7 @@
         }
       }
 
-      ensurePackStatus(card,studio);
+      ensureCanonicalStatus(card,studio);
 
       const tasks=card.querySelector('.focusTasks');
       if(tasks){
@@ -146,26 +109,21 @@
     });
   }
 
+  let scheduled=false;
+  function scheduleDecorate(){
+    if(scheduled)return;
+    scheduled=true;
+    setTimeout(()=>{scheduled=false;decorate()},0);
+  }
+
   const oldRender=window.renderTracker;
   if(typeof oldRender==='function'){
     const wrapped=(...args)=>{const out=oldRender(...args);scheduleDecorate();return out};
-    try{renderTracker=wrapped}catch{}window.renderTracker=wrapped;
+    try{renderTracker=wrapped}catch{}
+    window.renderTracker=wrapped;
   }
-
-  // One-way observer only: hide newly inserted legacy status nodes.
-  // It never calls decorate and never removes nodes, so it cannot create a feedback loop.
-  const obs=new MutationObserver(mutations=>{
-    for(const m of mutations){
-      for(const node of m.addedNodes){
-        if(node.nodeType!==1)continue;
-        const card=node.matches?.('.focusCard')?node:node.closest?.('.focusCard')||node.querySelector?.('.focusCard');
-        if(card&&(legacyPackText(flatText(node))||node.querySelector?.('.exactPackStatusV132')))tagLegacyPack(card);
-      }
-    }
-  });
-  obs.observe(document.body,{subtree:true,childList:true});
 
   window.addEventListener('opportunity:statechange',scheduleDecorate);
   scheduleDecorate();
-  window.OpportunityExactTrackerPolish={refresh:decorate,tagLegacyPack};
+  window.OpportunityExactTrackerPolish={refresh:decorate};
 })();
