@@ -3,12 +3,12 @@
 
   const style=document.createElement('style');
   style.textContent=`
-    html[data-om-theme="light"] #dashboard .matchIntel h2,
+    html[data-om-theme="light"] #dashboard .matchIntelHero h3,
     html[data-om-theme="light"] #dashboard .deepLiveV2 h3,
     html[data-om-theme="light"] #dashboard .deepV2Card h4,
     html[data-om-theme="light"] #dashboard .deepV2Signal b,
     html[data-om-theme="light"] #dashboard .deepV2Foot{color:#fff!important}
-    html[data-om-theme="light"] #dashboard .matchIntel p,
+    html[data-om-theme="light"] #dashboard .matchIntelHero p,
     html[data-om-theme="light"] #dashboard .deepLiveV2 p{color:#aeb6c6!important}
   `;
   document.head.appendChild(style);
