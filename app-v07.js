@@ -1,5 +1,5 @@
 (async()=>{
-  const BUILD='20260904-v188';
+  const BUILD='20260904-v189';
   const files=[
     '/app-v08-base.js','/app-v08-match.js','/app-v08-views.js','/app-v08-tracker.js','/app-v08-boot.js',
     '/app-v10-post.js','/app-v11-polish.js','/app-v12-tracker.js','/app-cloud-bridge.js','/app-v116-passport-cloud-canonical.js','/app-cloud-routefix.js','/premium-v14-loader.js',
@@ -19,7 +19,7 @@
     '/app-v91-official-vacancy-facts.js','/app-v93-exact-feed-awareness.js','/app-v92-readability.js','/app-v94-theme-system.js','/app-v95-motion.js',
     '/app-v96-route-ux.js','/app-v97-product-ux.js','/app-v98-workspace-integrity.js',
     '/app-v109-studio-truth-sync.js','/app-v71-password-recovery-v2.js','/app-v103-boot-finalize.js','/app-v108-prepare-route.js',
-    '/app-v110-tracker-pack-status.js','/app-v111-tracker-status-hardfix.js','/app-v113-tracker-prep-summary.js','/app-v114-submission-stage.js','/app-v122-post-submission-lifecycle.js','/app-v115-dashboard-momentum.js','/app-v117-dashboard-momentum-pill.js','/app-v118-live-tracked-context.js','/app-v119-dashboard-actionable-priority.js','/app-v120-dashboard-convergence.js','/app-v121-dashboard-pipeline-truth.js','/app-v123-light-tracker-contrast.js','/app-v124-application-history.js','/app-v125-history-cloud-repair.js','/app-v126-history-milestone-reconcile.js'
+    '/app-v110-tracker-pack-status.js','/app-v111-tracker-status-hardfix.js','/app-v113-tracker-prep-summary.js','/app-v114-submission-stage.js','/app-v122-post-submission-lifecycle.js','/app-v115-dashboard-momentum.js','/app-v117-dashboard-momentum-pill.js','/app-v118-live-tracked-context.js','/app-v119-dashboard-actionable-priority.js','/app-v120-dashboard-convergence.js','/app-v121-dashboard-pipeline-truth.js','/app-v123-light-tracker-contrast.js','/app-v124-application-history.js','/app-v125-history-cloud-repair.js','/app-v126-history-milestone-reconcile.js','/app-v127-exact-history-durability.js'
   ];
 
   try{
