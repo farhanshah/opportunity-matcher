@@ -8,7 +8,7 @@
   const clean=v=>String(v??'').trim();
   const obj=v=>v&&typeof v==='object'?v:{};
   const stable=v=>JSON.stringify(v||{});
-  const meaningful=o=>Object.values(obj(o)).some(v=>clean(v));
+  const meaningful=o=>Object.values(obj(o)).some(v=>typeof v==='boolean'?v:Boolean(clean(v)));
 
   function ensureHistory(t){
     t.checklist??={documents:false,statement:false,references:false};
