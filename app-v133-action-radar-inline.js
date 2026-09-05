@@ -11,12 +11,24 @@
     return`In ${n} days`;
   }
 
+  function trackStore(){
+    try{return (typeof tracks==='object'&&tracks)||window.tracks||{}}catch{return window.tracks||{}}
+  }
+
+  function enrichExact(item){
+    const t=trackStore()?.[item?.id];
+    const exact=t?.exactVacancy||{};
+    const title=exact?.title||exact?.Opportunity_Name||item?.title;
+    const provider=exact?.provider||exact?.Provider||item?.provider;
+    return{...item,title:title||'Application',provider:provider||'Tracked application'};
+  }
+
   function rows(){
     try{
       const fn=window.OpportunityActionRadar?.actions;
       if(typeof fn!=='function')return[];
       const value=fn();
-      return Array.isArray(value)?value:[];
+      return Array.isArray(value)?value.map(enrichExact):[];
     }catch(e){console.warn('Action radar rows unavailable',e);return[]}
   }
 
@@ -28,24 +40,32 @@
     return `<section class="applicationActionRadar" data-om-action-radar="inline-v133"><div class="actionRadarHead"><div><div class="actionRadarEy">Application action radar</div><h3>${items.length?`${items.length} application action${items.length===1?'':'s'} worth attention.`:'No scheduled application actions right now.'}</h3><p>Tracked deadlines and post-submission dates, ranked by what needs your attention first.</p></div><div class="actionRadarStats"><div class="actionRadarStat"><b>${overdue}</b><span>overdue</span></div><div class="actionRadarStat"><b>${next7}</b><span>next 7 days</span></div><div class="actionRadarStat"><b>${attention}</b><span>needs details</span></div></div></div><div class="actionRadarList">${body}</div></section>`;
   }
 
+  function ensureFullWidthStyle(){
+    if(document.getElementById('om-action-radar-fullwidth-v198'))return;
+    const style=document.createElement('style');
+    style.id='om-action-radar-fullwidth-v198';
+    style.textContent=`#dashboard .applicationActionRadar[data-om-action-radar="inline-v133"]{width:100%;max-width:none;box-sizing:border-box;grid-column:1/-1;justify-self:stretch}`;
+    document.head.appendChild(style);
+  }
+
   function mount(){
     queued=false;
     const dashboard=document.getElementById('dashboard');
     if(!dashboard)return false;
     const intel=dashboard.querySelector('.matchIntel');
-    if(!intel)return false;
-    const anchor=intel.querySelector('.precisionNext')||intel.lastElementChild;
-    if(!anchor)return false;
+    if(!intel||!intel.parentElement)return false;
+    const host=intel.parentElement;
+    ensureFullWidthStyle();
 
     const items=rows();
-    const sig=items.map(x=>[x.id,x.type,x.days,x.headline,x.detail].join(':')).join('|');
+    const sig=items.map(x=>[x.id,x.type,x.days,x.headline,x.detail,x.title,x.provider].join(':')).join('|');
 
-    let panel=intel.querySelector('.applicationActionRadar[data-om-action-radar="inline-v133"]');
+    let panel=[...dashboard.querySelectorAll('.applicationActionRadar[data-om-action-radar="inline-v133"]')].find(el=>el.parentElement===host)||null;
     dashboard.querySelectorAll('.applicationActionRadar').forEach(el=>{if(el!==panel)el.remove()});
 
     if(!panel){
-      anchor.insertAdjacentHTML('afterend',markup(items));
-      panel=anchor.nextElementSibling;
+      intel.insertAdjacentHTML('afterend',markup(items));
+      panel=intel.nextElementSibling;
     }else if(panel.dataset.radarSig!==sig){
       const holder=document.createElement('div');
       holder.innerHTML=markup(items);
@@ -54,11 +74,11 @@
     }
 
     if(!panel)return false;
-    if(panel.parentElement!==intel||panel.previousElementSibling!==anchor){
-      anchor.insertAdjacentElement('afterend',panel);
+    if(panel.parentElement!==host||panel.previousElementSibling!==intel){
+      intel.insertAdjacentElement('afterend',panel);
     }
     panel.dataset.radarSig=sig;
-    document.documentElement.dataset.omRadarMounted='inline-v133';
+    document.documentElement.dataset.omRadarMounted='inline-v133-fullwidth';
     return true;
   }
 
