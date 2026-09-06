@@ -7,6 +7,8 @@
     .focusTask.studioSynced{cursor:default}
     .focusTask.studioSynced input{pointer-events:none}
     .focusTask.studioSynced.done{border-color:rgba(216,255,105,.28);background:rgba(216,255,105,.06)}
+    .focusTask.studioSynced.notRequested{border-color:rgba(119,230,207,.24);background:rgba(119,230,207,.045);color:#a8e9dc}
+    .focusTask.studioSynced.notRequested input{opacity:.45}
     .focusTask.studioSynced span{display:inline-flex;align-items:center;gap:5px}
   `;
   document.head.appendChild(style);
@@ -27,9 +29,26 @@
     try{return window.OpportunityStudioTruth?.getState?.(t)||null}catch{return null}
   }
 
+  function documentPolicy(t){
+    const f=t?.preparation?.rolePack?.finalApplication||{};
+    const policy=f.providerDocumentPolicy||{};
+    const writingNotRequested=Boolean(f.writingSampleNotRequested)||policy.writingSample==='not_requested';
+    const pdfNotRequested=Boolean(f.singlePdfNotRequested)||policy.combinedPdf==='not_requested';
+    return{writingNotRequested,pdfNotRequested,notRequestedCount:Number(writingNotRequested)+Number(pdfNotRequested)};
+  }
+
+  function replaceLabelText(label,clean){
+    const current=[...label.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join(' ').trim();
+    if(current!==clean){
+      [...label.childNodes].filter(n=>n.nodeType===3).forEach(n=>n.remove());
+      label.appendChild(document.createTextNode(' '+clean));
+    }
+  }
+
   function setTask(label,text,done){
     if(!label)return;
     label.classList.add('studioSynced');
+    label.classList.remove('notRequested');
     label.classList.toggle('done',Boolean(done));
     const input=label.querySelector('input');
     if(input){
@@ -37,24 +56,49 @@
       input.disabled=true;
       input.removeAttribute('onchange');
     }
-    const clean=text+(done?' ✓':'');
-    const current=[...label.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join(' ').trim();
-    if(current!==clean){
-      [...label.childNodes].filter(n=>n.nodeType===3).forEach(n=>n.remove());
-      label.appendChild(document.createTextNode(' '+clean));
-    }
+    replaceLabelText(label,text+(done?' ✓':''));
     label.title='Synced from Application Studio';
+  }
+
+  function setNotRequested(label,text){
+    if(!label)return;
+    label.classList.add('studioSynced','notRequested');
+    label.classList.remove('done');
+    const input=label.querySelector('input');
+    if(input){
+      input.checked=false;
+      input.disabled=true;
+      input.removeAttribute('onchange');
+    }
+    replaceLabelText(label,`${text} · Not requested`);
+    label.title='Not requested in the published vacancy; the final provider form re-check remains authoritative.';
   }
 
   function decorateCards(){
     document.querySelectorAll('#tracker .focusCard').forEach(card=>{
       const row=rowForCard(card);if(!row?.t?.exactVacancy)return;
       const s=studioState(row.t);if(!s||s.sourceMode!=='dedicatedPrepare')return;
+      const policy=documentPolicy(row.t);
       const labels=[...card.querySelectorAll('.focusTasks .focusTask')];
-      if(labels.length<3)return;
-      setTask(labels[0],'CV',s.cvReady);
-      setTask(labels[1],'Cover',s.motReady);
-      setTask(labels[2],'Writing sample',s.writingReady);
+      if(labels.length>=3){
+        setTask(labels[0],'CV',s.cvReady);
+        setTask(labels[1],'Cover',s.motReady);
+        if(policy.writingNotRequested)setNotRequested(labels[2],'Writing sample');
+        else setTask(labels[2],'Writing sample',s.writingReady);
+      }
+
+      const required=[
+        {ready:s.cvReady,notRequested:false},
+        {ready:s.motReady,notRequested:false},
+        {ready:s.writingReady,notRequested:policy.writingNotRequested},
+        {ready:s.pdfReady,notRequested:policy.pdfNotRequested}
+      ].filter(x=>!x.notRequested);
+      const requiredDone=required.filter(x=>x.ready).length;
+      const small=card.querySelector('.focusAction small');
+      if(small&&policy.notRequestedCount){
+        const docMeta=requiredDone===required.length?'all required document gates resolved':`${requiredDone}/${required.length} required documents ready`;
+        small.textContent=`${s.verifyDone}/${s.verifyTotal} official checks · ${docMeta}`;
+      }
     });
   }
 
