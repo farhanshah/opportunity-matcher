@@ -31,6 +31,8 @@ const VERIFIED_FALLBACKS={
     bureau:'Regional Bureau for Africa',
     contract_duration:'6 months',
     education_work_experience:"Bachelor's Degree",
+    education_rule:"Final year of a bachelor's degree; currently enrolled in a Master's degree; or graduated no longer than 1 year ago from a bachelor's or master's degree or equivalent studies.",
+    field_of_study:'Computer Science, Information Technology, Management Information Systems, Information Systems, Computer Engineering, Cybersecurity, Data Analytics, or related studies/equivalent.',
     required_languages:'English',
     vacancy_timeline:'1 Week',
     mobility_designation:'N/A'
@@ -69,6 +71,7 @@ const LABELS=[
   ['vacancy_timeline','Vacancy Timeline'],
   ['mobility_designation','Mobility Designation']
 ];
+const EXTRA_KEYS=['education_rule','field_of_study'];
 
 function extractFacts(plain){
   const text=String(plain||''),lower=text.toLowerCase(),out={};
@@ -83,11 +86,18 @@ function extractFacts(plain){
     const value=text.slice(start,end).replace(/^[:\s-]+/,'').trim();
     if(value&&value.length<500)out[key]=value;
   }
+  const field=(text.match(/Field of study\s*:\s*([^\n]{10,500}?)(?=\s+(?:Experience\s*:|IT skills\s*:|Language skills\s*:|Other competencies|Internship Conditions|$))/i)||[])[1];
+  if(field)out.field_of_study=field.replace(/\s+/g,' ').trim();
+  const edu=(text.match(/Candidates must meet one of the following educational requirements\s*:\s*([\s\S]{20,900}?)(?=\s+Field of study\s*:)/i)||[])[1];
+  if(edu)out.education_rule=edu.replace(/\s+/g,' ').replace(/^[•\-\s]+/,'').trim();
   return out;
 }
 
 function mergeFacts(dynamic,fallback){
-  const out={};for(const [key] of LABELS){const v=String(dynamic?.[key]||fallback?.[key]||'').trim();if(v)out[key]=v}return out;
+  const out={};
+  for(const [key] of LABELS){const v=String(dynamic?.[key]||fallback?.[key]||'').trim();if(v)out[key]=v}
+  for(const key of EXTRA_KEYS){const v=String(dynamic?.[key]||fallback?.[key]||'').trim();if(v)out[key]=v}
+  return out;
 }
 
 export default async function handler(req,res){
