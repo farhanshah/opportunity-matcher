@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v219';
+  const VERSION='v220';
   const TRACK_KEYS=['oppTracksV6','oppExactTracksV1','oppExactJournalV1'];
   const activeId=new URLSearchParams(location.search).get('id')||'';
   const read=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
@@ -93,6 +93,14 @@
         const b=gate.querySelector('b'); if(b)b.textContent='Not requested ✓';
       }
     });
+
+    const finalPanel=document.querySelector('#stage-final');
+    if(finalPanel){
+      const heading=finalPanel.querySelector('.surfaceCard h2');
+      if(heading)heading.textContent='Confirm the required files, then re-check the provider page.';
+      const notice=finalPanel.querySelector('.notice');
+      if(notice)notice.textContent='Document requirements are vacancy-aware. Items marked Not requested are based on the published vacancy; re-check the live provider form before submission in case it asks for additional files.';
+    }
 
     const lazy=document.querySelector('#lazyWorkspace');
     if(lazy&&!lazy.classList.contains('hide')&&/WRITING SAMPLE/i.test(lazy.textContent||'')&&policy.writingSample==='not_requested'){
