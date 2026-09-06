@@ -1,8 +1,7 @@
 const HOST='estm.fa.em2.oraclecloud.com';
 const exactUrl=id=>`https://${HOST}/hcmUI/CandidateExperience/en/sites/CX_1/job/${id}`;
 
-// Exact official-page fallback captured from UNDP Oracle vacancy 36124 on 2026-08-23.
-// Dynamic extraction always wins when the official page exposes the fields server-side.
+// Exact official-page snapshots. Dynamic extraction always wins when the official page exposes the fields server-side.
 const VERIFIED_FALLBACKS={
   '36124':{
     job_identification:'36124',
@@ -18,6 +17,23 @@ const VERIFIED_FALLBACKS={
     required_languages:'English',
     desired_languages:'French and Arabic',
     vacancy_timeline:'2 Weeks'
+  },
+  '36431':{
+    job_identification:'36431',
+    posting_date:'09/03/2026, 09:49 AM',
+    apply_before:'09/13/2026, 09:48 AM',
+    job_schedule:'Full time',
+    locations:'Accra, Ghana',
+    agency:'UNDP',
+    grade:'IN',
+    vacancy_type:'Internship Programme',
+    practice_area:'Innovation',
+    bureau:'Regional Bureau for Africa',
+    contract_duration:'6 months',
+    education_work_experience:"Bachelor's Degree",
+    required_languages:'English',
+    vacancy_timeline:'1 Week',
+    mobility_designation:'N/A'
   }
 };
 
@@ -34,6 +50,7 @@ async function fetchHtml(url,timeout=14000){
   }finally{clearTimeout(timer)}
 }
 
+// Keep this list in the same order as Oracle's JOB INFO block so values cannot bleed across omitted labels.
 const LABELS=[
   ['job_identification','Job Identification'],
   ['posting_date','Posting Date'],
@@ -41,13 +58,16 @@ const LABELS=[
   ['job_schedule','Job Schedule'],
   ['locations','Locations'],
   ['agency','Agency'],
+  ['grade','Grade'],
   ['vacancy_type','Vacancy Type'],
+  ['practice_area','Practice Area'],
   ['bureau','Bureau'],
   ['contract_duration','Contract Duration'],
   ['education_work_experience','Education & Work Experience'],
   ['required_languages','Required Languages'],
   ['desired_languages','Desired Languages'],
-  ['vacancy_timeline','Vacancy Timeline']
+  ['vacancy_timeline','Vacancy Timeline'],
+  ['mobility_designation','Mobility Designation']
 ];
 
 function extractFacts(plain){
@@ -82,7 +102,7 @@ export default async function handler(req,res){
     if(!Object.keys(facts).length)return res.status(200).json({ok:true,job,url:final.toString(),facts:{},source_quality:'unreadable',fetched_at:new Date().toISOString(),notice:'The exact vacancy resolved but summary facts were not safely extractable.'});
     return res.status(200).json({ok:true,job,url:final.toString(),facts,source_quality:dynamicCount>=5?'exact-dynamic':'exact-with-verified-fallback',dynamic_fact_count:dynamicCount,fetched_at:new Date().toISOString(),notice:'These are summary facts from the exact official UNDP vacancy page. Detailed eligibility conditions still require vacancy-specific review.'});
   }catch(e){
-    if(Object.keys(fallback).length)return res.status(200).json({ok:true,job,url,facts:fallback,source_quality:'verified-official-fallback',dynamic_fact_count:0,fetched_at:new Date().toISOString(),fetch_error:e.message,notice:'Official summary facts use a recently verified exact-page fallback because the Oracle page was not machine-readable on this request. Detailed eligibility still requires official-page review.'});
+    if(Object.keys(fallback).length)return res.status(200).json({ok:true,job,url,facts:fallback,source_quality:'verified-official-fallback',dynamic_fact_count:0,fetched_at:new Date().toISOString(),fetch_error:e.message,notice:'Official summary facts use a recently verified exact-page snapshot because the Oracle page was not machine-readable on this request. Detailed eligibility still requires official-page review.'});
     return res.status(200).json({ok:true,job,url,facts:{},source_quality:'unreadable',dynamic_fact_count:0,fetched_at:new Date().toISOString(),fetch_error:e.message,notice:'No vacancy facts were promoted because the exact source could not be read safely.'});
   }
 }
