@@ -1,12 +1,11 @@
 (()=>{
-  const VERSION='v214';
+  const VERSION='v215';
   const KEYS=['oppTracksV6','oppExactTracksV1','oppExactJournalV1'];
   const activeId=new URLSearchParams(location.search).get('id')||'';
   if(!activeId)return;
 
   const read=k=>{try{const x=JSON.parse(localStorage.getItem(k)||'{}');return x&&typeof x==='object'?x:{}}catch{return{}}};
   const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
-  const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const jobId=url=>{try{return(new URL(url,location.origin).pathname.match(/\/(?:requisitions\/)?job\/(\d+)/i)||[])[1]||''}catch{return''}};
 
   function mergedTrack(){
@@ -54,27 +53,33 @@
     return persistTrack(t=>{
       const signals=Array.isArray(t.exactVacancy.signals)?t.exactVacancy.signals:[];
       const has=signals.some(s=>/\bfield\b|discipline/i.test(String(s?.label||s||'')));
-      if(!has)signals.push({label:'field · official academic discipline requirement',source:'official-v214'});
-      t.exactVacancy.signals=signals;
+      if(!has){
+        signals.push({label:'field · official academic discipline requirement',source:'official-v214'});
+        t.exactVacancy.signals=signals;
+      }
     });
+  }
+
+  function setTextIfChanged(node,text){
+    if(node&&text&&node.textContent!==text)node.textContent=text;
   }
 
   function decorate(facts){
     if(!facts)return;
     const field=document.querySelector('[data-verify-key="fieldChecked"]');
     if(field){
-      const row=field.closest('.checkRow'),desc=row?.querySelector('span');
-      if(desc&&facts.field_of_study)desc.textContent=`Official accepted fields: ${facts.field_of_study}`;
+      const desc=field.closest('.checkRow')?.querySelector('span');
+      if(facts.field_of_study)setTextIfChanged(desc,`Official accepted fields: ${facts.field_of_study}`);
     }
     const edu=document.querySelector('[data-verify-key="educationChecked"]');
     if(edu){
-      const row=edu.closest('.checkRow'),desc=row?.querySelector('span');
-      if(desc&&facts.education_rule)desc.textContent=`Official rule: ${facts.education_rule}`;
+      const desc=edu.closest('.checkRow')?.querySelector('span');
+      if(facts.education_rule)setTextIfChanged(desc,`Official rule: ${facts.education_rule}`);
     }
     const lang=document.querySelector('[data-verify-key="languageChecked"]');
     if(lang){
-      const row=lang.closest('.checkRow'),desc=row?.querySelector('span');
-      if(desc&&facts.required_languages)desc.textContent=`Official requirement: ${facts.required_languages}`;
+      const desc=lang.closest('.checkRow')?.querySelector('span');
+      if(facts.required_languages)setTextIfChanged(desc,`Official requirement: ${facts.required_languages}`);
     }
     document.documentElement.dataset.omEligibilityEvidence=VERSION;
   }
@@ -93,8 +98,18 @@
     decorate(facts);
     const host=document.getElementById('verifyList');
     if(host){
-      const obs=new MutationObserver(()=>decorate(mergedTrack()?.exactVacancy?.officialFacts||facts));
-      obs.observe(host,{childList:true,subtree:true});
+      let queued=false;
+      const obs=new MutationObserver(()=>{
+        if(queued)return;
+        queued=true;
+        setTimeout(()=>{
+          queued=false;
+          decorate(mergedTrack()?.exactVacancy?.officialFacts||facts);
+        },0);
+      });
+      // Only observe the list itself being rebuilt. Do not observe descendant text mutations,
+      // otherwise decorating a row can recursively trigger the observer.
+      obs.observe(host,{childList:true});
     }
   }
 
