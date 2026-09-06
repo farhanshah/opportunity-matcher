@@ -97,11 +97,17 @@
     setTimeout(refresh,delay);
   }
 
+  function settle(){
+    schedule(0);
+    setTimeout(()=>schedule(0),140);
+    setTimeout(()=>schedule(0),280);
+  }
+
   const previousRender=window.renderTracker;
   if(typeof previousRender==='function'&&!previousRender.__omPackStatusOwner){
     const wrapped=function(...args){
       const out=previousRender.apply(this,args);
-      schedule(0);
+      settle();
       return out;
     };
     wrapped.__omPackStatusOwner=true;
@@ -110,12 +116,12 @@
     window.renderTracker=wrapped;
   }
 
-  window.addEventListener('opportunity:statechange',()=>schedule(0));
-  window.addEventListener('opportunity:hydrated',()=>schedule(0));
+  window.addEventListener('opportunity:statechange',settle);
+  window.addEventListener('opportunity:hydrated',settle);
   document.addEventListener('click',e=>{
-    if(e.target.closest?.('.navbtn[data-v="tracker"],.viewToggle,.prepOpen'))schedule(20);
+    if(e.target.closest?.('.navbtn[data-v="tracker"],.viewToggle,.prepOpen'))settle();
   },true);
 
-  setTimeout(refresh,80);
-  window.OpportunityTrackerPackStatus={refresh,schedule};
+  settle();
+  window.OpportunityTrackerPackStatus={refresh:settle,schedule};
 })();
