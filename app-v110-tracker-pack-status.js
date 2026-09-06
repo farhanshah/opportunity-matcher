@@ -6,10 +6,29 @@
   const store=()=>window.tracks||(typeof tracks==='object'&&tracks?tracks:null);
   const text=el=>String(el?.textContent||'').replace(/\s+/g,' ').trim();
 
-  function packHtml(s){
+  function documentPolicy(t){
+    const f=t?.preparation?.rolePack?.finalApplication||{};
+    const policy=f.providerDocumentPolicy||{};
+    const writingNotRequested=Boolean(f.writingSampleNotRequested)||policy.writingSample==='not_requested';
+    const pdfNotRequested=Boolean(f.singlePdfNotRequested)||policy.combinedPdf==='not_requested';
+    return{writingNotRequested,pdfNotRequested,notRequestedCount:Number(writingNotRequested)+Number(pdfNotRequested)};
+  }
+
+  function packHtml(s,t){
     if(s.sourceMode==='dedicatedPrepare'){
-      const docsDone=[s.cvReady,s.motReady,s.writingReady,s.pdfReady].filter(Boolean).length;
-      return `<b>Application pack:</b> ${docsDone===4?'Documents ready':`${docsDone}/4 document gates ready`} · ${s.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`;
+      const policy=documentPolicy(t);
+      const required=[
+        {ready:s.cvReady,notRequested:false},
+        {ready:s.motReady,notRequested:false},
+        {ready:s.writingReady,notRequested:policy.writingNotRequested},
+        {ready:s.pdfReady,notRequested:policy.pdfNotRequested}
+      ];
+      const requiredDocs=required.filter(x=>!x.notRequested);
+      const requiredDone=requiredDocs.filter(x=>x.ready).length;
+      const requiredReady=requiredDocs.length>0&&requiredDone===requiredDocs.length;
+      const docCopy=requiredReady?'Required documents ready':`${requiredDone}/${requiredDocs.length} required documents ready`;
+      const omitted=policy.notRequestedCount?` · ${policy.notRequestedCount} document requirement${policy.notRequestedCount===1?'':'s'} not requested`:'';
+      return `<b>Application pack:</b> ${docCopy} · ${s.providerReady?'Final provider check confirmed':'Provider re-check pending'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded${omitted}`;
     }
     return `<b>Application pack:</b> ${s.evidenceTotal?`${s.drafted}/${s.evidenceTotal} proof areas drafted`:'Evidence mapping in progress'} · ${s.assembled?'Pack assembled':'Pack not assembled'}<br>${s.verifyDone}/${s.verifyTotal} official checks recorded`;
   }
@@ -26,7 +45,8 @@
     const tracksStore=store();
     const truth=window.OpportunityStudioTruth;
     if(!id||!tracksStore?.[id]||typeof truth?.getState!=='function')return;
-    const state=truth.getState(tracksStore[id]);
+    const track=tracksStore[id];
+    const state=truth.getState(track);
     if(!state)return;
 
     let rows=leafPackRows(card);
@@ -49,7 +69,7 @@
     canonical.hidden=false;
     canonical.style.removeProperty('display');
     canonical.removeAttribute('aria-hidden');
-    const html=packHtml(state);
+    const html=packHtml(state,track);
     if(canonical.innerHTML!==html)canonical.innerHTML=html;
 
     // Hide only extra leaf-level pack rows. No observers, removals or parent hiding.
