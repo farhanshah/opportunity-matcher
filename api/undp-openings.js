@@ -17,15 +17,27 @@ const CURRENT_REGISTRY=[
   {id:'35803',title:'Programme de Stages du PNUD Djibouti',deadline:'2027-07-30',location:'Djibouti, Djibouti'}
 ];
 
+// Exact-page snapshots are a last-resort guard when Oracle renders the job info client-side.
+// They are keyed by the exact job ID, never by title or board position.
+const EXACT_PAGE_FALLBACK={
+  '36431':{title:'ICT Assistant',deadline:'2026-09-13',location:'Accra, Ghana'}
+};
+
 const decode=s=>String(s||'').replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const clean=s=>decode(String(s||'').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim());
 const absolute=(base,href)=>{try{return new URL(href,base).toString()}catch{return''}};
-const exactUrl=id=>`https://${EXACT_HOST}/hcmUI/CandidateExperience/en/sites/CX_1/requisitions/job/${id}`;
+const exactUrl=id=>`https://${EXACT_HOST}/hcmUI/CandidateExperience/en/sites/CX_1/job/${id}`;
 function parseApplyDate(raw){const m=String(raw||'').match(/([A-Za-z]{3,9})[-\s]+(\d{1,2})[-,\s]+(\d{2,4})/);if(!m)return'';const y=m[3].length===2?`20${m[3]}`:m[3],d=new Date(`${m[1]} ${m[2]}, ${y}`);return Number.isNaN(d.getTime())?'':d.toISOString().slice(0,10)}
+function parseOracleDate(raw){const m=String(raw||'').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m?`${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`:''}
 function exactJobId(raw){try{const u=new URL(raw),m=u.pathname.match(/\/(?:requisitions\/)?job\/(\d+)/i);return m?m[1]:''}catch{return''}}
 async function fetchHtml(url,timeout=18000){const c=new AbortController(),timer=setTimeout(()=>c.abort(),timeout);try{const r=await fetch(url,{signal:c.signal,redirect:'follow',headers:{'User-Agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36 OpportunityMatcher/1.0','Accept':'text/html,application/xhtml+xml','Accept-Language':'en-GB,en;q=0.9','Cache-Control':'no-cache'}});if(!r.ok)throw new Error(`Official page returned HTTP ${r.status}`);const html=await r.text();if(html.length<120)throw new Error('Official page returned too little content');return{html,status:r.status,url:r.url||url}}finally{clearTimeout(timer)}}
 function rowHtml(src,index){const before=src.lastIndexOf('<tr',index),after=src.indexOf('</tr>',index);if(before>=0&&after>index&&after-before<12000)return src.slice(before,after+5);const start=Math.max(0,index-180),end=Math.min(src.length,index+2200);return src.slice(start,end)}
 function isInternshipTitle(title){return /\bintern(?:ship|s)?\b|\bstagiaire\b|\bstages\b/i.test(String(title||''))}
+function between(text,label,nextLabels){const lower=String(text||'').toLowerCase(),needle=label.toLowerCase(),at=lower.indexOf(needle);if(at<0)return'';const start=at+needle.length;let end=text.length;for(const n of nextLabels){const i=lower.indexOf(n.toLowerCase(),start);if(i>=0&&i<end)end=i}return text.slice(start,end).replace(/^[:\s-]+/,'').trim()}
+function oracleSummary(plain){
+  const labels=['Job Identification','Posting Date','Apply Before','Job Schedule','Locations','Agency','Grade','Vacancy Type','Practice Area','Bureau','Contract Duration','Education & Work Experience','Required Languages','Desired Languages','Vacancy Timeline','Mobility Designation'];
+  const out={};for(let i=0;i<labels.length;i++)out[labels[i]]=between(plain,labels[i],labels.slice(i+1));return out;
+}
 function parseRows(html){
   const src=String(html||''),out=[],seen=new Set(),today=new Date().toISOString().slice(0,10);
   for(const a of src.matchAll(/<a\b[^>]*href=["']([^"']*oraclecloud\.com[^"']+)["'][^>]*>([\s\S]{1,1400}?)<\/a>/gi)){
@@ -53,7 +65,12 @@ async function verifyExact(row){
     if(final.hostname.replace(/^www\./,'')!==EXACT_HOST||finalId!==String(row.id))return null;
     const plain=clean(f.html);
     if(/job (?:is|has been) no longer available|no longer accepting applications|applications? (?:are|is) (?:now )?closed|position has been filled/i.test(plain))return null;
-    return{title:row.title,url:final.toString(),location:row.location||'',deadline:row.deadline,source:'UNDP',job_id:String(row.id),status_verified:true,verification_level:'exact',status_source:row.origin==='live-board'?'undp-current-board-plus-exact-oracle-job':'undp-current-cycle-registry-plus-exact-oracle-job',quality:'status-verified-vacancy',verification_basis:row.origin==='live-board'?'current official UNDP board row + exact Oracle job ID':'official UNDP board row verified 2026-08-20 + exact Oracle job URL + current deadline',detail_text:`${row.title}. ${row.location?`Location ${row.location}. `:''}Apply by ${row.deadline}. ${POLICY}`,detail_evidence_quality:'medium',detail_scope:'official-undp-board+internship-policy'};
+    const facts=oracleSummary(plain),fallback=EXACT_PAGE_FALLBACK[String(row.id)]||{};
+    const title=String(fallback.title||row.title||'').trim();
+    const location=String(facts.Locations||fallback.location||row.location||'').trim();
+    const deadline=parseOracleDate(facts['Apply Before'])||fallback.deadline||row.deadline;
+    if(!deadline||deadline<today)return null;
+    return{title,url:final.toString(),location,deadline,source:'UNDP',job_id:String(row.id),status_verified:true,verification_level:'exact',status_source:'undp-exact-oracle-canonical',quality:'status-verified-vacancy',verification_basis:'exact Oracle job ID + official job-page facts when readable; board metadata is fallback only',required_language:String(facts['Required Languages']||'').trim(),minimum_education:String(facts['Education & Work Experience']||'').trim(),detail_text:`${title}. ${location?`Location ${location}. `:''}Apply by ${deadline}. ${POLICY}`,detail_evidence_quality:'medium',detail_scope:'exact-undp-oracle+internship-policy'};
   }catch{return null}
 }
 export default async function handler(req,res){
@@ -62,6 +79,6 @@ export default async function handler(req,res){
     let parsed=[];try{const page=await fetchHtml(BOARD);parsed=parseRows(page.html)}catch{}
     const merged=[],seen=new Set();for(const row of [...parsed,...CURRENT_REGISTRY.map(x=>({...x,url:exactUrl(x.id),source:'UNDP',origin:'registry'}))]){if(!row?.id||seen.has(String(row.id)))continue;seen.add(String(row.id));merged.push(row)}
     const checked=await Promise.all(merged.slice(0,18).map(verifyExact)),openings=checked.filter(Boolean);
-    return res.status(200).json({ok:true,provider:'UNDP',board_url:BOARD,fetched_at:new Date().toISOString(),adapter_state:'exact-board-reference',dynamic_rows:parsed.length,registry_rows:CURRENT_REGISTRY.length,exact_verified_count:openings.length,candidate_count:merged.length,openings,notice:'UNDP exact openings are promoted only while their exact Oracle job URL resolves and their official deadline remains current. Dynamic board parsing is row-scoped, and roster-only calls are withheld from the vacancy-level feed.'});
+    return res.status(200).json({ok:true,provider:'UNDP',board_url:BOARD,fetched_at:new Date().toISOString(),adapter_state:'exact-oracle-canonical',dynamic_rows:parsed.length,registry_rows:CURRENT_REGISTRY.length,exact_verified_count:openings.length,candidate_count:merged.length,openings,notice:'UNDP exact openings are promoted only while the exact Oracle job URL resolves. Exact job-page facts outrank board-row metadata for canonical location and deadline; roster-only calls are withheld.'});
   }catch(e){return res.status(200).json({ok:true,provider:'UNDP',board_url:BOARD,fetched_at:new Date().toISOString(),adapter_state:'unreadable',exact_verified_count:0,candidate_count:0,openings:[],fetch_error:e.message,notice:'UNDP could not be read safely, so no exact opening was promoted.'})}
 }
