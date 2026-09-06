@@ -127,21 +127,26 @@
 
   function refresh(){scheduled=false;decorateCards();decorateSummary()}
   function schedule(){if(scheduled)return;scheduled=true;queueMicrotask(refresh)}
+  function settle(){
+    schedule();
+    setTimeout(schedule,120);
+    setTimeout(schedule,260);
+  }
 
   const oldRender=window.renderTracker;
   if(typeof oldRender==='function'&&!oldRender.__omPrepSummaryV113){
-    const wrapped=(...args)=>{const out=oldRender(...args);schedule();return out};
+    const wrapped=(...args)=>{const out=oldRender(...args);settle();return out};
     wrapped.__omPrepSummaryV113=true;
     try{renderTracker=wrapped}catch{}
     window.renderTracker=wrapped;
   }
 
-  window.addEventListener('opportunity:statechange',schedule);
-  window.addEventListener('opportunity:hydrated',schedule);
+  window.addEventListener('opportunity:statechange',settle);
+  window.addEventListener('opportunity:hydrated',settle);
   document.addEventListener('click',e=>{
-    if(e.target.closest?.('.navbtn[data-v="tracker"],.viewToggle'))schedule();
+    if(e.target.closest?.('.navbtn[data-v="tracker"],.viewToggle,.prepOpen'))settle();
   },true);
 
-  schedule();
-  window.OpportunityTrackerPrepSummary={refresh:schedule};
+  settle();
+  window.OpportunityTrackerPrepSummary={refresh:settle};
 })();
