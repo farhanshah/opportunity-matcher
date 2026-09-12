@@ -1,0 +1,100 @@
+(()=>{
+  const VERSION='v223';
+  const norm=v=>String(v||'').toLowerCase().replace(/\s+/g,' ').trim();
+  const read=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
+  const trackMaps=()=>{
+    const out=[];
+    try{if(typeof tracks==='object'&&tracks)out.push(tracks)}catch{}
+    if(window.tracks&&typeof window.tracks==='object')out.push(window.tracks);
+    ['oppTracksV6','oppExactTracksV1'].forEach(k=>out.push(read(k)));
+    return out;
+  };
+  const oppList=()=>{try{return Array.isArray(opps)?opps:[]}catch{return[]}};
+  const detailEl=()=>document.getElementById('detail');
+  const leafByText=(root,re)=>[...root.querySelectorAll('button,a,span,div,b,strong,small')].find(el=>!el.children.length&&re.test(String(el.textContent||'').trim()));
+  const currentTitle=root=>{
+    const hs=[...root.querySelectorAll('h1,h2,h3')].map(x=>String(x.textContent||'').trim()).filter(Boolean);
+    return hs.sort((a,b)=>b.length-a.length)[0]||'';
+  };
+  const currentProvider=root=>{
+    const title=currentTitle(root), titleEl=[...root.querySelectorAll('h1,h2,h3')].find(x=>String(x.textContent||'').trim()===title);
+    let n=titleEl?.nextElementSibling;
+    for(let i=0;i<3&&n;i++,n=n.nextElementSibling){const t=String(n.textContent||'').trim();if(t&&t.length<120)return t}
+    return '';
+  };
+  const titleOf=t=>t?.exactVacancy?.title||t?.exactVacancy?.Opportunity_Name||t?.opportunityName||t?.Opportunity_Name||t?.title||t?.name||'';
+  const providerOf=t=>t?.exactVacancy?.provider||t?.exactVacancy?.Provider||t?.provider||t?.Provider||'';
+  function trackedMatch(title,provider,opp){
+    const nt=norm(title),np=norm(provider),oid=String(opp?.Opportunity_ID||'');
+    for(const map of trackMaps()){
+      if(oid&&map?.[oid])return{yes:true,id:oid};
+      for(const [id,t] of Object.entries(map||{})){
+        const tt=norm(titleOf(t)),pp=norm(providerOf(t));
+        if(tt&&nt&&tt===nt&&(!np||!pp||pp===np||pp.includes(np)||np.includes(pp)))return{yes:true,id};
+      }
+    }
+    return{yes:false,id:''};
+  }
+  const isoFromText=s=>{const m=String(s||'').match(/\b(20\d{2})-(\d{2})-(\d{2})\b/);return m?`${m[1]}-${m[2]}-${m[3]}`:''};
+  function currentOpp(root){
+    const title=currentTitle(root),nt=norm(title);
+    return oppList().find(o=>norm(o?.Opportunity_Name)===nt)||null;
+  }
+  function visibleDeadline(root){
+    const nodes=[...root.querySelectorAll('*')];
+    for(const el of nodes){
+      if(el.children.length)continue;
+      const txt=String(el.textContent||'').trim();
+      if(!/^deadline$/i.test(txt))continue;
+      const p=el.parentElement;if(!p)continue;
+      const val=[...p.querySelectorAll('*')].filter(x=>!x.children.length).map(x=>String(x.textContent||'').trim()).find(x=>isoFromText(x));
+      if(val)return isoFromText(val);
+    }
+    return '';
+  }
+  function pastDeadline(root,opp){
+    const iso=visibleDeadline(root)||isoFromText(opp?.Close_Date||opp?.Deadline||'');
+    if(!iso)return false;
+    const end=new Date(`${iso}T23:59:59`),now=new Date();
+    return Number.isFinite(end.getTime())&&end.getTime()<now.getTime();
+  }
+  function openTracker(){
+    try{window.closeDetail?.()}catch{}
+    try{window.setView?.('tracker')}catch{}
+  }
+  function disableAction(el,label){
+    if(!el)return;
+    el.textContent=label;
+    el.removeAttribute('href');el.removeAttribute('onclick');
+    el.setAttribute('aria-disabled','true');el.setAttribute('title','This opportunity deadline has passed');
+    if('disabled' in el)el.disabled=true;
+    el.style.pointerEvents='none';el.style.opacity='.62';
+  }
+  function sync(){
+    const root=detailEl();if(!root||root.classList.contains('hide'))return;
+    const title=currentTitle(root),provider=currentProvider(root),opp=currentOpp(root),tracked=trackedMatch(title,provider,opp),past=pastDeadline(root,opp);
+    const actions=[...root.querySelectorAll('button,a')];
+    const add=actions.find(x=>/add to tracker/i.test(String(x.textContent||''))||/addTrack\(/.test(x.getAttribute('onclick')||''));
+    const apply=actions.find(x=>/^apply\b/i.test(String(x.textContent||'').trim()));
+    if(tracked.yes&&add){
+      add.textContent='Open tracker';add.removeAttribute('onclick');add.removeAttribute('href');add.removeAttribute('disabled');add.style.pointerEvents='';add.style.opacity='';add.setAttribute('aria-disabled','false');add.title='Already in your application tracker';
+      add.onclick=e=>{e.preventDefault();openTracker()};
+    }else if(past&&add){disableAction(add,'Deadline passed')}
+    if(past){
+      disableAction(apply,'Deadline passed');
+      const open=leafByText(root,/^OPEN$/i);if(open)open.textContent='CLOSED';
+      const strong=leafByText(root,/^Strong match$/i);if(strong)strong.textContent='Previously strong match';
+    }
+    document.documentElement.dataset.omAnalysisTruth=VERSION;
+  }
+  const prior=window.openDetail;
+  if(typeof prior==='function'&&!prior.__omAnalysisTruthV223){
+    const wrapped=function(...args){const out=prior.apply(this,args);setTimeout(sync,0);setTimeout(sync,60);setTimeout(sync,180);return out};
+    wrapped.__omAnalysisTruthV223=true;
+    try{openDetail=wrapped}catch{}
+    window.openDetail=wrapped;
+  }
+  document.addEventListener('click',e=>{if(e.target.closest?.('[onclick*="openDetail"],.priorityCard,.focusCard')){setTimeout(sync,40);setTimeout(sync,160)}},true);
+  setTimeout(sync,250);
+  window.OpportunityAnalysisDeadlineTruth={refresh:sync,version:VERSION};
+})();
