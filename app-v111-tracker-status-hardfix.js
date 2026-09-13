@@ -32,13 +32,13 @@
     document.body.appendChild(x);
   };
 
-  // v228 resolves the actual opportunity from the analysis modal contents first,
-  // then uses its Opportunity_ID against the tracker. This avoids heading-order bugs.
-  if(!document.querySelector('script[data-om-analysis-truth-v228]')){
+  // v229 keeps the v228 truth checks and, when Open tracker is clicked,
+  // scrolls to and briefly highlights the exact tracked opportunity card.
+  if(!document.querySelector('script[data-om-analysis-truth-v229]')){
     const s=document.createElement('script');
-    s.src='/app-v150-analysis-deadline-truth-v223.js?v=228';
+    s.src='/app-v150-analysis-deadline-truth-v223.js?v=229';
     s.defer=true;
-    s.dataset.omAnalysisTruthV228='true';
+    s.dataset.omAnalysisTruthV229='true';
     s.onload=loadExpiredTracker;
     document.body.appendChild(s);
   }else loadExpiredTracker();
