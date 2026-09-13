@@ -32,13 +32,13 @@
     document.body.appendChild(x);
   };
 
-  // v227 keeps analysis tracker state truthful even when a legacy tracker record
-  // does not expose enough stored metadata for an ID/title match.
-  if(!document.querySelector('script[data-om-analysis-truth-v227]')){
+  // v228 resolves the actual opportunity from the analysis modal contents first,
+  // then uses its Opportunity_ID against the tracker. This avoids heading-order bugs.
+  if(!document.querySelector('script[data-om-analysis-truth-v228]')){
     const s=document.createElement('script');
-    s.src='/app-v150-analysis-deadline-truth-v223.js?v=227';
+    s.src='/app-v150-analysis-deadline-truth-v223.js?v=228';
     s.defer=true;
-    s.dataset.omAnalysisTruthV227='true';
+    s.dataset.omAnalysisTruthV228='true';
     s.onload=loadExpiredTracker;
     document.body.appendChild(s);
   }else loadExpiredTracker();
