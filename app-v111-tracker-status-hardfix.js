@@ -32,15 +32,13 @@
     document.body.appendChild(x);
   };
 
-  // v223: keep the analysis modal truthful about both tracker state and passed deadlines.
-  // v224 applies the same deadline truth to Tracker cards.
-  // v225 removes stale stage controls and copy from closed Tracker records.
-  // v226 force-hides the legacy stage selector after any later tracker repaint.
-  if(!document.querySelector('script[data-om-analysis-truth-v223]')){
+  // v227 keeps analysis tracker state truthful even when a legacy tracker record
+  // does not expose enough stored metadata for an ID/title match.
+  if(!document.querySelector('script[data-om-analysis-truth-v227]')){
     const s=document.createElement('script');
-    s.src='/app-v150-analysis-deadline-truth-v223.js?v=223';
+    s.src='/app-v150-analysis-deadline-truth-v223.js?v=227';
     s.defer=true;
-    s.dataset.omAnalysisTruthV223='true';
+    s.dataset.omAnalysisTruthV227='true';
     s.onload=loadExpiredTracker;
     document.body.appendChild(s);
   }else loadExpiredTracker();
