@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v227';
+  const VERSION='v228';
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const read=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
   const trackMaps=()=>{
@@ -12,11 +12,20 @@
   const oppList=()=>{try{return Array.isArray(opps)?opps:[]}catch{return[]}};
   const detailEl=()=>document.getElementById('detail');
   const leafByText=(root,re)=>[...root.querySelectorAll('button,a,span,div,b,strong,small')].find(el=>!el.children.length&&re.test(String(el.textContent||'').trim()));
+  function currentOpp(root){
+    const all=oppList(), text=norm(root?.innerText||root?.textContent||'');
+    const matches=all.filter(o=>{const name=norm(o?.Opportunity_Name);return name&&text.includes(name)});
+    if(matches.length)return matches.sort((a,b)=>String(b?.Opportunity_Name||'').length-String(a?.Opportunity_Name||'').length)[0];
+    const hs=[...root.querySelectorAll('h1,h2,h3')].map(x=>norm(x.textContent)).filter(Boolean);
+    return all.find(o=>hs.includes(norm(o?.Opportunity_Name)))||null;
+  }
   const currentTitle=root=>{
+    const opp=currentOpp(root);if(opp?.Opportunity_Name)return String(opp.Opportunity_Name);
     const hs=[...root.querySelectorAll('h1,h2,h3')].map(x=>String(x.textContent||'').trim()).filter(Boolean);
-    return hs.sort((a,b)=>b.length-a.length)[0]||'';
+    return hs[0]||'';
   };
   const currentProvider=root=>{
+    const opp=currentOpp(root);if(opp?.Provider)return String(opp.Provider);
     const title=currentTitle(root), titleEl=[...root.querySelectorAll('h1,h2,h3')].find(x=>String(x.textContent||'').trim()===title);
     let n=titleEl?.nextElementSibling;
     for(let i=0;i<3&&n;i++,n=n.nextElementSibling){const t=String(n.textContent||'').trim();if(t&&t.length<120)return t}
@@ -42,10 +51,6 @@
     return{yes:false,id:''};
   }
   const isoFromText=s=>{const m=String(s||'').match(/\b(20\d{2})-(\d{2})-(\d{2})\b/);return m?`${m[1]}-${m[2]}-${m[3]}`:''};
-  function currentOpp(root){
-    const title=currentTitle(root),nt=norm(title);
-    return oppList().find(o=>norm(o?.Opportunity_Name)===nt)||null;
-  }
   function visibleDeadline(root){
     const nodes=[...root.querySelectorAll('*')];
     for(const el of nodes){
@@ -78,7 +83,7 @@
   }
   function sync(){
     const root=detailEl();if(!root||root.classList.contains('hide'))return;
-    const title=currentTitle(root),provider=currentProvider(root),opp=currentOpp(root),tracked=trackedMatch(title,provider,opp),past=pastDeadline(root,opp);
+    const opp=currentOpp(root),title=opp?.Opportunity_Name||currentTitle(root),provider=opp?.Provider||currentProvider(root),tracked=trackedMatch(title,provider,opp),past=pastDeadline(root,opp);
     const actions=[...root.querySelectorAll('button,a')];
     const add=actions.find(x=>/add to tracker/i.test(String(x.textContent||''))||/addTrack\(/.test(x.getAttribute('onclick')||''));
     const openTrackerBtn=actions.find(x=>/^open tracker$/i.test(String(x.textContent||'').trim()));
@@ -96,9 +101,9 @@
     document.documentElement.dataset.omAnalysisTruth=VERSION;
   }
   const prior=window.openDetail;
-  if(typeof prior==='function'&&!prior.__omAnalysisTruthV227){
+  if(typeof prior==='function'&&!prior.__omAnalysisTruthV228){
     const wrapped=function(...args){const out=prior.apply(this,args);setTimeout(sync,0);setTimeout(sync,60);setTimeout(sync,180);return out};
-    wrapped.__omAnalysisTruthV227=true;
+    wrapped.__omAnalysisTruthV228=true;
     try{openDetail=wrapped}catch{}
     window.openDetail=wrapped;
   }
