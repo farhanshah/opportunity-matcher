@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v228';
+  const VERSION='v229';
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const read=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
   const trackMaps=()=>{
@@ -69,9 +69,30 @@
     const end=new Date(`${iso}T23:59:59`),now=new Date();
     return Number.isFinite(end.getTime())&&end.getTime()<now.getTime();
   }
-  function openTracker(){
+  function trackerCardFor(title){
+    const tracker=document.getElementById('tracker'),nt=norm(title);if(!tracker||!nt)return null;
+    const labels=[...tracker.querySelectorAll('.focusTitle,h2,h3,h4,strong,b')];
+    const label=labels.find(el=>norm(el.textContent)===nt);if(!label)return null;
+    return label.closest('article,.focusCard,.trackerCard,.applicationCard')||label.parentElement?.parentElement?.parentElement||label;
+  }
+  function focusTrackerCard(title){
+    const run=()=>{
+      const card=trackerCardFor(title);if(!card)return false;
+      try{card.scrollIntoView({behavior:'smooth',block:'center'})}catch{card.scrollIntoView()}
+      const oldOutline=card.style.outline,oldShadow=card.style.boxShadow,oldTransition=card.style.transition;
+      card.style.transition='box-shadow .2s ease, outline-color .2s ease';
+      card.style.outline='2px solid rgba(196,255,74,.9)';
+      card.style.boxShadow='0 0 0 6px rgba(196,255,74,.12)';
+      setTimeout(()=>{card.style.outline=oldOutline;card.style.boxShadow=oldShadow;card.style.transition=oldTransition},2200);
+      return true;
+    };
+    if(!run()){setTimeout(run,70);setTimeout(run,220)}
+  }
+  function openTracker(title){
     try{window.closeDetail?.()}catch{}
     try{window.setView?.('tracker')}catch{}
+    requestAnimationFrame(()=>focusTrackerCard(title));
+    setTimeout(()=>focusTrackerCard(title),100);
   }
   function disableAction(el,label){
     if(!el)return;
@@ -91,7 +112,7 @@
     const trackBtn=add||openTrackerBtn;
     if(tracked.yes&&trackBtn){
       trackBtn.textContent='Open tracker';trackBtn.removeAttribute('onclick');trackBtn.removeAttribute('href');trackBtn.removeAttribute('disabled');trackBtn.style.pointerEvents='';trackBtn.style.opacity='';trackBtn.setAttribute('aria-disabled','false');trackBtn.title='Already in your application tracker';
-      trackBtn.onclick=e=>{e.preventDefault();openTracker()};
+      trackBtn.onclick=e=>{e.preventDefault();openTracker(title)};
     }else if(past&&trackBtn){disableAction(trackBtn,'Deadline passed')}
     if(past){
       disableAction(apply,'Deadline passed');
@@ -101,9 +122,9 @@
     document.documentElement.dataset.omAnalysisTruth=VERSION;
   }
   const prior=window.openDetail;
-  if(typeof prior==='function'&&!prior.__omAnalysisTruthV228){
+  if(typeof prior==='function'&&!prior.__omAnalysisTruthV229){
     const wrapped=function(...args){const out=prior.apply(this,args);setTimeout(sync,0);setTimeout(sync,60);setTimeout(sync,180);return out};
-    wrapped.__omAnalysisTruthV228=true;
+    wrapped.__omAnalysisTruthV229=true;
     try{openDetail=wrapped}catch{}
     window.openDetail=wrapped;
   }
