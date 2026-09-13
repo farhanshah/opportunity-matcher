@@ -1,6 +1,6 @@
 (()=>{
-  const VERSION='v223';
-  const norm=v=>String(v||'').toLowerCase().replace(/\s+/g,' ').trim();
+  const VERSION='v227';
+  const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const read=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
   const trackMaps=()=>{
     const out=[];
@@ -24,8 +24,14 @@
   };
   const titleOf=t=>t?.exactVacancy?.title||t?.exactVacancy?.Opportunity_Name||t?.opportunityName||t?.Opportunity_Name||t?.title||t?.name||'';
   const providerOf=t=>t?.exactVacancy?.provider||t?.exactVacancy?.Provider||t?.provider||t?.Provider||'';
+  function trackerDomHas(title){
+    const nt=norm(title);if(!nt)return false;
+    const tracker=document.getElementById('tracker');if(!tracker)return false;
+    return [...tracker.querySelectorAll('.focusTitle,h3,h4')].some(el=>norm(el.textContent)===nt);
+  }
   function trackedMatch(title,provider,opp){
     const nt=norm(title),np=norm(provider),oid=String(opp?.Opportunity_ID||'');
+    if(trackerDomHas(title))return{yes:true,id:oid};
     for(const map of trackMaps()){
       if(oid&&map?.[oid])return{yes:true,id:oid};
       for(const [id,t] of Object.entries(map||{})){
@@ -75,11 +81,13 @@
     const title=currentTitle(root),provider=currentProvider(root),opp=currentOpp(root),tracked=trackedMatch(title,provider,opp),past=pastDeadline(root,opp);
     const actions=[...root.querySelectorAll('button,a')];
     const add=actions.find(x=>/add to tracker/i.test(String(x.textContent||''))||/addTrack\(/.test(x.getAttribute('onclick')||''));
+    const openTrackerBtn=actions.find(x=>/^open tracker$/i.test(String(x.textContent||'').trim()));
     const apply=actions.find(x=>/^apply\b/i.test(String(x.textContent||'').trim()));
-    if(tracked.yes&&add){
-      add.textContent='Open tracker';add.removeAttribute('onclick');add.removeAttribute('href');add.removeAttribute('disabled');add.style.pointerEvents='';add.style.opacity='';add.setAttribute('aria-disabled','false');add.title='Already in your application tracker';
-      add.onclick=e=>{e.preventDefault();openTracker()};
-    }else if(past&&add){disableAction(add,'Deadline passed')}
+    const trackBtn=add||openTrackerBtn;
+    if(tracked.yes&&trackBtn){
+      trackBtn.textContent='Open tracker';trackBtn.removeAttribute('onclick');trackBtn.removeAttribute('href');trackBtn.removeAttribute('disabled');trackBtn.style.pointerEvents='';trackBtn.style.opacity='';trackBtn.setAttribute('aria-disabled','false');trackBtn.title='Already in your application tracker';
+      trackBtn.onclick=e=>{e.preventDefault();openTracker()};
+    }else if(past&&trackBtn){disableAction(trackBtn,'Deadline passed')}
     if(past){
       disableAction(apply,'Deadline passed');
       const open=leafByText(root,/^OPEN$/i);if(open)open.textContent='CLOSED';
@@ -88,9 +96,9 @@
     document.documentElement.dataset.omAnalysisTruth=VERSION;
   }
   const prior=window.openDetail;
-  if(typeof prior==='function'&&!prior.__omAnalysisTruthV223){
+  if(typeof prior==='function'&&!prior.__omAnalysisTruthV227){
     const wrapped=function(...args){const out=prior.apply(this,args);setTimeout(sync,0);setTimeout(sync,60);setTimeout(sync,180);return out};
-    wrapped.__omAnalysisTruthV223=true;
+    wrapped.__omAnalysisTruthV227=true;
     try{openDetail=wrapped}catch{}
     window.openDetail=wrapped;
   }
