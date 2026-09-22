@@ -3,22 +3,22 @@
   // Keep this compatibility surface without mutation observers or polling.
   window.OpportunityTrackerStatusHardfix={refresh:()=>window.OpportunityStudioTruth?.refresh?.()};
 
-  const loadEligibilityFirstV230=()=>{
-    if(document.querySelector('script[data-om-eligibility-first-v230]'))return;
+  const loadEligibilityFirstV232=()=>{
+    if(document.querySelector('script[data-om-eligibility-first-v232]'))return;
     const q=document.createElement('script');
-    q.src='/app-v153-eligibility-first-tracker-v230.js?v=230';
+    q.src='/app-v153-eligibility-first-tracker-v232.js?v=230';
     q.defer=true;
-    q.dataset.omEligibilityFirstV230='true';
+    q.dataset.omEligibilityFirstV232='true';
     document.body.appendChild(q);
   };
 
   const loadExpiredStageV226=()=>{
-    if(document.querySelector('script[data-om-expired-stage-v226]')){loadEligibilityFirstV230();return;}
+    if(document.querySelector('script[data-om-expired-stage-v226]')){loadEligibilityFirstV232();return;}
     const z=document.createElement('script');
     z.src='/app-v152-expired-stage-css-v226.js?v=226';
     z.defer=true;
     z.dataset.omExpiredStageV226='true';
-    z.onload=loadEligibilityFirstV230;
+    z.onload=loadEligibilityFirstV232;
     document.body.appendChild(z);
   };
 
