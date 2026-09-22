@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v229';
+  const VERSION='v231';
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const read=k=>{try{const v=JSON.parse(localStorage.getItem(k)||'{}');return v&&typeof v==='object'?v:{}}catch{return{}}};
   const trackMaps=()=>{
@@ -89,10 +89,15 @@
     if(!run()){setTimeout(run,70);setTimeout(run,220)}
   }
   function openTracker(title){
+    const refreshEligibility=()=>{
+      try{window.OpportunityEligibilityFirstTracker?.refresh?.()}catch{}
+    };
     try{window.closeDetail?.()}catch{}
     try{window.setView?.('tracker')}catch{}
-    requestAnimationFrame(()=>focusTrackerCard(title));
-    setTimeout(()=>focusTrackerCard(title),100);
+    requestAnimationFrame(()=>{focusTrackerCard(title);refreshEligibility()});
+    setTimeout(()=>{focusTrackerCard(title);refreshEligibility()},100);
+    setTimeout(refreshEligibility,260);
+    setTimeout(refreshEligibility,520);
   }
   function disableAction(el,label){
     if(!el)return;
@@ -122,9 +127,9 @@
     document.documentElement.dataset.omAnalysisTruth=VERSION;
   }
   const prior=window.openDetail;
-  if(typeof prior==='function'&&!prior.__omAnalysisTruthV229){
+  if(typeof prior==='function'&&!prior.__omAnalysisTruthV231){
     const wrapped=function(...args){const out=prior.apply(this,args);setTimeout(sync,0);setTimeout(sync,60);setTimeout(sync,180);return out};
-    wrapped.__omAnalysisTruthV229=true;
+    wrapped.__omAnalysisTruthV231=true;
     try{openDetail=wrapped}catch{}
     window.openDetail=wrapped;
   }
