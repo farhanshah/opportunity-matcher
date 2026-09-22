@@ -33,6 +33,7 @@
     if(/full-time availability|available full-time|minimum internship availability/.test(t))return{question:'Can you meet the full-time or minimum availability stated by the provider?',pass:'yes',yesStatus:'pass',noStatus:'fail',kind:'Availability'};
     if(/ms office|computer systems|office-related software/.test(t))return{question:'Do you have the computer/office-software proficiency required by this programme?',pass:'yes',yesStatus:'pass',noStatus:'fail',kind:'Skills evidence'};
     if(/good academic standing/.test(t))return{question:'Are you in good academic standing and able to meet the concurrent-work restrictions stated here?',pass:'yes',yesStatus:'pass',noStatus:'fail',kind:'Academic declaration'};
+    if(/minimum first-degree standard|first-degree standard|academic classification|degree classification|equivalency review|equivalent classification/.test(t))return{question:'Have you confirmed from the official scholarship guidance that your first degree meets the required academic classification or an accepted equivalent?',pass:'yes',yesStatus:'pass',noStatus:'review',kind:'Academic equivalency'};
     return null;
   }
 
