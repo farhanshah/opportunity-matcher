@@ -42,13 +42,13 @@
     document.body.appendChild(x);
   };
 
-  // v229 keeps the v228 truth checks and, when Open tracker is clicked,
+  // v231 keeps the v228 truth checks and, when Open tracker is clicked,
   // scrolls to and briefly highlights the exact tracked opportunity card.
-  if(!document.querySelector('script[data-om-analysis-truth-v229]')){
+  if(!document.querySelector('script[data-om-analysis-truth-v231]')){
     const s=document.createElement('script');
     s.src='/app-v150-analysis-deadline-truth-v223.js?v=229';
     s.defer=true;
-    s.dataset.omAnalysisTruthV229='true';
+    s.dataset.omAnalysisTruthV231='true';
     s.onload=loadExpiredTracker;
     document.body.appendChild(s);
   }else loadExpiredTracker();
