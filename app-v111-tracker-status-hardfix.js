@@ -6,7 +6,7 @@
   const loadEligibilityFirstV232=()=>{
     if(document.querySelector('script[data-om-eligibility-first-v232]'))return;
     const q=document.createElement('script');
-    q.src='/app-v153-eligibility-first-tracker-v232.js?v=230';
+    q.src='/app-v153-eligibility-first-tracker-v230.js?v=232';
     q.defer=true;
     q.dataset.omEligibilityFirstV232='true';
     document.body.appendChild(q);
@@ -46,7 +46,7 @@
   // scrolls to and briefly highlights the exact tracked opportunity card.
   if(!document.querySelector('script[data-om-analysis-truth-v231]')){
     const s=document.createElement('script');
-    s.src='/app-v150-analysis-deadline-truth-v223.js?v=229';
+    s.src='/app-v150-analysis-deadline-truth-v223.js?v=231';
     s.defer=true;
     s.dataset.omAnalysisTruthV231='true';
     s.onload=loadExpiredTracker;
