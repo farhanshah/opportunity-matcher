@@ -46,12 +46,13 @@
   function daysLeft(d){if(!d)return null;const x=new Date(`${d}T23:59:59`);if(Number.isNaN(x.getTime()))return null;return Math.ceil((x-Date.now())/86400000)}
   function signals(){return(vac?.signals||[]).map(s=>norm(s?.label||s)).filter(Boolean)}
   function verifyRows(){
-    const {p}=ensureState(),s=signals(),has=x=>s.some(v=>v.includes(x));
-    const rows=[['eligibilityReviewed','Review the official eligibility section','Read the detailed provider eligibility section and confirm the vacancy is still actionable.']];
-    if(p.languageChecked||vac?.required_language||has('language'))rows.push(['languageChecked','Confirm required language','Verify the exact language requirement and whether evidence or certification is requested.']);
-    if(p.nationalityChecked||has('nationality')||has('residence'))rows.push(['nationalityChecked','Confirm nationality / residence rule','Check whether your nationality or residence meets this exact vacancy rule.']);
-    if(p.educationChecked||vac?.minimum_education||has('education')||has('enrol'))rows.push(['educationChecked','Confirm education / enrolment rule','Check degree level, student/recent-graduate status and timing.']);
-    if(p.fieldChecked||has('field')||has('discipline'))rows.push(['fieldChecked','Confirm accepted academic fields','Verify your exact degree discipline is accepted or relevant.']);
+    const {p}=ensureState(),s=signals(),has=x=>s.some(v=>v.includes(x)),programme=isProgramme();
+    const rows=[['eligibilityReviewed',programme?'Review the official programme eligibility':'Review the official eligibility section',programme?'Read the current provider eligibility guidance and confirm this programme cycle is still open and actionable.':'Read the detailed provider eligibility section and confirm the vacancy is still actionable.']];
+    if(p.workExperienceChecked||has('work')||has('experience')||has('hours'))rows.push(['workExperienceChecked','Confirm post-degree work-experience rule',programme?'Confirm the required eligible hours, what periods count, and that your recorded total still meets the current programme rule.':'Confirm the provider work-experience requirement and the evidence requested.']);
+    if(p.languageChecked||vac?.required_language||has('language'))rows.push(['languageChecked',programme?'Confirm language / English requirement':'Confirm required language','Verify the exact language requirement and whether evidence or certification is requested.']);
+    if(p.nationalityChecked||has('nationality')||has('residence'))rows.push(['nationalityChecked','Confirm nationality / residence rule',programme?'Check that your nationality or residence matches the current programme route and cycle.':'Check whether your nationality or residence meets this exact vacancy rule.']);
+    if(p.educationChecked||vac?.minimum_education||has('education')||has('enrol'))rows.push(['educationChecked',programme?'Confirm degree / education rule':'Confirm education / enrolment rule',programme?'Check the provider degree level, completion timing and any course-entry conditions that apply to this programme.':'Check degree level, student/recent-graduate status and timing.']);
+    if(p.fieldChecked||has('field')||has('discipline'))rows.push(['fieldChecked',programme?'Confirm field-of-study rule':'Confirm accepted academic fields',programme?'Check whether the programme restricts academic disciplines or accepts applicants from any field.':'Verify your exact degree discipline is accepted or relevant.']);
     return rows;
   }
   function verifyComplete(){const {p}=ensureState(),rows=verifyRows();return rows.length>0&&rows.every(([k])=>!!p[k])}
