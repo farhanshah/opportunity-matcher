@@ -45,7 +45,7 @@
   const loadExpiredTracker=()=>{
     if(document.querySelector('script[data-om-expired-tracker-v224]')){loadExpiredPolish();return;}
     const x=document.createElement('script');
-    x.src='/app-v150-expired-tracker-lifecycle-v224.js?v=235';
+    x.src='/app-v150-expired-tracker-lifecycle-v224.js?v=236';
     x.defer=true;
     x.dataset.omExpiredTrackerV224='true';
     x.onload=loadExpiredPolish;
