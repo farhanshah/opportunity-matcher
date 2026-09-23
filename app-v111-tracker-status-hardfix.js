@@ -3,22 +3,32 @@
   // Keep this compatibility surface without mutation observers or polling.
   window.OpportunityTrackerStatusHardfix={refresh:()=>window.OpportunityStudioTruth?.refresh?.()};
 
-  const loadEligibilityFirstV232=()=>{
-    if(document.querySelector('script[data-om-eligibility-first-v232]'))return;
+  const loadEligibilityFirstV234=()=>{
+    if(document.querySelector('script[data-om-eligibility-first-v234]'))return;
     const q=document.createElement('script');
-    q.src='/app-v153-eligibility-first-tracker-v230.js?v=232';
+    q.src='/app-v153-eligibility-first-tracker-v230.js?v=234';
     q.defer=true;
-    q.dataset.omEligibilityFirstV232='true';
+    q.dataset.omEligibilityFirstV234='true';
     document.body.appendChild(q);
   };
 
+  const loadEligibilityTruthV234=()=>{
+    if(document.querySelector('script[data-om-eligibility-truth-v234]')){loadEligibilityFirstV234();return;}
+    const t=document.createElement('script');
+    t.src='/app-v154-eligibility-truth-v234.js?v=234';
+    t.defer=true;
+    t.dataset.omEligibilityTruthV234='true';
+    t.onload=loadEligibilityFirstV234;
+    document.body.appendChild(t);
+  };
+
   const loadExpiredStageV226=()=>{
-    if(document.querySelector('script[data-om-expired-stage-v226]')){loadEligibilityFirstV232();return;}
+    if(document.querySelector('script[data-om-expired-stage-v226]')){loadEligibilityTruthV234();return;}
     const z=document.createElement('script');
     z.src='/app-v152-expired-stage-css-v226.js?v=226';
     z.defer=true;
     z.dataset.omExpiredStageV226='true';
-    z.onload=loadEligibilityFirstV232;
+    z.onload=loadEligibilityTruthV234;
     document.body.appendChild(z);
   };
 
