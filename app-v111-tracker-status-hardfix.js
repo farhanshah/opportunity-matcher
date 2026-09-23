@@ -15,7 +15,7 @@
   const loadEligibilityTruthV242=()=>{
     if(document.querySelector('script[data-om-eligibility-truth-v242]')){loadEligibilityFirstV238();return;}
     const t=document.createElement('script');
-    t.src='/app-v154-eligibility-truth-v242.js?v=234';
+    t.src='/app-v154-eligibility-truth-v234.js?v=242';
     t.defer=true;
     t.dataset.omEligibilityTruthV242='true';
     t.onload=loadEligibilityFirstV238;
