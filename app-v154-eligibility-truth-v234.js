@@ -1,7 +1,7 @@
 (()=>{
-  const VERSION='v234';
+  const VERSION='v242';
   const prior=window.evaluate;
-  if(typeof prior!=='function'||window.OpportunityEligibilityTruthV234)return;
+  if(typeof prior!=='function'||window.OpportunityEligibilityTruthV242)return;
 
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const profile=()=>{try{return window.OpportunityState?.getProfile?.()||window.currentProfile||currentProfile||{}}catch{return{}}};
@@ -28,6 +28,39 @@
     return check;
   }
 
+  function cheveningResidenceCheck(o,p){
+    const hay=norm([o?.Opportunity_Name,o?.Provider].filter(Boolean).join(' '));
+    if(!hay.includes('chevening'))return null;
+    const residence=norm(p?.residence);
+    if(!residence)return{
+      label:'UK residence at application',
+      status:'review',
+      detail:'Add your current country of residence to the Passport. Chevening has a residence-at-application restriction.',
+      hard:true,
+      source_url:'https://www.chevening.org/resource-hub/guidance/eligibility/',
+      source_note:'Current Chevening eligibility guidance',
+      rule_code:'chevening_uk_residence_v242'
+    };
+    if(residence==='united kingdom'||residence==='uk'||residence==='great britain')return{
+      label:'UK residence at application',
+      status:'fail',
+      detail:'Your Passport says you are resident in the United Kingdom. Current Chevening rules state that applicants resident in the UK at the time of application are not eligible.',
+      hard:true,
+      source_url:'https://www.chevening.org/resource-hub/guidance/eligibility/',
+      source_note:'Current Chevening eligibility guidance',
+      rule_code:'chevening_uk_residence_v242'
+    };
+    return{
+      label:'UK residence at application',
+      status:'pass',
+      detail:'Your Passport residence does not trigger Chevening’s UK-residence-at-application restriction.',
+      hard:true,
+      source_url:'https://www.chevening.org/resource-hub/guidance/eligibility/',
+      source_note:'Current Chevening eligibility guidance',
+      rule_code:'chevening_uk_residence_v242'
+    };
+  }
+
   function recompute(base,checks){
     const fails=checks.filter(c=>c.status==='fail'&&c.hard!==false).length;
     const reviews=checks.filter(c=>c.status==='review').length;
@@ -38,16 +71,21 @@
     else if(hardReviews){if(passes>=2){label='Possible match';cls='possible';rank=3}}
     else if(passes>=3){label=(base.relevance||0)>=1?'Strong match':'Likely eligible';cls='eligible';rank=4}
     else if(passes>=2){label='Possible match';cls='possible';rank=3}
-    return {...base,checks,fails,reviews,passes,hardReviews,label,cls,rank,eligibilityTruthV234:true};
+    return {...base,checks,fails,reviews,passes,hardReviews,label,cls,rank,eligibilityTruthV242:true};
   }
 
   const wrapped=function(o){
     const base=prior(o),p=profile();
-    const checks=(base?.checks||[]).map(c=>repairCheck(c,p));
+    let checks=(base?.checks||[]).map(c=>repairCheck(c,p));
+    const cheveningResidence=cheveningResidenceCheck(o,p);
+    if(cheveningResidence){
+      checks=checks.filter(c=>String(c?.rule_code||'')!=='chevening_uk_residence_v242'&&norm(c?.label)!=='uk residence at application');
+      checks.unshift(cheveningResidence);
+    }
     return recompute(base||{},checks);
   };
   window.evaluate=wrapped;
   try{evaluate=wrapped}catch{}
-  window.OpportunityEligibilityTruthV234={version:VERSION,refresh:()=>{try{renderAll()}catch{}}};
+  window.OpportunityEligibilityTruthV242={version:VERSION,refresh:()=>{try{renderAll()}catch{}}};
   try{renderAll()}catch{}
 })();
