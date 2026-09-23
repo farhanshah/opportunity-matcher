@@ -50,16 +50,16 @@
         </section>
 
         <nav class="stageNav" aria-label="Application preparation stages">
-          <button class="stageBtn active" data-stage="overview"><span>01</span><b>Overview</b><small>Vacancy & next move</small></button>
+          <button class="stageBtn active" data-stage="overview"><span>01</span><b>Overview</b><small id="overviewStageCopy">Vacancy & next move</small></button>
           <button class="stageBtn" data-stage="verify"><span>02</span><b>Verify</b><small>Official-source checks</small></button>
-          <button class="stageBtn" data-stage="documents"><span>03</span><b>Documents</b><small>CV, cover & sample</small></button>
+          <button class="stageBtn" data-stage="documents"><span>03</span><b>Documents</b><small id="documentsStageCopy">CV, cover & sample</small></button>
           <button class="stageBtn" data-stage="final"><span>04</span><b>Final review</b><small>Provider check</small></button>
         </nav>
 
         <section id="stage-overview" class="stagePanel active">
           <div class="panelGrid twoOne">
             <article class="surfaceCard">
-              <div class="sectionEy">VACANCY SNAPSHOT</div>
+              <div class="sectionEy" id="snapshotEy">VACANCY SNAPSHOT</div>
               <h2>Keep the official source attached to every decision.</h2>
               <div id="factsGrid" class="factsGrid"></div>
             </article>
@@ -71,7 +71,7 @@
             </article>
           </div>
           <article class="surfaceCard notesCard">
-            <div class="sectionHead"><div><div class="sectionEy">APPLICATION NOTES</div><h2>Keep role-specific evidence and questions in one place.</h2></div><span class="autosave">Autosaves locally</span></div>
+            <div class="sectionHead"><div><div class="sectionEy">APPLICATION NOTES</div><h2 id="notesTitle">Keep role-specific evidence and questions in one place.</h2></div><span class="autosave">Autosaves locally</span></div>
             <textarea id="notesField" class="largeText" placeholder="Add questions, evidence reminders, provider wording or next steps…"></textarea>
           </article>
         </section>
@@ -99,7 +99,7 @@
             <article class="surfaceCard finalCard">
               <div class="sectionEy">FINAL PROVIDER CHECK</div>
               <h2 id="providerTitle">Provider check required.</h2>
-              <p>Open the current vacancy and compare its upload/form requirements with the files you are about to submit.</p>
+              <p id="finalProviderCopy">Open the current vacancy and compare its upload/form requirements with the files you are about to submit.</p>
               <a id="finalOfficial" class="primaryBtn" target="_blank" rel="noopener">Open official vacancy ↗</a>
               <label class="confirmRow"><input id="providerConfirm" type="checkbox"><span>I re-checked the final provider requirements.</span></label>
               <button id="readyBtn" class="readyBtn" disabled>Mark ready to submit</button>
@@ -111,7 +111,7 @@
   </div>
   <script src="/prepare-v6-eligibility-bootstrap-v216.js?v=216"></script>
   <script src="/prepare-v8-provider-doc-policy-v219.js?v=219"></script>
-  <script src="/prepare-v1.js?v=238"></script>
+  <script src="/prepare-v1.js?v=239"></script>
   <script src="/prepare-v3-candidate-fix.js?v=217"></script>
   <script src="/prepare-v7-cover-candidate-v218.js?v=218"></script>
   <script src="/prepare-v4-final-action.js?v=207"></script>
