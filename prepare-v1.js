@@ -46,7 +46,7 @@
   function daysLeft(d){if(!d)return null;const x=new Date(`${d}T23:59:59`);if(Number.isNaN(x.getTime()))return null;return Math.ceil((x-Date.now())/86400000)}
   function signals(){return(vac?.signals||[]).map(s=>norm(s?.label||s)).filter(Boolean)}
   function verifyRows(){
-    const {p}=ensureState(),s=signals(),has=x=>s.some(v=>v.includes(x)),programme=isProgramme();
+    const {p}=ensureState(),s=signals(),context=norm([vac?.why,vac?.readiness].filter(Boolean).join(' ')),has=x=>s.some(v=>v.includes(x))||context.includes(x),programme=isProgramme();
     const rows=[['eligibilityReviewed',programme?'Review the official programme eligibility':'Review the official eligibility section',programme?'Read the current provider eligibility guidance and confirm this programme cycle is still open and actionable.':'Read the detailed provider eligibility section and confirm the vacancy is still actionable.']];
     if(p.workExperienceChecked||has('work')||has('experience')||has('hours'))rows.push(['workExperienceChecked','Confirm post-degree work-experience rule',programme?'Confirm the required eligible hours, what periods count, and that your recorded total still meets the current programme rule.':'Confirm the provider work-experience requirement and the evidence requested.']);
     if(p.languageChecked||vac?.required_language||has('language'))rows.push(['languageChecked',programme?'Confirm language / English requirement':'Confirm required language','Verify the exact language requirement and whether evidence or certification is requested.']);
