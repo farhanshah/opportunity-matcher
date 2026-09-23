@@ -96,7 +96,13 @@
   function invalidateProvider(){const {f}=ensureState();f.providerCheckedAt='';f.providerCheckedSignature=''}
   function fact(label,value){return`<div class="fact"><span>${esc(label)}</span><b>${esc(value||'Check provider')}</b></div>`}
   function renderHeader(){
+    const programme=isProgramme();
     $('#roleTitle').textContent=vac.title||'Tracked application';
+    const overviewCopy=$('#overviewStageCopy');if(overviewCopy)overviewCopy.textContent=programme?'Programme & next move':'Vacancy & next move';
+    const docsCopy=$('#documentsStageCopy');if(docsCopy)docsCopy.textContent=programme?'Documents, essays & references':'CV, cover & sample';
+    const snapshot=$('#snapshotEy');if(snapshot)snapshot.textContent=programme?'PROGRAMME SNAPSHOT':'VACANCY SNAPSHOT';
+    const notesTitle=$('#notesTitle');if(notesTitle)notesTitle.textContent=programme?'Keep application-specific evidence and questions in one place.':'Keep role-specific evidence and questions in one place.';
+    const finalCopy=$('#finalProviderCopy');if(finalCopy)finalCopy.textContent=programme?'Open the current provider guidance and compare its form, essay, document and reference requirements with what you are about to submit.':'Open the current vacancy and compare its upload/form requirements with the files you are about to submit.';
     $('#roleMeta').textContent=[vac.provider||vac.organization||'Official provider',vac.location||vac.work_mode||'',track.stage||'Researching'].filter(Boolean).join(' · ');
     $('#officialLink').href=vac.officialUrl||vac.url;$('#verifyOfficial').href=vac.officialUrl||vac.url;$('#finalOfficial').href=vac.officialUrl||vac.url;
     $('#officialLink').textContent=isProgramme()?'Open official source ↗':'Open official vacancy ↗';
@@ -106,8 +112,8 @@
     picker.onchange=()=>{location.href=`/prepare?id=${encodeURIComponent(picker.value)}`};
   }
   function renderOverview(){
-    const left=daysLeft(vac.deadline);$('#factsGrid').innerHTML=[fact('Provider',vac.provider||vac.organization),fact('Location / work mode',vac.location||vac.work_mode),fact('Deadline',vac.deadline||'Check posting'),fact('Time left',left==null?'Check posting':left<0?'Expired':`${left} day${left===1?'':'s'}`),fact('Pipeline stage',track.stage||'Researching'),fact('Preparation saved',track.preparation?.updatedAt?new Date(track.preparation.updatedAt).toLocaleString():'Not yet')].join('');
-    $('#overviewWhy').textContent=vac.why||vac.readiness||'Use the official vacancy as the source of truth and keep every application claim evidence-based.';
+    const left=daysLeft(vac.deadline);$('#factsGrid').innerHTML=[fact('Provider',vac.provider||vac.organization),fact(isProgramme()?'Destination / study location':'Location / work mode',vac.location||vac.work_mode),fact('Deadline',vac.deadline||'Check posting'),fact('Time left',left==null?'Check posting':left<0?'Expired':`${left} day${left===1?'':'s'}`),fact('Pipeline stage',track.stage||'Researching'),fact('Preparation saved',track.preparation?.updatedAt?new Date(track.preparation.updatedAt).toLocaleString():'Not yet')].join('');
+    $('#overviewWhy').textContent=vac.why||vac.readiness||(isProgramme()?'Use the official programme guidance as the source of truth and keep every application claim evidence-based.':'Use the official vacancy as the source of truth and keep every application claim evidence-based.');
     const s=state();$('#overviewNext').textContent=nextAction(s);$('#notesField').value=s.p.notes||'';
   }
   function renderVerify(){const {p}=ensureState();$('#verifyList').innerHTML=verifyRows().map(([key,title,desc])=>`<label class="checkRow ${p[key]?'done':''}"><input type="checkbox" data-verify-key="${key}" ${p[key]?'checked':''}><div><b>${esc(title)}</b><span>${esc(desc)}</span></div></label>`).join('');$$('[data-verify-key]').forEach(inp=>inp.onchange=()=>{p[inp.dataset.verifyKey]=inp.checked;invalidateProvider();save();renderAll()})}
