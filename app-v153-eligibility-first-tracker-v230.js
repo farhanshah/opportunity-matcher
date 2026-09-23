@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v234';
+  const VERSION='v237';
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const oppList=()=>{try{return Array.isArray(opps)?opps:[]}catch{return[]}};
   const activeStages=new Set(['Saved','Researching']);
@@ -23,7 +23,9 @@
     const action=card.querySelector('.focusAction b');
     const small=card.querySelector('.focusAction small');
     const failures=blocks.filter(c=>c.status==='fail');
-    const first=String((failures[0]||blocks[0])?.label||'eligibility').trim();
+    const primary=(failures[0]||blocks[0]);
+    const first=String(primary?.label||'eligibility').trim();
+    const primaryRule=String(primary?.rule_code||'');
     if(failures.length){
       if(action)action.textContent=`Eligibility blocker: ${first.toLowerCase()}. Review before preparing documents.`;
       if(small)small.textContent=`${failures.length} hard eligibility blocker${failures.length===1?'':'s'}`;
@@ -37,21 +39,28 @@
       input.setAttribute('aria-disabled','true');
       input.title='Resolve the eligibility check in analysis first';
       const label=input.closest('label');
-      if(label)label.classList.add('omEligibilityLockedV234');
+      if(label)label.classList.add('omEligibilityLockedV237');
     });
     const open=card.querySelector('.focusOpen');
     if(open){
-      open.textContent=failures.length?'Review eligibility blocker ↗':'Resolve eligibility check ↗';
-      open.title=failures.length?'Open analysis and review the hard eligibility blocker':'Open analysis and resolve the provider-specific eligibility check first';
+      if(primaryRule==='work_hours_min'){
+        open.textContent='Add work hours to Passport ↗';
+        open.title='Add the exact post-degree work-hours total needed for this rule';
+      }else{
+        open.textContent=failures.length?'Review eligibility blocker ↗':'Resolve eligibility check ↗';
+        open.title=failures.length?'Open analysis and review the hard eligibility blocker':'Open analysis and resolve the provider-specific eligibility check first';
+      }
     }
-    card.classList.add('omEligibilityFirstV234');
+    card.classList.add('omEligibilityFirstV237');
     card.dataset.omEligibilityReviews=String(blocks.length);
+    card.dataset.omEligibilityRule=primaryRule;
   }
   function unlockOwned(card){
-    if(!card?.classList.contains('omEligibilityFirstV234'))return;
-    card.classList.remove('omEligibilityFirstV234');
+    if(!card?.classList.contains('omEligibilityFirstV237'))return;
+    card.classList.remove('omEligibilityFirstV237');
     delete card.dataset.omEligibilityReviews;
-    card.querySelectorAll('.omEligibilityLockedV234').forEach(label=>label.classList.remove('omEligibilityLockedV234'));
+    delete card.dataset.omEligibilityRule;
+    card.querySelectorAll('.omEligibilityLockedV237').forEach(label=>label.classList.remove('omEligibilityLockedV237'));
     card.querySelectorAll('.focusTasks input[type="checkbox"]').forEach(input=>{
       input.disabled=false;input.removeAttribute('aria-disabled');input.removeAttribute('title');
     });
@@ -69,23 +78,44 @@
   if(!document.getElementById('om-eligibility-first-v230-style')){
     const s=document.createElement('style');s.id='om-eligibility-first-v230-style';
     s.textContent=`
-      #tracker .focusCard.omEligibilityFirstV234 .focusAction{border-color:rgba(255,190,92,.28)!important;background:rgba(255,190,92,.035)!important}
-      #tracker .focusCard.omEligibilityFirstV234 .focusAction span{color:#f4b65a!important}
-      #tracker .focusCard.omEligibilityFirstV234 .omEligibilityLockedV234{opacity:.48!important;cursor:not-allowed!important}
-      #tracker .focusCard.omEligibilityFirstV234 .omEligibilityLockedV234 input{cursor:not-allowed!important}
+      #tracker .focusCard.omEligibilityFirstV237 .focusAction{border-color:rgba(255,190,92,.28)!important;background:rgba(255,190,92,.035)!important}
+      #tracker .focusCard.omEligibilityFirstV237 .focusAction span{color:#f4b65a!important}
+      #tracker .focusCard.omEligibilityFirstV237 .omEligibilityLockedV237{opacity:.48!important;cursor:not-allowed!important}
+      #tracker .focusCard.omEligibilityFirstV237 .omEligibilityLockedV237 input{cursor:not-allowed!important}
     `;
     document.head.appendChild(s);
   }
   const prior=window.renderTracker;
-  if(typeof prior==='function'&&!prior.__omEligibilityFirstV234){
+  if(typeof prior==='function'&&!prior.__omEligibilityFirstV237){
     const wrapped=function(...args){const out=prior.apply(this,args);requestAnimationFrame(()=>sync());setTimeout(sync,80);return out};
-    wrapped.__omEligibilityFirstV234=true;
+    wrapped.__omEligibilityFirstV237=true;
     try{renderTracker=wrapped}catch{}
     window.renderTracker=wrapped;
   }
   document.addEventListener('click',e=>{
-    const lockedOpen=e.target.closest?.('.focusCard.omEligibilityFirstV234 .focusOpen');
+    const lockedOpen=e.target.closest?.('.focusCard.omEligibilityFirstV237 .focusOpen');
     if(lockedOpen){
+      const card=lockedOpen.closest('.focusCard');
+      if(card?.dataset?.omEligibilityRule==='work_hours_min'){
+        e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+        try{window.openOnboard?.(true)}catch{}
+        const focusHours=()=>{
+          const input=document.getElementById('obWorkHours');
+          if(!input)return false;
+          try{input.scrollIntoView({behavior:'smooth',block:'center'})}catch{input.scrollIntoView()}
+          input.focus();
+          const field=input.closest('.field');
+          if(field){
+            const old=field.style.outline,oldShadow=field.style.boxShadow;
+            field.style.outline='2px solid rgba(244,182,90,.9)';
+            field.style.boxShadow='0 0 0 6px rgba(244,182,90,.12)';
+            setTimeout(()=>{field.style.outline=old;field.style.boxShadow=oldShadow},2200);
+          }
+          return true;
+        };
+        setTimeout(focusHours,30);setTimeout(focusHours,100);setTimeout(focusHours,220);
+        return;
+      }
       const focusEvidence=()=>{
         const section=document.querySelector('#detail .adaptiveEvidence');
         if(!section)return false;
