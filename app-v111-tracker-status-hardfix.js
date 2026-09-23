@@ -25,7 +25,7 @@
   const loadExpiredStageV226=()=>{
     if(document.querySelector('script[data-om-expired-stage-v226]')){loadEligibilityTruthV234();return;}
     const z=document.createElement('script');
-    z.src='/app-v152-expired-stage-css-v226.js?v=226';
+    z.src='/app-v152-expired-stage-css-v226.js?v=235';
     z.defer=true;
     z.dataset.omExpiredStageV226='true';
     z.onload=loadEligibilityTruthV234;
@@ -35,7 +35,7 @@
   const loadExpiredPolish=()=>{
     if(document.querySelector('script[data-om-expired-polish-v225]')){loadExpiredStageV226();return;}
     const p=document.createElement('script');
-    p.src='/app-v151-expired-tracker-polish-v225.js?v=225';
+    p.src='/app-v151-expired-tracker-polish-v225.js?v=235';
     p.defer=true;
     p.dataset.omExpiredPolishV225='true';
     p.onload=loadExpiredStageV226;
@@ -45,7 +45,7 @@
   const loadExpiredTracker=()=>{
     if(document.querySelector('script[data-om-expired-tracker-v224]')){loadExpiredPolish();return;}
     const x=document.createElement('script');
-    x.src='/app-v150-expired-tracker-lifecycle-v224.js?v=224';
+    x.src='/app-v150-expired-tracker-lifecycle-v224.js?v=235';
     x.defer=true;
     x.dataset.omExpiredTrackerV224='true';
     x.onload=loadExpiredPolish;
