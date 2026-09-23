@@ -27,6 +27,7 @@
     if(labels.some(x=>/country|nationality|residence/.test(x)))signals.push({label:'nationality / residence requirement'});
     if(labels.some(x=>/education|degree|academic/.test(x)))signals.push({label:'education requirement'});
     if(labels.some(x=>/field|study|discipline/.test(x)))signals.push({label:'field / academic discipline requirement'});
+    if(labels.some(x=>/work|experience|hours/.test(x)))signals.push({label:'post-degree work-experience requirement'});
     if(labels.some(x=>/english|language/.test(x)))signals.push({label:'language requirement'});
     t.prepareMeta={
       sourceKind:'programme',
