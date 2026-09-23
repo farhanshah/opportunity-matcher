@@ -39,6 +39,9 @@
     if(!document.getElementById('obDegreeName')){
       const name=document.createElement('div');name.className='field';name.innerHTML='<label>Degree / qualification name</label><input id="obDegreeName" type="text" maxlength="140" placeholder="e.g. BSc Computer Science">';const first=grid.children[1]||null;grid.insertBefore(name,first);
     }
+    if(!document.getElementById('obWorkHours')){
+      const hours=document.createElement('div');hours.className='field';hours.innerHTML='<label>Post-degree work hours</label><input id="obWorkHours" type="number" min="0" max="100000" step="1" placeholder="Leave blank if not confirmed"><small style="display:block;margin-top:6px;line-height:1.4;opacity:.62">Exact total completed after your first degree. Only use hours you can support from your work history.</small>';grid.appendChild(hours);
+    }
     if(!group.querySelector('.v2PrecisionHint')){
       const hint=document.createElement('div');hint.className='v2PrecisionHint';hint.innerHTML='<span>↗</span><div><b>Why this improves matching</b><br>Final-year and study-year rules are common in UN, development-bank and international internship programmes. We only use these answers when an official rule actually needs them.</div>';grid.appendChild(hint);
     }
@@ -52,15 +55,18 @@
     const status=document.getElementById('obDegreeStatus'),name=document.getElementById('obDegreeName');
     if(status)status.value=p.degreeStatus||(completedEducation(p)?'Completed':'');
     if(name)name.value=p.degreeName||'';
+    const hours=document.getElementById('obWorkHours');if(hours)hours.value=Number(p.workHours||0)>0?String(p.workHours):'';
   };
   window.openOnboard=openOnboard;
 
   const previousFinish=finishOnboard;
   finishOnboard=function(){
     ensureV2Fields();
+    const rawHours=document.getElementById('obWorkHours')?.value;
     const extra={
       degreeStatus:document.getElementById('obDegreeStatus')?.value||'',
-      degreeName:document.getElementById('obDegreeName')?.value?.trim()||''
+      degreeName:document.getElementById('obDegreeName')?.value?.trim()||'',
+      workHours:rawHours===''?'':Math.max(0,Math.round(Number(rawHours)||0))
     };
     previousFinish();
     if(currentProfile?.nat&&currentProfile?.edu&&currentProfile?.field){
@@ -81,6 +87,7 @@
     const box=document.getElementById('passportSummary');if(!box)return;const p=currentProfile||{};
     if(p.degreeStatus){box.insertAdjacentHTML('beforeend',`<div class="summaryItem"><span>Academic stage</span><b>${escHtml(p.degreeStatus)}</b></div>`)}
     if(p.graduationDate){box.insertAdjacentHTML('beforeend',`<div class="summaryItem"><span>Graduation</span><b>${escHtml(p.graduationDate)}</b></div>`)}
+    if(Number(p.workHours||0)>0){box.insertAdjacentHTML('beforeend',`<div class="summaryItem"><span>Post-degree work hours</span><b>${escHtml(String(p.workHours))}</b></div>`)}
     const signals=[p.degreeStatus,p.graduationDate,p.degreeCountry,Number(p.workHours||0)>0?String(p.workHours):''].filter(Boolean).length;
     const label=signals>=3?'High precision':signals>=1?'Improved':'Basic';
     box.insertAdjacentHTML('afterend',`<div class="passportPrecisionCard"><span>Eligibility precision</span><div><b>${label}</b><small>${signals} advanced signal${signals===1?'':'s'} available</small></div></div>`);
