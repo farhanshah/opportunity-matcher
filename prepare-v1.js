@@ -47,6 +47,19 @@
   function signals(){return(vac?.signals||[]).map(s=>norm(s?.label||s)).filter(Boolean)}
   function verifyRows(){
     const {p}=ensureState(),s=signals(),context=norm([vac?.why,vac?.readiness].filter(Boolean).join(' ')),has=x=>s.some(v=>v.includes(x))||context.includes(x),programme=isProgramme();
+    const isChevening=/chevening/.test(norm([vac?.title,vac?.provider].filter(Boolean).join(' ')));
+    if(isChevening){
+      return [
+        ['eligibilityReviewed','Review the official Chevening eligibility criteria','Confirm the current 2027/28 eligibility guidance and application cycle are still open.'],
+        ['residenceChecked','Confirm the UK residence restriction','Chevening states that applicants resident in the UK at the time of application are not eligible. Check the current residence stored in your Passport.'],
+        ['workExperienceChecked','Confirm post-degree work-experience rule','Confirm at least 2,800 eligible hours were acquired after completing the undergraduate degree and over the required period.'],
+        ['educationChecked','Confirm undergraduate-degree timing','Confirm the undergraduate degree qualifies you for UK master’s study and was completed within Chevening’s required timing.'],
+        ['returnHomeChecked','Confirm the two-year return-home commitment','Confirm you can commit to returning to your country of award for at least two years after the scholarship ends.'],
+        ['courseChoicesChecked','Confirm three eligible UK master’s course choices','Choose three eligible UK master’s courses and track the later unconditional-offer deadline separately.'],
+        ['priorFundingChecked','Confirm prior UK-government funding / employment restrictions','Check the current rules on prior UK-government-funded study and restricted employment or close-family relationships.'],
+        ['languageChecked','Check your chosen universities’ English requirements','Chevening itself has no universal English-language test requirement, but your selected universities may have admission requirements.']
+      ];
+    }
     const rows=[['eligibilityReviewed',programme?'Review the official programme eligibility':'Review the official eligibility section',programme?'Read the current provider eligibility guidance and confirm this programme cycle is still open and actionable.':'Read the detailed provider eligibility section and confirm the vacancy is still actionable.']];
     if(p.workExperienceChecked||has('work')||has('experience')||has('hours'))rows.push(['workExperienceChecked','Confirm post-degree work-experience rule',programme?'Confirm the required eligible hours, what periods count, and that your recorded total still meets the current programme rule.':'Confirm the provider work-experience requirement and the evidence requested.']);
     if(p.languageChecked||vac?.required_language||has('language'))rows.push(['languageChecked',programme?'Confirm language / English requirement':'Confirm required language','Verify the exact language requirement and whether evidence or certification is requested.']);
