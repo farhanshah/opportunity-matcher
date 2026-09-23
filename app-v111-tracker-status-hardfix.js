@@ -12,23 +12,23 @@
     document.body.appendChild(q);
   };
 
-  const loadEligibilityTruthV234=()=>{
-    if(document.querySelector('script[data-om-eligibility-truth-v234]')){loadEligibilityFirstV238();return;}
+  const loadEligibilityTruthV242=()=>{
+    if(document.querySelector('script[data-om-eligibility-truth-v242]')){loadEligibilityFirstV238();return;}
     const t=document.createElement('script');
-    t.src='/app-v154-eligibility-truth-v234.js?v=234';
+    t.src='/app-v154-eligibility-truth-v242.js?v=234';
     t.defer=true;
-    t.dataset.omEligibilityTruthV234='true';
+    t.dataset.omEligibilityTruthV242='true';
     t.onload=loadEligibilityFirstV238;
     document.body.appendChild(t);
   };
 
   const loadExpiredStageV226=()=>{
-    if(document.querySelector('script[data-om-expired-stage-v226]')){loadEligibilityTruthV234();return;}
+    if(document.querySelector('script[data-om-expired-stage-v226]')){loadEligibilityTruthV242();return;}
     const z=document.createElement('script');
     z.src='/app-v152-expired-stage-css-v226.js?v=235';
     z.defer=true;
     z.dataset.omExpiredStageV226='true';
-    z.onload=loadEligibilityTruthV234;
+    z.onload=loadEligibilityTruthV242;
     document.body.appendChild(z);
   };
 
