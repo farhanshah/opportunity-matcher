@@ -7,7 +7,9 @@
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const clean=v=>String(v||'').replace(/\*\*/g,'').replace(/^#+\s*/gm,'').replace(/\[([^\]]+)\]\([^\)]+\)/g,'$1').trim();
   const merged=()=>({...read(KEYS.journal),...read(KEYS.exact),...read(KEYS.tracks)});
-  const validTracks=()=>Object.entries(merged()).filter(([,t])=>t?.exactVacancy?.url);
+  const routeMeta=t=>t?.exactVacancy?.url?t.exactVacancy:(t?.prepareMeta?.url?t.prepareMeta:null);
+  const validTracks=()=>Object.entries(merged()).filter(([,t])=>routeMeta(t)?.url);
+  const isProgramme=()=>vac?.sourceKind==='programme';
   let entries=validTracks();
   let activeId=null,track=null,vac=null,saveTimer=null;
 
@@ -33,7 +35,9 @@
   function save({quiet=false}={}){
     if(!activeId||!track)return;
     const {p}=ensureState();p.updatedAt=new Date().toISOString();
-    for(const k of Object.values(KEYS)){
+    const targets=[KEYS.tracks];
+    for(const k of [KEYS.exact,KEYS.journal])if(read(k)[activeId])targets.push(k);
+    for(const k of targets){
       const obj=read(k);obj[activeId]=track;try{localStorage.setItem(k,JSON.stringify(obj))}catch{}
     }
     const state=$('#saveState');if(state){state.textContent=quiet?'Saving…':'Saved on this device';if(quiet)setTimeout(()=>{state.textContent='Saved on this device'},450)}
@@ -53,16 +57,34 @@
   function verifyComplete(){const {p}=ensureState(),rows=verifyRows();return rows.length>0&&rows.every(([k])=>!!p[k])}
   function state(){
     const {p,role,f}=ensureState();
+    if(isProgramme()){
+      const verify=verifyComplete();
+      const documents=Boolean(p.programmeDocumentsReady);
+      const statement=Boolean(p.programmeStatementReady);
+      const references=Boolean(p.programmeReferencesReady);
+      const sig=[verify,documents,statement,references,String(p.programmeDocumentsNote||'').length,String(p.programmeStatementNote||'').length,String(p.programmeReferencesNote||'').length].join('|');
+      const provider=!!f.providerCheckedAt&&f.providerCheckedSignature===sig;
+      let progress=0;progress+=verify?25:0;progress+=documents?20:0;progress+=statement?20:0;progress+=references?20:0;progress+=provider?15:0;
+      return{p,role,f,verify,documents,statement,references,provider,sig,progress:Math.min(100,progress),programme:true};
+    }
     const cvText=String(f.cvFinalDraft||f.cvSourceText||'').trim();
     const coverText=String(role.coverLetterCandidate||role.motivationDraftText||'').trim();
     const verify=verifyComplete(),cv=!!p.cvReady&&cvText.length>300,cover=!!p.motivationDraft&&coverText.length>200,writing=!!f.writingSampleReady,pdf=!!f.singlePdfReady;
     const sig=[verify,cv,cover,writing,pdf,cvText.length,coverText.length,String(f.writingSampleNote||'').trim().length].join('|');
     const provider=!!f.providerCheckedAt&&f.providerCheckedSignature===sig;
     let progress=0;progress+=verify?25:0;progress+=cv?20:0;progress+=cover?20:0;progress+=writing?10:0;progress+=pdf?10:0;progress+=provider?15:0;
-    return{p,role,f,verify,cv,cover,writing,pdf,provider,sig,cvText,coverText,progress:Math.min(100,progress)};
+    return{p,role,f,verify,cv,cover,writing,pdf,provider,sig,cvText,coverText,progress:Math.min(100,progress),programme:false};
   }
   function nextAction(s=state()){
     if(!s.verify)return'Complete the official-source checks first.';
+    if(s.programme){
+      if(!s.documents)return'Confirm the required application documents.';
+      if(!s.statement)return'Review the statement or essay requirements and prepare your response.';
+      if(!s.references)return'Confirm the referee and reference requirements.';
+      if(!s.provider)return'Re-open the official source and confirm the final submission requirements.';
+      if(!/ready to submit|submitted|interview|offer/i.test(String(track.stage||'')))return'Final provider check complete. Mark the application ready to submit.';
+      return'Preparation complete. Submit on the provider site and keep Tracker updated.';
+    }
     if(!s.cv)return'Review the role-tailored CV and mark it ready.';
     if(!s.cover)return'Review the cover / motivation response and mark it ready.';
     if(!s.writing)return'Choose and record the writing sample you will submit.';
@@ -76,9 +98,11 @@
   function renderHeader(){
     $('#roleTitle').textContent=vac.title||'Tracked application';
     $('#roleMeta').textContent=[vac.provider||vac.organization||'Official provider',vac.location||vac.work_mode||'',track.stage||'Researching'].filter(Boolean).join(' · ');
-    $('#officialLink').href=vac.url;$('#verifyOfficial').href=vac.url;$('#finalOfficial').href=vac.url;
+    $('#officialLink').href=vac.officialUrl||vac.url;$('#verifyOfficial').href=vac.officialUrl||vac.url;$('#finalOfficial').href=vac.officialUrl||vac.url;
+    $('#officialLink').textContent=isProgramme()?'Open official source ↗':'Open official vacancy ↗';
+    $('#finalOfficial').textContent=isProgramme()?'Open official source ↗':'Open official vacancy ↗';
     const left=daysLeft(vac.deadline),pill=$('#deadlinePill');pill.textContent=left==null?'Check deadline':left<0?'Deadline passed':left===0?'Closes today':`${left} day${left===1?'':'s'} left`;pill.dataset.expired=left<0?'1':'0';
-    const picker=$('#trackPicker');picker.innerHTML=entries.map(([id,t])=>`<option value="${esc(id)}" ${id===activeId?'selected':''}>${esc(t.exactVacancy?.title||id)}</option>`).join('');
+    const picker=$('#trackPicker');picker.innerHTML=entries.map(([id,t])=>{const m=routeMeta(t);return `<option value="${esc(id)}" ${id===activeId?'selected':''}>${esc(m?.title||id)}</option>`}).join('');
     picker.onchange=()=>{location.href=`/prepare?id=${encodeURIComponent(picker.value)}`};
   }
   function renderOverview(){
@@ -88,8 +112,39 @@
   }
   function renderVerify(){const {p}=ensureState();$('#verifyList').innerHTML=verifyRows().map(([key,title,desc])=>`<label class="checkRow ${p[key]?'done':''}"><input type="checkbox" data-verify-key="${key}" ${p[key]?'checked':''}><div><b>${esc(title)}</b><span>${esc(desc)}</span></div></label>`).join('');$$('[data-verify-key]').forEach(inp=>inp.onchange=()=>{p[inp.dataset.verifyKey]=inp.checked;invalidateProvider();save();renderAll()})}
   function docCard(icon,title,desc,ready,action,label){return`<article class="docCard ${ready?'ready':''}"><span class="docIcon">${esc(icon)}</span><span class="docState">${ready?'Ready':'Needs work'}</span><h3>${esc(title)}</h3><p>${esc(desc)}</p><button class="docButton" data-doc-action="${action}">${esc(label)}</button></article>`}
-  function renderDocuments(){const s=state();$('#documentCards').innerHTML=[docCard('CV','Tailored CV','Review the complete source CV and role-tailored candidate without changing verified chronology.',s.cv,'cv','Open CV workspace'),docCard('CL','Cover / motivation','Keep the employer-facing letter concise and grounded in verified CV evidence.',s.cover,'cover','Open cover workspace'),docCard('WS','Writing sample','Record the exact sample you will submit and why it demonstrates relevant analytical writing.',s.writing,'writing','Open writing-sample choice'),docCard('PDF','Combined PDF','Manual confirmation only while the lightweight PDF assembler is rebuilt.',s.pdf,'pdf','Review PDF gate')].join('');$$('[data-doc-action]').forEach(b=>b.onclick=()=>openLazy(b.dataset.docAction))}
-  function renderFinal(){const s=state();const gates=[['Official checks',s.verify],['Tailored CV',s.cv],['Cover / motivation',s.cover],['Writing sample',s.writing],['Combined PDF',s.pdf],['Provider re-check',s.provider]];$('#finalGates').innerHTML=gates.map(([n,ok])=>`<div class="gate ${ok?'ok':''}"><span>${esc(n)}</span><b>${ok?'Ready ✓':'Not complete'}</b></div>`).join('');const c=$('#providerConfirm');c.checked=s.provider;c.onchange=()=>{const current=state();if(c.checked){current.f.providerCheckedAt=new Date().toISOString();current.f.providerCheckedSignature=current.sig}else{current.f.providerCheckedAt='';current.f.providerCheckedSignature=''}save();renderAll()};const btn=$('#readyBtn'),core=s.verify&&s.cv&&s.cover&&s.writing&&s.pdf&&s.provider;btn.disabled=!core;btn.textContent=/ready to submit/i.test(String(track.stage||''))?'Ready to submit ✓':'Mark ready to submit';btn.onclick=()=>{if(!core)return;track.stage='Ready to submit';save();renderAll()};$('#providerTitle').textContent=s.provider?'Final provider check confirmed.':'Provider check required.'}
+  function renderDocuments(){
+    const s=state();
+    if(s.programme){
+      $('#documentCards').innerHTML=[
+        docCard('DOC','Application documents','Confirm the provider-required documents and record what you will submit.',s.documents,'documents','Open documents workspace'),
+        docCard('ST','Statement / essays','Work from the exact provider prompts and keep your response evidence-based.',s.statement,'statement','Open statement workspace'),
+        docCard('RF','References','Confirm referee count, format, deadlines and any provider-specific instructions.',s.references,'references','Open references workspace')
+      ].join('');
+    }else{
+      $('#documentCards').innerHTML=[
+        docCard('CV','Tailored CV','Review the complete source CV and role-tailored candidate without changing verified chronology.',s.cv,'cv','Open CV workspace'),
+        docCard('CL','Cover / motivation','Keep the employer-facing letter concise and grounded in verified CV evidence.',s.cover,'cover','Open cover workspace'),
+        docCard('WS','Writing sample','Record the exact sample you will submit and why it demonstrates relevant analytical writing.',s.writing,'writing','Open writing-sample choice'),
+        docCard('PDF','Combined PDF','Manual confirmation only while the lightweight PDF assembler is rebuilt.',s.pdf,'pdf','Review PDF gate')
+      ].join('');
+    }
+    $$('[data-doc-action]').forEach(b=>b.onclick=()=>openLazy(b.dataset.docAction))
+  }
+  function renderFinal(){
+    const s=state();
+    const gates=s.programme
+      ?[['Official checks',s.verify],['Documents',s.documents],['Statement / essays',s.statement],['References',s.references],['Provider re-check',s.provider]]
+      :[['Official checks',s.verify],['Tailored CV',s.cv],['Cover / motivation',s.cover],['Writing sample',s.writing],['Combined PDF',s.pdf],['Provider re-check',s.provider]];
+    $('#finalGates').innerHTML=gates.map(([n,ok])=>`<div class="gate ${ok?'ok':''}"><span>${esc(n)}</span><b>${ok?'Ready ✓':'Not complete'}</b></div>`).join('');
+    const notice=$('#stage-final .notice');
+    if(notice)notice.textContent=s.programme?'Use the official scholarship or programme guidance as the final authority. Re-check the live form before submission because document, essay and reference instructions can change by cycle.':'The combined-PDF checkbox remains manual in this lightweight rebuild. The browser-heavy PDF assembler is intentionally disabled until it is rebuilt off the main UI thread.';
+    const c=$('#providerConfirm');c.checked=s.provider;c.onchange=()=>{const current=state();if(c.checked){current.f.providerCheckedAt=new Date().toISOString();current.f.providerCheckedSignature=current.sig}else{current.f.providerCheckedAt='';current.f.providerCheckedSignature=''}save();renderAll()};
+    const btn=$('#readyBtn');
+    const core=s.programme?(s.verify&&s.documents&&s.statement&&s.references&&s.provider):(s.verify&&s.cv&&s.cover&&s.writing&&s.pdf&&s.provider);
+    btn.disabled=!core;btn.textContent=/ready to submit/i.test(String(track.stage||''))?'Ready to submit ✓':'Mark ready to submit';
+    btn.onclick=()=>{if(!core)return;track.stage='Ready to submit';save();renderAll()};
+    $('#providerTitle').textContent=s.provider?'Final provider check confirmed.':'Provider check required.';
+  }
   function renderProgress(){const s=state();$('#progressPct').textContent=`${s.progress}%`;$('#progressBar').style.width=`${s.progress}%`;$('#nextAction').textContent=nextAction(s);$('#overviewNext').textContent=nextAction(s)}
   function renderAll(){renderHeader();renderOverview();renderVerify();renderDocuments();renderFinal();renderProgress()}
 
@@ -102,6 +157,21 @@
   }
   function fileBase(){return String(vac.title||'application').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').slice(0,72)||'application'}
   function openLazy(kind){
+    const host=$('#lazyWorkspace'),s=state();host.classList.remove('hide');
+    if(s.programme){
+      const cfg={
+        documents:{ey:'APPLICATION DOCUMENTS',title:'Record the documents you will actually submit.',copy:'Use the current provider guidance. List the required files, what you already have, and anything still missing.',field:'programmeDocumentsNote',ready:'programmeDocumentsReady',check:'documents',placeholder:'Required documents, status, file names, certification or translation notes…',button:'Mark documents ready'},
+        statement:{ey:'STATEMENT / ESSAYS',title:'Work from the exact provider prompts.',copy:'Keep the prompt wording and your evidence in one place before finalising any response.',field:'programmeStatementNote',ready:'programmeStatementReady',check:'statement',placeholder:'Paste or summarise the exact prompt, then add your evidence, examples and draft notes…',button:'Mark statement ready'},
+        references:{ey:'REFERENCES',title:'Confirm the referee requirements before submission.',copy:'Record the required number of referees, format, deadlines and any provider-specific instructions.',field:'programmeReferencesNote',ready:'programmeReferencesReady',check:'references',placeholder:'Referee requirements, names/status, deadlines and instructions…',button:'Mark references ready'}
+      }[kind];
+      if(!cfg){host.classList.add('hide');host.innerHTML='';return}
+      host.innerHTML=`<div class="lazyHead"><div><div class="sectionEy">${cfg.ey}</div><h2>${cfg.title}</h2><p>${cfg.copy}</p></div><button class="closeEditor">Close</button></div><div class="writingBox"><textarea class="largeText" id="programmeNote" placeholder="${cfg.placeholder}">${esc(s.p[cfg.field]||'')}</textarea><div class="editorActions"><button class="smallBtn primary" id="programmeReady">${s.p[cfg.ready]?cfg.button.replace('Mark ','')+' ✓':cfg.button}</button></div></div>`;
+      host.querySelector('.closeEditor').onclick=closeLazy;
+      $('#programmeNote').oninput=e=>{s.p[cfg.field]=e.target.value;s.p[cfg.ready]=false;track.checklist=track.checklist||{};track.checklist[cfg.check]=false;invalidateProvider();debounceSave()};
+      $('#programmeReady').onclick=()=>{const x=state();x.p[cfg.ready]=!x.p[cfg.ready];track.checklist=track.checklist||{};track.checklist[cfg.check]=x.p[cfg.ready];invalidateProvider();save();renderAll();openLazy(kind)};
+      host.scrollIntoView({behavior:'smooth',block:'start'});
+      return;
+    }
     const host=$('#lazyWorkspace'),s=state();host.classList.remove('hide');
     if(kind==='cv'){
       host.innerHTML=`<div class="lazyHead"><div><div class="sectionEy">TAILORED CV WORKSPACE</div><h2>Work only from the verified CV source.</h2><p>The draft stays lightweight here: no observers, no background rebuilds.</p></div><button class="closeEditor">Close</button></div><div class="editorGrid"><div class="editorCard"><h3>Current CV source</h3><p>The complete CV you would otherwise submit.</p><textarea class="editorText" id="cvSource">${esc(s.f.cvSourceText||'')}</textarea></div><div class="editorCard"><h3>Role-tailored CV draft</h3><p>Edit the complete candidate while keeping dates, employers and qualifications accurate.</p><textarea class="editorText" id="cvDraft">${esc(s.f.cvFinalDraft||'')}</textarea></div></div><div class="editorActions"><button class="smallBtn" id="downloadCv">Download CV (.doc)</button><button class="smallBtn primary" id="toggleCv">${s.p.cvReady?'CV ready ✓':'Mark CV ready'}</button></div>`;
@@ -117,11 +187,12 @@
       host.querySelector('.closeEditor').onclick=closeLazy;$('#togglePdf').onclick=()=>{const x=state();x.f.singlePdfReady=!x.f.singlePdfReady;invalidateProvider();save();renderAll();openLazy('pdf')}
     }
     host.scrollIntoView({behavior:'smooth',block:'start'})
+  
   }
   function switchStage(name){$$('.stageBtn').forEach(b=>b.classList.toggle('active',b.dataset.stage===name));$$('.stagePanel').forEach(p=>p.classList.toggle('active',p.id===`stage-${name}`));closeLazy();window.scrollTo({top:0,behavior:'smooth'})}
   function init(){
     activeId=pickInitial();if(!activeId){$('#emptyState').classList.remove('hide');return}
-    track=merged()[activeId];vac=track.exactVacancy;$('#workspace').classList.remove('hide');
+    track=merged()[activeId];vac=routeMeta(track);if(!track||!vac?.url){$('#emptyState').classList.remove('hide');return}$('#workspace').classList.remove('hide');
     $$('.stageBtn').forEach(b=>b.onclick=()=>switchStage(b.dataset.stage));$$('[data-jump]').forEach(b=>b.onclick=()=>switchStage(b.dataset.jump));
     $('#notesField').oninput=e=>{ensureState().p.notes=e.target.value;debounceSave()};
     renderAll();
