@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v224';
+  const VERSION='v235';
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const postSubmission=new Set(['Submitted','Interview','Offer received','Unsuccessful']);
 
@@ -19,7 +19,20 @@
   function rowsByTitle(){
     const {ts,os}=stores(),byId=new Map(os.map(o=>[String(o?.Opportunity_ID),o])),map=new Map();
     for(const [id,t] of Object.entries(ts)){
-      const o=byId.get(String(id));if(!o)continue;
+      let o=byId.get(String(id));
+      if(!o&&t?.exactVacancy?.url){
+        const m=t.exactVacancy;
+        o={
+          Opportunity_ID:id,
+          Opportunity_Name:m.title||'Verified vacancy',
+          Provider:m.provider||'Official provider',
+          Close_Date:m.deadline||'',
+          Application_URL:m.url||'',
+          Official_Source_URL:m.url||'',
+          Status:'Open'
+        };
+      }
+      if(!o)continue;
       const title=norm(o.Opportunity_Name);if(title)map.set(title,{id,t,o});
     }
     return map;
@@ -62,6 +75,16 @@
     card.querySelectorAll('.focusTask input').forEach(input=>{input.disabled=true;input.setAttribute('aria-disabled','true')});
     const status=card.querySelector('.exactPackStatusV133,.exactPackStatusV132');
     if(status)status.innerHTML='<b>Application closed:</b> Provider deadline passed · preparation is no longer actionable.';
+
+    // A tracked exact vacancy may already have reached "Ready to submit".
+    // Keep historical tools available, but stop presenting them as live next actions.
+    card.querySelectorAll('button,a').forEach(el=>{
+      const txt=norm(el.textContent);
+      if(txt==='record submission')el.textContent='Record prior submission';
+      if(txt==='view application pack')el.textContent='View saved pack';
+    });
+    const pctLeaves=[...card.querySelectorAll('*')].filter(el=>el.children.length===0&&/^\d+%$/.test(String(el.textContent||'').trim()));
+    pctLeaves.forEach(el=>el.textContent='—');
     return true;
   }
 
