@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v235';
+  const VERSION='v236';
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const postSubmission=new Set(['Submitted','Interview','Offer received','Unsuccessful']);
 
@@ -80,8 +80,8 @@
     // Keep historical tools available, but stop presenting them as live next actions.
     card.querySelectorAll('button,a').forEach(el=>{
       const txt=norm(el.textContent);
-      if(txt==='record submission')el.textContent='Record prior submission';
-      if(txt==='view application pack')el.textContent='View saved pack';
+      if(txt.startsWith('record submission'))el.textContent='Record prior submission';
+      if(txt.startsWith('view application pack'))el.textContent='View saved pack ↗';
     });
     const pctLeaves=[...card.querySelectorAll('*')].filter(el=>el.children.length===0&&/^\d+%$/.test(String(el.textContent||'').trim()));
     pctLeaves.forEach(el=>el.textContent='—');
