@@ -96,7 +96,7 @@
       const t=(typeof tracks==='object'&&tracks?.[id])||window.tracks?.[id];
       if(!t)return;
       const tasks=card.querySelector('.focusTasks');if(!tasks)return;
-      const locked=card.classList.contains('omEligibilityFirstV237');
+      const locked=[...card.classList].some(x=>x.startsWith('omEligibilityFirstV'));
       let wrap=tasks.querySelector('.exactTrackActions');
       let btn=tasks.querySelector('.prepOpen');
       if(!btn){
@@ -131,8 +131,11 @@
     const prep=target.closest?.('.prepOpen');
     if(prep){
       const card=prep.closest('.focusCard');
-      const id=card?.dataset?.exactTrackId||prep.dataset?.exactTrackId;if(!id)return;
-      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();go(id);return;
+      const id=card?.dataset?.exactTrackId||card?.dataset?.trackId||prep.dataset?.exactTrackId;if(!id)return;
+      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+      const locked=prep.disabled||prep.getAttribute('aria-disabled')==='true'||[...card.classList].some(x=>x.startsWith('omEligibilityFirstV'));
+      if(locked)return;
+      go(id);return;
     }
 
     const exact=target.closest?.('.exactPrepare');if(!exact)return;
