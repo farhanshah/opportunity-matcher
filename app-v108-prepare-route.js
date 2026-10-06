@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v244';
+  const VERSION='v246';
   const hash=s=>{let h=2166136261;for(const ch of String(s||'')){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)};
   const exactId=url=>`exact_${hash(url)}`;
   let scheduled=false;
@@ -110,13 +110,16 @@
         }
       }
       btn.dataset.exactTrackId=id;
-      btn.disabled=locked;
-      btn.setAttribute('aria-disabled',locked?'true':'false');
+      btn.disabled=false;
       if(locked){
-        btn.textContent='Eligibility check first';
-        btn.title='Resolve the eligibility check before preparing this application';
+        btn.removeAttribute('aria-disabled');
+        btn.dataset.eligibilityRedirect='1';
+        btn.textContent='Eligibility check first ↗';
+        btn.title='Open the eligibility check that must be resolved before preparation';
         return;
       }
+      delete btn.dataset.eligibilityRedirect;
+      btn.removeAttribute('aria-disabled');
       routeFor(id);
       const state=buttonState(id);
       if(btn.textContent!==state.label)btn.textContent=state.label;
@@ -133,8 +136,15 @@
       const card=prep.closest('.focusCard');
       const id=card?.dataset?.exactTrackId||card?.dataset?.trackId||prep.dataset?.exactTrackId;if(!id)return;
       e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-      const locked=prep.disabled||prep.getAttribute('aria-disabled')==='true'||[...card.classList].some(x=>x.startsWith('omEligibilityFirstV'));
-      if(locked)return;
+      const locked=[...card.classList].some(x=>x.startsWith('omEligibilityFirstV'));
+      if(locked||prep.dataset.eligibilityRedirect==='1'){
+        const resolve=card.querySelector('.focusOpen');
+        if(resolve){
+          resolve.click();
+          return;
+        }
+        return;
+      }
       go(id);return;
     }
 
