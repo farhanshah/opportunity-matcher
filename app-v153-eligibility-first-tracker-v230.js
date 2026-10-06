@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v243';
+  const VERSION='v244';
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const oppList=()=>{try{return Array.isArray(opps)?opps:[]}catch{return[]}};
   const activeStages=new Set(['Saved','Researching']);
@@ -15,16 +15,14 @@
     try{if(typeof evaluate==='function')checks=(evaluate(o)?.checks||[])}catch{}
     const hay=norm([o?.Opportunity_Name,o?.Provider].filter(Boolean).join(' '));
     if(hay.includes('chevening')){
-      const already=checks.some(c=>String(c?.rule_code||'')==='chevening_uk_residence_v242'||norm(c?.label)==='uk residence at application');
+      const already=checks.some(c=>['chevening_uk_residence_v242','chevening_residence_v244'].includes(String(c?.rule_code||''))||['uk residence at application','residence eligibility'].includes(norm(c?.label)));
       if(!already){
-        const residence=norm(profile()?.residence);
-        checks.unshift({
-          label:'UK residence at application',
-          status:!residence?'review':(['united kingdom','uk','great britain'].includes(residence)?'fail':'pass'),
-          detail:!residence?'Add your current country of residence to the Passport before Chevening can be called eligible.':(['united kingdom','uk','great britain'].includes(residence)?'Your Passport says you are resident in the United Kingdom. Current Chevening rules do not allow applicants resident in the UK at the time of application.':'Your recorded residence does not trigger the Chevening UK-residence restriction.'),
-          hard:true,
-          rule_code:'chevening_uk_residence_v242'
-        });
+        const p=profile(),residence=norm(p?.residence),nationality=norm(p?.nat),isUk=['united kingdom','uk','great britain'].includes(residence);
+        let status='review',detail='Add your current country of residence to the Passport before Chevening residence eligibility can be confirmed.';
+        if(isUk){status='fail';detail='Your Passport says you are resident in the United Kingdom. Current Chevening rules do not allow applicants resident in the UK at the time of application.'}
+        else if(residence&&nationality&&residence===nationality){status='pass';detail='Your Passport residence matches your Chevening country route and does not trigger the UK-residence restriction.'}
+        else if(residence){detail='Your Passport residence differs from your country of citizenship. Verify that the residence country is ODA-eligible before treating Chevening residence eligibility as a pass.'}
+        checks.unshift({label:'Residence eligibility',status,detail,hard:true,rule_code:'chevening_residence_v244'});
       }
     }
     return checks.filter(c=>c?.hard!==false&&(c?.status==='review'||c?.status==='fail'));
@@ -56,14 +54,14 @@
       input.setAttribute('aria-disabled','true');
       input.title='Resolve the eligibility check in analysis first';
       const label=input.closest('label');
-      if(label)label.classList.add('omEligibilityLockedV243');
+      if(label)label.classList.add('omEligibilityLockedV244');
     });
     const open=card.querySelector('.focusOpen');
     if(open){
       if(primaryRule==='work_hours_min'){
         open.textContent='Add work hours to Passport ↗';
         open.title='Add the exact post-degree work-hours total needed for this rule';
-      }else if(primaryRule==='chevening_uk_residence_v242'){
+      }else if(['chevening_uk_residence_v242','chevening_residence_v244'].includes(primaryRule)){
         open.textContent='Review residence in Passport ↗';
         open.title='Review the current country of residence stored in your Passport';
       }else{
@@ -71,7 +69,7 @@
         open.title=failures.length?'Open analysis and review the hard eligibility blocker':'Open analysis and resolve the provider-specific eligibility check first';
       }
     }
-    card.classList.add('omEligibilityFirstV243');
+    card.classList.add('omEligibilityFirstV244');
     card.dataset.omEligibilityReviews=String(blocks.length);
     card.dataset.omEligibilityRule=primaryRule;
     const prep=card.querySelector('.prepOpen');
@@ -82,11 +80,11 @@
     }
   }
   function unlockOwned(card){
-    if(!card?.classList.contains('omEligibilityFirstV243'))return;
-    card.classList.remove('omEligibilityFirstV243');
+    if(!card?.classList.contains('omEligibilityFirstV244'))return;
+    card.classList.remove('omEligibilityFirstV244');
     delete card.dataset.omEligibilityReviews;
     delete card.dataset.omEligibilityRule;
-    card.querySelectorAll('.omEligibilityLockedV243').forEach(label=>label.classList.remove('omEligibilityLockedV243'));
+    card.querySelectorAll('.omEligibilityLockedV244').forEach(label=>label.classList.remove('omEligibilityLockedV244'));
     card.querySelectorAll('.focusTasks input[type="checkbox"]').forEach(input=>{
       input.disabled=false;input.removeAttribute('aria-disabled');input.removeAttribute('title');
     });
@@ -105,22 +103,22 @@
   if(!document.getElementById('om-eligibility-first-v230-style')){
     const s=document.createElement('style');s.id='om-eligibility-first-v230-style';
     s.textContent=`
-      #tracker .focusCard.omEligibilityFirstV243 .focusAction{border-color:rgba(255,190,92,.28)!important;background:rgba(255,190,92,.035)!important}
-      #tracker .focusCard.omEligibilityFirstV243 .focusAction span{color:#f4b65a!important}
-      #tracker .focusCard.omEligibilityFirstV243 .omEligibilityLockedV243{opacity:.48!important;cursor:not-allowed!important}
-      #tracker .focusCard.omEligibilityFirstV243 .omEligibilityLockedV243 input{cursor:not-allowed!important}
+      #tracker .focusCard.omEligibilityFirstV244 .focusAction{border-color:rgba(255,190,92,.28)!important;background:rgba(255,190,92,.035)!important}
+      #tracker .focusCard.omEligibilityFirstV244 .focusAction span{color:#f4b65a!important}
+      #tracker .focusCard.omEligibilityFirstV244 .omEligibilityLockedV244{opacity:.48!important;cursor:not-allowed!important}
+      #tracker .focusCard.omEligibilityFirstV244 .omEligibilityLockedV244 input{cursor:not-allowed!important}
     `;
     document.head.appendChild(s);
   }
   const prior=window.renderTracker;
-  if(typeof prior==='function'&&!prior.__omEligibilityFirstV243){
+  if(typeof prior==='function'&&!prior.__omEligibilityFirstV244){
     const wrapped=function(...args){const out=prior.apply(this,args);requestAnimationFrame(()=>sync());setTimeout(sync,80);return out};
-    wrapped.__omEligibilityFirstV243=true;
+    wrapped.__omEligibilityFirstV244=true;
     try{renderTracker=wrapped}catch{}
     window.renderTracker=wrapped;
   }
   document.addEventListener('click',e=>{
-    const lockedOpen=e.target.closest?.('.focusCard.omEligibilityFirstV243 .focusOpen');
+    const lockedOpen=e.target.closest?.('.focusCard.omEligibilityFirstV244 .focusOpen');
     if(lockedOpen){
       const card=lockedOpen.closest('.focusCard');
       if(card?.dataset?.omEligibilityRule==='work_hours_min'){
