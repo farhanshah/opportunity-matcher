@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v238';
+  const VERSION='v244';
   const hash=s=>{let h=2166136261;for(const ch of String(s||'')){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)};
   const exactId=url=>`exact_${hash(url)}`;
   let scheduled=false;
@@ -17,11 +17,11 @@
     const t=(typeof tracks==='object'&&tracks?.[id])||window.tracks?.[id];
     if(!t)return null;
     if(t.exactVacancy?.url)return t.exactVacancy;
-    if(t.prepareMeta?.url)return t.prepareMeta;
     const o=(typeof opps!=='undefined'&&Array.isArray(opps))?opps.find(x=>String(x?.Opportunity_ID)===String(id)):null;
-    if(!o)return null;
-    let ev=null;
+    if(!o)return t.prepareMeta?.url?t.prepareMeta:null;
+    let ev=null,route=null;
     try{ev=typeof evaluate==='function'?evaluate(o):null}catch{}
+    try{route=window.OpportunityCountryRoutes?.routeInfo?.(o)?.primary||null}catch{}
     const labels=(ev?.checks||[]).map(x=>String(x?.label||'').toLowerCase());
     const signals=[];
     if(labels.some(x=>/country|nationality|residence/.test(x)))signals.push({label:'nationality / residence requirement'});
@@ -34,9 +34,9 @@
       title:o.Opportunity_Name||'Tracked opportunity',
       provider:o.Provider||'Official provider',
       organization:o.Provider||'Official provider',
-      url:o.Application_URL||o.Official_Source_URL||'',
-      officialUrl:o.Official_Source_URL||o.Application_URL||'',
-      deadline:o.Close_Date||'',
+      url:route?.application_url||o.Application_URL||o.Official_Source_URL||'',
+      officialUrl:route?.official_source_url||o.Official_Source_URL||o.Application_URL||'',
+      deadline:route?.deadline_text||route?.close_date||o.Close_Date||'',
       location:o.Destination||'',
       work_mode:o.Destination||'',
       type:o.Type||'Opportunity',
