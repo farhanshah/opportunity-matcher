@@ -43,7 +43,26 @@
     const state=$('#saveState');if(state){state.textContent=quiet?'Saving…':'Saved on this device';if(quiet)setTimeout(()=>{state.textContent='Saved on this device'},450)}
   }
   function debounceSave(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>save({quiet:true}),280)}
-  function daysLeft(d){if(!d)return null;const x=new Date(`${d}T23:59:59`);if(Number.isNaN(x.getTime()))return null;return Math.ceil((x-Date.now())/86400000)}
+  const MONTH_INDEX={january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
+  function deadlineMs(d){
+    if(!d)return null;
+    const txt=String(d).trim();
+    let m=txt.match(/\b(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(20\d{2})(?:\s+at\s+(\d{1,2}):(\d{2})\s*(UTC|GMT|BST))?/i);
+    if(m){
+      const day=Number(m[1]),mon=MONTH_INDEX[m[2].toLowerCase()],year=Number(m[3]);
+      if(m[4]){const zone=String(m[6]||'').toUpperCase(),offset=zone==='BST'?1:0;return Date.UTC(year,mon,day,Number(m[4])-offset,Number(m[5]||0),0,0)}
+      return new Date(year,mon,day,23,59,59,999).getTime();
+    }
+    m=txt.match(/^(20\d{2})-(\d{2})-(\d{2})(?:[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(Z|UTC|GMT|BST)?)?$/i);
+    if(m){
+      const year=Number(m[1]),mon=Number(m[2])-1,day=Number(m[3]);
+      if(m[4]){const zone=String(m[7]||'').toUpperCase(),offset=zone==='BST'?1:0;if(zone)return Date.UTC(year,mon,day,Number(m[4])-offset,Number(m[5]||0),Number(m[6]||0),0);return new Date(year,mon,day,Number(m[4]),Number(m[5]||0),Number(m[6]||0),0).getTime()}
+      return new Date(year,mon,day,23,59,59,999).getTime();
+    }
+    const x=new Date(txt);return Number.isNaN(x.getTime())?null:x.getTime();
+  }
+  function daysLeft(d){const t=deadlineMs(d);return t==null?null:Math.ceil((t-Date.now())/86400000)}
+  function timeLeftLabel(d){const t=deadlineMs(d);if(t==null)return'Check posting';const diff=t-Date.now();if(diff<0)return'Expired';if(diff<86400000)return'Closes today';const n=Math.ceil(diff/86400000);return`${n} day${n===1?'':'s'}`}
   function signals(){return(vac?.signals||[]).map(s=>norm(s?.label||s)).filter(Boolean)}
   function verifyRows(){
     const {p}=ensureState(),s=signals(),context=norm([vac?.why,vac?.readiness].filter(Boolean).join(' ')),has=x=>s.some(v=>v.includes(x))||context.includes(x),programme=isProgramme();
@@ -121,12 +140,12 @@
     $('#officialLink').href=vac.officialUrl||vac.url;$('#verifyOfficial').href=vac.officialUrl||vac.url;$('#finalOfficial').href=vac.officialUrl||vac.url;
     $('#officialLink').textContent=isProgramme()?'Open official source ↗':'Open official vacancy ↗';
     $('#finalOfficial').textContent=isProgramme()?'Open official source ↗':'Open official vacancy ↗';
-    const left=daysLeft(vac.deadline),pill=$('#deadlinePill');pill.textContent=left==null?'Check deadline':left<0?'Deadline passed':left===0?'Closes today':`${left} day${left===1?'':'s'} left`;pill.dataset.expired=left<0?'1':'0';
+    const left=daysLeft(vac.deadline),pill=$('#deadlinePill'),leftLabel=timeLeftLabel(vac.deadline);pill.textContent=leftLabel==='Expired'?'Deadline passed':leftLabel==='Check posting'?'Check deadline':leftLabel==='Closes today'?'Closes today':leftLabel+' left';pill.dataset.expired=left!=null&&left<0?'1':'0';
     const picker=$('#trackPicker');picker.innerHTML=entries.map(([id,t])=>{const m=routeMeta(t);return `<option value="${esc(id)}" ${id===activeId?'selected':''}>${esc(m?.title||id)}</option>`}).join('');
     picker.onchange=()=>{location.href=`/prepare?id=${encodeURIComponent(picker.value)}`};
   }
   function renderOverview(){
-    const left=daysLeft(vac.deadline);$('#factsGrid').innerHTML=[fact('Provider',vac.provider||vac.organization),fact(isProgramme()?'Destination / study location':'Location / work mode',vac.location||vac.work_mode),fact('Deadline',vac.deadline||'Check posting'),fact('Time left',left==null?'Check posting':left<0?'Expired':`${left} day${left===1?'':'s'}`),fact('Pipeline stage',track.stage||'Researching'),fact('Preparation saved',track.preparation?.updatedAt?new Date(track.preparation.updatedAt).toLocaleString():'Not yet')].join('');
+    const left=daysLeft(vac.deadline);$('#factsGrid').innerHTML=[fact('Provider',vac.provider||vac.organization),fact(isProgramme()?'Destination / study location':'Location / work mode',vac.location||vac.work_mode),fact('Deadline',vac.deadline||'Check posting'),fact('Time left',timeLeftLabel(vac.deadline)),fact('Pipeline stage',track.stage||'Researching'),fact('Preparation saved',track.preparation?.updatedAt?new Date(track.preparation.updatedAt).toLocaleString():'Not yet')].join('');
     $('#overviewWhy').textContent=vac.why||vac.readiness||(isProgramme()?'Use the official programme guidance as the source of truth and keep every application claim evidence-based.':'Use the official vacancy as the source of truth and keep every application claim evidence-based.');
     const s=state();$('#overviewNext').textContent=nextAction(s);$('#notesField').value=s.p.notes||'';
   }
