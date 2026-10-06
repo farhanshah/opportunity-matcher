@@ -17,7 +17,32 @@
   refreshCountrySelects();
 
   function routeSet(o){return Array.isArray(o?.Country_Routes)?o.Country_Routes:[]}
-  function routeDateScore(r){const d=r?.close_date?new Date(r.close_date+'T23:59:59Z').getTime():0;return Number.isFinite(d)?d:0}
+  const MONTH_INDEX={january:0,february:1,march:2,april:3,may:4,june:5,july:6,august:7,september:8,october:9,november:10,december:11};
+  function routeDeadlineMs(r){
+    const txt=String(r?.deadline_text||'').trim();
+    let m=txt.match(/\b(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(20\d{2})(?:\s+at\s+(\d{1,2}):(\d{2})\s*(UTC|GMT|BST))?/i);
+    if(m){
+      const day=Number(m[1]),mon=MONTH_INDEX[m[2].toLowerCase()],year=Number(m[3]);
+      if(m[4]){
+        const hour=Number(m[4]),minute=Number(m[5]||0),zone=String(m[6]||'').toUpperCase(),offset=zone==='BST'?1:0;
+        return Date.UTC(year,mon,day,hour-offset,minute,0,0);
+      }
+      return new Date(year,mon,day,23,59,59,999).getTime();
+    }
+    m=txt.match(/\b(20\d{2})-(\d{2})-(\d{2})(?:[T\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(Z|UTC|GMT|BST)?)?/i);
+    if(m){
+      const year=Number(m[1]),mon=Number(m[2])-1,day=Number(m[3]);
+      if(m[4]){
+        const zone=String(m[7]||'').toUpperCase(),offset=zone==='BST'?1:0;
+        if(zone)return Date.UTC(year,mon,day,Number(m[4])-offset,Number(m[5]||0),Number(m[6]||0),0);
+        return new Date(year,mon,day,Number(m[4]),Number(m[5]||0),Number(m[6]||0),0).getTime();
+      }
+      return new Date(year,mon,day,23,59,59,999).getTime();
+    }
+    if(r?.close_date){const d=new Date(r.close_date+'T23:59:59');if(Number.isFinite(d.getTime()))return d.getTime()}
+    return 0;
+  }
+  function routeDateScore(r){return routeDeadlineMs(r)}
   function chooseLatest(list){return [...list].sort((a,b)=>{
     const af=/open|expected|country-specific|varies|check/i.test(a.status||'')&&!/closed|not accepting/i.test(a.status||'');
     const bf=/open|expected|country-specific|varies|check/i.test(b.status||'')&&!/closed|not accepting/i.test(b.status||'');
@@ -36,8 +61,8 @@
 
   const parentDays=days;
   days=function(o){
-    const r=routeInfo(o).primary;
-    if(r?.close_date){const t=new Date(r.close_date+'T23:59:59').getTime();if(Number.isFinite(t))return Math.ceil((t-Date.now())/864e5)}
+    const r=routeInfo(o).primary,t=routeDeadlineMs(r);
+    if(t)return Math.ceil((t-Date.now())/864e5);
     return parentDays(o);
   };
   window.days=days;
@@ -46,7 +71,13 @@
   deadline=function(o){
     const r=routeInfo(o).primary;
     if(r){
-      if(r.close_date){const d=days(o);if(d<0)return /not accepting/i.test(r.status||'')?'No intake this cycle':'Local cycle closed';if(d===0)return'Local deadline today';return`${d} days to local deadline`}
+      const t=routeDeadlineMs(r);
+      if(t){
+        const diff=t-Date.now();
+        if(diff<0)return /not accepting/i.test(r.status||'')?'No intake this cycle':'Local cycle closed';
+        if(diff<864e5)return'Local deadline today';
+        return`${Math.ceil(diff/864e5)} days to local deadline`;
+      }
       if(r.deadline_text)return /varies|check|set by|published/i.test(r.deadline_text)?'Local deadline varies':r.deadline_text;
     }
     return parentDeadline(o);
