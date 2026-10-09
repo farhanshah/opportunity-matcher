@@ -10,7 +10,8 @@
     const t=current();
     const stage=String(t?.stage||'');
     const pct=Number(String(document.querySelector('#progressPct')?.textContent||'').replace(/[^0-9.]/g,''));
-    return{t,stage,pct:Number.isFinite(pct)?pct:0,ready:stage==='Ready to submit'&&pct>=100,beyond:['Submitted','Interview','Offer received','Unsuccessful'].includes(stage)};
+    const closed=document.querySelector('#deadlinePill')?.dataset?.expired==='1';
+    return{t,stage,pct:Number.isFinite(pct)?pct:0,closed,ready:stage==='Ready to submit'&&pct>=100,beyond:['Submitted','Interview','Offer received','Unsuccessful'].includes(stage)};
   }
 
   function cleanUrl(kind){
@@ -30,11 +31,11 @@
     const s=readyState();
     if(s.ready){
       card.dataset.finalAction='record-submission';
-      headline.textContent='Preparation complete. Submit on the provider site, then record the submission in Tracker.';
-      btn.textContent='Record submission →';
+      headline.textContent=s.closed?'Saved preparation pack. The provider deadline has passed. Record a prior submission only if you submitted before the deadline.':'Preparation complete. Submit on the provider site, then record the submission in Tracker.';
+      btn.textContent=s.closed?'Record prior submission →':'Record submission →';
       btn.removeAttribute('data-jump');
       btn.onclick=e=>{e.preventDefault();location.assign(cleanUrl('submission'))};
-      btn.setAttribute('aria-label','Return to Tracker and record the provider submission');
+      btn.setAttribute('aria-label',s.closed?'Return to Tracker and record a prior provider submission':'Return to Tracker and record the provider submission');
       return;
     }
 
