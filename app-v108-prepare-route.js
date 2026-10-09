@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v246';
+  const VERSION='v247';
   const hash=s=>{let h=2166136261;for(const ch of String(s||'')){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(36)};
   const exactId=url=>`exact_${hash(url)}`;
   let scheduled=false;
@@ -97,6 +97,8 @@
       if(!t)return;
       const tasks=card.querySelector('.focusTasks');if(!tasks)return;
       const locked=[...card.classList].some(x=>x.startsWith('omEligibilityFirstV'));
+      const stageText=String(card.querySelector('.focusStage b')?.textContent||t.stage||'').trim();
+      const closed=/^closed$/i.test(stageText)||/deadline passed|local cycle closed/i.test(card.textContent||'');
       let wrap=tasks.querySelector('.exactTrackActions');
       let btn=tasks.querySelector('.prepOpen');
       if(!btn){
@@ -111,6 +113,26 @@
       }
       btn.dataset.exactTrackId=id;
       btn.disabled=false;
+      routeFor(id);
+      const state=buttonState(id);
+
+      if(closed){
+        delete btn.dataset.eligibilityRedirect;
+        if(state.complete||state.label!=='Prepare application ↗'){
+          btn.removeAttribute('aria-disabled');
+          btn.textContent='View saved pack ↗';
+          btn.classList.add('isComplete');
+          btn.title='Open the saved application pack for reference';
+        }else{
+          btn.disabled=true;
+          btn.setAttribute('aria-disabled','true');
+          btn.textContent='Closed';
+          btn.classList.remove('isComplete');
+          btn.title='Provider deadline passed';
+        }
+        return;
+      }
+
       if(locked){
         btn.removeAttribute('aria-disabled');
         btn.dataset.eligibilityRedirect='1';
@@ -120,8 +142,6 @@
       }
       delete btn.dataset.eligibilityRedirect;
       btn.removeAttribute('aria-disabled');
-      routeFor(id);
-      const state=buttonState(id);
       if(btn.textContent!==state.label)btn.textContent=state.label;
       btn.classList.toggle('isComplete',state.complete);
       btn.title=state.complete?'Open the completed Application Studio pack':'Open Application Studio';
