@@ -150,7 +150,7 @@
     picker.onchange=()=>{location.href=`/prepare?id=${encodeURIComponent(picker.value)}`};
   }
   function renderOverview(){
-    const left=daysLeft(vac.deadline);$('#factsGrid').innerHTML=[fact('Provider',vac.provider||vac.organization),fact(isProgramme()?'Destination / study location':'Location / work mode',vac.location||vac.work_mode),fact('Deadline',vac.deadline||'Check posting'),fact('Time left',timeLeftLabel(vac.deadline)),fact('Pipeline stage',track.stage||'Researching'),fact('Preparation saved',track.preparation?.updatedAt?new Date(track.preparation.updatedAt).toLocaleString():'Not yet')].join('');
+    const left=daysLeft(vac.deadline);$('#factsGrid').innerHTML=[fact('Provider',vac.provider||vac.organization),fact(isProgramme()?'Destination / study location':'Location / work mode',vac.location||vac.work_mode),fact('Deadline',vac.deadline||'Check posting'),fact('Time left',timeLeftLabel(vac.deadline)),fact('Pipeline stage',isClosed()?`Archived (was ${track.stage||'Saved'})`:(track.stage||'Researching')),fact('Preparation saved',track.preparation?.updatedAt?new Date(track.preparation.updatedAt).toLocaleString():'Not yet')].join('');
     $('#overviewWhy').textContent=vac.why||vac.readiness||(isProgramme()?'Use the official programme guidance as the source of truth and keep every application claim evidence-based.':'Use the official vacancy as the source of truth and keep every application claim evidence-based.');
     const s=state();$('#overviewNext').textContent=nextAction(s);$('#notesField').value=s.p.notes||'';
   }
@@ -180,13 +180,15 @@
       ?[['Official checks',s.verify],['Documents',s.documents],['Statement / essays',s.statement],['References',s.references],['Provider re-check',s.provider]]
       :[['Official checks',s.verify],['Tailored CV',s.cv],['Cover / motivation',s.cover],['Writing sample',s.writing],['Combined PDF',s.pdf],['Provider re-check',s.provider]];
     $('#finalGates').innerHTML=gates.map(([n,ok])=>`<div class="gate ${ok?'ok':''}"><span>${esc(n)}</span><b>${ok?'Ready ✓':'Not complete'}</b></div>`).join('');
+    const finalHeading=$('#stage-final .surfaceCard h2');
+    if(finalHeading)finalHeading.textContent=isClosed()?'Saved submission-readiness record.':'Finish the files, then re-check the provider page.';
     const notice=$('#stage-final .notice');
-    if(notice)notice.textContent=s.programme?'Use the official scholarship or programme guidance as the final authority. Re-check the live form before submission because document, essay and reference instructions can change by cycle.':'The combined-PDF checkbox remains manual in this lightweight rebuild. The browser-heavy PDF assembler is intentionally disabled until it is rebuilt off the main UI thread.';
+    if(notice)notice.textContent=isClosed()?'This is an archived readiness record from before the provider deadline. Keep it for reference; do not treat it as permission to submit after closure.':(s.programme?'Use the official scholarship or programme guidance as the final authority. Re-check the live form before submission because document, essay and reference instructions can change by cycle.':'The combined-PDF checkbox remains manual in this lightweight rebuild. The browser-heavy PDF assembler is intentionally disabled until it is rebuilt off the main UI thread.');
     const c=$('#providerConfirm');c.checked=s.provider;c.disabled=isClosed();c.setAttribute('aria-disabled',isClosed()?'true':'false');c.onchange=()=>{if(isClosed())return;const current=state();if(c.checked){current.f.providerCheckedAt=new Date().toISOString();current.f.providerCheckedSignature=current.sig}else{current.f.providerCheckedAt='';current.f.providerCheckedSignature=''}save();renderAll()};
     const btn=$('#readyBtn');
     const core=s.programme?(s.verify&&s.documents&&s.statement&&s.references&&s.provider):(s.verify&&s.cv&&s.cover&&s.writing&&s.pdf&&s.provider);
-    if(isClosed()){btn.disabled=true;btn.textContent='Deadline passed';btn.onclick=null;$('#providerTitle').textContent='Archived provider check.'}
-    else{btn.disabled=!core;btn.textContent=/ready to submit/i.test(String(track.stage||''))?'Ready to submit ✓':'Mark ready to submit';btn.onclick=()=>{if(!core)return;track.stage='Ready to submit';save();renderAll()};$('#providerTitle').textContent=s.provider?'Final provider check confirmed.':'Provider check required.'}
+    if(isClosed()){btn.disabled=true;btn.textContent='Deadline passed';btn.onclick=null;$('#providerTitle').textContent='Archived provider check.';$('#finalProviderCopy').textContent='Saved record of the provider re-check completed before the deadline.'}
+    else{btn.disabled=!core;btn.textContent=/ready to submit/i.test(String(track.stage||''))?'Ready to submit ✓':'Mark ready to submit';btn.onclick=()=>{if(!core)return;track.stage='Ready to submit';save();renderAll()};$('#providerTitle').textContent=s.provider?'Final provider check confirmed.':'Provider check required.';$('#finalProviderCopy').textContent='Open the current vacancy and compare its upload/form requirements with the files you are about to submit.'}
   }
   function renderProgress(){const s=state();$('#progressPct').textContent=`${s.progress}%`;$('#progressBar').style.width=`${s.progress}%`;$('#nextAction').textContent=nextAction(s);$('#overviewNext').textContent=nextAction(s)}
   function renderAll(){renderHeader();renderOverview();renderVerify();renderDocuments();renderFinal();renderProgress()}
