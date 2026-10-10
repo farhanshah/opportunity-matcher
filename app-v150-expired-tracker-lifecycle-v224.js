@@ -119,6 +119,8 @@
       if(label)label.textContent='Ready / beyond';
     }
 
+    try{window.OpportunityTrackerPrepSummary?.refresh?.()}catch{}
+
     document.documentElement.dataset.omExpiredTracker=VERSION;
   }
 
