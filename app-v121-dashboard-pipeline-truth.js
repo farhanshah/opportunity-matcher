@@ -2,11 +2,25 @@
   const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const stageOf=t=>String(t?.stage||'Saved');
   const studioState=t=>{try{return window.OpportunityStudioTruth?.getState?.(t)||null}catch{return null}};
+  const postSubmission=new Set(['Submitted','Interview','Offer received','Unsuccessful']);
+  function activeEntries(){
+    const os=Array.isArray(window.opps)?window.opps:(typeof opps!=='undefined'&&Array.isArray(opps)?opps:[]);
+    const byId=new Map(os.map(o=>[String(o.Opportunity_ID),o]));
+    return Object.entries((typeof tracks==='object'&&tracks)||window.tracks||{}).filter(([id,t])=>{
+      const stage=stageOf(t);
+      if(postSubmission.has(stage))return true;
+      const o=byId.get(String(id));
+      if(!o)return true;
+      if(String(o.Status||'').toLowerCase()==='closed')return false;
+      try{if(typeof days==='function'&&Number(days(o))<0)return false}catch{}
+      return true;
+    });
+  }
 
   function counts(){
     const g={Shortlist:0,Preparing:0,Ready:0,'Submitted +':0,Outcome:0};
     try{
-      Object.values(tracks||{}).forEach(t=>{
+      activeEntries().forEach(([,t])=>{
         const stage=stageOf(t),s=studioState(t);
         if(['Offer received','Unsuccessful'].includes(stage)){g.Outcome++;return}
         if(['Submitted','Interview'].includes(stage)){g['Submitted +']++;return}
