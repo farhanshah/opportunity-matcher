@@ -1,7 +1,7 @@
 (()=>{
-  const VERSION='v244';
+  const VERSION='v251';
   const prior=window.evaluate;
-  if(typeof prior!=='function'||window.OpportunityEligibilityTruthV244)return;
+  if(typeof prior!=='function'||window.OpportunityEligibilityTruthV251)return;
 
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const profile=()=>{try{return window.OpportunityState?.getProfile?.()||window.currentProfile||currentProfile||{}}catch{return{}}};
@@ -54,7 +54,7 @@
     else if(hardReviews){if(passes>=2){label='Possible match';cls='possible';rank=3}}
     else if(passes>=3){label=(base.relevance||0)>=1?'Strong match':'Likely eligible';cls='eligible';rank=4}
     else if(passes>=2){label='Possible match';cls='possible';rank=3}
-    return {...base,checks,fails,reviews,passes,hardReviews,label,cls,rank,eligibilityTruthV244:true};
+    return {...base,checks,fails,reviews,passes,hardReviews,label,cls,rank,eligibilityTruthV251:true};
   }
 
   const wrapped=function(o){
@@ -65,10 +65,27 @@
       checks=checks.filter(c=>!['chevening_uk_residence_v242','chevening_residence_v244'].includes(String(c?.rule_code||''))&&!['uk residence at application','residence eligibility'].includes(norm(c?.label)));
       checks.unshift(cheveningResidence);
     }
+
+    // Commonwealth Master's requires permanent residence in an eligible
+    // Commonwealth country. The Passport field "residence" is current
+    // residence only, so being temporarily/currently in the UK cannot by
+    // itself prove failure of the permanent-residence requirement.
+    const hay=norm([o?.Opportunity_Name,o?.Provider].filter(Boolean).join(' '));
+    if(hay.includes("commonwealth master's")||hay.includes('commonwealth masters')){
+      const hasPermanent=checks.some(c=>norm(c?.label)==='permanent residence in eligible country');
+      if(hasPermanent){
+        checks=checks.filter(c=>norm(c?.label)!=='country eligibility');
+        checks=checks.map(c=>{
+          if(norm(c?.label)!=='permanent residence in eligible country')return c;
+          if(c.status!=='fail')return c;
+          return {...c,status:'review',detail:'The provider requires permanent residence in an eligible Commonwealth country. Your Passport currently stores only your current country of residence, so this cannot be called a failure without a separate permanent-residence/home-country confirmation.'};
+        });
+      }
+    }
     return recompute(base||{},checks);
   };
   window.evaluate=wrapped;
   try{evaluate=wrapped}catch{}
-  window.OpportunityEligibilityTruthV244={version:VERSION,refresh:()=>{try{renderAll()}catch{}}};
+  window.OpportunityEligibilityTruthV251={version:VERSION,refresh:()=>{try{renderAll()}catch{}}};
   try{renderAll()}catch{}
 })();
