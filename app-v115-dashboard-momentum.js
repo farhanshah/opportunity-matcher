@@ -5,6 +5,27 @@
   const stagePct={Saved:0,Researching:12,'Preparing documents':28,Drafting:46,'Ready to submit':100,Submitted:100,Interview:100,'Offer received':100,Unsuccessful:100};
 
   function source(){return (typeof tracks==='object'&&tracks)||window.tracks||{}}
+  function activeTrackRows(){
+    const all=Object.entries(source());
+    let os=[];try{os=Array.isArray(opps)?opps:[]}catch{}
+    const byId=new Map(os.map(o=>[String(o?.Opportunity_ID),o]));
+    return all.filter(([id,t])=>{
+      const stage=String(t?.stage||'Saved');
+      if(beyond.has(stage))return true;
+      const o=byId.get(String(id));
+      if(o){
+        if(String(o?.Status||'').trim().toLowerCase()==='closed')return false;
+        try{const d=typeof days==='function'?Number(days(o)):NaN;if(Number.isFinite(d)&&d<0)return false}catch{}
+        return true;
+      }
+      const raw=String(t?.exactVacancy?.deadline||'').trim();
+      if(raw){
+        const end=new Date(`${raw}T23:59:59`);
+        if(Number.isFinite(end.getTime())&&end.getTime()<Date.now())return false;
+      }
+      return true;
+    });
+  }
   function studioState(t){try{return window.OpportunityStudioTruth?.getState?.(t)||null}catch{return null}}
   function legacyChecks(t){return ['documents','statement','references'].filter(k=>t?.checklist?.[k]).length}
 
@@ -21,7 +42,7 @@
   }
 
   function metrics(){
-    const rows=Object.values(source());
+    const rows=activeTrackRows().map(([,t])=>t);
     const tracked=rows.length;
     if(!tracked)return{tracked:0,momentum:0,ready:0,submitted:0,checks:0};
     let total=0,ready=0,submitted=0,checks=0;
@@ -54,7 +75,7 @@
     const rail=box.querySelector('.momentumRail i');
     const note=box.querySelector('small');
     if(value)value.textContent=`${m.momentum}%`;
-    if(trackedLabel)trackedLabel.textContent=`${m.tracked} tracked`;
+    if(trackedLabel)trackedLabel.textContent=`${m.tracked} active`;
     if(rail)rail.style.width=`${m.momentum}%`;
     if(note){
       note.textContent=m.tracked
