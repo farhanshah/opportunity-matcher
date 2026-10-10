@@ -2,7 +2,7 @@
   const escV36=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const previousDashboard=renderDashboard;
   const strippedProfile=p=>({...p,degreeStatus:'',degreeName:'',degreeCountry:'',graduationDate:'',graduationYear:'',workHours:0});
-  const isActive=o=>String(o?.Status||'').trim().toLowerCase()!=='closed';
+  const isActive=o=>{if(String(o?.Status||'').trim().toLowerCase()==='closed')return false;try{const d=typeof days==='function'?Number(days(o)):NaN;if(Number.isFinite(d)&&d<0)return false}catch{}return true};
   const activePool=()=>opps.filter(isActive);
 
   function evalWithProfile(profile,list=activePool()){
