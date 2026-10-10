@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v236';
+  const VERSION='v252';
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const postSubmission=new Set(['Submitted','Interview','Offer received','Unsuccessful']);
 
@@ -48,6 +48,7 @@
       #tracker .focusCard.omExpiredTrackV224 .focusAction b{color:inherit!important}
       #tracker .focusCard.omExpiredTrackV224 .focusTask{opacity:.55}
       #tracker .focusCard.omExpiredTrackV224 .focusTask input{cursor:not-allowed}
+      #tracker .focusCard.omExpiredTrackV224 .prepOpen:disabled{background:#222a35!important;border-color:#3a4554!important;color:#8f99a8!important;box-shadow:none!important;opacity:.72!important;cursor:not-allowed!important}
     `;document.head.appendChild(s);
   }
 
@@ -106,6 +107,18 @@
       if(h)h.textContent=`${active} active ${active===1?'application':'applications'}, ranked by what needs attention next.`;
       if(p)p.textContent=`Deadline pressure, stage and unfinished preparation tasks determine the order. ${expired.length} closed ${expired.length===1?'record is':'records are'} kept below for reference.`;
     }
+    const stats=[...tracker.querySelectorAll('.focusSummaryStat')];
+    if(stats.length>=3){
+      const activeCards=cards.filter(card=>!card.classList.contains('omExpiredTrackV224'));
+      const ready=activeCards.reduce((n,card)=>{
+        const row=map.get(norm(card.querySelector('.focusTitle')?.textContent||''));
+        return n+(row&&['Ready to submit','Submitted','Interview','Offer received'].includes(String(row.t?.stage||''))?1:0);
+      },0);
+      const value=stats[2].querySelector('b'),label=stats[2].querySelector('span');
+      if(value)value.textContent=String(ready);
+      if(label)label.textContent='Ready / beyond';
+    }
+
     document.documentElement.dataset.omExpiredTracker=VERSION;
   }
 
