@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='v246';
+  const VERSION='v250';
   const norm=v=>String(v||'').toLowerCase().replace(/[‐‑–—]/g,'-').replace(/\s+/g,' ').trim();
   const oppList=()=>{try{return Array.isArray(opps)?opps:[]}catch{return[]}};
   const activeStages=new Set(['Saved','Researching']);
@@ -54,7 +54,7 @@
       input.setAttribute('aria-disabled','true');
       input.title='Resolve the eligibility check in analysis first';
       const label=input.closest('label');
-      if(label)label.classList.add('omEligibilityLockedV246');
+      if(label)label.classList.add('omEligibilityLockedV250');
     });
     const open=card.querySelector('.focusOpen');
     if(open){
@@ -69,9 +69,10 @@
         open.title=failures.length?'Open analysis and review the hard eligibility blocker':'Open analysis and resolve the provider-specific eligibility check first';
       }
     }
-    card.classList.add('omEligibilityFirstV246');
+    card.classList.add('omEligibilityFirstV250');
     card.dataset.omEligibilityReviews=String(blocks.length);
     card.dataset.omEligibilityRule=primaryRule;
+    card.dataset.omEligibilityLabel=first;
     const prep=card.querySelector('.prepOpen');
     if(prep){
       prep.disabled=false;
@@ -82,11 +83,12 @@
     }
   }
   function unlockOwned(card){
-    if(!card?.classList.contains('omEligibilityFirstV246'))return;
-    card.classList.remove('omEligibilityFirstV246');
+    if(!card?.classList.contains('omEligibilityFirstV250'))return;
+    card.classList.remove('omEligibilityFirstV250');
     delete card.dataset.omEligibilityReviews;
     delete card.dataset.omEligibilityRule;
-    card.querySelectorAll('.omEligibilityLockedV246').forEach(label=>label.classList.remove('omEligibilityLockedV246'));
+    delete card.dataset.omEligibilityLabel;
+    card.querySelectorAll('.omEligibilityLockedV250').forEach(label=>label.classList.remove('omEligibilityLockedV250'));
     card.querySelectorAll('.focusTasks input[type="checkbox"]').forEach(input=>{
       input.disabled=false;input.removeAttribute('aria-disabled');input.removeAttribute('title');
     });
@@ -105,22 +107,22 @@
   if(!document.getElementById('om-eligibility-first-v230-style')){
     const s=document.createElement('style');s.id='om-eligibility-first-v230-style';
     s.textContent=`
-      #tracker .focusCard.omEligibilityFirstV246 .focusAction{border-color:rgba(255,190,92,.28)!important;background:rgba(255,190,92,.035)!important}
-      #tracker .focusCard.omEligibilityFirstV246 .focusAction span{color:#f4b65a!important}
-      #tracker .focusCard.omEligibilityFirstV246 .omEligibilityLockedV246{opacity:.48!important;cursor:not-allowed!important}
-      #tracker .focusCard.omEligibilityFirstV246 .omEligibilityLockedV246 input{cursor:not-allowed!important}
+      #tracker .focusCard.omEligibilityFirstV250 .focusAction{border-color:rgba(255,190,92,.28)!important;background:rgba(255,190,92,.035)!important}
+      #tracker .focusCard.omEligibilityFirstV250 .focusAction span{color:#f4b65a!important}
+      #tracker .focusCard.omEligibilityFirstV250 .omEligibilityLockedV250{opacity:.48!important;cursor:not-allowed!important}
+      #tracker .focusCard.omEligibilityFirstV250 .omEligibilityLockedV250 input{cursor:not-allowed!important}
     `;
     document.head.appendChild(s);
   }
   const prior=window.renderTracker;
-  if(typeof prior==='function'&&!prior.__omEligibilityFirstV246){
+  if(typeof prior==='function'&&!prior.__omEligibilityFirstV250){
     const wrapped=function(...args){const out=prior.apply(this,args);requestAnimationFrame(()=>sync());setTimeout(sync,80);return out};
-    wrapped.__omEligibilityFirstV246=true;
+    wrapped.__omEligibilityFirstV250=true;
     try{renderTracker=wrapped}catch{}
     window.renderTracker=wrapped;
   }
   document.addEventListener('click',e=>{
-    const lockedOpen=e.target.closest?.('.focusCard.omEligibilityFirstV246 .focusOpen');
+    const lockedOpen=e.target.closest?.('.focusCard.omEligibilityFirstV250 .focusOpen');
     if(lockedOpen){
       const card=lockedOpen.closest('.focusCard');
       if(card?.dataset?.omEligibilityRule==='work_hours_min'){
@@ -163,20 +165,33 @@
         setTimeout(focusResidence,30);setTimeout(focusResidence,100);setTimeout(focusResidence,220);
         return;
       }
-      const focusEvidence=()=>{
-        const section=document.querySelector('#detail .adaptiveEvidence');
-        if(!section)return false;
-        try{section.scrollIntoView({behavior:'smooth',block:'start'})}catch{section.scrollIntoView()}
-        const oldOutline=section.style.outline,oldShadow=section.style.boxShadow,oldTransition=section.style.transition;
-        section.style.transition='box-shadow .2s ease, outline-color .2s ease';
-        section.style.outline='2px solid rgba(244,182,90,.9)';
-        section.style.boxShadow='0 0 0 6px rgba(244,182,90,.12)';
-        setTimeout(()=>{section.style.outline=oldOutline;section.style.boxShadow=oldShadow;section.style.transition=oldTransition},2200);
-        const q=section.querySelector('.evidenceQuestion');
-        if(q){q.setAttribute('tabindex','-1');try{q.focus({preventScroll:true})}catch{}}
+      const focusPrimary=()=>{
+        const detail=document.querySelector('#detailInner')||document.querySelector('#detail');
+        if(!detail)return false;
+        const wanted=norm(card?.dataset?.omEligibilityLabel||'');
+        let target=null;
+        if(wanted){
+          const nodes=[...detail.querySelectorAll('b,strong,h2,h3,h4,h5,.checkTitle,.ruleTitle')];
+          const hit=nodes.find(el=>norm(el.textContent)===wanted);
+          if(hit){
+            target=hit.closest('.check,.checkRow,.ruleRow,.reasonRow,.eligibilityRow,.detailRow,li,article')||hit.parentElement||hit;
+          }
+        }
+        if(!target){
+          const section=detail.querySelector('.adaptiveEvidence');
+          if(section)target=section;
+        }
+        if(!target)return false;
+        try{target.scrollIntoView({behavior:'smooth',block:'center'})}catch{target.scrollIntoView()}
+        const oldOutline=target.style.outline,oldShadow=target.style.boxShadow,oldTransition=target.style.transition;
+        target.style.transition='box-shadow .2s ease, outline-color .2s ease';
+        target.style.outline='2px solid rgba(244,182,90,.9)';
+        target.style.boxShadow='0 0 0 6px rgba(244,182,90,.12)';
+        setTimeout(()=>{target.style.outline=oldOutline;target.style.boxShadow=oldShadow;target.style.transition=oldTransition},2200);
+        target.setAttribute('tabindex','-1');try{target.focus({preventScroll:true})}catch{}
         return true;
       };
-      setTimeout(focusEvidence,60);setTimeout(focusEvidence,180);setTimeout(focusEvidence,380);
+      setTimeout(focusPrimary,60);setTimeout(focusPrimary,180);setTimeout(focusPrimary,380);
     }
     if(e.target.closest?.('.navbtn[data-v="tracker"],.focusOpen'))setTimeout(sync,120);
   },true);
