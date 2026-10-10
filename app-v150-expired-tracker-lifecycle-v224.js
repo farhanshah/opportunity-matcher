@@ -48,7 +48,9 @@
       #tracker .focusCard.omExpiredTrackV224 .focusAction b{color:inherit!important}
       #tracker .focusCard.omExpiredTrackV224 .focusTask{opacity:.55}
       #tracker .focusCard.omExpiredTrackV224 .focusTask input{cursor:not-allowed}
-      #tracker .focusCard.omExpiredTrackV224 .prepOpen:disabled{background:#222a35!important;border-color:#3a4554!important;color:#8f99a8!important;box-shadow:none!important;opacity:.72!important;cursor:not-allowed!important}
+      #tracker .focusCard.omExpiredTrackV224 .prepOpen{background:#202936!important;border-color:#3b4655!important;color:#aab4c2!important;box-shadow:none!important;filter:none!important;transform:none!important}
+      #tracker .focusCard.omExpiredTrackV224 .prepOpen:hover{background:#273241!important;border-color:#465365!important;color:#c3ccd8!important;filter:none!important;transform:none!important}
+      #tracker .focusCard.omExpiredTrackV224 .prepOpen:disabled{opacity:.62!important;cursor:not-allowed!important}
     `;document.head.appendChild(s);
   }
 
