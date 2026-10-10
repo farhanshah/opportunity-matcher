@@ -104,13 +104,12 @@
 
   function completedChecks(){
     let total=0;
-    for(const t of Object.values(source())){
-      const s=studioState(t);
-      if(s?.sourceMode==='dedicatedPrepare'){
-        total+=Number(s.verifyDone||0);
-      }else{
-        total+=['documents','statement','references'].filter(k=>t?.checklist?.[k]).length;
-      }
+    const cards=[...document.querySelectorAll('#tracker .focusCard:not(.omExpiredTrackV224)')];
+    for(const card of cards){
+      const row=rowForCard(card);if(!row?.t)continue;
+      const s=studioState(row.t);
+      if(s?.sourceMode==='dedicatedPrepare')total+=Number(s.verifyDone||0);
+      else total+=['documents','statement','references'].filter(k=>row.t?.checklist?.[k]).length;
     }
     return total;
   }
