@@ -2,7 +2,7 @@
   const OPEN_KEY='oppAdvancedDiagnosticsV129';
   const RADAR_STYLE_ID='om-product-radar-v203-style';
   const safe=v=>typeof esc==='function'?esc(v):String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const isActive=o=>String(o?.Status||'').toLowerCase()!=='closed';
+  const isActive=o=>{if(String(o?.Status||'').toLowerCase()==='closed')return false;try{const d=typeof days==='function'?Number(days(o)):NaN;if(Number.isFinite(d)&&d<0)return false}catch{}return true};
   const beyond=new Set(['Submitted','Interview','Offer received','Unsuccessful']);
   const readyStages=new Set(['Ready to submit','Submitted','Interview','Offer received','Unsuccessful']);
   const activePre=new Set(['Saved','Researching','Preparing documents','Drafting','Ready to submit']);
@@ -25,10 +25,7 @@
   function legacyChecks(t){return ['documents','statement','references'].filter(k=>t?.checklist?.[k]).length}
   function needsPreparation(t){
     const stage=String(t?.stage||'Saved');
-    if(readyStages.has(stage))return false;
-    const s=studioState(t);
-    if(s?.sourceMode==='dedicatedPrepare')return !s.finalReady;
-    return legacyChecks(t)<3;
+    return !readyStages.has(stage);
   }
   function trackStore(){try{return (typeof tracks==='object'&&tracks)||window.tracks||{}}catch{return window.tracks||{}}}
   function oppStore(){try{return Array.isArray(opps)?opps:[]}catch{return[]}}
@@ -45,14 +42,20 @@
     }catch{}
     let tracked=0,due=0,incomplete=0,ready=0,submitted=0;
     try{
-      const byId=new Map((opps||[]).map(o=>[o.Opportunity_ID,o]));
-      const entries=Object.entries(tracks||{});tracked=entries.length;
+      const byId=new Map((opps||[]).map(o=>[String(o.Opportunity_ID),o]));
+      const entries=Object.entries(tracks||{});
       for(const [id,t] of entries){
-        const o=byId.get(id),d=o&&typeof days==='function'?days(o):99999;
-        if(d>=0&&d<=14)due++;
-        const stage=String(t?.stage||'Saved');
-        const s=studioState(t);
-        if(readyStages.has(stage)||s?.finalReady)ready++;
+        const stage=String(t?.stage||'Saved'),o=byId.get(String(id));
+        let d=o&&typeof days==='function'?Number(days(o)):NaN;
+        if(!Number.isFinite(d)){
+          const raw=String(t?.exactVacancy?.deadline||'').trim();
+          d=/^20\d{2}-\d{2}-\d{2}$/.test(raw)?dayDiff(raw):NaN;
+        }
+        const activeTrack=beyond.has(stage)||(isActive(o)&&(!Number.isFinite(d)||d>=0));
+        if(!activeTrack)continue;
+        tracked++;
+        if(Number.isFinite(d)&&d>=0&&d<=14)due++;
+        if(stage==='Ready to submit')ready++;
         if(beyond.has(stage))submitted++;
         if(needsPreparation(t))incomplete++;
       }
@@ -127,7 +130,12 @@
 
       let d=null;
       try{const n=o&&typeof days==='function'?Number(days(o)):NaN;d=Number.isFinite(n)?n:null}catch{}
-      const ready=stage==='Ready to submit'||Boolean(studioState(t)?.finalReady);
+      if(d==null){
+        const raw=String(exact?.deadline||'').trim();
+        if(/^20\d{2}-\d{2}-\d{2}$/.test(raw))d=dayDiff(raw);
+      }
+      if((o&&!isActive(o))||(d!=null&&d<0))continue;
+      const ready=stage==='Ready to submit';
       if(d!=null&&d<=45){
         push({type:'deadline',icon:ready?'↗':'◷',eyebrow:ready?'Ready to submit':'Provider deadline',headline:ready?'Application pack is ready':stage==='Saved'?'Preparation has not started':'Finish preparation before the deadline',detail:d<0?`Provider deadline passed ${Math.abs(d)}d ago`:d===0?'Provider deadline today':`Provider deadline in ${d}d`,days:d,kind:'dated'});
       }else if(ready){
