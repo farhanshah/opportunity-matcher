@@ -6,6 +6,21 @@
 
   function tracksStore(){try{return (typeof tracks==='object'&&tracks)||window.tracks||{}}catch{return window.tracks||{}}}
   function oppStore(){try{return Array.isArray(opps)?opps:[]}catch{return[]}}
+  function trackDays(t,o){
+    try{const n=o&&typeof days==='function'?Number(days(o)):NaN;if(Number.isFinite(n))return n}catch{}
+    const raw=String(t?.exactVacancy?.deadline||'').trim();
+    if(/^20\d{2}-\d{2}-\d{2}$/.test(raw)){
+      const now=new Date(),off=now.getTimezoneOffset(),today=new Date(now.getTime()-off*60000).toISOString().slice(0,10);
+      const a=new Date(`${today}T12:00:00`),b=new Date(`${raw}T12:00:00`);
+      if(Number.isFinite(b.getTime()))return Math.round((b-a)/864e5);
+    }
+    return null;
+  }
+  function preSubmissionOpen(t,o){
+    if(o&&String(o?.Status||'').toLowerCase()==='closed')return false;
+    const d=trackDays(t,o);
+    return d==null||d>=0;
+  }
   function studioState(t){try{return window.OpportunityStudioTruth?.getState?.(t)||null}catch{return null}}
   function radarRows(){try{const r=window.OpportunityProductUX?.radarRows?.();return Array.isArray(r)?r:[]}catch{return[]}}
   function countState(){try{return window.OpportunityProductUX?.countState?.()||{}}catch{return{}}}
@@ -90,10 +105,10 @@
       const stage=String(t?.stage||'Saved');
       if(!activeStages.has(stage))continue;
       const s=studioState(t);
-      if(stage==='Ready to submit'||s?.finalReady)continue;
+      if(stage==='Ready to submit')continue;
       const m=trackMeta(id,t);
-      let d=null;
-      try{const n=m.o&&typeof days==='function'?Number(days(m.o)):NaN;if(Number.isFinite(n))d=n}catch{}
+      if(!preSubmissionOpen(t,m.o))continue;
+      const d=trackDays(t,m.o);
       candidates.push({...m,t,stage,days:d,progress:Number(s?.progress||0)});
     }
     candidates.sort((a,b)=>(a.days??99999)-(b.days??99999)||b.progress-a.progress||String(a.title).localeCompare(String(b.title)));
@@ -106,6 +121,7 @@
     try{
       for(const o of oppStore()){
         if(String(o?.Status||'').toLowerCase()==='closed'||trackedIds.has(String(o?.Opportunity_ID)))continue;
+        try{const d=typeof days==='function'?Number(days(o)):NaN;if(Number.isFinite(d)&&d<0)continue}catch{}
         const ev=typeof evaluate==='function'?evaluate(o):null;
         if(!ev||ev.cls==='ineligible')continue;
         rows.push({o,ev});
