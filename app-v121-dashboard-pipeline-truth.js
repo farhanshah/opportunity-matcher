@@ -24,8 +24,8 @@
         const stage=stageOf(t),s=studioState(t);
         if(['Offer received','Unsuccessful'].includes(stage)){g.Outcome++;return}
         if(['Submitted','Interview'].includes(stage)){g['Submitted +']++;return}
-        if(stage==='Ready to submit'||s?.finalReady){g.Ready++;return}
-        if(['Preparing documents','Drafting'].includes(stage)||(s?.sourceMode==='dedicatedPrepare'&&Number(s?.progress||0)>0)){g.Preparing++;return}
+        if(stage==='Ready to submit'){g.Ready++;return}
+        if(['Preparing documents','Drafting'].includes(stage)||(stage==='Researching'&&s?.sourceMode==='dedicatedPrepare'&&Number(s?.progress||0)>0)){g.Preparing++;return}
         g.Shortlist++;
       });
     }catch{}
