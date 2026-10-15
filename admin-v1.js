@@ -67,16 +67,40 @@
     $('partialRows').innerHTML=rows.length?rows.map(x=>`<div class="tableRow partialsGrid"><div class="partialIdentity"><b>${esc(x.title)}</b><span>${esc(x.external_id)} · ${esc(x.provider)}</span></div><div><span class="statusBadge">${esc(x.status||'—')}</span></div><div class="tableMeta">${Number(x.rule_count||0)}</div><div>${Number(x.uncertain_rules||0)?`<span class="countBadge">${x.uncertain_rules}</span>`:'<span class="tableMeta">0</span>'}</div><div>${Number(x.route_blockers||0)?`<span class="countBadge">${x.route_blockers}</span>`:'<span class="tableMeta">—</span>'}</div><a class="rowLink" href="${esc(x.official_source_url||'#')}" ${x.official_source_url?'target="_blank" rel="noopener"':''}>↗</a></div>`).join(''):`<div class="emptyState"><strong>No partial records match this view.</strong><p>Try another filter or search term.</p></div>`;
   }
 
+  function evidencePreview(x) {
+    const samples=x.evidence_preview||{};
+    const before=samples.previous||{}, after=samples.current||{};
+    const fields=[...new Set(String(x.field_name||x.change_type||'').split(/[,+]/).map(v=>v.trim()).filter(Boolean))];
+    const toText=value=>Array.isArray(value)?value.join(' | '):String(value??'No extracted evidence');
+    const groups=fields.filter(field=>['dates','application','eligibility','funding'].includes(field));
+    if(!groups.length)return '';
+    return `<details class="reviewEvidence"><summary>View official-source before / after evidence</summary>
+      <div class="reviewEvidenceGrid">${groups.map(field=>`<div class="evidenceGroup"><b>${esc(field)}</b><div><small>Previous</small><p>${esc(toText(before[field]).slice(0,430))}</p></div><div><small>Current</small><p>${esc(toText(after[field]).slice(0,430))}</p></div></div>`).join('')}</div>
+      <p class="evidenceNotice">Extracted page text is not proof of a changed application rule. Only independently supported facts can update the published record.</p>
+    </details>`;
+  }
   function renderReviews(){
-    const rows=[...(state.data.changes||[])];const pending=rows.filter(x=>x.status==='pending_review');const resolved=rows.filter(x=>x.status!=='pending_review');const list=[...pending,...resolved].slice(0,100);
-    const summary=state.data.summary||{};
-    const grouped=Number(summary.pending_review_groups??pending.length);
-    const outstanding=Number(summary.pending_review??0);
-    const highRisk=Number(summary.high_risk_pending??0);
-    const countNote=`${outstanding} pending events in ${grouped} review groups · ${highRisk} high-risk events. Reviewing a card handles only that individual event.`;
-    const summaryEl=$('reviewSummary');if(summaryEl)summaryEl.textContent=countNote;
-    if(!list.length){$('reviewQueue').innerHTML=`<div class="emptyState"><strong>No source changes are waiting for review.</strong><p>The baseline is quiet. When the monitor detects a meaningful deadline, country or eligibility shift, it will appear here before high-impact data changes silently.</p></div>`;return}
-    $('reviewQueue').innerHTML=list.map(x=>`<article class="reviewCard"><div><div class="reviewTop"><span class="reviewRisk ${esc(x.risk_level||'medium')}">${esc(x.risk_level||'review')}</span><span class="reviewDate">${ago(x.detected_at)} · ${esc(x.provider)}</span></div><h3>${esc(x.opportunity_title||x.source_key||'Source change')}</h3><p>${esc(x.diff_summary||`${x.change_type||'Change'} detected in ${x.field_name||'source evidence'}.`)}</p>${Number(x.related_events||1)>1?`<p class="reviewGroupHint">${Number(x.related_events)} pending alerts of this type. This card shows the latest event; older alerts remain available for individual review.</p>`:''}</div><div class="reviewActions">${x.status==='pending_review'?`<button onclick="window.Ops.review('${esc(x.id)}','investigate')">Keep investigating</button><button onclick="window.Ops.review('${esc(x.id)}','ignore')">Ignore</button><button class="approve" onclick="window.Ops.review('${esc(x.id)}','approve')">Mark this reviewed</button>`:`<span class="statusBadge">${esc(x.status)}</span>`}<a class="rowLink" href="${esc(x.source_url||'#')}" target="_blank" rel="noopener">↗</a></div></article>`).join('');
+    const rows=[...(state.data.changes||[])];
+    const pending=rows.filter(x=>x.status==='pending_review');
+    const resolved=rows.filter(x=>x.status!=='pending_review');
+    const list=[...pending,...resolved].slice(0,100);
+    const s=state.data.summary||{};
+    const grouped=Number(s.pending_review_groups??pending.length);
+    const outstanding=Number(s.pending_review??0);
+    const highRisk=Number(s.high_risk_pending??0);
+    const summaryEl=$('reviewSummary');
+    if(summaryEl)summaryEl.textContent=outstanding+' historical events in '+grouped+' evidence groups · '+highRisk+' high-risk events. Automated publishing never uses unresolved page-change alerts.';
+    if(!list.length){$('reviewQueue').innerHTML='<div class="emptyState">No evidence alerts are awaiting re-verification.</div>';return}
+    $('reviewQueue').innerHTML=list.map(x=>{
+      const title=x.opportunity_title||String(x.source_key||'Official provider').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      return `<article class="reviewCard"><div><div class="reviewTop"><span class="reviewRisk ${esc(x.risk_level||'medium')}">${esc(x.risk_level||'review')}</span><span class="reviewDate">${ago(x.detected_at)} · ${esc(x.provider)}</span></div>
+        <h3>${esc(title)}</h3><p>${esc(x.diff_summary||x.change_type||'Source text changed')}</p>
+        ${Number(x.related_events||1)>1?`<p class="reviewGroupHint">${Number(x.related_events)} related events. Original history is preserved.</p>`:''}
+        ${evidencePreview(x)}</div>
+        <div class="reviewActions"><span class="statusBadge">${x.status==='pending_review'?'Held for automatic verification':esc(x.status)}</span>
+          <a class="rowLink" href="${esc(x.source_url||'#')}" target="_blank" rel="noopener noreferrer" title="Official provider page">↗</a></div>
+      </article>`;
+    }).join('');
   }
 
   async function review(id,action){
