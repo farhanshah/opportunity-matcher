@@ -28,7 +28,7 @@
       <nav class="opsNav">
         <button class="opsNavBtn active" data-view="overview"><span>⌁</span>Overview</button>
         <button class="opsNavBtn" data-view="sources"><span>◉</span>Sources <em id="navSourceCount">—</em></button>
-        <button class="opsNavBtn" data-view="reviews"><span>◇</span>Review queue <em id="navReviewCount">0</em></button>
+        <button class="opsNavBtn" data-view="reviews"><span>◇</span>Source alerts <em id="navReviewCount">0</em></button>
         <button class="opsNavBtn" data-view="partials"><span>◐</span>Partial records <em id="navPartialCount">—</em></button>
       </nav>
       <div class="sideStatus">
@@ -66,7 +66,7 @@
       </section>
 
       <section id="view-reviews" class="view">
-        <div class="reviewIntro"><div><span class="panelEyebrow">Human-in-the-loop</span><h2>Nothing high-impact changes silently.</h2><p>Changes remain reviewable before affecting matching. Repeated alerts are grouped for triage, with original events preserved.</p><p id="reviewSummary" class="reviewSummary">Loading review groups…</p></div><div class="reviewLegend"><span><i class="riskDot high"></i>high</span><span><i class="riskDot medium"></i>medium</span><span><i class="riskDot low"></i>low</span></div></div>
+        <div class="reviewIntro"><div><span class="panelEyebrow">Automated evidence safeguards</span><h2>Unverified changes stay off the public database.</h2><p>Changes remain reviewable before affecting matching. Changes lacking decisive evidence remain held automatically. Repeated alerts are grouped, and the original records remain available.</p><p id="reviewSummary" class="reviewSummary">Loading review groups…</p></div><div class="reviewLegend"><span><i class="riskDot high"></i>high</span><span><i class="riskDot medium"></i>medium</span><span><i class="riskDot low"></i>low</span></div></div>
         <div id="reviewQueue" class="reviewQueue"></div>
       </section>
 
