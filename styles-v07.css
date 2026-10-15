@@ -65,3 +65,7 @@
   .guideCard{min-height:0}
   .footerLinks{justify-content:flex-start;text-align:left}
 }
+
+/* Verified-source transparency for older catalogue records. */
+.sourceFreshnessWarning{font-size:10px;line-height:1.45;color:#8b620e;background:rgba(255,193,69,.12);border:1px solid rgba(255,193,69,.25);border-radius:9px;padding:7px 9px;margin:7px 0 12px;overflow-wrap:anywhere}
+body.dark .sourceFreshnessWarning,body[data-theme="dark"] .sourceFreshnessWarning{color:#ffd987}
