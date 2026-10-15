@@ -110,6 +110,80 @@ async function google(){
   }
 }
 
+
+function showPostSignInOnboarding(user, passportRow={}){
+  if(!passportId || !user)return;
+  const p=state.getProfile()||{};
+  if(passportRow.onboarding_completed_at && p.nat && p.edu && p.field)return;
+  const card=document.getElementById('cloudAuthCard');
+  if(!card)return;
+  const options=id=>document.getElementById(id)?.innerHTML||'<option value="">Select</option>';
+  const storedName=passportRow.full_name||user.name||'';
+  card.innerHTML=`
+    <button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button>
+    <div class="cloudEy">Opportunity Passport · One-time setup</div>
+    <h2>Make your matches personal.</h2>
+    <p class="cloudLead">Your sign-in provides your name and email only. Tell us the remaining details needed for eligibility matching. You can edit these later.</p>
+    <div class="cloudIdentity"><span>Account email</span><b>${html(user.email||'')}</b></div>
+    <form id="cloudCompleteForm" class="cloudCompleteForm">
+      <div class="cloudField"><label for="cloudFullName">Full name</label><input id="cloudFullName" maxlength="120" autocomplete="name" value="${html(storedName)}"></div>
+      <div class="cloudField"><label for="cloudProfileNat">Nationality *</label><select id="cloudProfileNat" required>${options('obNat')}</select></div>
+      <div class="cloudField"><label for="cloudProfileResidence">Country of residence</label><select id="cloudProfileResidence">${options('obResidence')}</select></div>
+      <div class="cloudField"><label for="cloudProfileEducation">Education level *</label><select id="cloudProfileEducation" required>${options('obEdu')}</select></div>
+      <div class="cloudField"><label for="cloudProfileField">Field of study *</label><select id="cloudProfileField" required>${options('obField')}</select></div>
+      <div class="cloudField"><label for="cloudUniversityName">University or institution</label><input id="cloudUniversityName" maxlength="180" autocomplete="organization" placeholder="e.g. Teesside University" value="${html(passportRow.university_name||'')}"></div>
+      <div class="cloudField"><label for="cloudDegreeName">Degree or qualification</label><input id="cloudDegreeName" maxlength="140" placeholder="e.g. BA Business Management" value="${html(passportRow.degree_name||'')}"></div>
+      <div class="cloudField"><label for="cloudProfileAge">Age (optional)</label><input id="cloudProfileAge" type="number" min="14" max="99" value="${html(p.age??'')}"></div>
+      <div class="cloudField"><label for="cloudProfileGpa">GPA / CGPA (optional)</label><input id="cloudProfileGpa" type="number" min="0" max="10" step=".01" value="${html(p.gpa??'')}"></div>
+      <label class="cloudConsent"><input id="cloudMarketingConsent" type="checkbox" ${passportRow.marketing_opt_in?'checked':''}><span>Email me optional opportunity alerts and updates. I can unsubscribe at any time. This is separate from account/security emails.</span></label>
+      <div id="cloudProfileFeedback" role="status" aria-live="polite"></div>
+      <button class="cloudSubmit" type="submit">Save Passport and continue</button>
+      <button class="cloudSkip" type="button" onclick="window.OpportunityCloud.closeAuth()">Finish later</button>
+    </form>`;
+  const values={
+    cloudProfileNat:p.nat||'',cloudProfileResidence:p.residence||'',
+    cloudProfileEducation:p.edu||'',cloudProfileField:p.field||''
+  };
+  for(const [id,value] of Object.entries(values)){const input=document.getElementById(id);if(input)input.value=value}
+  card.querySelector('#cloudCompleteForm')?.addEventListener('submit',event=>{
+    event.preventDefault();
+    savePostSignInOnboarding(passportRow).catch(e=>{
+      const notice=document.getElementById('cloudProfileFeedback');
+      if(notice)notice.textContent=e.message||'Unable to save. Please try again.';
+    });
+  });
+  document.getElementById('cloudAuthModal')?.classList.remove('hide');
+}
+async function savePostSignInOnboarding(prior={}){
+  if(!session?.user||!passportId)throw new Error('Sign in to save your Passport.');
+  const value=id=>document.getElementById(id)?.value?.trim()||'';
+  const nat=value('cloudProfileNat'),residence=value('cloudProfileResidence');
+  const edu=value('cloudProfileEducation'),field=value('cloudProfileField');
+  if(!nat||!edu||!field)throw new Error('Nationality, education and field are required.');
+  const name=value('cloudFullName').slice(0,120);
+  const university=value('cloudUniversityName').slice(0,180);
+  const degree=value('cloudDegreeName').slice(0,140);
+  const age=value('cloudProfileAge'),gpa=value('cloudProfileGpa');
+  const consent=Boolean(document.getElementById('cloudMarketingConsent')?.checked);
+  const button=document.querySelector('#cloudCompleteForm .cloudSubmit');
+  if(button){button.disabled=true;button.textContent='Saving securely…'}
+  try{
+    const payload={
+      nationality:nat,education_level:edu,field_of_study:field,
+      country_of_residence:residence||null,full_name:name||null,
+      university_name:university||null,degree_name:degree||null,
+      age:age?Number(age):null,gpa:gpa?Number(gpa):null,
+      marketing_opt_in:consent,
+      marketing_opt_in_at:consent?(prior.marketing_opt_in_at||new Date().toISOString()):null,
+      onboarding_completed_at:new Date().toISOString()
+    };
+    await query(client.from('user_passports').update(payload).eq('auth_user_id',session.user.id));
+    const current=state.getProfile()||{};
+    state.setProfile({...current,nat,residence,edu,field,age:age?Number(age):'',gpa:gpa?Number(gpa):''});
+    state.render();closeAuth();toast('Passport saved','Your matching profile is now connected to your account.');
+    renderAuth();
+  }finally{if(button){button.disabled=false;button.textContent='Save Passport and continue'}}
+}
 async function waitForOpportunityIds(){
   for(let i=0;i<40;i++){const list=state.getOpps();if(list.length&&list.some(o=>o.Database_ID))return list;await sleep(125)}
   try{const r=await fetch('/api/opportunities?cloud='+Date.now(),{cache:'no-store'});const j=await r.json();const map=new Map((j.opportunities||[]).map(o=>[o.Opportunity_ID,o.Database_ID]));state.getOpps().forEach(o=>{if(!o.Database_ID)o.Database_ID=map.get(o.Opportunity_ID)||''});}catch{}
@@ -121,12 +195,13 @@ function rowToProfile(row){return{nat:row.nationality||'',residence:row.country_
 async function query(builder){const result=await builder;if(result?.error)throw new Error(result.error.message||String(result.error));return result?.data??[]}
 
 async function bootstrapCloud(user){
+  let postSignInRow=null;
   ready=false;updateAccountUI();setCloudStatus('Connecting…','syncing');await waitForOpportunityIds();
   try{
     const rows=await query(client.from('user_passports').select('*').eq('auth_user_id',user.id).limit(1));
-    if(rows?.length){passportId=rows[0].id;await loadCloudState(rows[0]);toast('Workspace restored','Your cloud Passport, shortlist and tracker are loaded on this device.')}
-    else{const local=state.getProfile();const created=await query(client.from('user_passports').insert(profileInsertPayload(local,user)).select('*'));if(!created?.length)throw new Error('Could not create your cloud Passport.');passportId=created[0].id;await importLocalChildren();toast('Browser workspace imported','Your existing Passport, saves and tracker are now attached to your account.')}
-    ready=true;sessionState='signedin';updateAccountUI();setCloudStatus('Cloud synced','ok');state.render();renderAuth();
+    if(rows?.length){postSignInRow=rows[0];passportId=rows[0].id;await loadCloudState(rows[0]);toast('Workspace restored','Your cloud Passport, shortlist and tracker are loaded on this device.')}
+    else{const local=state.getProfile();const created=await query(client.from('user_passports').insert(profileInsertPayload(local,user)).select('*'));if(!created?.length)throw new Error('Could not create your cloud Passport.');passportId=created[0].id;postSignInRow=created[0];await importLocalChildren();toast('Browser workspace imported','Your existing Passport, saves and tracker are now attached to your account.')}
+    ready=true;sessionState='signedin';updateAccountUI();setCloudStatus('Cloud synced','ok');state.render();renderAuth();showPostSignInOnboarding(user,postSignInRow||{});
   }catch(e){console.error('Cloud bootstrap failed',e);setCloudStatus('Sync issue','error');toast('Cloud sync needs attention',e.message||'Please try signing in again.')}
 }
 async function loadCloudState(passportRow){
@@ -181,7 +256,7 @@ async function refreshSession(bootstrap=false){
   return null;
 }
 
-window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,signOut,syncNow,retrySession:()=>refreshSession(true)};
+window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,signOut,syncNow,completePassport:()=>showPostSignInOnboarding(session?.user,{}),retrySession:()=>refreshSession(true)};
 window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
 await refreshSession(true);
