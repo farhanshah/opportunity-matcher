@@ -118,13 +118,40 @@ async function publish(sql,source,url,result) {
         opportunity_id,rule_code,rule_label,operator,value_json,hard_rule,certainty,
         source_url,source_note,last_verified_at
       )
-      SELECT upserted.id,'country_scope','Nationality eligibility','in',
+      SELECT upserted.id,'country_scope','Nationality eligibility','country_scope',
         ${JSON.stringify({scope:'worldwide',countries:[]})}::jsonb,true,'confirmed',${url},
         'Explicit worldwide eligibility in official programme structured data',now()
       FROM upserted
       WHERE NOT EXISTS (
         SELECT 1 FROM opportunity_eligibility_rules r
         WHERE r.opportunity_id=upserted.id AND r.rule_code='country_scope'
+      )
+      RETURNING id
+    ), ensured_education AS (
+      INSERT INTO opportunity_eligibility_rules(
+        opportunity_id,rule_code,rule_label,operator,value_json,hard_rule,certainty,
+        source_url,source_note,last_verified_at
+      )
+      SELECT upserted.id,'education','Minimum academic qualification','one_of',
+        ${JSON.stringify({values:[r.education[0]==="Bachelor's degree" ? 'bachelor_completed' : r.education[0]==="Master's degree" ? 'masters_graduate' : 'secondary_school']})}::jsonb,
+        true,'confirmed',${url},'Explicit degree requirement on official programme page',now()
+      FROM upserted
+      WHERE NOT EXISTS (
+        SELECT 1 FROM opportunity_eligibility_rules rr
+        WHERE rr.opportunity_id=upserted.id AND rr.rule_code='education'
+      )
+      RETURNING id
+    ), ensured_field AS (
+      INSERT INTO opportunity_eligibility_rules(
+        opportunity_id,rule_code,rule_label,operator,value_json,hard_rule,certainty,
+        source_url,source_note,last_verified_at
+      )
+      SELECT upserted.id,'field','Field of study','not_applicable','{}'::jsonb,
+        false,'confirmed',${url},'Provider explicitly permits all fields',now()
+      FROM upserted
+      WHERE NOT EXISTS (
+        SELECT 1 FROM opportunity_eligibility_rules rr
+        WHERE rr.opportunity_id=upserted.id AND rr.rule_code='field'
       )
       RETURNING id
     ), source_registered AS (
