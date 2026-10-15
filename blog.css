@@ -53,7 +53,7 @@ a{color:inherit;text-decoration:none}
   border-top:1px solid rgba(255,255,255,.06);
   background:radial-gradient(circle at 77% 15%,rgba(116,88,255,.22),transparent 28%),#0b1017;
 }
-.blogHeroInner{max-width:var(--max);margin:auto;padding:88px 24px 76px}
+.blogHeroInner{max-width:var(--max);margin:auto;padding:64px 24px 58px}
 .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.15em;font-weight:900;color:#9b8cff}
 .blogHero h1,.articleHero h1{
   margin:12px 0 20px;
@@ -89,6 +89,7 @@ a{color:inherit;text-decoration:none}
   margin-top:32px;padding:22px 24px;border-radius:20px;
   background:#121823;border:1px solid var(--line);color:#aeb5c2;font-size:14px;line-height:1.7;
 }
+.blogNote a{color:#fff;text-decoration:underline;text-decoration-color:rgba(255,255,255,.25);text-underline-offset:3px}
 .blogFooter{
   max-width:var(--max);margin:auto;padding:34px 24px 50px;
   border-top:1px solid var(--line);color:#7f8794;font-size:12px;
@@ -101,6 +102,7 @@ a{color:inherit;text-decoration:none}
 }
 .articleHero h1{font-size:clamp(42px,5.4vw,68px)}
 .articleInfo{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;color:#8f97a5;font-size:12px}
+.articleInfo a{color:#c7ccd5;text-decoration:underline;text-decoration-color:rgba(199,204,213,.32);text-underline-offset:3px}
 .articleLayout{
   max-width:var(--max);margin:auto;padding:24px 24px 100px;
   display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:46px;align-items:start;
@@ -158,7 +160,7 @@ a{color:inherit;text-decoration:none}
 @media(max-width:700px){
   .blogNav{min-height:70px}
   .blogNavLinks{display:none}
-  .blogHeroInner{padding:62px 18px 54px}
+  .blogHeroInner{padding:46px 18px 42px}
   .blogHero h1,.articleHero h1{font-size:43px}
   .blogHero p,.articleDeck{font-size:16px}
   .blogMain{padding:48px 18px 72px}
