@@ -6,6 +6,8 @@ on:
       - 'lib/auto-discovery.js'
       - 'api/discover.js'
       - 'api/reverify.js'
+      - 'lib/exact-ingest.js'
+      - 'tests/exact-ingest.test.mjs'
       - 'tests/auto-discovery.test.mjs'
       - '.github/workflows/discovery-safety.yml'
   workflow_dispatch:
@@ -22,5 +24,6 @@ jobs:
           node --check lib/auto-discovery.js
           node --check api/discover.js
           node --check api/reverify.js
+          node --check lib/exact-ingest.js
       - name: Automated verifier tests
-        run: node --test tests/auto-discovery.test.mjs
+        run: node --test tests/auto-discovery.test.mjs tests/exact-ingest.test.mjs
