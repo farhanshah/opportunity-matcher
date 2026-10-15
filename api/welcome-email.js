@@ -1,63 +1,7 @@
 import { db } from '../lib/db.js';
 
-import { welcomeMessage } from '../lib/welcome-content.js';
+import { sendWelcome } from '../lib/welcome-delivery.js';
 
-async function reserve(sql,row){
-  const [entry]=await sql`
-    INSERT INTO account_welcome_emails(auth_user_id,email_address,status)
-    VALUES(${row.id},${row.email},'queued')
-    ON CONFLICT(auth_user_id) DO NOTHING RETURNING auth_user_id
-  `;
-  // Claim a queued or retryable delivery. The idempotency key protects
-  // against duplicate sends if a function crashes after the provider accepts.
-  const [claimed]=await sql`
-    UPDATE account_welcome_emails
-    SET status='sending',attempts=attempts+1,last_attempt_at=now()
-    WHERE auth_user_id=${row.id} AND sent_at IS NULL
-      AND attempts<6
-      AND (status IN ('queued','failed') OR
-        (status='sending' AND last_attempt_at<now()-interval '15 minutes'))
-      AND next_attempt_at<=now()
-    RETURNING attempts
-  `;
-  return claimed||null;
-}
-async function sendWelcome(sql,row,key,from) {
-  const delivery=await reserve(sql,row);
-  if(!delivery)return 'already_handled';
-  const message=welcomeMessage(row.name);
-  try{
-    const response=await fetch('https://api.resend.com/emails',{
-      method:'POST',
-      signal:AbortSignal.timeout(12000),
-      headers:{
-        'Authorization':'Bearer '+key,
-        'Content-Type':'application/json',
-        'Idempotency-Key':'oppmatcher-welcome-'+row.id
-      },
-      body:JSON.stringify({
-        from,to:[row.email],subject:message.subject,html:message.html
-      })
-    });
-    const payload=await response.json().catch(()=>({}));
-    if(!response.ok||!payload.id)throw Error('Mail provider HTTP '+response.status);
-    await sql`
-      UPDATE account_welcome_emails SET status='sent',sent_at=now(),
-        provider_message_id=${String(payload.id)},last_error=NULL
-      WHERE auth_user_id=${row.id}
-    `;
-    return 'sent';
-  }catch(error){
-    const attempt=delivery.attempts;
-    await sql`
-      UPDATE account_welcome_emails SET status='failed',
-        last_error=${String(error.message||error).slice(0,250)},
-        next_attempt_at=now()+ (${Math.min(24,Math.pow(2,attempt))}*interval '1 hour')
-      WHERE auth_user_id=${row.id} AND sent_at IS NULL
-    `;
-    return 'failed';
-  }
-}
 export default async function handler(req,res){
   if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});
   if(!process.env.CRON_SECRET ||
@@ -75,7 +19,7 @@ export default async function handler(req,res){
     const sql=db();
     // Unverified addresses must not receive automated account messages.
     const users=await sql`
-      SELECT u.id,u.name,u.email
+      SELECT u.id,u.name,u.email,u."emailVerified",u.banned
       FROM neon_auth."user" u
       LEFT JOIN account_welcome_emails w ON w.auth_user_id=u.id
       WHERE u."emailVerified"=TRUE
