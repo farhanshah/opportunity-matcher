@@ -17,3 +17,60 @@
 
 .cloudVerifyNotice{font-size:12px;line-height:1.5;margin:14px 0;padding:10px 12px;color:#755407;background:rgba(248,196,67,.12);border:1px solid rgba(185,142,26,.25);border-radius:10px}
 .cloudVerifyNotice button{color:#4423a1;border:none;background:transparent;text-decoration:underline;cursor:pointer;font-size:12px;padding:0 3px}
+
+/* v272 · compact, scroll-safe Google onboarding — overrides premium modal theme */
+.cloudModal:has(.cloudCompleteForm){overflow-y:auto;overscroll-behavior:contain}
+.cloudAuthCard:has(.cloudCompleteForm){
+  display:flex;flex-direction:column;
+  max-height:calc(100dvh - 36px);min-height:0;overflow:hidden;
+}
+.cloudAuthCard:has(.cloudCompleteForm) .cloudEy,
+.cloudAuthCard:has(.cloudCompleteForm) h2,
+.cloudAuthCard:has(.cloudCompleteForm) .cloudLead,
+.cloudAuthCard:has(.cloudCompleteForm) .cloudIdentity{flex:none;position:relative;z-index:1}
+.cloudAuthCard .cloudCompleteForm{
+  flex:1;min-height:0;max-height:none;
+  overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;scrollbar-color:#626a79 transparent;
+  overscroll-behavior:contain;
+  padding:4px 8px 3px 0;
+  gap:12px;align-content:start;
+  grid-auto-rows:max-content;
+}
+.cloudAuthCard .cloudCompleteForm .cloudField label{font-size:9px;color:#b6becb;letter-spacing:.07em}
+.cloudAuthCard .cloudCompleteForm .cloudField input,
+.cloudAuthCard .cloudCompleteForm .cloudField select{
+  background:#1d2430;color:#f5f7fb;border:1px solid #495265;
+  font-size:12px;min-height:43px;
+}
+.cloudAuthCard .cloudCompleteForm .cloudField input::placeholder{color:#a3adbc;opacity:1}
+.cloudAuthCard .cloudCompleteForm .cloudField input:focus,
+.cloudAuthCard .cloudCompleteForm .cloudField select:focus{
+  border-color:#d7ff5f;outline:2px solid rgba(215,255,95,.2);outline-offset:0;
+}
+.cloudAuthCard .cloudConsent{display:flex;align-items:flex-start;gap:10px;margin:8px 0 2px;color:#d6dce7;font-size:12px;line-height:1.55;cursor:pointer}
+.cloudAuthCard .cloudConsent span{color:#d6dce7;opacity:1}
+.cloudAuthCard .cloudConsent input{width:16px;height:16px;flex:0 0 16px;accent-color:#d7ff5f;cursor:pointer}
+.cloudAuthCard .cloudCompleteActions{
+  grid-column:1/-1;position:sticky;bottom:0;z-index:5;
+  display:grid;gap:3px;
+  margin:4px -8px -3px 0;padding:13px 8px 9px 0;
+  background:linear-gradient(180deg,rgba(25,30,41,.95),#191e29 30%);
+  border-top:1px solid rgba(255,255,255,.11)
+}
+.cloudAuthCard .cloudCompleteActions .cloudSubmit{
+  display:block;width:100%;min-height:46px;margin:0;padding:12px 14px;
+  font-size:12px;font-weight:900;color:#12171d;
+  background:#d7ff5f;border:0;border-radius:12px;
+}
+.cloudAuthCard .cloudCompleteActions .cloudSkip{
+  display:block;color:#c6cedd;font-size:12px;min-height:33px;
+}
+.cloudAuthCard .cloudCompleteForm #cloudProfileFeedback:not(:empty){
+  padding:8px 10px;border-radius:8px;background:rgba(193,63,75,.12);color:#ffafb5
+}
+@media(max-width:550px){
+  .cloudAuthCard:has(.cloudCompleteForm){max-height:calc(100dvh - 20px);padding:22px 18px}
+  .cloudAuthCard .cloudCompleteForm{grid-template-columns:minmax(0,1fr)}
+  .cloudAuthCard:has(.cloudCompleteForm) h2{font-size:28px}
+}
