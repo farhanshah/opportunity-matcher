@@ -87,7 +87,28 @@ async function emailSubmit(){
     else feedback(mode==='signup'?'Account created. If verification is required, check your email, then sign in.':'Sign-in needs one more step. Please try again.');
   }catch(e){feedback(e.message||'Authentication failed.',true)}finally{if(btn){btn.disabled=false;btn.textContent=mode==='signin'?'Sign in':'Create account'}}
 }
-async function google(){try{unwrap(await client.auth.signIn.social({provider:'google',callbackURL:window.location.origin+window.location.pathname}))}catch(e){feedback(e.message||'Google sign-in could not start.',true)}}
+async function google(){
+  const button=document.querySelector('.cloudGoogle');
+  if(button){button.disabled=true;button.textContent='Opening Google…'}
+  try{
+    const response=await client.auth.signIn.social({
+      provider:'google',callbackURL:window.location.origin+'/',
+      errorCallbackURL:window.location.origin+'/',
+      disableRedirect:true
+    });
+    const payload=unwrap(response);
+    const url=payload?.url||response?.url;
+    if(!url)throw new Error('Google did not return a sign-in page.');
+    const target=new URL(url);
+    if(target.protocol!=='https:'||
+       !['accounts.google.com','www.google.com',new URL(AUTH_URL).hostname].includes(target.hostname))
+      throw new Error('Unexpected Google sign-in destination.');
+    window.location.assign(target.href);
+  }catch(e){
+    feedback('Google sign-in could not start: '+(e.message||'Unknown error')+'. Email sign-in is still available.',true);
+    if(button){button.disabled=false;button.innerHTML='<i>G</i>Continue with Google'}
+  }
+}
 
 async function waitForOpportunityIds(){
   for(let i=0;i<40;i++){const list=state.getOpps();if(list.length&&list.some(o=>o.Database_ID))return list;await sleep(125)}
