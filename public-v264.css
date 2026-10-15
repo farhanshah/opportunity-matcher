@@ -19,3 +19,9 @@
   .landing .engine .section,
   .landing #how.section{padding-top:64px;padding-bottom:64px}
 }
+
+/* Better featured-opportunity notes and prerequisite warnings */
+.landing .liveCard .statusPill.needsCheck{background:#fff3d5;color:#775209}
+.landing .liveCard .liveReason{min-height:87px}
+.landing .liveCard .liveBottom{gap:8px 12px;flex-wrap:wrap}
+.landing .liveCard .liveBottom>span{overflow-wrap:anywhere}
