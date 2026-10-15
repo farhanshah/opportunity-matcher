@@ -22,8 +22,8 @@ async function loadData(){
 }
 function updateStats(){
   const activeOpen=opps.filter(o=>publicActive(o)&&String(o.Status||'').toLowerCase()==='open').length;
-  $('statOpps').textContent=opps.length||'—';
-  $('statOpen').textContent=activeOpen||'—';
-  $('engOpps').textContent=opps.length||'—'
+  $('statOpps').textContent=opps.length||'0';
+  $('statOpen').textContent=activeOpen||'0';
+  $('engOpps').textContent=opps.length||'0'
 }
 document.querySelectorAll('.navbtn[data-v]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));let slideIndex=0;setInterval(()=>{let slides=[...document.querySelectorAll('.slide')];if(!slides.length)return;slides[slideIndex].classList.remove('active');slideIndex=(slideIndex+1)%slides.length;slides[slideIndex].classList.add('active')},5000);let io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));loadProfileState();buildOnboarding();buildWorkspaceShell();persist();loadData();
