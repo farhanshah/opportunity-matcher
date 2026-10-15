@@ -88,4 +88,18 @@ function updateStats(){
   $('statOpen').textContent=activeOpen||'0';
   $('engOpps').textContent=opps.length||'0'
 }
-document.querySelectorAll('.navbtn[data-v]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));let slideIndex=0;setInterval(()=>{let slides=[...document.querySelectorAll('.slide')];if(!slides.length)return;slides[slideIndex].classList.remove('active');slideIndex=(slideIndex+1)%slides.length;slides[slideIndex].classList.add('active')},5000);let io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));loadProfileState();buildOnboarding();buildWorkspaceShell();persist();loadData();
+async function updateSourceStats(){
+  const ids=['statSources','engSources'];
+  try{
+    const res=await fetch('/api/health',{headers:{Accept:'application/json'},cache:'no-store'});
+    if(!res.ok)throw new Error('Health endpoint HTTP '+res.status);
+    const data=await res.json();
+    const count=Number(data.monitored_sources);
+    if(!data.ok||!Number.isSafeInteger(count)||count<0)throw new Error('No valid active source count');
+    ids.forEach(id=>{const node=$(id);if(node)node.textContent=String(count)});
+  }catch(err){
+    console.warn('Live source count unavailable',err);
+    ids.forEach(id=>{const node=$(id);if(node)node.textContent='—'});
+  }
+}
+document.querySelectorAll('.navbtn[data-v]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));let slideIndex=0;setInterval(()=>{let slides=[...document.querySelectorAll('.slide')];if(!slides.length)return;slides[slideIndex].classList.remove('active');slideIndex=(slideIndex+1)%slides.length;slides[slideIndex].classList.add('active')},5000);let io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));loadProfileState();buildOnboarding();buildWorkspaceShell();persist();loadData();updateSourceStats();
