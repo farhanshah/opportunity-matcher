@@ -92,35 +92,44 @@ async function publish(sql,source,url,result) {
     status:'needs_evidence',reason:'Possible existing programme with a different official URL; duplicate withheld'
   };
   const id=discoveryId(url);
+  // Insert the opportunity and the mandatory country rule atomically.
   const [created]=await sql`
-    INSERT INTO opportunities(
-      external_id,title,provider,opportunity_type,destination_country,funding_type,status,
-      application_open_date,application_close_date,application_route,application_url,official_source_url,
-      eligible_nationalities,education_levels,fields_of_study,benefits,eligibility_notes,
-      last_verified_at,verification_confidence,raw_source_text,rule_normalization_status
-    ) VALUES(
-      ${id},${r.title},${r.provider},${r.type},${r.destination},${r.funding},${r.status},
-      ${r.openDate || null},${r.deadline},'Official provider page',${url},${url},
-      ${JSON.stringify(r.nationality)}::jsonb,${JSON.stringify(r.education)}::jsonb,
-      ${JSON.stringify(r.fields)}::jsonb,${JSON.stringify(r.benefits ? [r.benefits] : [])}::jsonb,
-      ${r.eligibility},now(),'high',${JSON.stringify(result.evidence)},'partially_normalized'
+    WITH upserted AS (
+      INSERT INTO opportunities(
+        external_id,title,provider,opportunity_type,destination_country,funding_type,status,
+        application_open_date,application_close_date,application_route,application_url,official_source_url,
+        eligible_nationalities,education_levels,fields_of_study,benefits,eligibility_notes,
+        last_verified_at,verification_confidence,raw_source_text,rule_normalization_status
+      ) VALUES(
+        ${id},${r.title},${r.provider},${r.type},${r.destination},${r.funding},${r.status},
+        ${r.openDate || null},${r.deadline},'Official provider page',${url},${url},
+        ${JSON.stringify(r.nationality)}::jsonb,${JSON.stringify(r.education)}::jsonb,
+        ${JSON.stringify(r.fields)}::jsonb,${JSON.stringify(r.benefits ? [r.benefits] : [])}::jsonb,
+        ${r.eligibility},now(),'high',${JSON.stringify(result.evidence)},'partially_normalized'
+      )
+      ON CONFLICT(external_id) DO UPDATE SET
+        application_open_date=EXCLUDED.application_open_date,application_close_date=EXCLUDED.application_close_date,
+        status=EXCLUDED.status,last_verified_at=now(),updated_at=now()
+      WHERE opportunities.official_source_url=EXCLUDED.official_source_url
+      RETURNING id
+    ), ensured_rule AS (
+      INSERT INTO opportunity_eligibility_rules(
+        opportunity_id,rule_code,rule_label,operator,value_json,hard_rule,certainty,
+        source_url,source_note,last_verified_at
+      )
+      SELECT upserted.id,'country_scope','Nationality eligibility','in',
+        ${JSON.stringify({scope:'worldwide',countries:[]})}::jsonb,true,'confirmed',${url},
+        'Explicit worldwide eligibility in official programme structured data',now()
+      FROM upserted
+      WHERE NOT EXISTS (
+        SELECT 1 FROM opportunity_eligibility_rules r
+        WHERE r.opportunity_id=upserted.id AND r.rule_code='country_scope'
+      )
+      RETURNING id
     )
-    ON CONFLICT(external_id) DO UPDATE SET
-      application_open_date=EXCLUDED.application_open_date,application_close_date=EXCLUDED.application_close_date,status=EXCLUDED.status,
-      last_verified_at=now(),updated_at=now()
-    WHERE opportunities.official_source_url=EXCLUDED.official_source_url
-    RETURNING id
+    SELECT id FROM upserted
   `;
-  if(!created) return {status:'needs_evidence',reason:'Programme identity already belongs to another provider URL'};
-  await sql`
-    INSERT INTO opportunity_eligibility_rules(
-      opportunity_id,rule_code,rule_label,operator,value_json,hard_rule,certainty,source_url,source_note,last_verified_at
-    )
-    SELECT ${created.id},'country_scope','Nationality eligibility','in',
-      ${JSON.stringify({scope:'worldwide',countries:[]})}::jsonb,true,'confirmed',${url},
-      'Explicit worldwide eligibility in official programme structured data',now()
-    WHERE NOT EXISTS(SELECT 1 FROM opportunity_eligibility_rules WHERE opportunity_id=${created.id} AND rule_code='country_scope')
-  `;
+  if(!created)return {status:'needs_evidence',reason:'Programme identity conflict; public record withheld'};
   return {status:'published',id:created.id};
 }
 
