@@ -72,18 +72,41 @@ async function processSource(sql, source) {
         opportunityId = opp?.id || null;
       }
       const status = change.risk === 'low' ? 'auto_accepted' : 'pending_review';
-      const [event] = await sql`
-        INSERT INTO detected_changes(source_id, opportunity_id, previous_snapshot_id, current_snapshot_id, change_type, risk_level, field_name, diff_summary, status)
-        VALUES(${source.id}, ${opportunityId}, ${previous.id}, ${snapshot.id}, ${change.change_type}, ${change.risk}, ${change.changed.join(',')}, ${`Structured source signals changed: ${change.changed.join(', ')}`}, ${status})
-        RETURNING id, risk_level, status
+      // Changes with exactly the same extracted evidence should not create
+      // fresh alerts on each subsequent provider scan.
+      const fingerprint = sha256(JSON.stringify(
+        change.changed.map(key => [key, (signals[key] || []).map(s => String(s).trim()).sort()])
+      ));
+      const [duplicate] = await sql`
+        SELECT id FROM detected_changes
+        WHERE source_id=${source.id} AND change_type=${change.change_type}
+          AND evidence_fingerprint=${fingerprint} AND status=${status}
+        LIMIT 1
       `;
-      reviewEvent = event;
+      if (duplicate) {
+        reviewEvent = { id:duplicate.id, risk_level:change.risk, status:'already_recorded' };
+      } else {
+        const [event] = await sql`
+          INSERT INTO detected_changes(
+            source_id,opportunity_id,previous_snapshot_id,current_snapshot_id,
+            change_type,risk_level,field_name,diff_summary,status,evidence_fingerprint
+          ) VALUES(
+            ${source.id},${opportunityId},${previous.id},${snapshot.id},
+            ${change.change_type},${change.risk},${change.changed.join(',')},
+            ${`Extracted official source signals changed: ${change.changed.join(', ')}`},
+            ${status},${fingerprint}
+          ) RETURNING id,risk_level,status
+        `;
+        reviewEvent = event;
+      }
     }
 
     await sql`UPDATE monitored_sources SET last_checked_at=${checkedAt}, last_success_at=${checkedAt}, last_http_status=${fetched.status}, last_error=NULL, etag=${fetched.response.headers.get('etag')}, last_modified=${fetched.response.headers.get('last-modified')}, updated_at=now() WHERE id=${source.id}`;
     return { source: source.source_key, result: previous ? (change ? 'meaningful-change' : 'non-semantic-change') : 'baseline-created', review: reviewEvent };
   } catch (error) {
-    await sql`UPDATE monitored_sources SET last_checked_at=${checkedAt}, last_http_status=NULL, last_error=${String(error.message || error).slice(0, 1000)}, updated_at=now() WHERE id=${source.id}`;
+    const errorText=String(error.message || error).slice(0,1000);
+    const httpCode=/^HTTP (\d{3})$/.exec(errorText)?.[1];
+    await sql`UPDATE monitored_sources SET last_checked_at=${checkedAt}, last_http_status=${httpCode ? Number(httpCode) : null}, last_error=${errorText}, updated_at=now() WHERE id=${source.id}`;
     return { source: source.source_key, result: 'error', error: error.message };
   }
 }
@@ -105,6 +128,9 @@ export async function runDueSourceChecks(sql, maxSources = MAX_SOURCES_PER_RUN, 
     FROM monitored_sources
     WHERE is_active=true
       AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))
+      -- Official sites refusing automated requests should not be hammered.
+      AND (last_http_status NOT IN (403,429) OR last_http_status IS NULL
+           OR last_checked_at < now() - interval '24 hours')
     ORDER BY last_checked_at NULLS FIRST, check_interval_minutes ASC, source_key
     LIMIT ${maxSources}
   `;
