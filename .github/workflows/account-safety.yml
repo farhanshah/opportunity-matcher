@@ -6,6 +6,11 @@ on:
       - 'app-cloud-v13.js'
       - 'app-cloud-bridge.js'
       - 'api/welcome-email.js'
+      - 'api/welcome-now.js'
+      - 'api/auth-providers.js'
+      - 'lib/welcome-delivery.js'
+      - 'tests/auth-security.test.mjs'
+      - 'app-v71-password-recovery-v2.js'
       - 'lib/welcome-content.js'
       - 'tests/welcome-email.test.mjs'
       - '.github/workflows/account-safety.yml'
@@ -23,6 +28,10 @@ jobs:
           node --check app-cloud-v13.js
           node --check app-cloud-bridge.js
           node --check api/welcome-email.js
+          node --check api/welcome-now.js
+          node --check api/auth-providers.js
+          node --check lib/welcome-delivery.js
+          node --check app-v71-password-recovery-v2.js
           node --check lib/welcome-content.js
       - name: Welcome message tests
-        run: node --test tests/welcome-email.test.mjs
+        run: node --test tests/welcome-email.test.mjs tests/auth-security.test.mjs
