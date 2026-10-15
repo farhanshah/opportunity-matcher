@@ -50,3 +50,23 @@ test('impossible or unlabeled deadlines do not publish',()=>{
   assert.equal(parseOfficialFactSheet(body.replace('18 May 2027','30 February 2027')).complete,false);
   assert.equal(parseOfficialFactSheet(body.replace('Application deadline: 18 May 2027','Applications end in 2027')).complete,false);
 });
+
+test('unmodelled work-experience requirements prevent automatic publication',()=>{
+  const withRequirement=body.replace('</main>','<p>Applicants must have at least 2 years work experience.</p></main>');
+  const result=verifyCandidate(withRequirement,url,'Official University',new Date('2026-10-15T12:00:00Z'));
+  assert.equal(result.verified,false);
+});
+
+test('schema and visible fact-sheet deadline disagreement prevents publication',()=>{
+  const schema={
+    '@type':'Scholarship',name:'2027 Global University Scholarship',
+    url,description:'Fully funded scholarship.',
+    qualifications:"Bachelor degree. Open to all nationalities. All fields of study.",
+    applicationStartDate:'2026-10-01',applicationDeadline:'2027-05-29',
+    location:{name:'United Kingdom'}
+  };
+  const conflicting=body.replace('</main>','<script type="application/ld+json">'+JSON.stringify(schema)+'</script></main>');
+  const result=verifyCandidate(conflicting,url,'Official University',new Date('2026-10-15T12:00:00Z'));
+  assert.equal(result.verified,false);
+  assert.ok(result.reasons.includes('structured data conflicts with visible official programme facts'));
+});
