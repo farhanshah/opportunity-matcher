@@ -66,7 +66,7 @@ function updateAccountUI(){
 function renderAuth(){
   const card=document.getElementById('cloudAuthCard');if(!card)return;
   if(session?.user){
-    card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>Your workspace follows you.</h2><p class="cloudLead">Passport, shortlist and application progress are protected by your account and synced to Neon.</p><div class="cloudAccountHero"><div class="cloudBigAvatar">${html(initials(session.user))}</div><div><b>${html(session.user.name||'Opportunity member')}</b><span>${html(session.user.email||'')}</span></div></div><div class="cloudStatusBox"><div><span>Passport</span><b>${passportId?'Cloud saved':'Connecting'}</b></div><div><span>Shortlist</span><b>${state.getSaved().length} saved</b></div><div><span>Tracker</span><b>${Object.keys(state.getTracks()).length} applications</b></div></div><div class="cloudAccountActions"><button onclick="window.OpportunityCloud.completePassport()">Profile &amp; email preferences</button><button onclick="window.OpportunityCloud.syncNow()">Sync now</button><button class="danger" onclick="window.OpportunityCloud.signOut()">Sign out</button></div>`;
+    card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>Your workspace follows you.</h2><p class="cloudLead">Passport, shortlist and application progress are protected by your account and synced to Neon.</p><div class="cloudAccountHero"><div class="cloudBigAvatar">${html(initials(session.user))}</div><div><b>${html(session.user.name||'Opportunity member')}</b><span>${html(session.user.email||'')}</span></div></div>${session.user.emailVerified===false?'<p class="cloudVerifyNotice">Your email is not verified yet. <button onclick="window.OpportunityCloud.verifyEmail()">Send verification email</button></p>':''}<div class="cloudStatusBox"><div><span>Passport</span><b>${passportId?'Cloud saved':'Connecting'}</b></div><div><span>Shortlist</span><b>${state.getSaved().length} saved</b></div><div><span>Tracker</span><b>${Object.keys(state.getTracks()).length} applications</b></div></div><div class="cloudAccountActions"><button onclick="window.OpportunityCloud.completePassport()">Profile &amp; email preferences</button><button onclick="window.OpportunityCloud.syncNow()">Sync now</button><button class="danger" onclick="window.OpportunityCloud.signOut()">Sign out</button></div>`;
     return;
   }
   card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>${mode==='signin'?'Welcome back.':'Create your cloud workspace.'}</h2><p class="cloudLead">${mode==='signin'?'Sign in to restore your Passport, saved opportunities and tracker on this device.':'Your current browser workspace will be imported automatically after your first sign-in.'}</p><div class="cloudTabs"><button class="${mode==='signin'?'active':''}" onclick="window.OpportunityCloud.setMode('signin')">Sign in</button><button class="${mode==='signup'?'active':''}" onclick="window.OpportunityCloud.setMode('signup')">Create account</button></div><button class="cloudGoogle" onclick="window.OpportunityCloud.google()"><i>G</i>Continue with Google</button><div class="cloudDivider">or use email</div>${mode==='signup'?'<div class="cloudField"><label>Name</label><input id="cloudName" autocomplete="name" placeholder="Your name"></div>':''}<div class="cloudField"><label>Email</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><div class="cloudField"><label>Password</label><input id="cloudPassword" type="password" autocomplete="${mode==='signin'?'current-password':'new-password'}" placeholder="At least 8 characters"></div><button id="cloudSubmit" class="cloudSubmit" onclick="window.OpportunityCloud.emailSubmit()">${mode==='signin'?'Sign in':'Create account'}</button><div id="cloudAuthFeedback"></div>`;
@@ -104,7 +104,8 @@ async function google(){
     const response=await client.auth.signIn.social({
       provider:'google',callbackURL:window.location.origin+'/',
       errorCallbackURL:window.location.origin+'/',
-      disableRedirect:true
+      disableRedirect:true,
+      additionalParams:{prompt:'select_account'}
     });
     const payload=unwrap(response);
     const url=payload?.url||response?.url;
@@ -201,6 +202,16 @@ async function savePostSignInOnboarding(prior={}){
     renderAuth();
   }finally{if(button){button.disabled=false;button.textContent='Save Passport and continue'}}
 }
+async function requestEmailVerification(){
+  if(!session?.user?.email)throw Error('Sign in before requesting verification.');
+  if(typeof client.auth.sendVerificationEmail!=='function'){
+    toast('Verification unavailable','Please contact support to verify your account.');return;
+  }
+  try{
+    unwrap(await client.auth.sendVerificationEmail({email:session.user.email,callbackURL:window.location.origin+'/'}));
+    toast('Verification requested','Check your inbox for a message from the account provider.');
+  }catch(e){toast('Verification could not be sent',e.message||'Try again later.')}
+}
 async function waitForOpportunityIds(){
   for(let i=0;i<40;i++){const list=state.getOpps();if(list.length&&list.some(o=>o.Database_ID))return list;await sleep(125)}
   try{const r=await fetch('/api/opportunities?cloud='+Date.now(),{cache:'no-store'});const j=await r.json();const map=new Map((j.opportunities||[]).map(o=>[o.Opportunity_ID,o.Database_ID]));state.getOpps().forEach(o=>{if(!o.Database_ID)o.Database_ID=map.get(o.Opportunity_ID)||''});}catch{}
@@ -273,7 +284,21 @@ async function refreshSession(bootstrap=false){
   return null;
 }
 
-window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,signOut,syncNow,completePassport:openProfileSettings,retrySession:()=>refreshSession(true)};
+window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,signOut,syncNow,completePassport:openProfileSettings,verifyEmail:requestEmailVerification,retrySession:()=>refreshSession(true)};
 window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
 await refreshSession(true);
+const socialError=new URLSearchParams(window.location.search).get('error');
+if(socialError && !session?.user){
+  const knownErrors={
+    access_denied:'Google sign-in was cancelled.',
+    invalid_callback:'Google returned an invalid callback. Please try again.',
+    oauth_error:'The identity provider could not complete sign-in.',
+    state_mismatch:'The sign-in session expired. Please try again in this browser.'
+  };
+  openAuth();
+  feedback(knownErrors[socialError]||'Social sign-in could not be completed. Please try again.',true);
+  const clean=new URL(window.location.href);clean.searchParams.delete('error');
+  window.history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+}
+
