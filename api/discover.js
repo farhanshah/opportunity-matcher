@@ -1,9 +1,9 @@
 import { db } from '../lib/db.js';
 import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId } from '../lib/auto-discovery.js';
 
-const SOURCE_BATCH = 8;
-const LINKS_PER_SOURCE = 3;
-const CONCURRENCY = 4;
+const SOURCE_BATCH = 6;
+const LINKS_PER_SOURCE = 2;
+const CONCURRENCY = 6;
 function authorised(req) {
   return Boolean(process.env.CRON_SECRET) && req.headers.authorization === 'Bearer ' + process.env.CRON_SECRET;
 }
