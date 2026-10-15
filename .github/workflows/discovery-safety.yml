@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'lib/auto-discovery.js'
+      - 'lib/official-facts.js'
+      - 'tests/official-facts.test.mjs'
       - 'lib/monitor.js'
       - 'api/monitor.js'
       - 'tests/monitor.test.mjs'
@@ -25,10 +27,11 @@ jobs:
       - name: Syntax validation
         run: |
           node --check lib/auto-discovery.js
+          node --check lib/official-facts.js
           node --check lib/monitor.js
           node --check api/monitor.js
           node --check api/discover.js
           node --check api/reverify.js
           node --check lib/exact-ingest.js
       - name: Automated verifier tests
-        run: node --test tests/auto-discovery.test.mjs tests/exact-ingest.test.mjs tests/monitor.test.mjs
+        run: node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/exact-ingest.test.mjs tests/monitor.test.mjs
