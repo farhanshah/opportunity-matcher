@@ -57,7 +57,7 @@ function renderFeatured(){
     const url=String(o.Official_Source_URL||'').trim();
     const safeUrl=/^https?:\/\//i.test(url);
     return '<article class="liveCard">'
-      +'<div class="liveTop"><div class="providerMark">'+esc(logoLetter(o))+'</div><span class="statusPill">'+esc(label)+'</span></div>'
+      +'<div class="liveTop"><div class="providerMark">'+esc(logoLetter(o))+'</div><span class="statusPill'+(gate&&gate.passed?' needsCheck':'')+'">'+esc(label)+'</span></div>'
       +'<h3>'+esc(o.Opportunity_Name)+'</h3><div class="provider">'+esc(o.Provider)+'</div>'
       +'<div class="tagRow"><span class="tag">'+esc(o.Type)+'</span><span class="tag">'+esc(o.Destination||'Global')+'</span><span class="tag">'+esc(o.Funding||'Funding varies')+'</span></div>'
       +'<div class="liveReason"><b>Worth knowing</b><br>'+esc(featuredReason(o))+'</div>'
