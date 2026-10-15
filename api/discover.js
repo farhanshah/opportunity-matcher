@@ -1,7 +1,7 @@
 import { db } from '../lib/db.js';
 import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId } from '../lib/auto-discovery.js';
 
-const SOURCE_BATCH = 6;
+const SOURCE_BATCH = 12;
 const LINKS_PER_SOURCE = 2;
 const CONCURRENCY = 6;
 function authorised(req) {
@@ -102,9 +102,17 @@ async function publish(sql,source,url,result) {
 }
 
 async function scanSource(sql,source) {
-  const result={source:source.source_key,links:0,published:0,held:0,errors:[]};
+  const result={source:source.source_key,links:0,published:0,held:0,used_monitor_snapshot:false,errors:[]};
   try{
-    const listing=await fetchOfficial(source.source_url,source.source_url);
+    // Reuse the last accepted official monitor snapshot when a recent
+    // successful recheck attests that the page has not changed.
+    // Candidate detail pages are still fetched fresh before verification.
+    const cached=source.last_success_at && source.snapshot_html
+      && Date.now()-new Date(source.last_success_at).getTime() < 48*60*60*1000;
+    const listing=cached
+      ? {html:source.snapshot_html,url:source.source_url}
+      : await fetchOfficial(source.source_url,source.source_url);
+    result.used_monitor_snapshot=Boolean(cached);
     const links=findOfficialLinks(listing.html,listing.url,LINKS_PER_SOURCE);
     result.links=links.length;
     for(const link of links) {
@@ -131,8 +139,18 @@ export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
   try{
     const sql=db();
-    const sources=await sql`SELECT id,source_key,provider,source_url FROM monitored_sources
-      WHERE is_active=true ORDER BY last_discovery_at NULLS FIRST,source_key LIMIT ${SOURCE_BATCH}`;
+    const sources=await sql`
+      SELECT m.id,m.source_key,m.provider,m.source_url,m.last_success_at,
+        LEFT(snapshot.raw_html,200000) AS snapshot_html
+      FROM monitored_sources m
+      LEFT JOIN LATERAL (
+        SELECT s.raw_html FROM source_snapshots s
+        WHERE s.source_id=m.id ORDER BY s.fetched_at DESC LIMIT 1
+      ) snapshot ON true
+      WHERE m.is_active=true
+      ORDER BY m.last_discovery_at NULLS FIRST,m.source_key
+      LIMIT ${SOURCE_BATCH}
+    `;
     const results=[];
     for(let i=0;i<sources.length;i+=CONCURRENCY){
       results.push(...await Promise.all(sources.slice(i,i+CONCURRENCY).map(s=>scanSource(sql,s))));
