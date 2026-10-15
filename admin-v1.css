@@ -3,3 +3,15 @@
 /* v267: make review backlog and grouped-alert context scannable */
 .reviewSummary{margin-top:9px!important;font-size:12px;line-height:1.6;color:var(--muted,#a4aabd)}
 .reviewGroupHint{margin-top:9px!important;padding:8px 10px;border:1px solid rgba(216,255,105,.16);border-radius:10px;background:rgba(216,255,105,.055);font-size:11px;line-height:1.55;color:inherit;opacity:.82}
+
+/* v268: source evidence excerpts in protected operations console */
+.reviewEvidence{margin-top:12px;border:1px solid rgba(160,170,190,.17);border-radius:12px;padding:10px 12px;background:rgba(0,0,0,.12);max-width:970px}
+.reviewEvidence summary{font-weight:650;font-size:12px;cursor:pointer;color:#d3dded}
+.reviewEvidenceGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:12px}
+.evidenceGroup{border:1px solid rgba(160,170,190,.15);border-radius:9px;padding:9px;min-width:0;overflow-wrap:anywhere}
+.evidenceGroup>b{font-size:12px;text-transform:capitalize}
+.evidenceGroup>div{margin-top:8px}
+.evidenceGroup small{display:block;font-size:10px;color:#a2acc0;margin-bottom:4px}
+.evidenceGroup p{font-size:11px;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+.evidenceNotice{font-size:11px;line-height:1.5;color:#a2acc0;margin-top:9px}
+.reviewActions .statusBadge{white-space:normal;max-width:150px;line-height:1.35;text-align:center}
