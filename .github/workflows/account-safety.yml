@@ -1,0 +1,28 @@
+name: OppMatcher account safety
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app-cloud-v13.js'
+      - 'app-cloud-bridge.js'
+      - 'api/welcome-email.js'
+      - 'lib/welcome-content.js'
+      - 'tests/welcome-email.test.mjs'
+      - '.github/workflows/account-safety.yml'
+  workflow_dispatch:
+jobs:
+  account-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: JavaScript syntax
+        run: |
+          node --check app-cloud-v13.js
+          node --check app-cloud-bridge.js
+          node --check api/welcome-email.js
+          node --check lib/welcome-content.js
+      - name: Welcome message tests
+        run: node --test tests/welcome-email.test.mjs
