@@ -66,7 +66,7 @@ function updateAccountUI(){
 function renderAuth(){
   const card=document.getElementById('cloudAuthCard');if(!card)return;
   if(session?.user){
-    card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>Your workspace follows you.</h2><p class="cloudLead">Passport, shortlist and application progress are protected by your account and synced to Neon.</p><div class="cloudAccountHero"><div class="cloudBigAvatar">${html(initials(session.user))}</div><div><b>${html(session.user.name||'Opportunity member')}</b><span>${html(session.user.email||'')}</span></div></div><div class="cloudStatusBox"><div><span>Passport</span><b>${passportId?'Cloud saved':'Connecting'}</b></div><div><span>Shortlist</span><b>${state.getSaved().length} saved</b></div><div><span>Tracker</span><b>${Object.keys(state.getTracks()).length} applications</b></div></div><div class="cloudAccountActions"><button onclick="window.OpportunityCloud.syncNow()">Sync now</button><button class="danger" onclick="window.OpportunityCloud.signOut()">Sign out</button></div>`;
+    card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>Your workspace follows you.</h2><p class="cloudLead">Passport, shortlist and application progress are protected by your account and synced to Neon.</p><div class="cloudAccountHero"><div class="cloudBigAvatar">${html(initials(session.user))}</div><div><b>${html(session.user.name||'Opportunity member')}</b><span>${html(session.user.email||'')}</span></div></div><div class="cloudStatusBox"><div><span>Passport</span><b>${passportId?'Cloud saved':'Connecting'}</b></div><div><span>Shortlist</span><b>${state.getSaved().length} saved</b></div><div><span>Tracker</span><b>${Object.keys(state.getTracks()).length} applications</b></div></div><div class="cloudAccountActions"><button onclick="window.OpportunityCloud.completePassport()">Profile &amp; email preferences</button><button onclick="window.OpportunityCloud.syncNow()">Sync now</button><button class="danger" onclick="window.OpportunityCloud.signOut()">Sign out</button></div>`;
     return;
   }
   card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>${mode==='signin'?'Welcome back.':'Create your cloud workspace.'}</h2><p class="cloudLead">${mode==='signin'?'Sign in to restore your Passport, saved opportunities and tracker on this device.':'Your current browser workspace will be imported automatically after your first sign-in.'}</p><div class="cloudTabs"><button class="${mode==='signin'?'active':''}" onclick="window.OpportunityCloud.setMode('signin')">Sign in</button><button class="${mode==='signup'?'active':''}" onclick="window.OpportunityCloud.setMode('signup')">Create account</button></div><button class="cloudGoogle" onclick="window.OpportunityCloud.google()"><i>G</i>Continue with Google</button><div class="cloudDivider">or use email</div>${mode==='signup'?'<div class="cloudField"><label>Name</label><input id="cloudName" autocomplete="name" placeholder="Your name"></div>':''}<div class="cloudField"><label>Email</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><div class="cloudField"><label>Password</label><input id="cloudPassword" type="password" autocomplete="${mode==='signin'?'current-password':'new-password'}" placeholder="At least 8 characters"></div><button id="cloudSubmit" class="cloudSubmit" onclick="window.OpportunityCloud.emailSubmit()">${mode==='signin'?'Sign in':'Create account'}</button><div id="cloudAuthFeedback"></div>`;
@@ -111,10 +111,10 @@ async function google(){
 }
 
 
-function showPostSignInOnboarding(user, passportRow={}){
+function showPostSignInOnboarding(user, passportRow={}, force=false){
   if(!passportId || !user)return;
   const p=state.getProfile()||{};
-  if(passportRow.onboarding_completed_at && p.nat && p.edu && p.field)return;
+  if(!force && passportRow.onboarding_completed_at && p.nat && p.edu && p.field)return;
   const card=document.getElementById('cloudAuthCard');
   if(!card)return;
   const options=id=>document.getElementById(id)?.innerHTML||'<option value="">Select</option>';
@@ -153,6 +153,13 @@ function showPostSignInOnboarding(user, passportRow={}){
     });
   });
   document.getElementById('cloudAuthModal')?.classList.remove('hide');
+}
+async function openProfileSettings(){
+  if(!session?.user){openAuth();return}
+  try{
+    const rows=await query(client.from('user_passports').select('*').eq('auth_user_id',session.user.id).limit(1));
+    showPostSignInOnboarding(session.user,rows?.[0]||{},true);
+  }catch(e){toast('Account settings unavailable',e.message||'Please retry later.')}
 }
 async function savePostSignInOnboarding(prior={}){
   if(!session?.user||!passportId)throw new Error('Sign in to save your Passport.');
@@ -256,7 +263,7 @@ async function refreshSession(bootstrap=false){
   return null;
 }
 
-window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,signOut,syncNow,completePassport:()=>showPostSignInOnboarding(session?.user,{}),retrySession:()=>refreshSession(true)};
+window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,signOut,syncNow,completePassport:openProfileSettings,retrySession:()=>refreshSession(true)};
 window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
 await refreshSession(true);
