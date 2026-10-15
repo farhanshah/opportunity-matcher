@@ -12,7 +12,7 @@ async function loadData(){
     let j=await r.json();opps=j.opportunities||[];
     $('apiStatus').textContent='Live database';
     const active=opps.filter(publicActive).length;
-    $('liveCopy').textContent=`${active} current routes · ${opps.length} records · official source links`;
+    $('liveCopy').textContent=`${active} active or upcoming routes · ${opps.length} monitored records · official source links`;
     updateStats();renderFeatured();renderAll()
   }catch(err){
     $('apiStatus').textContent='Database unavailable';
