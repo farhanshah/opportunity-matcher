@@ -62,7 +62,7 @@ async function publish(sql,source,url,result) {
       if(!exact) return {status:'needs_evidence',reason:'Existing eligibility or local routes require independent verification'};
     }
     const [row]=await sql`
-      UPDATE opportunities SET application_close_date=${r.deadline},status='Open',
+      UPDATE opportunities SET application_close_date=${r.deadline},application_open_date=${r.openDate || null},status=${r.status},
         last_verified_at=now(),verification_confidence='high',updated_at=now()
       WHERE id=${o.id} RETURNING id
     `;
@@ -72,18 +72,18 @@ async function publish(sql,source,url,result) {
   const [created]=await sql`
     INSERT INTO opportunities(
       external_id,title,provider,opportunity_type,destination_country,funding_type,status,
-      application_close_date,application_route,application_url,official_source_url,
+      application_open_date,application_close_date,application_route,application_url,official_source_url,
       eligible_nationalities,education_levels,fields_of_study,benefits,eligibility_notes,
       last_verified_at,verification_confidence,raw_source_text,rule_normalization_status
     ) VALUES(
-      ${id},${r.title},${r.provider},${r.type},${r.destination},${r.funding},'Open',
-      ${r.deadline},'Official provider page',${url},${url},
+      ${id},${r.title},${r.provider},${r.type},${r.destination},${r.funding},${r.status},
+      ${r.openDate || null},${r.deadline},'Official provider page',${url},${url},
       ${JSON.stringify(r.nationality)}::jsonb,${JSON.stringify(r.education)}::jsonb,
       ${JSON.stringify(r.fields)}::jsonb,${JSON.stringify(r.benefits ? [r.benefits] : [])}::jsonb,
       ${r.eligibility},now(),'high',${JSON.stringify(result.evidence)},'partially_normalized'
     )
     ON CONFLICT(external_id) DO UPDATE SET
-      application_close_date=EXCLUDED.application_close_date,status='Open',
+      application_open_date=EXCLUDED.application_open_date,application_close_date=EXCLUDED.application_close_date,status=EXCLUDED.status,
       last_verified_at=now(),updated_at=now()
     WHERE opportunities.official_source_url=EXCLUDED.official_source_url
     RETURNING id
