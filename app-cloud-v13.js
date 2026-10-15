@@ -148,8 +148,10 @@ function showPostSignInOnboarding(user, passportRow={}, force=false){
       <div class="cloudField"><label for="cloudProfileGpa">GPA / CGPA (optional)</label><input id="cloudProfileGpa" type="number" min="0" max="10" step=".01" value="${html(p.gpa??'')}"></div>
       <label class="cloudConsent"><input id="cloudMarketingConsent" type="checkbox" ${passportRow.marketing_opt_in?'checked':''}><span>Email me optional opportunity alerts and updates. I can unsubscribe at any time. This is separate from account/security emails.</span></label>
       <div id="cloudProfileFeedback" role="status" aria-live="polite"></div>
-      <button class="cloudSubmit" type="submit">Save Passport and continue</button>
-      <button class="cloudSkip" type="button" onclick="window.OpportunityCloud.closeAuth()">Finish later</button>
+      <div class="cloudCompleteActions">
+        <button class="cloudSubmit" type="submit">Save Passport and continue</button>
+        <button class="cloudSkip" type="button" onclick="window.OpportunityCloud.closeAuth()">Finish later</button>
+      </div>
     </form>`;
   const values={
     cloudProfileNat:p.nat||'',cloudProfileResidence:p.residence||'',
@@ -198,7 +200,10 @@ async function savePostSignInOnboarding(prior={}){
     await query(client.from('user_passports').update(payload).eq('auth_user_id',session.user.id));
     const current=state.getProfile()||{};
     state.setProfile({...current,nat,residence,edu,field,age:age?Number(age):'',gpa:gpa?Number(gpa):''});
-    state.render();closeAuth();toast('Passport saved','Your matching profile is now connected to your account.');
+    state.render();closeAuth();
+    window.showApp?.();
+    window.setView?.('discover',{replace:true});
+    toast('Passport saved','Your matching profile is now connected to your account.');
     renderAuth();
   }finally{if(button){button.disabled=false;button.textContent='Save Passport and continue'}}
 }
