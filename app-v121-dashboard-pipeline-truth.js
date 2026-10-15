@@ -3,6 +3,24 @@
   const stageOf=t=>String(t?.stage||'Saved');
   const studioState=t=>{try{return window.OpportunityStudioTruth?.getState?.(t)||null}catch{return null}};
   const postSubmission=new Set(['Submitted','Interview','Offer received','Unsuccessful']);
+  function localToday(){
+    const d=new Date(),off=d.getTimezoneOffset();
+    return new Date(d.getTime()-off*60000).toISOString().slice(0,10);
+  }
+  function exactDeadlineDays(t){
+    const exact=t?.exactVacancy||{};
+    const raw=String(exact.deadline||exact.deadline_date||exact.closing_date||'').trim();
+    if(!/^20\d{2}-\d{2}-\d{2}$/.test(raw))return null;
+    const a=new Date(`${localToday()}T12:00:00`),b=new Date(`${raw}T12:00:00`);
+    return Number.isFinite(b.getTime())?Math.round((b-a)/864e5):null;
+  }
+  function exactClosed(t){
+    const exact=t?.exactVacancy||{};
+    const status=String(exact.status||exact.Status||'').toLowerCase();
+    if(/closed|expired|deadline passed|local cycle closed/.test(status))return true;
+    const d=exactDeadlineDays(t);
+    return d!==null&&d<0;
+  }
   function activeEntries(){
     const os=Array.isArray(window.opps)?window.opps:(typeof opps!=='undefined'&&Array.isArray(opps)?opps:[]);
     const byId=new Map(os.map(o=>[String(o.Opportunity_ID),o]));
@@ -10,10 +28,12 @@
       const stage=stageOf(t);
       if(postSubmission.has(stage))return true;
       const o=byId.get(String(id));
-      if(!o)return true;
-      if(String(o.Status||'').toLowerCase()==='closed')return false;
-      try{if(typeof days==='function'&&Number(days(o))<0)return false}catch{}
-      return true;
+      if(o){
+        if(String(o.Status||'').toLowerCase()==='closed')return false;
+        try{if(typeof days==='function'&&Number(days(o))<0)return false}catch{}
+        return true;
+      }
+      return !exactClosed(t);
     });
   }
 
