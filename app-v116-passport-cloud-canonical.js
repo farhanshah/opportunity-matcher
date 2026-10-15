@@ -59,6 +59,10 @@
   window.addEventListener('opportunity:passportchange',refreshDashboard);
   window.addEventListener('focus',()=>{remember(state.getProfile?.()||{})});
 
+  window.addEventListener('opportunity:signedout',()=>{
+    backup={};
+    try{localStorage.removeItem(BACKUP_KEY)}catch{}
+  });
   state.__omPassportCloudCanonical=true;
   window.OpportunityPassportCloudCanonical={
     snapshot:()=>({...backup}),
