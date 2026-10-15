@@ -48,7 +48,7 @@
     $('partialPreview').innerHTML=preview.map(x=>`<div class="partialMini"><div><b>${esc(x.title)}</b><small>${esc(x.external_id)} · ${esc(x.provider)}</small></div><strong>${Number(x.uncertain_rules||0)?`${x.uncertain_rules} uncertain`:Number(x.route_blockers||0)?'route-specific':'confirmed rules'}</strong></div>`).join('');
   }
 
-  function renderPulse(){const s=state.data.summary||{};$('pulseTimeline').innerHTML=[['Latest source success',ago(s.latest_monitor_success)],['Latest snapshot',ago(s.latest_snapshot_at)],['Latest opportunity update',ago(s.latest_opportunity_update)],['Change events',String(s.detected_changes??0)]].map(([k,v])=>`<div class="pulseItem"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}
+  function renderPulse(){const s=state.data.summary||{};$('pulseTimeline').innerHTML=[['Latest source success',ago(s.latest_monitor_success)],['Latest snapshot',ago(s.latest_snapshot_at)],['Latest opportunity update',ago(s.latest_opportunity_update)],['Source alerts',String(s.detected_changes??0)],['Auto-published',String(s.discovered_published??0)],['Held for evidence',String(s.discovered_withheld??0)],['Verified records (30d)',String(s.verified_records_30d??0)],['Rechecked (7d)',String(s.rechecked_records_7d??0)],['Exact open vacancies',String(s.verified_live_vacancies??0)],['Last discovery pass',ago(s.last_discovery_run)]].map(([k,v])=>`<div class="pulseItem"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}
 
   function healthBadge(h){const label={healthy:'Healthy',error:'Issue',due:'Due',waiting:'Waiting',paused:'Paused'}[h]||h;return`<span class="healthBadge ${esc(h)}"><i></i>${esc(label)}</span>`}
   function renderSources(){
