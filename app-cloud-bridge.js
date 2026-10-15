@@ -81,5 +81,5 @@
     window.saveProfileState=function(...args){const r=originalSave.apply(this,args);emit();return r};
     try{saveProfileState=window.saveProfileState}catch{}
   }
-  import('/app-cloud-v13.js?build=20260831-v184').catch(err=>console.error('Cloud workspace module failed',err));
+  import('/app-cloud-v13.js?build=20261015-v271').catch(err=>console.error('Cloud workspace module failed',err));
 })();
