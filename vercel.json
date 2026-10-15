@@ -24,6 +24,9 @@
     },
     "api/monitor-sources.js": {
       "maxDuration": 60
+    },
+    "api/discover.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -80,6 +83,10 @@
     {
       "path": "/api/monitor-sources",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/discover",
+      "schedule": "0 7 * * *"
     }
   ]
 }
