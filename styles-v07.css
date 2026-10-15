@@ -12,3 +12,56 @@
 @media(max-width:1050px){.navlinks{display:none}.hero{grid-template-columns:1fr;padding-top:40px}.heroVisual{min-height:590px;margin-top:20px}.featureGrid{grid-template-columns:1fr 1fr}.feature:first-child{grid-column:1/-1}.liveGrid{grid-template-columns:1fr 1fr}.engine .section{grid-template-columns:1fr}.cta{margin-left:18px;margin-right:18px}.app{grid-template-columns:84px 1fr}.side .brandword,.navbtn span:not(.ico),.sideFoot{display:none}.side .brand{justify-content:center}.navbtn{justify-content:center}.discoverLayout{grid-template-columns:1fr}.filterPanel{position:relative;top:auto}.oppGrid{grid-template-columns:1fr}}
 @media(max-width:700px){.nav{height:72px}.nav .brandword small{display:none}.hero{padding:38px 18px 62px;gap:35px}.hero h1{font-size:52px}.heroCopy{font-size:15px}.heroVisual{min-height:500px}.floatA{left:8px;top:18px}.floatB{right:8px;bottom:78px}.slideInfo h3{font-size:24px}.sourceTrack{overflow:auto}.section{padding:78px 18px}.sectionHead{grid-template-columns:1fr}.featureGrid,.liveGrid,.steps{grid-template-columns:1fr}.feature:first-child{grid-column:auto}.liveHeader{display:block}.ctaContent{padding:45px 28px}.cta h2{font-size:46px}.footer{display:block;padding:30px 18px}.footer div+div{margin-top:15px}.app{grid-template-columns:1fr}.side{height:auto;position:fixed;left:0;right:0;bottom:0;top:auto;z-index:30;display:flex;padding:8px;background:#0e1016}.side .brand{display:none}.navbtn{margin:0}.appBody{padding:16px 12px 84px}.appTop{padding:0 14px}.metricRow{grid-template-columns:1fr 1fr}.tools{grid-template-columns:1fr}.dashGrid{grid-template-columns:1fr}.trackGrid{grid-template-columns:1fr}.modalGrid,.detailMeta{grid-template-columns:1fr}.stepArrow{display:none}.liveCard{min-height:250px}}
 .section[id="how"]{padding-top:96px}.section[id="how"] .sectionHead{margin-bottom:34px}
+
+/* v263 public readability and guide section */
+@media(min-width:701px){
+  .navlinks{gap:22px}
+  .navlinks a{font-size:14px}
+  .hero{grid-template-columns:1fr 1fr;gap:54px}
+  .hero h1{font-size:clamp(54px,4.8vw,72px);line-height:.96;max-width:660px}
+  .heroCopy{font-size:17px;line-height:1.66}
+  .microTrust{font-size:12px}
+  .microTrust strong{font-size:17px}
+}
+.eyebrow{font-size:11px}
+.sectionLead{font-size:17px}
+.sourceTrack{font-size:12px}
+.feature h3{font-size:31px}
+.feature p{font-size:14px;line-height:1.7}
+.liveCard h3{font-size:22px}
+.liveCard .provider{font-size:12px;min-height:24px}
+.tag{font-size:10px;padding:6px 8px}
+.statusPill{font-size:10px;padding:7px 9px}
+.liveReason{font-size:12px;line-height:1.55}
+.liveBottom,.textBtn{font-size:11px}
+.step{min-height:280px}
+.step h3{font-size:29px}
+.step p{font-size:14px;line-height:1.7}
+.footer{font-size:12px}
+.footerLinks{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;justify-content:flex-end;text-align:right}
+.footerLinks>a{font-weight:800;color:#4f5561}
+.footerLinks>a:hover{color:var(--violet)}
+.footerLinks>span{flex-basis:100%}
+.guideSection{background:#11151d;color:#fff;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}
+.guideSection .section{padding-top:92px;padding-bottom:92px}
+.guideHeader{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;margin-bottom:32px}
+.guideHeader>div{max-width:760px}
+.guideHeader h2{color:#fff;font-size:clamp(38px,4vw,58px);margin:8px 0 14px}
+.guideHeader p{color:#aeb5c2;font-size:16px;line-height:1.7;max-width:700px;margin:0}
+.guideAll{white-space:nowrap}
+.guideGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.guideCard{display:flex;flex-direction:column;min-height:285px;padding:26px;border-radius:24px;background:#181e29;border:1px solid rgba(255,255,255,.09);transition:.25s}
+.guideCard:hover{transform:translateY(-4px);border-color:rgba(216,255,105,.28);box-shadow:0 24px 60px rgba(0,0,0,.22)}
+.guideCard>span{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--lime);font-weight:900}
+.guideCard h3{font-size:24px;line-height:1.12;letter-spacing:-.035em;margin:18px 0 12px}
+.guideCard p{font-size:14px;line-height:1.65;color:#aeb5c2;margin:0}
+.guideCard b{margin-top:auto;padding-top:24px;font-size:12px;color:#eef2f7}
+@media(max-width:900px){.guideGrid{grid-template-columns:1fr}.guideHeader{display:block}.guideAll{margin-top:20px}}
+@media(max-width:700px){
+  .hero h1{font-size:48px;line-height:.98}
+  .heroCopy{font-size:16px}
+  .microTrust{font-size:12px}
+  .guideSection .section{padding-top:70px;padding-bottom:70px}
+  .guideCard{min-height:0}
+  .footerLinks{justify-content:flex-start;text-align:left}
+}
