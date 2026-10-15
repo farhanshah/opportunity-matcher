@@ -27,6 +27,9 @@
     },
     "api/discover.js": {
       "maxDuration": 60
+    },
+    "api/reverify.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -87,6 +90,10 @@
     {
       "path": "/api/discover",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/reverify",
+      "schedule": "0 8 * * *"
     }
   ]
 }
