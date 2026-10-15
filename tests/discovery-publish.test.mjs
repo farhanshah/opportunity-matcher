@@ -45,9 +45,14 @@ test('verified publication uses ONE atomic SQL write for card, rule and monitor 
   const response=await publish(db.sql,provider,url,result);
   assert.equal(response.status,'published');
   assert.equal(response.id,'created-id');
+  assert.equal(response.candidateStored,true);
   const write=db.statements.filter(x=>x.statement.includes('WITH upserted AS'));
   assert.equal(write.length,1);
   assert.match(write[0].statement,/ensured_rule AS/);
+  assert.match(write[0].statement,/ensured_education AS/);
+  assert.match(write[0].statement,/ensured_field AS/);
+  assert.match(write[0].statement,/candidate_registered AS/);
+  assert.match(write[0].statement,/published_opportunity_id/);
   assert.match(write[0].statement,/source_registered AS/);
   assert.match(write[0].statement,/INSERT INTO opportunity_eligibility_rules/);
   assert.match(write[0].statement,/INSERT INTO monitored_sources/);
