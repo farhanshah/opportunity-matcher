@@ -309,8 +309,20 @@ async function performSync(){
 function scheduleSync(){if(!session?.user||!ready)return;clearTimeout(syncTimer);syncTimer=setTimeout(performSync,700)}
 async function syncNow(){await performSync();toast('Sync complete','Your current workspace is saved to the cloud.');renderAuth()}
 async function signOut(){
-  try{if(ready)await performSync();await client.auth.signOut()}catch(e){console.warn(e)}
-  session=null;passportId=null;welcomeTriggeredFor='';ready=false;sessionState='signedout';state.clear();updateAccountUI();closeAuth();try{window.showLanding?.()}catch{}toast('Signed out','The browser copy was cleared. Sign back in to restore your workspace.')
+  try{
+    if(ready)await performSync();
+    unwrap(await client.auth.signOut());
+  }catch(e){
+    console.warn('Account sign-out could not be confirmed');
+    toast('Sign-out incomplete','Your session could not be revoked. Please retry before leaving a shared computer.');
+    return;
+  }
+  session=null;passportId=null;welcomeTriggeredFor='';ready=false;sessionState='signedout';
+  state.clear();
+  window.dispatchEvent(new CustomEvent('opportunity:signedout'));
+  updateAccountUI();closeAuth();
+  try{window.showLanding?.()}catch{}
+  toast('Signed out','Your browser workspace was cleared and the account session was revoked.');
 }
 async function refreshSession(bootstrap=false){
   sessionState='checking';updateAccountUI();
