@@ -40,6 +40,13 @@ export default async function handler(req, res) {
           SELECT DISTINCT source_id, risk_level, change_type
           FROM detected_changes WHERE status='pending_review'
         ) grouped) AS pending_review_groups,
+        (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='published') AS discovered_published,
+        (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='needs_evidence') AS discovered_withheld,
+        (SELECT count(*)::int FROM exact_vacancies WHERE status='open' AND status_verified=true) AS verified_live_vacancies,
+        (SELECT count(*)::int FROM opportunities WHERE last_verified_at >= now()-INTERVAL '30 days') AS verified_records_30d,
+        (SELECT count(*)::int FROM opportunities WHERE last_recheck_at >= now()-INTERVAL '7 days') AS rechecked_records_7d,
+        (SELECT max(last_discovery_at) FROM monitored_sources) AS last_discovery_run,
+        (SELECT max(last_recheck_at) FROM opportunities) AS last_recheck_run,
         (SELECT max(last_success_at) FROM monitored_sources WHERE is_active=true) AS latest_monitor_success,
         (SELECT max(fetched_at) FROM source_snapshots) AS latest_snapshot_at,
         (SELECT max(updated_at) FROM opportunities) AS latest_opportunity_update
