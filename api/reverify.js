@@ -62,14 +62,14 @@ async function checkOne(sql,opp){
         }else{
           const r=report.record;
           const [saved]=await sql`
-            UPDATE opportunities SET application_close_date=${r.deadline},
+            UPDATE opportunities SET application_close_date=${r.deadline}, application_open_date=${r.openDate || null},
               eligible_nationalities=CASE WHEN eligible_nationalities IS NULL OR eligible_nationalities='[]'::jsonb
                 THEN ${JSON.stringify(r.nationality)}::jsonb ELSE eligible_nationalities END,
               education_levels=CASE WHEN education_levels IS NULL OR education_levels='[]'::jsonb
                 THEN ${JSON.stringify(r.education)}::jsonb ELSE education_levels END,
               fields_of_study=CASE WHEN fields_of_study IS NULL OR fields_of_study='[]'::jsonb
                 THEN ${JSON.stringify(r.fields)}::jsonb ELSE fields_of_study END,
-              status='Open',last_verified_at=now(),verification_confidence='high',
+              status=${r.status},last_verified_at=now(),verification_confidence='high',
               updated_at=now()
             WHERE id=${opp.id} RETURNING id
           `;
