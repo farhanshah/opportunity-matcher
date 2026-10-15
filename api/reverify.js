@@ -11,7 +11,10 @@ async function getProviderHtml(raw) {
   const original=canonicalUrl(raw);
   if(!original) throw Error('Official URL invalid or not HTTPS');
   let current=original;
-  for(let n=0;n<3;n++){
+  const seenRedirects=new Set();
+  for(let n=0;n<5;n++){
+    if(seenRedirects.has(current))throw Error('Official provider redirect loop');
+    seenRedirects.add(current);
     const r=await fetch(current,{redirect:'manual',signal:AbortSignal.timeout(8500),
       headers:{Accept:'text/html,application/xhtml+xml','User-Agent':'OpportunityMatcher-RecordVerification/1.0'}});
     if([301,302,303,307,308].includes(r.status)){
