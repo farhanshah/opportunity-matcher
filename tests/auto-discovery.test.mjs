@@ -11,6 +11,7 @@ function fixture(overrides = {}) {
     url:official,
     description:'Fully funded award covering tuition and stipend.',
     qualifications:"Bachelor's degree completed. Open to all nationalities and all fields of study.",
+    applicationStartDate:'2026-10-01',
     applicationDeadline:'2027-05-18',
     location:{name:'United Kingdom'},
     ...overrides
