@@ -167,11 +167,27 @@ async function publish(sql,source,url,result) {
       )
       ON CONFLICT(source_key) DO NOTHING
       RETURNING id
+    ), candidate_registered AS (
+      INSERT INTO opportunity_discovery_candidates(
+        canonical_url,source_id,provider,title,opportunity_type,deadline_date,
+        status,verification_reason,evidence,published_opportunity_id
+      )
+      SELECT ${url},${source.id},${source.provider},${r.title},${r.type},${r.deadline},
+        'published','Strict programme-specific official evidence validated',
+        ${JSON.stringify({...result.evidence,discovered_from:source.source_url})}::jsonb,upserted.id
+      FROM upserted
+      ON CONFLICT(canonical_url) DO UPDATE SET
+        status='published',source_id=EXCLUDED.source_id,provider=EXCLUDED.provider,
+        title=EXCLUDED.title,opportunity_type=EXCLUDED.opportunity_type,
+        deadline_date=EXCLUDED.deadline_date,verification_reason=EXCLUDED.verification_reason,
+        evidence=EXCLUDED.evidence,published_opportunity_id=EXCLUDED.published_opportunity_id,
+        last_checked_at=now(),updated_at=now()
+      RETURNING id
     )
     SELECT id FROM upserted
   `;
   if(!created)return {status:'needs_evidence',reason:'Programme identity conflict; public record withheld'};
-  return {status:'published',id:created.id};
+  return {status:'published',id:created.id,candidateStored:true};
 }
 
 async function findKnownOfficialLink(sql,url){
@@ -231,9 +247,13 @@ async function scanSource(sql,source) {
         const verified=verifyCandidate(page.html,page.url,source.provider);
         const published=await publish(sql,source,page.url,verified);
         const reason=published.reason|| (published.status==='published' ? 'Verified on official provider page' : verified.reasons.join('; '));
-        await saveCandidate(sql,source,page.url,link.title,verified,published.status,reason);
+        if(!published.candidateStored) {
+          await saveCandidate(sql,source,page.url,link.title,verified,published.status,reason);
+        }
         if(published.status==='published'){
-          await sql`UPDATE opportunity_discovery_candidates SET published_opportunity_id=${published.id} WHERE canonical_url=${page.url}`;
+          if(!published.candidateStored) {
+            await sql`UPDATE opportunity_discovery_candidates SET published_opportunity_id=${published.id} WHERE canonical_url=${page.url}`;
+          }
           result.published++;
         } else result.held++;
       }catch(e){result.errors.push(String(e.message||e).slice(0,140))}
