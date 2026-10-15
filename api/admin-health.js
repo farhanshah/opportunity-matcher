@@ -29,6 +29,11 @@ export default async function handler(req, res) {
         (SELECT count(*)::int FROM source_snapshots) AS total_snapshots,
         (SELECT count(*)::int FROM detected_changes) AS detected_changes,
         (SELECT count(*)::int FROM detected_changes WHERE status='pending_review') AS pending_review,
+        (SELECT count(*)::int FROM detected_changes WHERE status='pending_review' AND risk_level='high') AS high_risk_pending,
+        (SELECT count(*)::int FROM (
+          SELECT DISTINCT source_id, risk_level, change_type
+          FROM detected_changes WHERE status='pending_review'
+        ) grouped) AS pending_review_groups,
         (SELECT max(last_success_at) FROM monitored_sources WHERE is_active=true) AS latest_monitor_success,
         (SELECT max(fetched_at) FROM source_snapshots) AS latest_snapshot_at,
         (SELECT max(updated_at) FROM opportunities) AS latest_opportunity_update
@@ -85,18 +90,38 @@ export default async function handler(req, res) {
         o.external_id
     `;
 
+    // The review queue presents one recent representative per source, risk and
+    // change type. Every original event remains pending until reviewed individually.
     const changes = await sql`
+      WITH ranked AS (
+        SELECT c.id,
+          count(*) OVER (
+            PARTITION BY CASE WHEN c.status='pending_review'
+              THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
+              ELSE c.id::text END
+          )::int AS related_events,
+          row_number() OVER (
+            PARTITION BY CASE WHEN c.status='pending_review'
+              THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
+              ELSE c.id::text END
+            ORDER BY c.detected_at DESC, c.id
+          ) AS group_rank
+        FROM detected_changes c
+      )
       SELECT
         c.id, c.change_type, c.risk_level, c.field_name, c.old_value, c.new_value,
         c.diff_summary, c.status, c.detected_at, c.reviewed_at, c.review_note,
+        ranked.related_events,
         m.source_key, m.provider, m.source_url,
         o.external_id AS opportunity_external_id, o.title AS opportunity_title
-      FROM detected_changes c
+      FROM ranked
+      JOIN detected_changes c ON c.id=ranked.id
       JOIN monitored_sources m ON m.id=c.source_id
       LEFT JOIN opportunities o ON o.id=c.opportunity_id
-      ORDER BY
-        CASE WHEN c.status='pending_review' THEN 0 ELSE 1 END,
-        c.detected_at DESC
+      WHERE ranked.group_rank = 1
+      ORDER BY CASE WHEN c.status='pending_review' THEN 0 ELSE 1 END,
+               CASE WHEN c.risk_level='high' THEN 0 ELSE 1 END,
+               c.detected_at DESC
       LIMIT 100
     `;
 
