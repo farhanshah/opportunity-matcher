@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { originFromRequest } from '../lib/exact-ingest.js';
+import { originFromRequest, authoritative } from '../lib/exact-ingest.js';
 
 test('cron ingestion uses the public production domain, not protected deployment hostname', () => {
   const original=process.env.OPPMATCHER_PUBLIC_ORIGIN;
@@ -22,4 +22,12 @@ test('rejects unsafe configured callback domains', () => {
     if(original===undefined)delete process.env.OPPMATCHER_PUBLIC_ORIGIN;
     else process.env.OPPMATCHER_PUBLIC_ORIGIN=original;
   }
+});
+
+test('failed or incomplete provider reads cannot masquerade as authoritative', () => {
+  assert.equal(authoritative({ok:true,verification_health:'empty',openings:[]}),false);
+  assert.equal(authoritative({ok:true,fetch_error:'HTTP 403'}),false);
+  assert.equal(authoritative({ok:true,adapter_state:'unreadable'}),false);
+  assert.equal(authoritative({ok:true,verification_health:'degraded'}),false);
+  assert.equal(authoritative({ok:true,verification_health:'healthy',openings:[{title:'Internship'}]}),true);
 });
