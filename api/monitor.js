@@ -2,11 +2,8 @@ import { db } from '../lib/db.js';
 import { SOURCE_OPPORTUNITY_MAP, normalizeHtml, sha256, extractSignals, meaningfulChange, expectedContentPresent } from '../lib/monitor.js';
 import { ingestExactVacancies } from '../lib/exact-ingest.js';
 
-// The public product currently advertises 20 monitored official sources. Process the
-// whole current registry in one scheduled run so a source is not forced to wait for
-// the following day's cron simply because it fell outside an arbitrary batch of 10.
-// The exact-vacancy ingestion runs in parallel with these source checks so the same
-// daily cron powers both programme freshness and individual live-vacancy persistence.
+// Primary daily batch: 20 programme sources plus exact-vacancy ingestion.
+// A later source-only cron processes the remaining due sources without repeating ingestion.
 const MAX_SOURCES_PER_RUN = 20;
 const FETCH_CONCURRENCY = 10;
 
@@ -91,14 +88,27 @@ async function processSource(sql, source) {
   }
 }
 
-async function processDueSources(sql, due) {
+async function processDueSources(sql, due, concurrency = FETCH_CONCURRENCY) {
   const results = [];
-  for (let i = 0; i < due.length; i += FETCH_CONCURRENCY) {
-    const batch = due.slice(i, i + FETCH_CONCURRENCY);
+  for (let i = 0; i < due.length; i += concurrency) {
+    const batch = due.slice(i, i + concurrency);
     const batchResults = await Promise.all(batch.map(source => processSource(sql, source)));
     results.push(...batchResults);
   }
   return results;
+}
+
+export async function runDueSourceChecks(sql, maxSources = MAX_SOURCES_PER_RUN, concurrency = FETCH_CONCURRENCY) {
+  const due = await sql`
+    SELECT id, source_key, provider, source_url, expected_terms, etag, last_modified,
+           check_interval_minutes, last_checked_at
+    FROM monitored_sources
+    WHERE is_active=true
+      AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))
+    ORDER BY last_checked_at NULLS FIRST, check_interval_minutes ASC, source_key
+    LIMIT ${maxSources}
+  `;
+  return { results: await processDueSources(sql, due, concurrency), due_selected: due.length };
 }
 
 export default async function handler(req, res) {
@@ -107,20 +117,11 @@ export default async function handler(req, res) {
   try {
     const startedAt = Date.now();
     const sql = db();
-    const due = await sql`
-      SELECT id, source_key, provider, source_url, expected_terms, etag, last_modified,
-             check_interval_minutes, last_checked_at
-      FROM monitored_sources
-      WHERE is_active=true
-        AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))
-      ORDER BY last_checked_at NULLS FIRST, check_interval_minutes ASC, source_key
-      LIMIT ${MAX_SOURCES_PER_RUN}
-    `;
-
-    const [results, exactIngest] = await Promise.all([
-      processDueSources(sql, due),
+    const [sourceBatch, exactIngest] = await Promise.all([
+      runDueSourceChecks(sql),
       ingestExactVacancies(sql, req).catch(error => ([{ provider: 'INGESTION', status: 'degraded', exact: 0, authoritative: false, error: error.message }]))
     ]);
+    const { results, due_selected } = sourceBatch;
 
     const counts = results.reduce((acc, item) => {
       acc[item.result] = (acc[item.result] || 0) + 1;
@@ -132,7 +133,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       processed: results.length,
-      due_selected: due.length,
+      due_selected,
       max_sources_per_run: MAX_SOURCES_PER_RUN,
       concurrency: FETCH_CONCURRENCY,
       counts,
