@@ -62,3 +62,21 @@ test('canonical URLs drop tracking parameters and reject unsafe schemes', () => 
   assert.equal(canonicalUrl('http://localhost/private'),'');
   assert.equal(discoveryId(official),discoveryId(official+'?utm_source=x'));
 });
+
+test('future application opening dates remain Upcoming, not Open', () => {
+  const result=verifyCandidate(fixture({applicationStartDate:'2027-02-01'}),official,'University',new Date('2026-10-15T12:00:00Z'));
+  assert.equal(result.verified,true,result.reasons.join('; '));
+  assert.equal(result.record.status,'Upcoming');
+});
+
+test('impossible calendar dates cannot pass verification', () => {
+  const result=verifyCandidate(fixture({applicationDeadline:'2027-02-30'}),official,'University',new Date('2026-10-15T12:00:00Z'));
+  assert.equal(result.verified,false);
+  assert.ok(result.reasons.includes('exact application deadline unavailable'));
+});
+
+test('nomination requirements require route-level proof, not a general programme page', () => {
+  const result=verifyCandidate(fixture({qualifications:"Bachelor's degree completed. Open to all nationalities and all fields of study. University nomination required."}),official,'University',new Date('2026-10-15T12:00:00Z'));
+  assert.equal(result.verified,false);
+  assert.ok(result.reasons.includes('nomination prerequisite requires route-specific verification'));
+});
