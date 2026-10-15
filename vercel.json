@@ -30,6 +30,9 @@
     },
     "api/reverify.js": {
       "maxDuration": 60
+    },
+    "api/welcome-email.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -94,6 +97,10 @@
     {
       "path": "/api/reverify",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/welcome-email",
+      "schedule": "10 * * * *"
     }
   ]
 }
