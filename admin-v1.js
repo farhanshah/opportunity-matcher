@@ -2,7 +2,7 @@
   const $=id=>document.getElementById(id);
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const state={secret:sessionStorage.getItem('oppAdminSecret')||'',data:null,sourceFilter:'all',partialFilter:'all'};
-  const TITLES={overview:['Freshness overview','Monitor coverage, rule depth and anything that needs a human decision.'],sources:['Official-source monitors','Inspect every monitored source, its latest success and any fetch issue.'],reviews:['Change review queue','Human review stays between source changes and user-facing eligibility.'],partials:['Partially normalized records','See exactly which records are waiting on cycle evidence, route logic or provider-specific detail.']};
+  const TITLES={overview:['Freshness overview','Monitor coverage, rule depth and anything that needs a human decision.'],sources:['Official-source monitors','Inspect every monitored source, its latest success and any fetch issue.'],reviews:['Source evidence alerts','Automated source checks hold any change that lacks confirmed provider evidence.'],partials:['Partially normalized records','See exactly which records are waiting on cycle evidence, route logic or provider-specific detail.']};
 
   const fmtTime=v=>{if(!v)return'Never';const d=new Date(v);if(Number.isNaN(d.getTime()))return'—';return d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})};
   const ago=v=>{if(!v)return'Never';const d=new Date(v).getTime();if(!Number.isFinite(d))return'—';const m=Math.max(0,Math.round((Date.now()-d)/60000));if(m<2)return'just now';if(m<60)return`${m}m ago`;const h=Math.round(m/60);if(h<36)return`${h}h ago`;return`${Math.round(h/24)}d ago`};
