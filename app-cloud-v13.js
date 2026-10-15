@@ -7,6 +7,7 @@ const client=createClient({auth:{url:AUTH_URL},dataApi:{url:DATA_API_URL}});
 window.OpportunityCloudClient=client;
 
 let session=null,passportId=null,ready=false,syncing=false,pending=false,syncTimer=null,mode='signin',sessionState='checking';
+let enabledSocialProviders=new Set(['google']);
 const css=document.createElement('link');css.rel='stylesheet';css.href='/cloud-v13.css';document.head.appendChild(css);
 
 const initials=user=>String(user?.name||user?.email||'U').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
@@ -63,13 +64,34 @@ function updateAccountUI(){
   else setCloudStatus('Local only');
 }
 
+async function refreshSocialProviders(){
+  try{
+    const res=await fetch('/api/auth-providers',{cache:'no-store'});
+    if(!res.ok)return;
+    const data=await res.json();
+    if(!Array.isArray(data.providers))return;
+    enabledSocialProviders=new Set(data.providers.filter(p=>['google','github','microsoft'].includes(p)));
+    const modal=document.getElementById('cloudAuthModal');
+    if(modal && !modal.classList.contains('hide') && !session?.user &&
+       !document.getElementById('cloudPassword'))return;
+    if(modal && !modal.classList.contains('hide') && !session?.user)renderAuth();
+  }catch{}
+}
+function availableSocialButtons(){
+  const buttons=[{provider:'google',label:'Google',icon:'G'},
+    {provider:'github',label:'GitHub',icon:'GH'},
+    {provider:'microsoft',label:'Microsoft',icon:'M'}];
+  return buttons.filter(x=>enabledSocialProviders.has(x.provider))
+    .map(x=>`<button class="cloudGoogle cloudProvider-${x.provider}"
+      onclick="window.OpportunityCloud.social('${x.provider}')"><i>${x.icon}</i>Continue with ${x.label}</button>`).join('');
+}
 function renderAuth(){
   const card=document.getElementById('cloudAuthCard');if(!card)return;
   if(session?.user){
     card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>Your workspace follows you.</h2><p class="cloudLead">Passport, shortlist and application progress are protected by your account and synced to Neon.</p><div class="cloudAccountHero"><div class="cloudBigAvatar">${html(initials(session.user))}</div><div><b>${html(session.user.name||'Opportunity member')}</b><span>${html(session.user.email||'')}</span></div></div>${session.user.emailVerified===false?'<p class="cloudVerifyNotice">Your email is not verified yet. <button onclick="window.OpportunityCloud.verifyEmail()">Send verification email</button></p>':''}<div class="cloudStatusBox"><div><span>Passport</span><b>${passportId?'Cloud saved':'Connecting'}</b></div><div><span>Shortlist</span><b>${state.getSaved().length} saved</b></div><div><span>Tracker</span><b>${Object.keys(state.getTracks()).length} applications</b></div></div><div class="cloudAccountActions"><button onclick="window.OpportunityCloud.completePassport()">Profile &amp; email preferences</button><button onclick="window.OpportunityCloud.syncNow()">Sync now</button><button class="danger" onclick="window.OpportunityCloud.signOut()">Sign out</button></div>`;
     return;
   }
-  card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>${mode==='signin'?'Welcome back.':'Create your cloud workspace.'}</h2><p class="cloudLead">${mode==='signin'?'Sign in to restore your Passport, saved opportunities and tracker on this device.':'Your current browser workspace will be imported automatically after your first sign-in.'}</p><div class="cloudTabs"><button class="${mode==='signin'?'active':''}" onclick="window.OpportunityCloud.setMode('signin')">Sign in</button><button class="${mode==='signup'?'active':''}" onclick="window.OpportunityCloud.setMode('signup')">Create account</button></div><button class="cloudGoogle" onclick="window.OpportunityCloud.google()"><i>G</i>Continue with Google</button><div class="cloudDivider">or use email</div>${mode==='signup'?'<div class="cloudField"><label>Name</label><input id="cloudName" autocomplete="name" placeholder="Your name"></div>':''}<div class="cloudField"><label>Email</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><div class="cloudField"><label>Password</label><input id="cloudPassword" type="password" autocomplete="${mode==='signin'?'current-password':'new-password'}" placeholder="At least 8 characters"></div><button id="cloudSubmit" class="cloudSubmit" onclick="window.OpportunityCloud.emailSubmit()">${mode==='signin'?'Sign in':'Create account'}</button><div id="cloudAuthFeedback"></div>`;
+  card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>${mode==='signin'?'Welcome back.':'Create your cloud workspace.'}</h2><p class="cloudLead">${mode==='signin'?'Sign in to restore your Passport, saved opportunities and tracker on this device.':'Your current browser workspace will be imported automatically after your first sign-in.'}</p><div class="cloudTabs"><button class="${mode==='signin'?'active':''}" onclick="window.OpportunityCloud.setMode('signin')">Sign in</button><button class="${mode==='signup'?'active':''}" onclick="window.OpportunityCloud.setMode('signup')">Create account</button></div>${availableSocialButtons()}<div class="cloudDivider">or use email</div>${mode==='signup'?'<div class="cloudField"><label>Name</label><input id="cloudName" autocomplete="name" placeholder="Your name"></div>':''}<div class="cloudField"><label>Email</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><div class="cloudField"><label>Password</label><input id="cloudPassword" type="password" autocomplete="${mode==='signin'?'current-password':'new-password'}" placeholder="At least 8 characters"></div><button id="cloudSubmit" class="cloudSubmit" onclick="window.OpportunityCloud.emailSubmit()">${mode==='signin'?'Sign in':'Create account'}</button><div id="cloudAuthFeedback"></div>`;
 }
 function openAuth(){renderAuth();document.getElementById('cloudAuthModal')?.classList.remove('hide')}
 function closeAuth(){document.getElementById('cloudAuthModal')?.classList.add('hide')}
@@ -97,29 +119,33 @@ async function emailSubmit(){
     else feedback(mode==='signup'?'Account created. Check your email for verification and sign in to finish your Passport.':'Sign-in needs one more step. Please try again.');
   }catch(e){feedback(e.message||'Authentication failed.',true)}finally{if(btn){btn.disabled=false;btn.textContent=mode==='signin'?'Sign in':'Create account'}}
 }
-async function google(){
-  const button=document.querySelector('.cloudGoogle');
-  if(button){button.disabled=true;button.textContent='Opening Google…'}
+async function social(provider){
+  if(!['google','github','microsoft'].includes(provider) ||
+     !enabledSocialProviders.has(provider)) {
+    feedback('That sign-in provider is not connected to OppMatcher yet.',true);return;
+  }
+  const button=document.querySelector('.cloudProvider-'+provider);
+  if(button){button.disabled=true;button.textContent='Opening secure sign-in…'}
   try{
-    const response=await client.auth.signIn.social({
-      provider:'google',callbackURL:window.location.origin+'/',
-      errorCallbackURL:window.location.origin+'/',
-      disableRedirect:true,
-      additionalParams:{prompt:'select_account'}
-    });
-    const payload=unwrap(response);
-    const url=payload?.url||response?.url;
-    if(!url)throw new Error('Google did not return a sign-in page.');
+    const params={provider,callbackURL:window.location.origin+'/',
+      errorCallbackURL:window.location.origin+'/',disableRedirect:true};
+    if(provider==='google')params.additionalParams={prompt:'select_account'};
+    const response=await client.auth.signIn.social(params);
+    const payload=unwrap(response),url=payload?.url||response?.url;
+    if(!url)throw new Error('No secure sign-in destination was returned.');
     const target=new URL(url);
-    if(target.protocol!=='https:'||
-       !['accounts.google.com','www.google.com',new URL(AUTH_URL).hostname].includes(target.hostname))
-      throw new Error('Unexpected Google sign-in destination.');
+    const allowed=new Set([new URL(AUTH_URL).hostname,'accounts.google.com',
+      'www.google.com','github.com','login.microsoftonline.com','login.live.com']);
+    if(target.protocol!=='https:' || !allowed.has(target.hostname))
+      throw new Error('Unexpected identity provider destination.');
     window.location.assign(target.href);
   }catch(e){
-    feedback('Google sign-in could not start: '+(e.message||'Unknown error')+'. Email sign-in is still available.',true);
-    if(button){button.disabled=false;button.innerHTML='<i>G</i>Continue with Google'}
+    feedback('Sign-in could not start: '+(e.message||'Unknown error')+
+      '. Try your email or another available provider.',true);
+    if(button){button.disabled=false;button.textContent='Continue with '+provider[0].toUpperCase()+provider.slice(1)}
   }
 }
+async function google(){return social('google')}
 
 
 function showPostSignInOnboarding(user, passportRow={}, force=false){
@@ -309,9 +335,10 @@ async function refreshSession(bootstrap=false){
   return null;
 }
 
-window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,signOut,syncNow,completePassport:openProfileSettings,verifyEmail:requestEmailVerification,retrySession:()=>refreshSession(true)};
+window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,social,signOut,syncNow,completePassport:openProfileSettings,verifyEmail:requestEmailVerification,retrySession:()=>refreshSession(true)};
 window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
+void refreshSocialProviders();
 await refreshSession(true);
 const socialError=new URLSearchParams(window.location.search).get('error');
 if(socialError && !session?.user){
