@@ -33,6 +33,9 @@
     },
     "api/welcome-email.js": {
       "maxDuration": 60
+    },
+    "api/welcome-now.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
