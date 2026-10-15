@@ -44,13 +44,13 @@
       if(result?.error)throw new Error(result.error.message||String(result.error));
       feedback('If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.');
       if(btn)btn.textContent='Reset link sent';
-    }catch(e){feedback(e.message||'Could not send the reset email. Please try again.',true);if(btn){btn.disabled=false;btn.textContent='Send reset link'}}
+    }catch(e){console.warn('Password reset request was not confirmed');feedback('If this email is registered, a reset message should arrive shortly. If it does not, please try again later.');if(btn){btn.disabled=false;btn.textContent='Send reset link'}}
   }
 
   function resetParams(){const p=new URLSearchParams(location.search);return{token:p.get('token'),error:p.get('error'),reset:p.get('reset')}}
   function maybeOpenReset(){
     const {token,error,reset}=resetParams();
-    if(!token&&!error&&reset!=='1')return;
+    if(!token&&reset!=='1')return; // Do not mistake an OAuth error for a password-reset error.
     const c=card();if(!c)return;
     const key=error?`error:${error}`:token?`token:${token}`:'reset';
     if(recoveryHandled&&c.dataset.recoveryKey===key)return;
@@ -62,13 +62,13 @@
     }
     if(!token)return;
     c.dataset.recoveryView='reset';
-    c.innerHTML=`<button class="cloudClose" data-recover-close>×</button><div class="cloudEy">Password recovery</div><h2>Choose a new password.</h2><p class="cloudLead">Use at least 8 characters. After saving it, you can sign in normally.</p><div class="cloudField"><label>New password</label><input id="recoverPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters"></div><div class="cloudField"><label>Confirm password</label><input id="recoverConfirm" type="password" autocomplete="new-password" placeholder="Repeat password"></div><button id="recoverSave" class="cloudSubmit">Save new password</button><div id="cloudAuthFeedback"></div>`;
+    c.innerHTML=`<button class="cloudClose" data-recover-close>×</button><div class="cloudEy">Password recovery</div><h2>Choose a new password.</h2><p class="cloudLead">Use at least 12 characters. After saving it, you can sign in normally.</p><div class="cloudField"><label>New password</label><input id="recoverPassword" type="password" autocomplete="new-password" placeholder="At least 12 characters"></div><div class="cloudField"><label>Confirm password</label><input id="recoverConfirm" type="password" autocomplete="new-password" placeholder="Repeat password"></div><button id="recoverSave" class="cloudSubmit">Save new password</button><div id="cloudAuthFeedback"></div>`;
     c.querySelector('[data-recover-close]').onclick=cleanAndClose;c.querySelector('#recoverSave').onclick=()=>savePassword(token);show();
   }
 
   async function savePassword(token){
     const password=document.getElementById('recoverPassword')?.value||'';const confirm=document.getElementById('recoverConfirm')?.value||'';
-    if(password.length<8){feedback('Use a password with at least 8 characters.',true);return}
+    if(password.length<12){feedback('Use a password with at least 12 characters.',true);return}
     if(password!==confirm){feedback('The passwords do not match.',true);return}
     const btn=document.getElementById('recoverSave');if(btn){btn.disabled=true;btn.textContent='Saving…'}
     try{
