@@ -24,7 +24,13 @@ export default async function handler(req, res) {
         (SELECT count(*)::int FROM opportunity_eligibility_rules WHERE certainty <> 'confirmed') AS uncertain_rules,
         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true) AS active_monitors,
         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_success_at IS NOT NULL) AS successful_monitors,
+        (SELECT count(*)::int FROM monitored_sources
+          WHERE is_active=true AND last_error IS NULL AND last_success_at IS NOT NULL
+            AND last_checked_at > now() - (check_interval_minutes * interval '1 minute')) AS healthy_monitors,
         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_error IS NOT NULL) AS failing_monitors,
+        (SELECT count(*)::int FROM monitored_sources
+          WHERE is_active=true AND last_error IS NULL
+            AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))) AS due_without_error,
         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))) AS due_monitors,
         (SELECT count(*)::int FROM source_snapshots) AS total_snapshots,
         (SELECT count(*)::int FROM detected_changes) AS detected_changes,
