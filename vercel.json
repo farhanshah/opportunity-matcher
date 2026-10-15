@@ -21,34 +21,65 @@
     },
     "api/unops-openings.js": {
       "maxDuration": 30
+    },
+    "api/monitor-sources.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
     {
       "source": "/(.*)\\.html",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
       ]
     },
     {
       "source": "/(.*)\\.js",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/discover", "destination": "/index.html" },
-    { "source": "/saved", "destination": "/index.html" },
-    { "source": "/tracker", "destination": "/index.html" },
-    { "source": "/dashboard", "destination": "/index.html" },
-    { "source": "/prepare", "destination": "/prepare.html" },
-    { "source": "/admin", "destination": "/admin.html" }
+    {
+      "source": "/discover",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/saved",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tracker",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/prepare",
+      "destination": "/prepare.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    }
   ],
   "crons": [
     {
       "path": "/api/monitor",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/monitor-sources",
+      "schedule": "0 5 * * *"
     }
   ]
 }
