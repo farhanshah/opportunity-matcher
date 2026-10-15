@@ -48,13 +48,26 @@ async function publish(sql,source,url,result) {
   if(!result.verified) return {status:'needs_evidence',reason:result.reasons.join('; ')};
   const r=result.record;
   const existing=await sql`
-    SELECT id,external_id,title,eligible_nationalities,education_levels,fields_of_study
+    SELECT id,external_id,title,opportunity_type,funding_type,eligible_nationalities,education_levels,fields_of_study
     FROM opportunities WHERE regexp_replace(official_source_url,'/+$','')=${url.replace(/\/+$/,'')} LIMIT 1
   `;
   if(existing.length) {
     const o=existing[0];
     const normalized=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
     if(normalized(o.title)!==normalized(r.title)) return {status:'needs_evidence',reason:'Existing programme title conflicts with structured official evidence'};
+    // If the page disagrees with the stored award type or funding, don't
+    // falsely stamp the existing opportunity as verified.
+    if(String(o.opportunity_type||'').toLowerCase()!==r.type.toLowerCase() ||
+       String(o.funding_type||'').toLowerCase()!==r.funding.toLowerCase()) {
+      return {status:'needs_evidence',reason:'Existing award type or funding differs from provider evidence'};
+    }
+    const [routeCheck]=await sql`
+      SELECT count(*)::int AS total FROM opportunity_country_routes
+      WHERE opportunity_id=${o.id} AND is_active=true
+    `;
+    if(routeCheck.total>0) return {
+      status:'needs_evidence',reason:'Existing country-specific application routes cannot be overwritten from a general page'
+    };
     // Preserve established nationality/route-specific rules. Never overwrite them.
     if(!String(o.external_id||'').startsWith('AUTO-')) {
       const exact=JSON.stringify(o.eligible_nationalities||[]).toLowerCase().includes('all nationalit')
