@@ -1,0 +1,26 @@
+name: OppMatcher discovery safety
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/auto-discovery.js'
+      - 'api/discover.js'
+      - 'api/reverify.js'
+      - 'tests/auto-discovery.test.mjs'
+      - '.github/workflows/discovery-safety.yml'
+  workflow_dispatch:
+jobs:
+  discovery-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax validation
+        run: |
+          node --check lib/auto-discovery.js
+          node --check api/discover.js
+          node --check api/reverify.js
+      - name: Automated verifier tests
+        run: node --test tests/auto-discovery.test.mjs
