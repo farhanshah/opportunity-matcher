@@ -1,0 +1,21 @@
+/* v264 public homepage polish */
+@media (min-width:901px){
+  .landing #difference.section{padding-top:88px;padding-bottom:90px}
+  .landing .liveSection .section{padding-top:82px;padding-bottom:82px}
+  .landing .guideSection .section{padding-top:76px;padding-bottom:78px}
+  .landing .engine .section{padding-top:88px;padding-bottom:88px}
+  .landing #how.section{padding-top:90px;padding-bottom:90px}
+  .landing .guideGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .landing .guideCard{min-height:262px;padding:24px}
+  .landing .guideCard h3{font-size:21px}
+}
+@media (max-width:1100px) and (min-width:701px){
+  .landing .guideGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:700px){
+  .landing #difference.section,
+  .landing .liveSection .section,
+  .landing .guideSection .section,
+  .landing .engine .section,
+  .landing #how.section{padding-top:64px;padding-bottom:64px}
+}
