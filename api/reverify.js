@@ -42,13 +42,24 @@ async function checkOne(sql,opp){
     } else if(lower(report.record.title)!==lower(opp.title)){
       outcome='needs_evidence: programme title mismatch';
     } else {
+      // A matching name alone cannot confirm a different award, funding package
+      // or destination. Only label the record verified when these basic
+      // programme identity facts agree with the provider's explicit evidence.
+      const oldType=String(opp.opportunity_type||'').toLowerCase().trim();
+      const oldFunding=String(opp.funding_type||'').toLowerCase().trim();
+      const oldDestination=String(opp.destination_country||'').toLowerCase().trim();
+      const materialMismatch=Boolean(
+        (oldType && oldType!==report.record.type.toLowerCase()) ||
+        (oldFunding && oldFunding!==report.record.funding.toLowerCase()) ||
+        (oldDestination && oldDestination!==report.record.destination.toLowerCase().trim())
+      );
       const oldCountry=JSON.stringify(opp.eligible_nationalities||[]).toLowerCase();
       const oldDegree=JSON.stringify(opp.education_levels||[]).toLowerCase();
       const oldFields=JSON.stringify(opp.fields_of_study||[]).toLowerCase();
       const fitCountry=!oldCountry || oldCountry==='[]' || oldCountry.includes('all nationalit');
       const fitDegree=!oldDegree || oldDegree==='[]' || oldDegree.includes(report.record.education[0].toLowerCase());
       const fitFields=!oldFields || oldFields==='[]' || oldFields.includes('all field');
-      if(!fitCountry || !fitDegree || !fitFields){
+      if(materialMismatch || !fitCountry || !fitDegree || !fitFields){
         outcome='needs_evidence: verified source differs from stored eligibility';
       } else {
         // Country-specific paths are independently scoped, so a general
@@ -107,7 +118,7 @@ export default async function handler(req,res){
       RETURNING o.external_id
     `;
     const records=await sql`
-      SELECT id,external_id,title,provider,official_source_url,eligible_nationalities,education_levels,fields_of_study
+      SELECT id,external_id,title,provider,opportunity_type,funding_type,destination_country,official_source_url,eligible_nationalities,education_levels,fields_of_study
       FROM opportunities WHERE official_source_url IS NOT NULL AND official_source_url<>''
       ORDER BY last_recheck_at NULLS FIRST,external_id LIMIT ${BATCH}
     `;
