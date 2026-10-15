@@ -199,7 +199,7 @@ async function savePostSignInOnboarding(prior={}){
     };
     await query(client.from('user_passports').update(payload).eq('auth_user_id',session.user.id));
     const current=state.getProfile()||{};
-    state.setProfile({...current,nat,residence,edu,field,age:age?Number(age):'',gpa:gpa?Number(gpa):''});
+    state.setProfile({...current,nat,residence,edu,field,degreeName:degree,age:age?Number(age):'',gpa:gpa?Number(gpa):''});
     state.render();closeAuth();
     window.showApp?.();
     window.setView?.('discover',{replace:true});
@@ -223,10 +223,30 @@ async function waitForOpportunityIds(){
   return state.getOpps();
 }
 function profileInsertPayload(p,user){return{user_key:`auth:${user.id}`,auth_user_id:user.id,nationality:p.nat||null,country_of_residence:p.residence||null,age:p.age||null,education_level:p.edu||null,degree_status:null,degree_name:null,field_of_study:p.field||null,gpa:p.gpa===''||p.gpa==null?null:Number(p.gpa),graduation_year:null,work_experience_months:Number(p.expMonths||0),english_readiness:p.english||null,desired_countries:[],desired_opportunity_types:p.type&&p.type!=='Any'?[p.type]:[],funding_preferences:p.fund&&p.fund!=='Any'?[p.fund]:[]}}
-function profileUpdatePayload(p){const x=profileInsertPayload(p,{id:'unused'});delete x.user_key;delete x.auth_user_id;return x}
+function profileUpdatePayload(p){const x=profileInsertPayload(p,{id:'unused'});delete x.user_key;delete x.auth_user_id;for(const field of ['degree_status','degree_name','graduation_year'])delete x[field];return x}
 function rowToProfile(row){return{nat:row.nationality||'',residence:row.country_of_residence||'',age:row.age??'',english:row.english_readiness||'Not specified',edu:row.education_level||'',field:row.field_of_study||'',gpa:row.gpa??'',expMonths:Number(row.work_experience_months||0),type:Array.isArray(row.desired_opportunity_types)&&row.desired_opportunity_types[0]?row.desired_opportunity_types[0]:'Any',fund:Array.isArray(row.funding_preferences)&&row.funding_preferences[0]?row.funding_preferences[0]:'Any'}}
 async function query(builder){const result=await builder;if(result?.error)throw new Error(result.error.message||String(result.error));return result?.data??[]}
 
+let welcomeTriggeredFor='';
+async function triggerWelcomeOnAuthenticatedSignIn(){
+  if(!session?.user?.id || !session?.user?.emailVerified)return;
+  const bearer=session.session?.token||session.token;
+  if(typeof bearer!=='string'||bearer.length<20)return;
+  if(welcomeTriggeredFor===session.user.id)return;
+  welcomeTriggeredFor=session.user.id;
+  try{
+    const result=await fetch('/api/welcome-now',{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:'Bearer '+bearer},
+      body:'{}',cache:'no-store',credentials:'same-origin'
+    });
+    if(!result.ok){welcomeTriggeredFor='';return}
+    const payload=await result.json();
+    if(payload.configured===false)welcomeTriggeredFor='';
+    // The mail provider may accept delivery asynchronously. Never tell users
+    // an email has arrived just because this trigger returned successfully.
+  }catch{welcomeTriggeredFor=''}
+}
 async function bootstrapCloud(user){
   let postSignInRow=null;
   ready=false;updateAccountUI();setCloudStatus('Connecting…','syncing');await waitForOpportunityIds();
@@ -234,7 +254,7 @@ async function bootstrapCloud(user){
     const rows=await query(client.from('user_passports').select('*').eq('auth_user_id',user.id).limit(1));
     if(rows?.length){postSignInRow=rows[0];passportId=rows[0].id;await loadCloudState(rows[0]);toast('Workspace restored','Your cloud Passport, shortlist and tracker are loaded on this device.')}
     else{const local=state.getProfile();const created=await query(client.from('user_passports').insert(profileInsertPayload(local,user)).select('*'));if(!created?.length)throw new Error('Could not create your cloud Passport.');passportId=created[0].id;postSignInRow=created[0];await importLocalChildren();toast('Browser workspace imported','Your existing Passport, saves and tracker are now attached to your account.')}
-    ready=true;sessionState='signedin';updateAccountUI();setCloudStatus('Cloud synced','ok');state.render();renderAuth();showPostSignInOnboarding(user,postSignInRow||{});
+    ready=true;sessionState='signedin';updateAccountUI();setCloudStatus('Cloud synced','ok');state.render();renderAuth();void triggerWelcomeOnAuthenticatedSignIn();showPostSignInOnboarding(user,postSignInRow||{});
   }catch(e){console.error('Cloud bootstrap failed',e);setCloudStatus('Sync issue','error');toast('Cloud sync needs attention',e.message||'Please try signing in again.')}
 }
 async function loadCloudState(passportRow){
@@ -263,7 +283,7 @@ function scheduleSync(){if(!session?.user||!ready)return;clearTimeout(syncTimer)
 async function syncNow(){await performSync();toast('Sync complete','Your current workspace is saved to the cloud.');renderAuth()}
 async function signOut(){
   try{if(ready)await performSync();await client.auth.signOut()}catch(e){console.warn(e)}
-  session=null;passportId=null;ready=false;sessionState='signedout';state.clear();updateAccountUI();closeAuth();try{window.showLanding?.()}catch{}toast('Signed out','The browser copy was cleared. Sign back in to restore your workspace.')
+  session=null;passportId=null;welcomeTriggeredFor='';ready=false;sessionState='signedout';state.clear();updateAccountUI();closeAuth();try{window.showLanding?.()}catch{}toast('Signed out','The browser copy was cleared. Sign back in to restore your workspace.')
 }
 async function refreshSession(bootstrap=false){
   sessionState='checking';updateAccountUI();
