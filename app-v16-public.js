@@ -43,7 +43,7 @@
     const finalPrimary=q('.cta .heroActions .btnPrimary');
     const finalSecondary=q('.cta .heroActions .btnGhost');
     const footerTag=q('.footer .brandword small');
-    const footerCopy=q('.footer > div:last-child');
+    const footerCopy=q('.footer .footerLinks > span')||q('.footer > div:last-child');
 
     setText(finalCopy,'Discover live opportunities, check eligibility against official sources, and keep your shortlist and applications together in one workspace.');
     setText(footerTag,'global matcher');
