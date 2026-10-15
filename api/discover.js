@@ -12,7 +12,10 @@ function authorised(req) {
 async function fetchOfficial(url, authority) {
   let next = canonicalUrl(url);
   if (!next || !officialHostMatches(next, authority)) throw Error('Not an authorised source');
-  for (let i=0; i<3; i++) {
+  const seenRedirects=new Set();
+  for (let i=0; i<5; i++) {
+    if(seenRedirects.has(next))throw Error('Official provider redirect loop');
+    seenRedirects.add(next);
     const r = await fetch(next, {redirect:'manual',signal:AbortSignal.timeout(8500),
       headers:{Accept:'text/html,application/xhtml+xml', 'User-Agent':'OpportunityMatcher-OfficialSources/1.0'}});
     if ([301,302,303,307,308].includes(r.status)) {
