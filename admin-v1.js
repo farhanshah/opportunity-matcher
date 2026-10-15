@@ -68,9 +68,15 @@
   }
 
   function renderReviews(){
-    const rows=[...(state.data.changes||[])];const pending=rows.filter(x=>x.status==='pending_review');const resolved=rows.filter(x=>x.status!=='pending_review');const list=[...pending,...resolved].slice(0,50);
+    const rows=[...(state.data.changes||[])];const pending=rows.filter(x=>x.status==='pending_review');const resolved=rows.filter(x=>x.status!=='pending_review');const list=[...pending,...resolved].slice(0,100);
+    const summary=state.data.summary||{};
+    const grouped=Number(summary.pending_review_groups??pending.length);
+    const outstanding=Number(summary.pending_review??0);
+    const highRisk=Number(summary.high_risk_pending??0);
+    const countNote=`${outstanding} pending events in ${grouped} review groups · ${highRisk} high-risk events. Reviewing a card handles only that individual event.`;
+    const summaryEl=$('reviewSummary');if(summaryEl)summaryEl.textContent=countNote;
     if(!list.length){$('reviewQueue').innerHTML=`<div class="emptyState"><strong>No source changes are waiting for review.</strong><p>The baseline is quiet. When the monitor detects a meaningful deadline, country or eligibility shift, it will appear here before high-impact data changes silently.</p></div>`;return}
-    $('reviewQueue').innerHTML=list.map(x=>`<article class="reviewCard"><div><div class="reviewTop"><span class="reviewRisk ${esc(x.risk_level||'medium')}">${esc(x.risk_level||'review')}</span><span class="reviewDate">${ago(x.detected_at)} · ${esc(x.provider)}</span></div><h3>${esc(x.opportunity_title||x.source_key||'Source change')}</h3><p>${esc(x.diff_summary||`${x.change_type||'Change'} detected in ${x.field_name||'source evidence'}.`)}</p></div><div class="reviewActions">${x.status==='pending_review'?`<button onclick="window.Ops.review('${esc(x.id)}','investigate')">Keep investigating</button><button onclick="window.Ops.review('${esc(x.id)}','ignore')">Ignore</button><button class="approve" onclick="window.Ops.review('${esc(x.id)}','approve')">Approve review</button>`:`<span class="statusBadge">${esc(x.status)}</span>`}<a class="rowLink" href="${esc(x.source_url||'#')}" target="_blank" rel="noopener">↗</a></div></article>`).join('');
+    $('reviewQueue').innerHTML=list.map(x=>`<article class="reviewCard"><div><div class="reviewTop"><span class="reviewRisk ${esc(x.risk_level||'medium')}">${esc(x.risk_level||'review')}</span><span class="reviewDate">${ago(x.detected_at)} · ${esc(x.provider)}</span></div><h3>${esc(x.opportunity_title||x.source_key||'Source change')}</h3><p>${esc(x.diff_summary||`${x.change_type||'Change'} detected in ${x.field_name||'source evidence'}.`)}</p>${Number(x.related_events||1)>1?`<p class="reviewGroupHint">${Number(x.related_events)} pending alerts of this type. This card shows the latest event; older alerts remain available for individual review.</p>`:''}</div><div class="reviewActions">${x.status==='pending_review'?`<button onclick="window.Ops.review('${esc(x.id)}','investigate')">Keep investigating</button><button onclick="window.Ops.review('${esc(x.id)}','ignore')">Ignore</button><button class="approve" onclick="window.Ops.review('${esc(x.id)}','approve')">Mark this reviewed</button>`:`<span class="statusBadge">${esc(x.status)}</span>`}<a class="rowLink" href="${esc(x.source_url||'#')}" target="_blank" rel="noopener">↗</a></div></article>`).join('');
   }
 
   async function review(id,action){
