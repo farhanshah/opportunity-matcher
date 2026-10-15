@@ -71,6 +71,15 @@ async function processSource(sql, source) {
         const [opp] = await sql`SELECT id FROM opportunities WHERE external_id=${externalId} LIMIT 1`;
         opportunityId = opp?.id || null;
       }
+      if (!opportunityId) {
+        // Dynamically discovered sources are not in the legacy hard-coded map.
+        const [opp] = await sql`
+          SELECT id FROM opportunities
+          WHERE regexp_replace(official_source_url,'/+$','')=${source.source_url.replace(/\/+$/,'')}
+          LIMIT 1
+        `;
+        opportunityId = opp?.id || null;
+      }
       const status = change.risk === 'low' ? 'auto_accepted' : 'pending_review';
       // Changes with exactly the same extracted evidence should not create
       // fresh alerts on each subsequent provider scan.
