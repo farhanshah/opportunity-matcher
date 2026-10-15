@@ -85,6 +85,8 @@ export default async function handler(req, res) {
       });
     }
 
+    const today = new Date().toISOString().slice(0, 10);
+    const verificationCutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
     const opportunities = rows.map(row => ({
       Database_ID: row.id,
       Opportunity_ID: row.external_id,
@@ -93,7 +95,7 @@ export default async function handler(req, res) {
       Type: row.opportunity_type,
       Destination: row.destination_country || '',
       Funding: row.funding_type || '',
-      Status: row.status || '',
+      Status: row.application_close_date && isoDate(row.application_close_date) < today ? 'Closed' : (row.status || ''),
       Open_Date: isoDate(row.application_open_date),
       Close_Date: isoDate(row.application_close_date),
       Expected_Reopen: isoDate(row.expected_reopen_date),
@@ -103,6 +105,8 @@ export default async function handler(req, res) {
       Application_Fee: row.application_fee || '',
       Last_Verified: isoDate(row.last_verified_at),
       Verification_Confidence: prettyConfidence(row.verification_confidence),
+      Verification_Stale: !row.last_verified_at || new Date(row.last_verified_at).getTime() < verificationCutoff,
+      Verification_Status: !row.last_verified_at || new Date(row.last_verified_at).getTime() < verificationCutoff ? 'Reverification overdue' : 'Recently source-verified',
       Eligible_Nationalities: Array.isArray(row.eligible_nationalities) ? row.eligible_nationalities : [],
       Education_Levels: Array.isArray(row.education_levels) ? row.education_levels : [],
       Fields_of_Study: Array.isArray(row.fields_of_study) ? row.fields_of_study : [],
