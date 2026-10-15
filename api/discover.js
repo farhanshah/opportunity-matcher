@@ -68,6 +68,16 @@ async function publish(sql,source,url,result) {
     `;
     return {status:'published',id:row.id};
   }
+  // Do not create a second card for the same named programme when the
+  // provider changes its application URL between cycles or page redesigns.
+  const possibleDuplicate=await sql`
+    SELECT id FROM opportunities
+    WHERE lower(title)=lower(${r.title}) AND lower(provider)=lower(${r.provider})
+    LIMIT 1
+  `;
+  if(possibleDuplicate.length) return {
+    status:'needs_evidence',reason:'Possible existing programme with a different official URL; duplicate withheld'
+  };
   const id=discoveryId(url);
   const [created]=await sql`
     INSERT INTO opportunities(
