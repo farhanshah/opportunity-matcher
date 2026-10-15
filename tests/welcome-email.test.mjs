@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { welcomeMessage } from '../api/welcome-email.js';
+import { welcomeMessage } from '../lib/welcome-content.js';
 
 test('welcome email is a transactional account message',()=>{
   const message=welcomeMessage('Riya Sharma');
