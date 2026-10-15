@@ -6,6 +6,10 @@
     return Boolean(entry&&entry.classList.contains('cloudAccountBtn')&&!entry.classList.contains('signedOut'));
   };
   const tracksCount=()=>{
+    try{
+      const active=Number(window.OpportunityProductUX?.countState?.().tracked);
+      if(Number.isFinite(active))return active
+    }catch{}
     try{return Object.keys(window.OpportunityState?.getTracks?.()||{}).length}catch{}
     try{return Object.keys(JSON.parse(localStorage.getItem('oppTracksV6')||'{}')).length}catch{return 0}
   };
@@ -43,7 +47,7 @@
 
     setText(finalCopy,'Discover live opportunities, check eligibility against official sources, and keep your shortlist and applications together in one workspace.');
     setText(footerTag,'global matcher');
-    setHtml(footerCopy,'Official-source links remain the source of truth for applications and eligibility.<br>© 2026 Opportunity.');
+    setHtml(footerCopy,'Official source links remain the source of truth for applications and eligibility.<br>© 2026 Opportunity.');
 
     if(authed){
       wire(navCta,'Open workspace <span>↗</span>',()=>openWorkspace());
@@ -51,7 +55,7 @@
       wire(heroSecondary,tracks?'Open tracker':'Review my matches',()=>openWorkspace(tracks?'tracker':'discover'));
       wire(engineCta,'Open live matcher',()=>openWorkspace('discover'));
       wire(finalPrimary,'Open my workspace <span>↗</span>',()=>openWorkspace());
-      wire(finalSecondary,tracks?`Open tracker · ${tracks}`:saved?`Review shortlist · ${saved}`:'Review my matches',()=>openWorkspace(tracks?'tracker':saved?'saved':'discover'));
+      wire(finalSecondary,tracks?`Open tracker · ${tracks} active`:saved?`Review shortlist · ${saved}`:'Review my matches',()=>openWorkspace(tracks?'tracker':saved?'saved':'discover'));
     }else{
       wire(navCta,'Build my Passport <span>↗</span>',()=>window.openOnboard?.());
       wire(heroPrimary,'Create my Opportunity Passport <span>↗</span>',()=>window.openOnboard?.());
