@@ -2,7 +2,8 @@ import { db } from '../lib/db.js';
 import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId } from '../lib/auto-discovery.js';
 
 const SOURCE_BATCH = 12;
-const LINKS_PER_SOURCE = 2;
+const LINKS_PER_SOURCE = 16;
+const DETAIL_CHECKS_PER_SOURCE = 2;
 const CONCURRENCY = 6;
 function authorised(req) {
   return Boolean(process.env.CRON_SECRET) && req.headers.authorization === 'Bearer ' + process.env.CRON_SECRET;
@@ -168,7 +169,7 @@ async function noteExistingLink(sql,source,link,known){
   `;
 }
 async function scanSource(sql,source) {
-  const result={source:source.source_key,links:0,published:0,held:0,existing:0,used_monitor_snapshot:false,errors:[]};
+  const result={source:source.source_key,links:0,detail_checked:0,published:0,held:0,existing:0,used_monitor_snapshot:false,errors:[]};
   try{
     // Reuse the last accepted official monitor snapshot when a recent
     // successful recheck attests that the page has not changed.
@@ -189,6 +190,16 @@ async function scanSource(sql,source) {
           result.existing++;
           continue;
         }
+        if(result.detail_checked>=DETAIL_CHECKS_PER_SOURCE)break;
+        // Do not re-fetch an incomplete candidate every day. Once the
+        // provider changes its page or the retry window passes, retry safely.
+        const [previous]=await sql`
+          SELECT status,last_checked_at FROM opportunity_discovery_candidates
+          WHERE canonical_url=${link.url} LIMIT 1
+        `;
+        if(previous?.status==='needs_evidence' &&
+           Date.now()-new Date(previous.last_checked_at).getTime()<7*24*60*60*1000)continue;
+        result.detail_checked++;
         const page=await fetchOfficial(link.url,source.source_url);
         const verified=verifyCandidate(page.html,page.url,source.provider);
         const published=await publish(sql,source,page.url,verified);
