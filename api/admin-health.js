@@ -118,12 +118,28 @@ export default async function handler(req, res) {
         c.id, c.change_type, c.risk_level, c.field_name, c.old_value, c.new_value,
         c.diff_summary, c.status, c.detected_at, c.reviewed_at, c.review_note,
         ranked.related_events,
+        jsonb_build_object(
+          'previous', jsonb_build_object(
+            'dates', prev.extraction_payload->'dates',
+            'application', prev.extraction_payload->'application'->0,
+            'eligibility', prev.extraction_payload->'eligibility'->0,
+            'funding', prev.extraction_payload->'funding'->0
+          ),
+          'current', jsonb_build_object(
+            'dates', curr.extraction_payload->'dates',
+            'application', curr.extraction_payload->'application'->0,
+            'eligibility', curr.extraction_payload->'eligibility'->0,
+            'funding', curr.extraction_payload->'funding'->0
+          )
+        ) AS evidence_preview,
         m.source_key, m.provider, m.source_url,
         o.external_id AS opportunity_external_id, o.title AS opportunity_title
       FROM ranked
       JOIN detected_changes c ON c.id=ranked.id
       JOIN monitored_sources m ON m.id=c.source_id
       LEFT JOIN opportunities o ON o.id=c.opportunity_id
+      LEFT JOIN source_snapshots prev ON prev.id=c.previous_snapshot_id
+      LEFT JOIN source_snapshots curr ON curr.id=c.current_snapshot_id
       WHERE ranked.group_rank = 1
       ORDER BY CASE WHEN c.status='pending_review' THEN 0 ELSE 1 END,
                CASE WHEN c.risk_level='high' THEN 0 ELSE 1 END,
