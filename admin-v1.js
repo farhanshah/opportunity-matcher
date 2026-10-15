@@ -31,17 +31,17 @@
     const s=state.data.summary||{};const pct=s.total_opportunities?Math.round((s.normalized_opportunities/s.total_opportunities)*100):0;
     $('coveragePct').textContent=pct+'%';$('coverageRing').style.setProperty('--p',pct);
     $('normalizedCount').textContent=s.normalized_opportunities??'—';$('totalOppCount').textContent=s.total_opportunities??'—';
-    $('monitorSuccess').textContent=`${s.successful_monitors??0}/${s.active_monitors??0}`;$('monitorTotal').textContent=`${s.active_monitors??0} active`;$('monitorFailPill').textContent=`${s.failing_monitors??0} issues`;
+    $('monitorSuccess').textContent=`${s.healthy_monitors??0}/${s.active_monitors??0}`;$('monitorTotal').textContent=`${s.active_monitors??0} active · healthy now`;$('monitorFailPill').textContent=`${s.failing_monitors??0} issues`;
     $('ruleCount').textContent=s.total_rules??'—';$('nonCountryRules').textContent=`${s.non_country_rules??0} non-country`;$('uncertainRules').textContent=`${s.uncertain_rules??0} uncertain`;
     $('pendingCount').textContent=s.pending_review??0;$('snapshotCount').textContent=`${s.total_snapshots??0} snapshots`;
     $('navSourceCount').textContent=s.active_monitors??'—';$('navReviewCount').textContent=s.pending_review??0;$('navPartialCount').textContent=s.partial_opportunities??'—';
     $('lastRefresh').textContent=fmtTime(state.data.generated_at);
     const issues=Number(s.failing_monitors||0),due=Number(s.due_monitors||0);
-    $('sideStatusText').textContent=issues?`${issues} source${issues===1?'':'s'} need attention`:due?`${due} source${due===1?'':'s'} due`:'Freshness checks are current';
+    $('sideStatusText').textContent=issues||due?`${issues} issues · ${due} due (including errors)`:'Freshness checks are current';
     const dot=document.querySelector('.statusDot');if(dot)dot.style.background=issues?'var(--amber)':'var(--green)';
 
-    const total=Number(s.active_monitors||0)||1,healthy=Math.max(0,Number(s.successful_monitors||0)-issues),issue=issues;
-    $('healthBars').innerHTML=[['Healthy',healthy,'healthy'],['Issues',issue,'issue'],['Due now',Number(s.due_monitors||0),'due']].map(([label,n,cls])=>`<div class="healthRow"><span>${label}</span><div class="healthTrack"><i class="${cls}" style="width:${Math.min(100,(n/total)*100)}%"></i></div><b>${n}</b></div>`).join('');
+    const total=Number(s.active_monitors||0)||1,healthy=Number(s.healthy_monitors||0),issue=issues,awaiting=Number(s.due_without_error||0);
+    $('healthBars').innerHTML=[['Healthy now',healthy,'healthy'],['Issues',issue,'issue'],['Due · no error',awaiting,'due']].map(([label,n,cls])=>`<div class="healthRow"><span>${label}</span><div class="healthTrack"><i class="${cls}" style="width:${Math.min(100,(n/total)*100)}%"></i></div><b>${n}</b></div>`).join('');
     const failing=(state.data.sources||[]).filter(x=>x.health==='error').slice(0,4);
     $('sourceIssuePreview').innerHTML=failing.length?failing.map(x=>`<div class="issueLine"><i></i><div><b>${esc(x.provider)}</b><span>${esc(x.last_error||'Fetch issue')}</span></div><span>${ago(x.last_checked_at)}</span></div>`).join(''):`<div class="issueLine"><i style="background:var(--green)"></i><div><b>All direct monitors healthy</b><span>No active fetch errors</span></div><span>current</span></div>`;
     const preview=(state.data.partials||[]).slice(0,5);
