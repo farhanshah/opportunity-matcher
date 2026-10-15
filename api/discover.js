@@ -133,8 +133,29 @@ async function publish(sql,source,url,result) {
   return {status:'published',id:created.id};
 }
 
+async function findKnownOfficialLink(sql,url){
+  const [row]=await sql`
+    SELECT id,title,external_id FROM opportunities
+    WHERE regexp_replace(official_source_url,'/+$','')=${url.replace(/\/+$/,'')}
+    LIMIT 1
+  `;
+  return row || null;
+}
+async function noteExistingLink(sql,source,link,known){
+  await sql`
+    INSERT INTO opportunity_discovery_candidates(
+      canonical_url,source_id,provider,title,status,verification_reason,published_opportunity_id,evidence
+    ) VALUES(
+      ${link.url},${source.id},${source.provider},${known.title},
+      'existing','Already present in the main catalogue; no duplicate published',
+      ${known.id},${JSON.stringify({discovered_from:source.source_url,existing_id:known.external_id})}::jsonb
+    ) ON CONFLICT(canonical_url) DO UPDATE SET
+      status='existing',published_opportunity_id=EXCLUDED.published_opportunity_id,
+      verification_reason=EXCLUDED.verification_reason,last_checked_at=now(),updated_at=now()
+  `;
+}
 async function scanSource(sql,source) {
-  const result={source:source.source_key,links:0,published:0,held:0,used_monitor_snapshot:false,errors:[]};
+  const result={source:source.source_key,links:0,published:0,held:0,existing:0,used_monitor_snapshot:false,errors:[]};
   try{
     // Reuse the last accepted official monitor snapshot when a recent
     // successful recheck attests that the page has not changed.
@@ -149,6 +170,12 @@ async function scanSource(sql,source) {
     result.links=links.length;
     for(const link of links) {
       try {
+        const known=await findKnownOfficialLink(sql,link.url);
+        if(known){
+          await noteExistingLink(sql,source,link,known);
+          result.existing++;
+          continue;
+        }
         const page=await fetchOfficial(link.url,source.source_url);
         const verified=verifyCandidate(page.html,page.url,source.provider);
         const published=await publish(sql,source,page.url,verified);
@@ -192,6 +219,7 @@ export default async function handler(req,res){
       discovered_links:results.reduce((n,x)=>n+x.links,0),
       automatically_published:results.reduce((n,x)=>n+x.published,0),
       withheld:results.reduce((n,x)=>n+x.held,0),
+      existing_programme_links:results.reduce((n,x)=>n+x.existing,0),
       sources_with_errors:results.filter(x=>x.errors.length).length,
       results,checked_at:new Date().toISOString()
     });
