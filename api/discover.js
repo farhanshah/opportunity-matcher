@@ -126,6 +126,19 @@ async function publish(sql,source,url,result) {
         WHERE r.opportunity_id=upserted.id AND r.rule_code='country_scope'
       )
       RETURNING id
+    ), source_registered AS (
+      INSERT INTO monitored_sources(
+        source_key,provider,source_url,source_type,check_interval_minutes,expected_terms,is_active
+      )
+      SELECT ${'discovered_'+id.slice(5).toLowerCase()},${r.provider},${url},
+        'official_page',1440,'[]'::jsonb,true
+      FROM upserted
+      WHERE NOT EXISTS (
+        SELECT 1 FROM monitored_sources m
+        WHERE regexp_replace(m.source_url,'/+$','')=${url.replace(/\/+$/,'')}
+      )
+      ON CONFLICT(source_key) DO NOTHING
+      RETURNING id
     )
     SELECT id FROM upserted
   `;
