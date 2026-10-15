@@ -81,10 +81,20 @@ async function emailSubmit(){
   if(!email||!password){feedback('Enter your email and password.',true);return}if(mode==='signup'&&!name){feedback('Add your name to create the account.',true);return}if(password.length<8){feedback('Use a password with at least 8 characters.',true);return}
   const btn=document.getElementById('cloudSubmit');if(btn){btn.disabled=true;btn.textContent=mode==='signin'?'Signing in…':'Creating account…'}
   try{
-    if(mode==='signin')unwrap(await client.auth.signIn.email({email,password}));else unwrap(await client.auth.signUp.email({email,password,name}));
+    if(mode==='signin')unwrap(await client.auth.signIn.email({email,password}));
+    else {
+      unwrap(await client.auth.signUp.email({email,password,name}));
+      // The welcome email is sent only after the address is verified.
+      // Ask Neon Auth to send its first-party verification message.
+      if(typeof client.auth.sendVerificationEmail==='function'){
+        try{
+          unwrap(await client.auth.sendVerificationEmail({email,callbackURL:window.location.origin+'/'}));
+        }catch(e){console.warn('Email verification message could not be requested',e)}
+      }
+    }
     await refreshSession(true);
     if(session?.user){closeAuth();toast('Cloud workspace active',ready?'Your account data is synced.':'Signed in. Finishing cloud setup…')}
-    else feedback(mode==='signup'?'Account created. If verification is required, check your email, then sign in.':'Sign-in needs one more step. Please try again.');
+    else feedback(mode==='signup'?'Account created. Check your email for verification and sign in to finish your Passport.':'Sign-in needs one more step. Please try again.');
   }catch(e){feedback(e.message||'Authentication failed.',true)}finally{if(btn){btn.disabled=false;btn.textContent=mode==='signin'?'Sign in':'Create account'}}
 }
 async function google(){
