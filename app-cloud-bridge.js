@@ -5,7 +5,15 @@
     const original=window[name];
     if(typeof original!=='function')return;
     window[name]=function(...args){const result=original.apply(this,args);emit();return result};
-    try{eval(`${name}=window['${name}']`)}catch{}
+    // Avoid executing generated JavaScript; supported mutations are explicit.
+    try{
+      switch(name){
+        case 'toggleSave': toggleSave=window.toggleSave;break;
+        case 'addTrack': addTrack=window.addTrack;break;
+        case 'trackStage': trackStage=window.trackStage;break;
+        case 'checklistToggle': checklistToggle=window.checklistToggle;break;
+      }
+    }catch{}
   };
   const valid=o=>Object.fromEntries(Object.entries(o||{}).filter(([,t])=>t?.exactVacancy?.url));
   const readKey=k=>{try{const x=JSON.parse(localStorage.getItem(k)||'{}');return x&&typeof x==='object'?valid(x):{}}catch{return{}}};
