@@ -5,6 +5,10 @@ on:
     paths:
       - 'app-cloud-v13.js'
       - 'app-cloud-bridge.js'
+      - 'api/linkedin.js'
+      - 'api/linkedin-callback.js'
+      - 'lib/linkedin-oidc.js'
+      - 'tests/linkedin-auth.test.mjs'
       - 'api/welcome-email.js'
       - 'api/welcome-now.js'
       - 'api/auth-providers.js'
@@ -15,6 +19,9 @@ on:
       - 'tests/welcome-email.test.mjs'
       - '.github/workflows/account-safety.yml'
   workflow_dispatch:
+concurrency:
+  group: oppmatcher-account-safety-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   account-checks:
     runs-on: ubuntu-latest
@@ -30,8 +37,11 @@ jobs:
           node --check api/welcome-email.js
           node --check api/welcome-now.js
           node --check api/auth-providers.js
+          node --check api/linkedin.js
+          node --check api/linkedin-callback.js
+          node --check lib/linkedin-oidc.js
           node --check lib/welcome-delivery.js
           node --check app-v71-password-recovery-v2.js
           node --check lib/welcome-content.js
       - name: Welcome message tests
-        run: node --test tests/welcome-email.test.mjs tests/auth-security.test.mjs
+        run: node --test tests/welcome-email.test.mjs tests/auth-security.test.mjs tests/linkedin-auth.test.mjs
