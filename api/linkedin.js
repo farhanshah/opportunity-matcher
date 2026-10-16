@@ -12,15 +12,19 @@ export default async function handler(req,res){
     return sendJson(res,403,{ok:false,error:'Invalid origin'});
   const token=bearerToken(req);
   if(!token)return sendJson(res,401,{ok:false,error:'Sign in to OppMatcher first'});
+  let stage='database';
   try{
     const sql=db();
+    stage=token.split('.').length===3?'signed-token-validation':'session-validation';
     const account=await getAccountBySession(sql,token);
     if(!account)return sendJson(res,401,{ok:false,error:'Your session expired. Sign in again.'});
     if(req.method==='GET'){
+      stage='linked-status';
       const rows=await sql`SELECT linked_at FROM public.linkedin_connected_accounts WHERE auth_user_id=${account.id} LIMIT 1`;
       return sendJson(res,200,{ok:true,configured:configured(),linked:rows.length>0});
     }
     if(req.body?.action==='disconnect'){
+      stage='disconnect';
       await sql`DELETE FROM public.linkedin_connected_accounts WHERE auth_user_id=${account.id}`;
       return sendJson(res,200,{ok:true,linked:false});
     }
@@ -28,9 +32,11 @@ export default async function handler(req,res){
       return sendJson(res,400,{ok:false,error:'Invalid action'});
     if(!configured())return sendJson(res,503,{ok:false,error:'LinkedIn connection is not configured yet'});
     if(!account.verified)return sendJson(res,403,{ok:false,error:'Verify your OppMatcher email first'});
+    stage='existing-connection';
     const existing=await sql`SELECT 1 FROM public.linkedin_connected_accounts WHERE auth_user_id=${account.id} LIMIT 1`;
     if(existing.length)return sendJson(res,409,{ok:false,error:'LinkedIn is already connected'});
     // Limit unfinished attempts and keep no raw OAuth credentials in the database.
+    stage='connection-rate-limit';
     const recent=await sql`
       SELECT count(*)::integer AS n FROM public.linkedin_oauth_pending
       WHERE auth_user_id=${account.id} AND expires_at>now()
@@ -38,6 +44,7 @@ export default async function handler(req,res){
     if(Number(recent[0]?.n||0)>=3)
       return sendJson(res,429,{ok:false,error:'Too many connection attempts. Try again in ten minutes.'});
     const state=freshToken(),cookie=freshToken(),nonce=freshToken();
+    stage='create-pending-connection';
     await sql`
       INSERT INTO public.linkedin_oauth_pending
         (state_hash,cookie_hash,nonce,auth_user_id,auth_session_id,expires_at)
@@ -46,7 +53,8 @@ export default async function handler(req,res){
     setConnectCookie(res,cookie);
     return sendJson(res,200,{ok:true,url:authorizationUrl(state,nonce)});
   }catch(e){
-    console.error('LinkedIn connection request failed',String(e?.message||e).slice(0,190));
-    return sendJson(res,500,{ok:false,error:'LinkedIn connection is temporarily unavailable'});
+    console.error('LinkedIn connection request failed',stage,String(e?.message||e).slice(0,190));
+    // Return only a coarse failure stage, never database errors, credentials or account details.
+    return sendJson(res,500,{ok:false,error:'LinkedIn connection is temporarily unavailable',diagnostic:stage});
   }
 }

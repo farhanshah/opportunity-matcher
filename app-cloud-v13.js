@@ -199,7 +199,10 @@ async function refreshLinkedInStatus(user){
     const bearer=await linkedinBearer();
     const result=await fetch('/api/linkedin',{headers:{Authorization:'Bearer '+bearer},cache:'no-store',credentials:'same-origin'});
     const data=await result.json().catch(()=>({}));
-    if(!result.ok)throw Error((data.error||'Could not reach LinkedIn connection service')+' ('+result.status+').');
+    if(!result.ok){
+      const diagnostic=typeof data.diagnostic==='string'&&/^[a-z-]{3,45}$/.test(data.diagnostic)?' ['+data.diagnostic+']':'';
+      throw Error((data.error||'Could not reach LinkedIn connection service')+' ('+result.status+').'+diagnostic);
+    }
     if(user.id!==session?.user?.id)return;
     linkedinLinkStatus={
       configured:Boolean(data.configured),linked:Boolean(data.linked),checked:true,loading:false,error:''
