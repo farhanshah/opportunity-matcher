@@ -70,7 +70,7 @@ async function refreshSocialProviders(){
     if(!res.ok)return;
     const data=await res.json();
     if(!Array.isArray(data.providers))return;
-    enabledSocialProviders=new Set(data.providers.filter(p=>['google','github','microsoft'].includes(p)));
+    enabledSocialProviders=new Set(data.providers.filter(p=>['google','linkedin'].includes(p)));
     const modal=document.getElementById('cloudAuthModal');
     if(modal && !modal.classList.contains('hide') && !session?.user &&
        !document.getElementById('cloudPassword'))return;
@@ -80,8 +80,7 @@ async function refreshSocialProviders(){
 }
 function availableSocialButtons(){
   const buttons=[{provider:'google',label:'Google',icon:'G'},
-    {provider:'github',label:'GitHub',icon:'GH'},
-    {provider:'microsoft',label:'Microsoft',icon:'M'}];
+    {provider:'linkedin',label:'LinkedIn',icon:'in'}];
   return buttons.filter(x=>enabledSocialProviders.has(x.provider))
     .map(x=>`<button class="cloudGoogle cloudProvider-${x.provider}"
       onclick="window.OpportunityCloud.social('${x.provider}')"><i>${x.icon}</i>Continue with ${x.label}</button>`).join('');
@@ -127,7 +126,7 @@ async function emailSubmit(){
   }catch(e){feedback(e.message||'Authentication failed.',true)}finally{if(btn){btn.disabled=false;btn.textContent=mode==='signin'?'Sign in':'Create account'}}
 }
 async function social(provider){
-  if(!['google','github','microsoft'].includes(provider) ||
+  if(!['google','linkedin'].includes(provider) ||
      !enabledSocialProviders.has(provider)) {
     feedback('That sign-in provider is not connected to OppMatcher yet.',true);return;
   }
@@ -142,7 +141,7 @@ async function social(provider){
     if(!url)throw new Error('No secure sign-in destination was returned.');
     const target=new URL(url);
     const allowed=new Set([new URL(AUTH_URL).hostname,'accounts.google.com',
-      'www.google.com','github.com','login.microsoftonline.com','login.live.com']);
+      'www.google.com','www.linkedin.com','linkedin.com']);
     if(target.protocol!=='https:' || !allowed.has(target.hostname))
       throw new Error('Unexpected identity provider destination.');
     window.location.assign(target.href);
@@ -362,8 +361,8 @@ await refreshSession(true);
 const socialError=new URLSearchParams(window.location.search).get('error');
 if(socialError && !session?.user){
   const knownErrors={
-    access_denied:'Google sign-in was cancelled.',
-    invalid_callback:'Google returned an invalid callback. Please try again.',
+    access_denied:'Social sign-in was cancelled.',
+    invalid_callback:'The identity provider returned an invalid callback. Please try again.',
     oauth_error:'The identity provider could not complete sign-in.',
     state_mismatch:'The sign-in session expired. Please try again in this browser.'
   };
