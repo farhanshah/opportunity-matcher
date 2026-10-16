@@ -1,6 +1,7 @@
 (()=>{
-  const client=window.OpportunityCloudClient;
-  if(!client?.auth)return;
+  // The cloud authentication client is loaded asynchronously.
+  // Resolve it only when a recovery action runs, not when this script loads.
+  const getClient=()=>window.OpportunityCloudClient;
   const html=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const modal=()=>document.getElementById('cloudAuthModal');
   const card=()=>document.getElementById('cloudAuthCard');
@@ -10,7 +11,7 @@
 
   function decorateSignIn(){
     const c=card();
-    if(!c||!c.querySelector('#cloudPassword')||c.querySelector('[data-forgot-password]'))return;
+    if(!c||!c.querySelector('#cloudPassword')||c.querySelector('#cloudName')||c.querySelector('[data-forgot-password]'))return;
     const submit=c.querySelector('#cloudSubmit');
     if(!submit)return;
     const b=document.createElement('button');
@@ -40,7 +41,8 @@
     if(!email){feedback('Enter your email address.',true);return}
     const btn=document.getElementById('recoverSend');if(btn){btn.disabled=true;btn.textContent='Sending…'}
     try{
-      const result=await client.auth.requestPasswordReset({email,redirectTo:`${location.origin}/?reset=1`});
+      if(!getClient()?.auth?.requestPasswordReset)throw new Error('Password recovery is still loading. Please try again.');
+      const result=await getClient().auth.requestPasswordReset({email,redirectTo:`${location.origin}/?reset=1`});
       if(result?.error)throw new Error(result.error.message||String(result.error));
       feedback('If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.');
       if(btn)btn.textContent='Reset link sent';
@@ -72,7 +74,8 @@
     if(password!==confirm){feedback('The passwords do not match.',true);return}
     const btn=document.getElementById('recoverSave');if(btn){btn.disabled=true;btn.textContent='Saving…'}
     try{
-      const result=await client.auth.resetPassword({newPassword:password,token});
+      if(!getClient()?.auth?.resetPassword)throw new Error('Password recovery is still loading. Please try again.');
+      const result=await getClient().auth.resetPassword({newPassword:password,token});
       if(result?.error)throw new Error(result.error.message||String(result.error));
       history.replaceState({},'',location.pathname);recoveryHandled=false;
       feedback('Password updated. You can sign in with your new password.');
@@ -86,4 +89,5 @@
   obs.observe(document.body,{subtree:true,childList:true});
   setTimeout(()=>{decorateSignIn();maybeOpenReset()},300);
   window.OpportunityPasswordRecovery={forgot:renderForgot,openReset:maybeOpenReset};
+  window.dispatchEvent(new CustomEvent('opportunity:password-recovery-ready'));
 })();
