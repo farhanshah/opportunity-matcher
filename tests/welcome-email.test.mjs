@@ -11,6 +11,9 @@ test('welcome email is a transactional account message',()=>{
 });
 test('OAuth profile names are HTML escaped in account messages',()=>{
   const message=welcomeMessage('<img src=x onerror=alert(1)>');
-  assert.doesNotMatch(message.html,/<img/);
-  assert.match(message.html,/&lt;img/);
+  // The email intentionally includes trusted OppMatcher logo <img> elements.
+  // Reject only a raw image tag originating from the untrusted profile name.
+  assert.doesNotMatch(message.html, /Hi\s*<img\b/i);
+  assert.doesNotMatch(message.html, /<img\s+src=x\s+onerror=/i);
+  assert.match(message.html, /Hi &lt;img,/);
 });
