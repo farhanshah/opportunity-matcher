@@ -8,6 +8,7 @@ window.OpportunityCloudClient=client;
 
 let session=null,passportId=null,ready=false,syncing=false,pending=false,syncTimer=null,mode='signin',sessionState='checking';
 let enabledSocialProviders=new Set(['google']);
+let linkedinLinkStatus={configured:false,linked:false};
 const css=document.createElement('link');css.rel='stylesheet';css.href='/cloud-v13.css';document.head.appendChild(css);
 
 const initials=user=>String(user?.name||user?.email||'U').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
@@ -85,10 +86,15 @@ function availableSocialButtons(){
     .map(x=>`<button class="cloudGoogle cloudProvider-${x.provider}"
       onclick="window.OpportunityCloud.social('${x.provider}')"><i>${x.icon}</i>Continue with ${x.label}</button>`).join('');
 }
+function linkedinAccountControl(){
+  if(!linkedinLinkStatus.configured)return '';
+  return '<button onclick="window.OpportunityCloud.linkedinAccount()">'+
+    (linkedinLinkStatus.linked?'Unlink LinkedIn identity':'Connect LinkedIn identity (beta)')+'</button>';
+}
 function renderAuth(){
   const card=document.getElementById('cloudAuthCard');if(!card)return;
   if(session?.user){
-    card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>Your workspace follows you.</h2><p class="cloudLead">Passport, shortlist and application progress are protected by your account and synced to Neon.</p><div class="cloudAccountHero"><div class="cloudBigAvatar">${html(initials(session.user))}</div><div><b>${html(session.user.name||'Opportunity member')}</b><span>${html(session.user.email||'')}</span></div></div>${session.user.emailVerified===false?'<p class="cloudVerifyNotice">Your email is not verified yet. <button onclick="window.OpportunityCloud.verifyEmail()">Send verification email</button></p>':''}<div class="cloudStatusBox"><div><span>Passport</span><b>${passportId?'Cloud saved':'Connecting'}</b></div><div><span>Shortlist</span><b>${state.getSaved().length} saved</b></div><div><span>Tracker</span><b>${Object.keys(state.getTracks()).length} applications</b></div></div><div class="cloudAccountActions"><button onclick="window.OpportunityCloud.completePassport()">Profile &amp; email preferences</button><button onclick="window.OpportunityCloud.syncNow()">Sync now</button><button class="danger" onclick="window.OpportunityCloud.signOut()">Sign out</button></div>`;
+    card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>Your workspace follows you.</h2><p class="cloudLead">Passport, shortlist and application progress are protected by your account and synced to Neon.</p><div class="cloudAccountHero"><div class="cloudBigAvatar">${html(initials(session.user))}</div><div><b>${html(session.user.name||'Opportunity member')}</b><span>${html(session.user.email||'')}</span></div></div>${session.user.emailVerified===false?'<p class="cloudVerifyNotice">Your email is not verified yet. <button onclick="window.OpportunityCloud.verifyEmail()">Send verification email</button></p>':''}<div class="cloudStatusBox"><div><span>Passport</span><b>${passportId?'Cloud saved':'Connecting'}</b></div><div><span>Shortlist</span><b>${state.getSaved().length} saved</b></div><div><span>Tracker</span><b>${Object.keys(state.getTracks()).length} applications</b></div></div><div class="cloudAccountActions"><button onclick="window.OpportunityCloud.completePassport()">Profile &amp; email preferences</button><button onclick="window.OpportunityCloud.syncNow()">Sync now</button>${linkedinAccountControl()}<button class="danger" onclick="window.OpportunityCloud.signOut()">Sign out</button></div>`;
     return;
   }
   card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>${mode==='signin'?'Welcome back.':'Create your cloud workspace.'}</h2><p class="cloudLead">${mode==='signin'?'Sign in to restore your Passport, saved opportunities and tracker on this device.':'Your current browser workspace will be imported automatically after your first sign-in.'}</p><div class="cloudTabs"><button class="${mode==='signin'?'active':''}" onclick="window.OpportunityCloud.setMode('signin')">Sign in</button><button class="${mode==='signup'?'active':''}" onclick="window.OpportunityCloud.setMode('signup')">Create account</button></div>${availableSocialButtons()}<div class="cloudDivider">or use email</div>${mode==='signup'?'<div class="cloudField"><label>Name</label><input id="cloudName" autocomplete="name" placeholder="Your name"></div>':''}<div class="cloudField"><label>Email</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><div class="cloudField"><label>Password</label><input id="cloudPassword" type="password" autocomplete="${mode==='signin'?'current-password':'new-password'}" placeholder="${mode==='signup'?'At least 12 characters':'Your password'}"></div><button id="cloudSubmit" class="cloudSubmit" onclick="window.OpportunityCloud.emailSubmit()">${mode==='signin'?'Sign in':'Create account'}</button>${mode==='signin'?'<button type="button" data-forgot-password="1" class="cloudForgot" onclick="window.OpportunityPasswordRecovery?.forgot?.()">Forgot password?</button>':''}<div id="cloudAuthFeedback"></div>`;
@@ -152,6 +158,44 @@ async function social(provider){
   }
 }
 async function google(){return social('google')}
+async function refreshLinkedInStatus(user){
+  if(!user || user.id!==session?.user?.id)return;
+  const bearer=session.session?.token||session.token;
+  if(!bearer)return;
+  try{
+    const result=await fetch('/api/linkedin',{headers:{Authorization:'Bearer '+bearer},cache:'no-store'});
+    if(!result.ok)return;
+    const data=await result.json();
+    if(user.id!==session?.user?.id)return;
+    linkedinLinkStatus={configured:Boolean(data.configured),linked:Boolean(data.linked)};
+    if(!document.getElementById('cloudAuthModal')?.classList.contains('hide'))renderAuth();
+  }catch{}
+}
+async function linkedinAccount(){
+  if(!session?.user||!linkedinLinkStatus.configured)return;
+  const bearer=session.session?.token||session.token;
+  if(!bearer){toast('Reconnect needed','Please sign in again before connecting LinkedIn.');return}
+  const unlink=linkedinLinkStatus.linked;
+  if(unlink && !window.confirm('Disconnect your LinkedIn identity? Your existing OppMatcher sign-in and Passport will stay intact.'))return;
+  try{
+    const response=await fetch('/api/linkedin',{
+      method:'POST',cache:'no-store',credentials:'same-origin',
+      headers:{'Content-Type':'application/json',Authorization:'Bearer '+bearer},
+      body:JSON.stringify({action:unlink?'disconnect':'connect'})
+    });
+    const data=await response.json();
+    if(!response.ok)throw Error(data?.error||'Unable to update LinkedIn connection');
+    if(unlink){
+      linkedinLinkStatus.linked=false;renderAuth();
+      toast('LinkedIn disconnected','Your OppMatcher account and Passport are unchanged.');
+      return;
+    }
+    const target=new URL(data.url);
+    if(target.protocol!=='https:'||target.hostname!=='www.linkedin.com'||target.pathname!=='/oauth/v2/authorization')
+      throw Error('Unexpected LinkedIn destination');
+    window.location.assign(target.href);
+  }catch(e){toast('LinkedIn connection',e.message||'Please try again later.')}
+}
 
 
 function showPostSignInOnboarding(user, passportRow={}, force=false){
@@ -286,7 +330,7 @@ async function bootstrapCloud(user){
     const rows=await query(client.from('user_passports').select('*').eq('auth_user_id',user.id).limit(1));
     if(rows?.length){postSignInRow=rows[0];passportId=rows[0].id;await loadCloudState(rows[0]);toast('Workspace restored','Your cloud Passport, shortlist and tracker are loaded on this device.')}
     else{const local=state.getProfile();const created=await query(client.from('user_passports').insert(profileInsertPayload(local,user)).select('*'));if(!created?.length)throw new Error('Could not create your cloud Passport.');passportId=created[0].id;postSignInRow=created[0];await importLocalChildren();toast('Browser workspace imported','Your existing Passport, saves and tracker are now attached to your account.')}
-    ready=true;sessionState='signedin';updateAccountUI();setCloudStatus('Cloud synced','ok');state.render();renderAuth();void triggerWelcomeOnAuthenticatedSignIn();showPostSignInOnboarding(user,postSignInRow||{});
+    ready=true;sessionState='signedin';updateAccountUI();setCloudStatus('Cloud synced','ok');state.render();renderAuth();void triggerWelcomeOnAuthenticatedSignIn();void refreshLinkedInStatus(user);showPostSignInOnboarding(user,postSignInRow||{});
   }catch(e){console.error('Cloud bootstrap failed',e);setCloudStatus('Sync issue','error');toast('Cloud sync needs attention',e.message||'Please try signing in again.')}
 }
 async function loadCloudState(passportRow){
@@ -322,7 +366,7 @@ async function signOut(){
     toast('Sign-out incomplete','Your session could not be revoked. Please retry before leaving a shared computer.');
     return;
   }
-  session=null;passportId=null;welcomeTriggeredFor='';ready=false;sessionState='signedout';
+  session=null;passportId=null;welcomeTriggeredFor='';ready=false;sessionState='signedout';linkedinLinkStatus={configured:false,linked:false};
   state.clear();
   window.dispatchEvent(new CustomEvent('opportunity:signedout'));
   updateAccountUI();closeAuth();
@@ -353,11 +397,28 @@ async function refreshSession(bootstrap=false){
   return null;
 }
 
-window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,social,signOut,syncNow,completePassport:openProfileSettings,verifyEmail:requestEmailVerification,retrySession:()=>refreshSession(true)};
+window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,social,linkedinAccount,signOut,syncNow,completePassport:openProfileSettings,verifyEmail:requestEmailVerification,retrySession:()=>refreshSession(true)};
 window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
 void refreshSocialProviders();
 await refreshSession(true);
+const linkedResult=new URLSearchParams(window.location.search).get('linkedin_connect');
+if(linkedResult){
+  const notifications={
+    connected:['LinkedIn identity connected','Your existing OppMatcher account and Passport remain unchanged.'],
+    cancelled:['LinkedIn connection cancelled','Nothing changed in your OppMatcher account.'],
+    expired:['Connection expired','Start again from your OppMatcher account.'],
+    'already-used':['LinkedIn account already linked','This LinkedIn identity is connected to another OppMatcher account.'],
+    'already-linked':['LinkedIn identity already linked','Disconnect the existing identity before changing it.'],
+    invalid:['LinkedIn connection declined','The callback could not be validated. Please try again.'],
+    unavailable:['LinkedIn connection unavailable','Please try again later.']
+  };
+  const copy=notifications[linkedResult]||notifications.invalid;
+  toast(copy[0],copy[1]);
+  const clean=new URL(window.location.href);
+  clean.searchParams.delete('linkedin_connect');
+  window.history.replaceState(null,'',clean.pathname+clean.search+clean.hash);
+}
 const socialError=new URLSearchParams(window.location.search).get('error');
 if(socialError && !session?.user){
   const knownErrors={
