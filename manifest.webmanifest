@@ -1,0 +1,24 @@
+{
+  "name": "OppMatcher — Opportunity Global Matcher",
+  "short_name": "OppMatcher",
+  "description": "Scholarships, internships and fellowships matched to your Opportunity Passport.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b1019",
+  "theme_color": "#0b1019",
+  "icons": [
+    {
+      "src": "/api/brand-image?kind=pwa192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/api/brand-image?kind=pwa512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
