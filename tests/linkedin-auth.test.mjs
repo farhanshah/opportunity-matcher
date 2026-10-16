@@ -63,8 +63,8 @@ test('opaque Neon session token is validated using a current database session',a
   const mockSql=async(strings,...values)=>{
     const query=strings.join('?');
     assert.match(query,/FROM neon_auth.session/);
-    assert.match(query,/s\\.token=\\?/);
-    assert.match(query,/s\\."expiresAt">now\\(\\)/);
+    assert.ok(query.includes('s.token=?'));
+    assert.ok(query.includes('s."expiresAt">now()'));
     assert.equal(values[0],opaque);
     checked=true;
     return [{id:subject,verified:true,auth_session_id:subject}];
@@ -78,7 +78,7 @@ test('browser prefers working opaque token when optional Neon JWT endpoint retur
   const {readFileSync}=await import('node:fs');
   const code=readFileSync(new URL('../app-cloud-v13.js',import.meta.url),'utf8');
   const start=code.indexOf('async function linkedinBearer(){');
-  const end=code.indexOf('\\nasync function refreshLinkedInStatus(',start);
+  const end=code.indexOf('async function refreshLinkedInStatus(',start);
   assert.ok(start>=0&&end>start,'browser token function is present');
   const body=code.slice(start,end);
   let jwtCalls=0;
