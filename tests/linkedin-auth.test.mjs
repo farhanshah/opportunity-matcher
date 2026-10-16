@@ -4,6 +4,7 @@ import { generateKeyPairSync, sign } from 'node:crypto';
 import { verifyNeonJwt, getAccountBySession, bearerToken } from '../lib/linkedin-oidc.js';
 
 const base='https://ep-empty-fog-aw7p1xu9.neonauth.c-12.us-east-1.aws.neon.tech/neondb/auth';
+const issuer=new URL(base).origin;
 const { publicKey, privateKey }=generateKeyPairSync('ed25519');
 const signingKey={...publicKey.export({format:'jwk'}),kid:'test-key-1',alg:'EdDSA',use:'sig'};
 const subject='00000000-0000-4000-8000-000000000007';
@@ -17,13 +18,23 @@ test.after(()=>{global.fetch=originalFetch});
 function token(extra={},signedKey=privateKey){
   const head=Buffer.from(JSON.stringify({alg:'EdDSA',kid:signingKey.kid,typ:'JWT'})).toString('base64url');
   const body=Buffer.from(JSON.stringify({
-    iss:base,aud:base,sub:subject,role:'authenticated',iat:now,exp:now+900,...extra
+    iss:issuer,sub:subject,role:'authenticated',iat:now,exp:now+900,...extra
   })).toString('base64url');
   return head+'.'+body+'.'+sign(null,Buffer.from(head+'.'+body),signedKey).toString('base64url');
 }
 test('valid Neon JWT signed by pinned issuer identifies only the authenticated user',async()=>{
   const jwt=token();
   assert.deepEqual(await verifyNeonJwt(jwt),{userId:subject,sessionId:null});
+});
+test('realistic Neon issuer uses provider origin and an optional audience',async()=>{
+  assert.equal(new URL(base).origin,issuer);
+  assert.deepEqual(await verifyNeonJwt(token()),{userId:subject,sessionId:null});
+});
+test('JWT with audience for this exact Neon Auth deployment is accepted',async()=>{
+  assert.deepEqual(await verifyNeonJwt(token({aud:base})),{userId:subject,sessionId:null});
+});
+test('a JWT signed for another issuer is rejected even with a trusted signing key',async()=>{
+  await assert.rejects(verifyNeonJwt(token({iss:'https://attacker.example'})),/claims invalid/);
 });
 test('JWT from wrong audience is rejected after signature verification',async()=>{
   await assert.rejects(verifyNeonJwt(token({aud:'https://attacker.test'})),/claims invalid/);
