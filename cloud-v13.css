@@ -80,3 +80,26 @@
 .cloudAuthCard .cloudProvider-github i{background:#252a33;color:#fff;font-size:8px}
 .cloudAuthCard .cloudProvider-microsoft i{background:linear-gradient(135deg,#f25022 45%,#7fba00 45%);color:#fff}
 .cloudAuthCard .cloudGoogle:disabled{opacity:.7;cursor:wait}
+
+/* v275: accessible, always-visible email password recovery action */
+.cloudAuthCard .cloudForgot{
+  display:block;
+  margin:10px auto 0;
+  padding:10px 12px;
+  border:1px solid transparent;
+  border-radius:8px;
+  background:transparent;
+  color:#d6c9ff;
+  font-size:13px;
+  font-weight:750;
+  cursor:pointer;
+  text-align:center;
+}
+.cloudAuthCard .cloudForgot:hover{
+  color:#e6ff9d;
+  text-decoration:underline;
+}
+.cloudAuthCard .cloudForgot:focus-visible{
+  outline:2px solid #d7ff5f;
+  outline-offset:3px;
+}
