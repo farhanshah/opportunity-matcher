@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 48 48" role="img" aria-label="OppMatcher logo">
+<defs><linearGradient id="om-ring" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8ff69"/><stop offset="1" stop-color="#7458ff"/></linearGradient></defs>
+<rect width="48" height="48" rx="14" fill="#10131c"/>
+<rect x="2" y="2" width="44" height="44" rx="14" fill="#171a22" stroke="#ffffff" stroke-opacity=".14"/>
+<circle cx="24" cy="24" r="11.5" fill="none" stroke="url(#om-ring)" stroke-width="4"/>
+<path d="M29.5 14.5 33.8 14l-.5 4.3" fill="none" stroke="#d8ff69" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M33 14.8 26.8 21" fill="none" stroke="#d8ff69" stroke-width="2.4" stroke-linecap="round"/>
+</svg>
