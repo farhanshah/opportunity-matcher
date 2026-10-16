@@ -1,5 +1,11 @@
 (async()=>{
-  const BUILD='20261016-v277';
+  const BUILD='20261016-v283';
+  // Keep the OAuth callback result available while the workspace's many scripts load.
+  try{
+    const outcome=new URLSearchParams(window.location.search).get('linkedin_connect');
+    if(outcome&&/^[a-z-]{3,40}$/.test(outcome))
+      sessionStorage.setItem('oppLinkedInCallbackOutcomeV1',outcome);
+  }catch{}
   document.documentElement.dataset.omBuild=BUILD;
   const files=[
     '/app-v08-base.js','/app-v08-match.js','/app-v08-views.js','/app-v08-tracker.js','/app-v08-boot.js',

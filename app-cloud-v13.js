@@ -9,6 +9,7 @@ window.OpportunityCloudClient=client;
 let session=null,passportId=null,ready=false,syncing=false,pending=false,syncTimer=null,mode='signin',sessionState='checking';
 let enabledSocialProviders=new Set(['google']);
 let linkedinLinkStatus={configured:false,linked:false,checked:false,loading:false,error:''};
+let linkedinCallbackNotice='';
 const css=document.createElement('link');css.rel='stylesheet';css.href='/cloud-v13.css';document.head.appendChild(css);
 
 const initials=user=>String(user?.name||user?.email||'U').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
@@ -100,7 +101,7 @@ function linkedinAccountControl(){
 function renderAuth(){
   const card=document.getElementById('cloudAuthCard');if(!card)return;
   if(session?.user){
-    card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>Your workspace follows you.</h2><p class="cloudLead">Passport, shortlist and application progress are protected by your account and synced to Neon.</p><div class="cloudAccountHero"><div class="cloudBigAvatar">${html(initials(session.user))}</div><div><b>${html(session.user.name||'Opportunity member')}</b><span>${html(session.user.email||'')}</span></div></div>${session.user.emailVerified===false?'<p class="cloudVerifyNotice">Your email is not verified yet. <button onclick="window.OpportunityCloud.verifyEmail()">Send verification email</button></p>':''}<div class="cloudStatusBox"><div><span>Passport</span><b>${passportId?'Cloud saved':'Connecting'}</b></div><div><span>Shortlist</span><b>${state.getSaved().length} saved</b></div><div><span>Tracker</span><b>${Object.keys(state.getTracks()).length} applications</b></div></div><div class="cloudAccountActions"><button onclick="window.OpportunityCloud.completePassport()">Profile &amp; email preferences</button><button onclick="window.OpportunityCloud.syncNow()">Sync now</button>${linkedinAccountControl()}<button class="danger" onclick="window.OpportunityCloud.signOut()">Sign out</button></div>`;
+    card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>Your workspace follows you.</h2><p class="cloudLead">Passport, shortlist and application progress are protected by your account and synced to Neon.</p><div class="cloudAccountHero"><div class="cloudBigAvatar">${html(initials(session.user))}</div><div><b>${html(session.user.name||'Opportunity member')}</b><span>${html(session.user.email||'')}</span></div></div>${session.user.emailVerified===false?'<p class="cloudVerifyNotice">Your email is not verified yet. <button onclick="window.OpportunityCloud.verifyEmail()">Send verification email</button></p>':''}<div class="cloudStatusBox"><div><span>Passport</span><b>${passportId?'Cloud saved':'Connecting'}</b></div><div><span>Shortlist</span><b>${state.getSaved().length} saved</b></div><div><span>Tracker</span><b>${Object.keys(state.getTracks()).length} applications</b></div></div><div class="cloudAccountActions"><button onclick="window.OpportunityCloud.completePassport()">Profile &amp; email preferences</button><button onclick="window.OpportunityCloud.syncNow()">Sync now</button>${linkedinAccountControl()}${linkedinCallbackNotice?`<p role="status" class="cloudLinkedInNotice" style="grid-column:1/-1;font-size:12px;color:#e6d4af;line-height:1.5;margin:2px 0">${html(linkedinCallbackNotice)}</p>`:""}<button class="danger" onclick="window.OpportunityCloud.signOut()">Sign out</button></div>`;
     return;
   }
   card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>${mode==='signin'?'Welcome back.':'Create your cloud workspace.'}</h2><p class="cloudLead">${mode==='signin'?'Sign in to restore your Passport, saved opportunities and tracker on this device.':'Your current browser workspace will be imported automatically after your first sign-in.'}</p><div class="cloudTabs"><button class="${mode==='signin'?'active':''}" onclick="window.OpportunityCloud.setMode('signin')">Sign in</button><button class="${mode==='signup'?'active':''}" onclick="window.OpportunityCloud.setMode('signup')">Create account</button></div>${availableSocialButtons()}<div class="cloudDivider">or use email</div>${mode==='signup'?'<div class="cloudField"><label>Name</label><input id="cloudName" autocomplete="name" placeholder="Your name"></div>':''}<div class="cloudField"><label>Email</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><div class="cloudField"><label>Password</label><input id="cloudPassword" type="password" autocomplete="${mode==='signin'?'current-password':'new-password'}" placeholder="${mode==='signup'?'At least 12 characters':'Your password'}"></div><button id="cloudSubmit" class="cloudSubmit" onclick="window.OpportunityCloud.emailSubmit()">${mode==='signin'?'Sign in':'Create account'}</button>${mode==='signin'?'<button type="button" data-forgot-password="1" class="cloudForgot" onclick="window.OpportunityPasswordRecovery?.forgot?.()">Forgot password?</button>':''}<div id="cloudAuthFeedback"></div>`;
@@ -234,6 +235,8 @@ async function linkedinAccount(){
       toast('LinkedIn disconnected','Your OppMatcher account and Passport are unchanged.');
       return;
     }
+    linkedinCallbackNotice='';
+    try{sessionStorage.removeItem('oppLinkedInCallbackOutcomeV1')}catch{}
     const target=new URL(data.url);
     if(target.protocol!=='https:'||target.hostname!=='www.linkedin.com'||target.pathname!=='/oauth/v2/authorization')
       throw Error('Unexpected LinkedIn destination');
@@ -446,19 +449,27 @@ window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
 void refreshSocialProviders();
 await refreshSession(true);
-const linkedResult=new URLSearchParams(window.location.search).get('linkedin_connect');
+let linkedResult=new URLSearchParams(window.location.search).get('linkedin_connect');
+try{
+  if(!linkedResult)linkedResult=sessionStorage.getItem('oppLinkedInCallbackOutcomeV1');
+  sessionStorage.removeItem('oppLinkedInCallbackOutcomeV1');
+}catch{}
 if(linkedResult){
   const notifications={
-    connected:['LinkedIn identity connected','Your existing OppMatcher account and Passport remain unchanged.'],
-    cancelled:['LinkedIn connection cancelled','Nothing changed in your OppMatcher account.'],
-    expired:['Connection expired','Start again from your OppMatcher account.'],
-    'already-used':['LinkedIn account already linked','This LinkedIn identity is connected to another OppMatcher account.'],
-    'already-linked':['LinkedIn identity already linked','Disconnect the existing identity before changing it.'],
-    invalid:['LinkedIn connection declined','The callback could not be validated. Please try again.'],
-    unavailable:['LinkedIn connection unavailable','Please try again later.']
+    connected:['LinkedIn authorization complete','LinkedIn approved the request. OppMatcher is checking that the identity was saved.'],
+    cancelled:['LinkedIn connection cancelled','No LinkedIn account was connected.'],
+    expired:['LinkedIn connection expired','The authorization expired or was already used. Start a new connection.'],
+    'missing-cookie':['LinkedIn security cookie missing','Your browser did not send the temporary OAuth security cookie. Check that cookies are enabled for oppmatcher.tech, then retry.'],
+    'invalid-state':['LinkedIn authorization state missing','LinkedIn did not return a valid authorization state. Start the connection again from OppMatcher.'],
+    'already-used':['LinkedIn account already linked','This LinkedIn identity belongs to another OppMatcher account.'],
+    'already-linked':['Different LinkedIn identity already linked','Disconnect the existing identity before changing it.'],
+    invalid:['LinkedIn callback rejected','The authorization response could not be validated. Please retry.'],
+    unavailable:['LinkedIn callback failed','The connection could not be completed. Please retry and check the result here.']
   };
   const copy=notifications[linkedResult]||notifications.invalid;
+  linkedinCallbackNotice=copy[0]+'. '+copy[1];
   toast(copy[0],copy[1]);
+  if(session?.user)openAuth();
   const clean=new URL(window.location.href);
   clean.searchParams.delete('linkedin_connect');
   window.history.replaceState(null,'',clean.pathname+clean.search+clean.hash);

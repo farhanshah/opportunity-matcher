@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { generateKeyPairSync, sign } from 'node:crypto';
-import { verifyNeonJwt, getAccountBySession, bearerToken } from '../lib/linkedin-oidc.js';
+import { verifyNeonJwt, getAccountBySession, bearerToken, redirectHome } from '../lib/linkedin-oidc.js';
 
 const base='https://ep-empty-fog-aw7p1xu9.neonauth.c-12.us-east-1.aws.neon.tech/neondb/auth';
 const issuer=new URL(base).origin;
@@ -98,4 +98,25 @@ test('browser prefers working opaque token when optional Neon JWT endpoint retur
   const browserFunction=Function('session','client','return ('+body+')')(session,client);
   assert.equal(await browserFunction(),'S'.repeat(48));
   assert.equal(jwtCalls,0);
+});
+
+test('LinkedIn callbacks land on the workspace with an encoded, non-secret status',()=>{
+  const headers={};
+  let location=null,ended=false;
+  const response={
+    setHeader:(name,value)=>{headers[name]=value;},
+    writeHead:(status,values)=>{assert.equal(status,302);location=values.Location;},
+    end:()=>{ended=true;}
+  };
+  redirectHome(response,'missing-cookie');
+  assert.equal(location,'https://oppmatcher.tech/discover?linkedin_connect=missing-cookie');
+  assert.match(headers['Set-Cookie'],/Max-Age=0/);
+  assert.equal(headers['Cache-Control'],'no-store');
+  assert.equal(ended,true);
+});
+test('browser remembers only a callback status, never an access token',async()=>{
+  const {readFileSync}=await import('node:fs');
+  const script=readFileSync(new URL('../app-v07.js',import.meta.url),'utf8');
+  assert.match(script,/sessionStorage\.setItem\('oppLinkedInCallbackOutcomeV1',outcome\)/);
+  assert.match(script,/\^\[a-z-\]\{3,40\}\$/);
 });

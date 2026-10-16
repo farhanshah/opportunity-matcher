@@ -11,9 +11,10 @@ export default async function handler(req,res){
   const cookie=readCookie(req);
   const code=String(req.query?.code||'');
   // Refuse unauthenticated callbacks before any OAuth token exchange.
-  if(!configured() || !/^[a-zA-Z0-9_-]{30,150}$/.test(state) ||
-     !/^[a-zA-Z0-9_-]{30,150}$/.test(cookie))
-    return redirectHome(res,'invalid');
+  if(!configured())return redirectHome(res,'unavailable');
+  if(!/^[a-zA-Z0-9_-]{30,150}$/.test(state))return redirectHome(res,'invalid-state');
+  // Do not bypass OAuth CSRF protection if the browser failed to retain the secure cookie.
+  if(!/^[a-zA-Z0-9_-]{30,150}$/.test(cookie))return redirectHome(res,'missing-cookie');
   try{
     const sql=db();
     const rows=await sql`
