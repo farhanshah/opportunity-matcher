@@ -158,8 +158,14 @@ test('LinkedIn signed ID token without nonce validates against the pinned issuer
   };
   try{
     assert.deepEqual(await verifyIdToken(createLinkedinJwt()),{subject:'linked-member-123'});
+    // The actual OpenID discovery URI differs from LinkedIn's documentation example.
+    assert.deepEqual(await verifyIdToken(createLinkedinJwt({iss:'https://www.linkedin.com/oauth'})),
+      {subject:'linked-member-123'});
     await assert.rejects(verifyIdToken(createLinkedinJwt({aud:'wrong-client'})),/claims rejected/);
     await assert.rejects(verifyIdToken(createLinkedinJwt({iss:'https:\/\/attacker.example'})),/claims rejected/);
+    await assert.rejects(verifyIdToken(createLinkedinJwt({iss:'https://www.linkedin.com.oauth.attacker.example'})),/claims rejected/);
+    await assert.rejects(verifyIdToken(createLinkedinJwt({iss:'http://www.linkedin.com/oauth'})),/claims rejected/);
+    await assert.rejects(verifyIdToken(createLinkedinJwt({exp:Math.floor(Date.now()/1000)-10})),/claims rejected/);
   }finally{
     global.fetch=priorFetch;
     if(priorClient===undefined)delete process.env.LINKEDIN_CLIENT_ID;
