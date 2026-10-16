@@ -5,7 +5,7 @@ import { welcomeMessage } from '../lib/welcome-content.js';
 test('welcome email is a transactional account message',()=>{
   const message=welcomeMessage('Riya Sharma');
   assert.match(message.subject,/Welcome to OppMatcher/);
-  assert.match(message.html,/created successfully/);
+  assert.match(message.html,/OppMatcher account is ready/);
   assert.match(message.html,/not a marketing subscription/);
   assert.match(message.html,/https:\/\/oppmatcher\.tech\//);
 });
