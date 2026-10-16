@@ -116,7 +116,13 @@ async function emailSubmit(){
       }
     }
     await refreshSession(true);
-    if(session?.user){closeAuth();toast('Cloud workspace active',ready?'Your account data is synced.':'Signed in. Finishing cloud setup…')}
+    if(session?.user){
+      // bootstrapCloud may have just opened the one-time Opportunity Passport form.
+      // Do not close that form after a successful first email sign-in.
+      const onboardingOpen=Boolean(document.querySelector('#cloudAuthModal:not(.hide) #cloudCompleteForm'));
+      if(!onboardingOpen)closeAuth();
+      toast('Cloud workspace active',ready?'Your account data is synced.':'Signed in. Finishing cloud setup…');
+    }
     else feedback(mode==='signup'?'Account created. Check your email for verification and sign in to finish your Passport.':'Sign-in needs one more step. Please try again.');
   }catch(e){feedback(e.message||'Authentication failed.',true)}finally{if(btn){btn.disabled=false;btn.textContent=mode==='signin'?'Sign in':'Create account'}}
 }
