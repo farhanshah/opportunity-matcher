@@ -8,7 +8,7 @@ window.OpportunityCloudClient=client;
 
 let session=null,passportId=null,ready=false,syncing=false,pending=false,syncTimer=null,mode='signin',sessionState='checking';
 let enabledSocialProviders=new Set(['google']);
-let linkedinLinkStatus={configured:false,linked:false};
+let linkedinLinkStatus={configured:false,linked:false,checked:false,loading:false,error:''};
 const css=document.createElement('link');css.rel='stylesheet';css.href='/cloud-v13.css';document.head.appendChild(css);
 
 const initials=user=>String(user?.name||user?.email||'U').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
@@ -87,7 +87,13 @@ function availableSocialButtons(){
       onclick="window.OpportunityCloud.social('${x.provider}')"><i>${x.icon}</i>Continue with ${x.label}</button>`).join('');
 }
 function linkedinAccountControl(){
-  if(!linkedinLinkStatus.configured)return '';
+  if(!session?.user)return '';
+  if(!linkedinLinkStatus.checked || linkedinLinkStatus.loading)
+    return '<button type="button" disabled>Checking LinkedIn connection…</button>';
+  if(linkedinLinkStatus.error)
+    return '<div class="cloudLinkedInNotice" role="status" style="grid-column:1/-1;font-size:12px;color:#e6b3ae">'+html(linkedinLinkStatus.error)+'</div><button type="button" onclick="window.OpportunityCloud.refreshLinkedIn()">Retry LinkedIn check</button>';
+  if(!linkedinLinkStatus.configured)
+    return '<button type="button" disabled>LinkedIn connection not configured</button>';
   return '<button onclick="window.OpportunityCloud.linkedinAccount()">'+
     (linkedinLinkStatus.linked?'Unlink LinkedIn identity':'Connect LinkedIn identity (beta)')+'</button>';
 }
@@ -99,7 +105,11 @@ function renderAuth(){
   }
   card.innerHTML=`<button class="cloudClose" onclick="window.OpportunityCloud.closeAuth()">×</button><div class="cloudEy">Opportunity account</div><h2>${mode==='signin'?'Welcome back.':'Create your cloud workspace.'}</h2><p class="cloudLead">${mode==='signin'?'Sign in to restore your Passport, saved opportunities and tracker on this device.':'Your current browser workspace will be imported automatically after your first sign-in.'}</p><div class="cloudTabs"><button class="${mode==='signin'?'active':''}" onclick="window.OpportunityCloud.setMode('signin')">Sign in</button><button class="${mode==='signup'?'active':''}" onclick="window.OpportunityCloud.setMode('signup')">Create account</button></div>${availableSocialButtons()}<div class="cloudDivider">or use email</div>${mode==='signup'?'<div class="cloudField"><label>Name</label><input id="cloudName" autocomplete="name" placeholder="Your name"></div>':''}<div class="cloudField"><label>Email</label><input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><div class="cloudField"><label>Password</label><input id="cloudPassword" type="password" autocomplete="${mode==='signin'?'current-password':'new-password'}" placeholder="${mode==='signup'?'At least 12 characters':'Your password'}"></div><button id="cloudSubmit" class="cloudSubmit" onclick="window.OpportunityCloud.emailSubmit()">${mode==='signin'?'Sign in':'Create account'}</button>${mode==='signin'?'<button type="button" data-forgot-password="1" class="cloudForgot" onclick="window.OpportunityPasswordRecovery?.forgot?.()">Forgot password?</button>':''}<div id="cloudAuthFeedback"></div>`;
 }
-function openAuth(){renderAuth();document.getElementById('cloudAuthModal')?.classList.remove('hide')}
+function openAuth(){
+  renderAuth();
+  document.getElementById('cloudAuthModal')?.classList.remove('hide');
+  if(session?.user)void refreshLinkedInStatus(session.user);
+}
 function closeAuth(){document.getElementById('cloudAuthModal')?.classList.add('hide')}
 function feedback(text,error=false){const el=document.getElementById('cloudAuthFeedback');if(el)el.innerHTML=`<div class="${error?'cloudError':'cloudMessage'}">${html(text)}</div>`}
 function setMode(next){mode=next;renderAuth()}
@@ -160,17 +170,30 @@ async function social(provider){
 async function google(){return social('google')}
 async function refreshLinkedInStatus(user){
   if(!user || user.id!==session?.user?.id)return;
-  const bearer=session.session?.token||session.token;
-  if(!bearer)return;
+  if(linkedinLinkStatus.loading)return;
+  linkedinLinkStatus.loading=true;
+  const show=()=>{
+    if(user.id===session?.user?.id&&!document.getElementById('cloudAuthModal')?.classList.contains('hide'))renderAuth();
+  };
+  show();
   try{
-    const result=await fetch('/api/linkedin',{headers:{Authorization:'Bearer '+bearer},cache:'no-store'});
-    if(!result.ok)return;
-    const data=await result.json();
+    const bearer=session.session?.token||session.token;
+    if(!bearer)throw Error('Session information unavailable; sign in again to connect LinkedIn.');
+    const result=await fetch('/api/linkedin',{headers:{Authorization:'Bearer '+bearer},cache:'no-store',credentials:'same-origin'});
+    const data=await result.json().catch(()=>({}));
+    if(!result.ok)throw Error((data.error||'Could not reach LinkedIn connection service')+' ('+result.status+').');
     if(user.id!==session?.user?.id)return;
-    linkedinLinkStatus={configured:Boolean(data.configured),linked:Boolean(data.linked)};
-    if(!document.getElementById('cloudAuthModal')?.classList.contains('hide'))renderAuth();
-  }catch{}
+    linkedinLinkStatus={
+      configured:Boolean(data.configured),linked:Boolean(data.linked),checked:true,loading:false,error:''
+    };
+  }catch(e){
+    if(user.id!==session?.user?.id)return;
+    linkedinLinkStatus={configured:false,linked:false,checked:true,loading:false,
+      error:'LinkedIn connection check unavailable: '+String(e?.message||'Network error').slice(0,160)};
+  }
+  show();
 }
+function refreshLinkedIn(){if(session?.user)void refreshLinkedInStatus(session.user)}
 async function linkedinAccount(){
   if(!session?.user||!linkedinLinkStatus.configured)return;
   const bearer=session.session?.token||session.token;
@@ -366,7 +389,7 @@ async function signOut(){
     toast('Sign-out incomplete','Your session could not be revoked. Please retry before leaving a shared computer.');
     return;
   }
-  session=null;passportId=null;welcomeTriggeredFor='';ready=false;sessionState='signedout';linkedinLinkStatus={configured:false,linked:false};
+  session=null;passportId=null;welcomeTriggeredFor='';ready=false;sessionState='signedout';linkedinLinkStatus={configured:false,linked:false,checked:false,loading:false,error:''};
   state.clear();
   window.dispatchEvent(new CustomEvent('opportunity:signedout'));
   updateAccountUI();closeAuth();
@@ -397,7 +420,7 @@ async function refreshSession(bootstrap=false){
   return null;
 }
 
-window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,social,linkedinAccount,signOut,syncNow,completePassport:openProfileSettings,verifyEmail:requestEmailVerification,retrySession:()=>refreshSession(true)};
+window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,social,linkedinAccount,refreshLinkedIn,signOut,syncNow,completePassport:openProfileSettings,verifyEmail:requestEmailVerification,retrySession:()=>refreshSession(true)};
 window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
 void refreshSocialProviders();
