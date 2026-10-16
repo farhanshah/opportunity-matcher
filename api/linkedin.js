@@ -51,7 +51,7 @@ export default async function handler(req,res){
       VALUES (${digest(state)},${digest(cookie)},${nonce},${account.id},${account.auth_session_id},now()+interval '10 minutes')
     `;
     setConnectCookie(res,cookie);
-    return sendJson(res,200,{ok:true,url:authorizationUrl(state,nonce)});
+    return sendJson(res,200,{ok:true,url:authorizationUrl(state)});
   }catch(e){
     console.error('LinkedIn connection request failed',stage,String(e?.message||e).slice(0,190));
     // Return only a coarse failure stage, never database errors, credentials or account details.

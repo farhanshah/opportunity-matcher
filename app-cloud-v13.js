@@ -464,6 +464,14 @@ if(linkedResult){
     'already-used':['LinkedIn account already linked','This LinkedIn identity belongs to another OppMatcher account.'],
     'already-linked':['Different LinkedIn identity already linked','Disconnect the existing identity before changing it.'],
     invalid:['LinkedIn callback rejected','The authorization response could not be validated. Please retry.'],
+    'unavailable-config':['LinkedIn connection not configured','The LinkedIn client setup is unavailable.'],
+    'unavailable-db':['LinkedIn database unavailable','Could not start the secure callback.'],
+    'unavailable-pending-state':['LinkedIn authorization storage failed','The one-time authorization state could not be checked.'],
+    'unavailable-active-session':['LinkedIn account session check failed','OppMatcher could not verify the initiating account session.'],
+    'unavailable-token-exchange':['LinkedIn token exchange failed','LinkedIn did not accept the one-time authorization code.'],
+    'unavailable-id-token':['LinkedIn token verification failed','OppMatcher could not validate the LinkedIn identity response.'],
+    'unavailable-linked-lookup':['LinkedIn connection lookup failed','OppMatcher could not check existing connections.'],
+    'unavailable-linked-save':['LinkedIn connection could not be saved','The identity was validated, but the connection was not stored.'],
     unavailable:['LinkedIn callback failed','The connection could not be completed. Please retry and check the result here.']
   };
   const copy=notifications[linkedResult]||notifications.invalid;

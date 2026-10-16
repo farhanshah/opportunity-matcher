@@ -11,12 +11,14 @@ export default async function handler(req,res){
   const cookie=readCookie(req);
   const code=String(req.query?.code||'');
   // Refuse unauthenticated callbacks before any OAuth token exchange.
-  if(!configured())return redirectHome(res,'unavailable');
+  if(!configured())return redirectHome(res,'unavailable-config');
   if(!/^[a-zA-Z0-9_-]{30,150}$/.test(state))return redirectHome(res,'invalid-state');
   // Do not bypass OAuth CSRF protection if the browser failed to retain the secure cookie.
   if(!/^[a-zA-Z0-9_-]{30,150}$/.test(cookie))return redirectHome(res,'missing-cookie');
+  let stage='db';
   try{
     const sql=db();
+    stage='pending-state';
     const rows=await sql`
       DELETE FROM public.linkedin_oauth_pending
       WHERE state_hash=${digest(state)} AND expires_at>now()
@@ -25,6 +27,7 @@ export default async function handler(req,res){
     if(!rows.length || !constantTimeEqual(rows[0].cookie_hash,digest(cookie)))
       return redirectHome(res,'expired');
     // A revoked or expired initiating session must never complete account linking.
+    stage='active-session';
     const stillActive=await sql`
       SELECT 1 FROM neon_auth.session s
       JOIN neon_auth."user" u ON u.id=s."userId"
@@ -42,9 +45,12 @@ export default async function handler(req,res){
     }
     if(!/^[a-zA-Z0-9._~-]{5,2048}$/.test(code))
       return redirectHome(res,'invalid');
+    stage='token-exchange';
     const idToken=await exchangeCode(code);
-    const identity=await verifyIdToken(idToken,rows[0].nonce);
+    stage='id-token';
+    const identity=await verifyIdToken(idToken);
     // Never merge by email; only the linked provider's signed subject may identify a connection.
+    stage='linked-lookup';
     const matches=await sql`
       SELECT auth_user_id,provider_subject FROM public.linkedin_connected_accounts
       WHERE auth_user_id=${rows[0].auth_user_id}
@@ -56,6 +62,7 @@ export default async function handler(req,res){
                        && x.provider_subject!==identity.subject))
       return redirectHome(res,'already-linked');
     if(!matches.length){
+      stage='linked-save';
       const created=await sql`
         INSERT INTO public.linkedin_connected_accounts (auth_user_id,provider_subject)
         VALUES (${rows[0].auth_user_id},${identity.subject})
@@ -66,7 +73,8 @@ export default async function handler(req,res){
     }
     return redirectHome(res,'connected');
   }catch(e){
-    console.error('LinkedIn connection callback unsuccessful',String(e?.message||e).slice(0,180));
-    return redirectHome(res,'unavailable');
+    console.error('LinkedIn connection callback unsuccessful',stage,String(e?.message||e).slice(0,180));
+    // The URL carries only a fixed, non-sensitive stage identifier; no OAuth code, identity or error text.
+    return redirectHome(res,'unavailable-'+stage);
   }
 }

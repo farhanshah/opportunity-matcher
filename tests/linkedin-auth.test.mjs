@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { generateKeyPairSync, sign } from 'node:crypto';
-import { verifyNeonJwt, getAccountBySession, bearerToken, redirectHome } from '../lib/linkedin-oidc.js';
+import { verifyNeonJwt, getAccountBySession, bearerToken, redirectHome, authorizationUrl, verifyIdToken } from '../lib/linkedin-oidc.js';
 
 const base='https://ep-empty-fog-aw7p1xu9.neonauth.c-12.us-east-1.aws.neon.tech/neondb/auth';
 const issuer=new URL(base).origin;
@@ -119,4 +119,50 @@ test('browser remembers only a callback status, never an access token',async()=>
   const script=readFileSync(new URL('../app-v07.js',import.meta.url),'utf8');
   assert.match(script,/sessionStorage\.setItem\('oppLinkedInCallbackOutcomeV1',outcome\)/);
   assert.match(script,/\^\[a-z-\]\{3,40\}\$/);
+});
+
+test('LinkedIn authorization-code flow uses cryptographic state without requesting nonce',()=>{
+  const prior=process.env.LINKEDIN_CLIENT_ID;
+  process.env.LINKEDIN_CLIENT_ID='test-li-client';
+  try{
+    const target=new URL(authorizationUrl('Q'.repeat(43),'no-longer-needed'));
+    assert.equal(target.hostname,'www.linkedin.com');
+    assert.equal(target.pathname,'/oauth/v2/authorization');
+    assert.equal(target.searchParams.get('state'),'Q'.repeat(43));
+    assert.equal(target.searchParams.get('response_type'),'code');
+    assert.equal(target.searchParams.get('nonce'),null);
+    assert.equal(target.searchParams.get('scope'),'openid profile email');
+  }finally{
+    if(prior===undefined)delete process.env.LINKEDIN_CLIENT_ID;
+    else process.env.LINKEDIN_CLIENT_ID=prior;
+  }
+});
+test('LinkedIn signed ID token without nonce validates against the pinned issuer, key and client',async()=>{
+  const pair=generateKeyPairSync('rsa',{modulusLength:2048});
+  const jwk={...pair.publicKey.export({format:'jwk'}),kid:'linkedin-test-key',alg:'RS256',use:'sig'};
+  const priorClient=process.env.LINKEDIN_CLIENT_ID;
+  const priorFetch=global.fetch;
+  process.env.LINKEDIN_CLIENT_ID='linkedin-client-test';
+  global.fetch=async(url)=>{
+    assert.equal(String(url),'https://www.linkedin.com/oauth/openid/jwks');
+    return {ok:true,json:async()=>({keys:[jwk]})};
+  };
+  const createLinkedinJwt=(claims={})=>{
+    const header=Buffer.from(JSON.stringify({alg:'RS256',kid:jwk.kid})).toString('base64url');
+    const now=Math.floor(Date.now()/1000);
+    const payload=Buffer.from(JSON.stringify({
+      iss:'https://www.linkedin.com',aud:'linkedin-client-test',
+      sub:'linked-member-123',iat:now,exp:now+600,...claims
+    })).toString('base64url');
+    return header+'.'+payload+'.'+sign('RSA-SHA256',Buffer.from(header+'.'+payload),pair.privateKey).toString('base64url');
+  };
+  try{
+    assert.deepEqual(await verifyIdToken(createLinkedinJwt()),{subject:'linked-member-123'});
+    await assert.rejects(verifyIdToken(createLinkedinJwt({aud:'wrong-client'})),/claims rejected/);
+    await assert.rejects(verifyIdToken(createLinkedinJwt({iss:'https:\/\/attacker.example'})),/claims rejected/);
+  }finally{
+    global.fetch=priorFetch;
+    if(priorClient===undefined)delete process.env.LINKEDIN_CLIENT_ID;
+    else process.env.LINKEDIN_CLIENT_ID=priorClient;
+  }
 });
