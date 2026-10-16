@@ -27,15 +27,19 @@ const social=`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" 
 <text x="72" y="578" fill="#d8ff69" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="21">oppmatcher.tech</text>
 </svg>`;
 const sizes={favicon:64,email:144,apple:180,pwa192:192,pwa512:512,logo:512};
+export async function renderBrandPng(kind){
+  if(kind!=='social'&&!Object.prototype.hasOwnProperty.call(sizes,kind))throw Error('Unknown image');
+  return sharp(Buffer.from(kind==='social'?social:mark))
+    .resize(kind==='social'?1200:sizes[kind],kind==='social'?630:sizes[kind])
+    .png({compressionLevel:9,effort:7}).toBuffer();
+}
 export default async function handler(req,res){
   if(req.method!=='GET'&&req.method!=='HEAD')return res.status(405).end();
   const kind=String(req.query.kind||'favicon');
   if(kind!=='social'&&!Object.prototype.hasOwnProperty.call(sizes,kind))
     return res.status(400).json({error:'Unknown image'});
   try{
-    const buffer=await sharp(Buffer.from(kind==='social'?social:mark))
-      .resize(kind==='social'?1200:sizes[kind],kind==='social'?630:sizes[kind])
-      .png({compressionLevel:9,effort:7}).toBuffer();
+    const buffer=await renderBrandPng(kind);
     res.setHeader('Content-Type','image/png');
     res.setHeader('Cache-Control','public, max-age=604800, s-maxage=2592000, stale-while-revalidate=86400');
     res.setHeader('X-Content-Type-Options','nosniff');
