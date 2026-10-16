@@ -19,10 +19,23 @@ export default async function handler(req,res){
     const rows=await sql`
       DELETE FROM public.linkedin_oauth_pending
       WHERE state_hash=${digest(state)} AND expires_at>now()
-      RETURNING cookie_hash,nonce,auth_user_id
+      RETURNING cookie_hash,nonce,auth_user_id,auth_session_id
     `;
     if(!rows.length || !constantTimeEqual(rows[0].cookie_hash,digest(cookie)))
       return redirectHome(res,'expired');
+    // A revoked or expired initiating session must never complete account linking.
+    const stillActive=await sql`
+      SELECT 1 FROM neon_auth.session s
+      JOIN neon_auth."user" u ON u.id=s."userId"
+      WHERE s.id=${rows[0].auth_session_id}
+        AND s."userId"=${rows[0].auth_user_id}
+        AND s."expiresAt">now()
+        AND s."impersonatedBy" IS NULL
+        AND u."emailVerified"=TRUE
+        AND u.banned IS DISTINCT FROM TRUE
+      LIMIT 1
+    `;
+    if(!stillActive.length)return redirectHome(res,'expired');
     if(req.query?.error){
       return redirectHome(res,'cancelled');
     }
