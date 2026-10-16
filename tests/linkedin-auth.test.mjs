@@ -56,3 +56,35 @@ test('bearer parser never accepts malformed authorization headers',()=>{
   assert.equal(bearerToken({headers:{authorization:'Bearer abc'}}),null);
   assert.equal(bearerToken({headers:{authorization:'Bearer '+token()}}),token());
 });
+
+test('opaque Neon session token is validated using a current database session',async()=>{
+  const opaque='S'.repeat(48);
+  let checked=false;
+  const mockSql=async(strings,...values)=>{
+    const query=strings.join('?');
+    assert.match(query,/FROM neon_auth.session/);
+    assert.match(query,/s\\.token=\\?/);
+    assert.match(query,/s\\."expiresAt">now\\(\\)/);
+    assert.equal(values[0],opaque);
+    checked=true;
+    return [{id:subject,verified:true,auth_session_id:subject}];
+  };
+  const account=await getAccountBySession(mockSql,opaque);
+  assert.equal(account.id,subject);
+  assert.equal(checked,true);
+});
+
+test('browser prefers working opaque token when optional Neon JWT endpoint returns 404',async()=>{
+  const {readFileSync}=await import('node:fs');
+  const code=readFileSync(new URL('../app-cloud-v13.js',import.meta.url),'utf8');
+  const start=code.indexOf('async function linkedinBearer(){');
+  const end=code.indexOf('\\nasync function refreshLinkedInStatus(',start);
+  assert.ok(start>=0&&end>start,'browser token function is present');
+  const body=code.slice(start,end);
+  let jwtCalls=0;
+  const session={session:{token:'S'.repeat(48)}};
+  const client={auth:{getJWTToken:async()=>{jwtCalls++;throw Error('HTTP 404')}}};
+  const browserFunction=Function('session','client','return ('+body+')')(session,client);
+  assert.equal(await browserFunction(),'S'.repeat(48));
+  assert.equal(jwtCalls,0);
+});

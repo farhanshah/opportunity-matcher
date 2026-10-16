@@ -169,15 +169,21 @@ async function social(provider){
 }
 async function google(){return social('google')}
 async function linkedinBearer(){
-  // Neon Data API uses a short-lived signed JWT; the opaque session token is not interchangeable.
+  // This API validates opaque session tokens directly against the live Neon Auth session table.
+  // Prefer the existing account session: the optional getJWTToken SDK endpoint can return HTTP 404.
+  const sessionToken=session?.session?.token||session?.token;
+  if(typeof sessionToken==='string'&&sessionToken.length>=20)return sessionToken;
   let jwt=null;
   if(typeof client.auth.getJWTToken==='function'){
-    const result=await client.auth.getJWTToken();
-    jwt=typeof result==='string'?result:
-      (result?.data?.token||result?.token||result?.data?.access_token||null);
+    try{
+      const result=await client.auth.getJWTToken();
+      jwt=typeof result==='string'?result:
+        (result?.data?.token||result?.token||result?.data?.access_token||null);
+    }catch(e){
+      console.warn('Optional account JWT unavailable',String(e?.message||e).slice(0,100));
+    }
   }
-  if(!jwt)jwt=session?.access_token||session?.session?.access_token||
-    session?.session?.token||session?.token;
+  if(!jwt)jwt=session?.access_token||session?.session?.access_token;
   if(typeof jwt!=='string'||jwt.length<20)throw Error('Secure account token unavailable. Please sign in again.');
   return jwt;
 }
