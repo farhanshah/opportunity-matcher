@@ -132,7 +132,7 @@
     },
     {
       "path": "/api/welcome-email",
-      "schedule": "10 * * * *"
+      "schedule": "*/5 * * * *"
     }
   ]
 }
