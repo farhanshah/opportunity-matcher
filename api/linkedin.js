@@ -40,8 +40,8 @@ export default async function handler(req,res){
     const state=freshToken(),cookie=freshToken(),nonce=freshToken();
     await sql`
       INSERT INTO public.linkedin_oauth_pending
-        (state_hash,cookie_hash,nonce,auth_user_id,expires_at)
-      VALUES (${digest(state)},${digest(cookie)},${nonce},${account.id},now()+interval '10 minutes')
+        (state_hash,cookie_hash,nonce,auth_user_id,auth_session_id,expires_at)
+      VALUES (${digest(state)},${digest(cookie)},${nonce},${account.id},${account.auth_session_id},now()+interval '10 minutes')
     `;
     setConnectCookie(res,cookie);
     return sendJson(res,200,{ok:true,url:authorizationUrl(state,nonce)});
