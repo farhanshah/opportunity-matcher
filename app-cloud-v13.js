@@ -168,6 +168,19 @@ async function social(provider){
   }
 }
 async function google(){return social('google')}
+async function linkedinBearer(){
+  // Neon Data API uses a short-lived signed JWT; the opaque session token is not interchangeable.
+  let jwt=null;
+  if(typeof client.auth.getJWTToken==='function'){
+    const result=await client.auth.getJWTToken();
+    jwt=typeof result==='string'?result:
+      (result?.data?.token||result?.token||result?.data?.access_token||null);
+  }
+  if(!jwt)jwt=session?.access_token||session?.session?.access_token||
+    session?.session?.token||session?.token;
+  if(typeof jwt!=='string'||jwt.length<20)throw Error('Secure account token unavailable. Please sign in again.');
+  return jwt;
+}
 async function refreshLinkedInStatus(user){
   if(!user || user.id!==session?.user?.id)return;
   if(linkedinLinkStatus.loading)return;
@@ -177,8 +190,7 @@ async function refreshLinkedInStatus(user){
   };
   show();
   try{
-    const bearer=session.session?.token||session.token;
-    if(!bearer)throw Error('Session information unavailable; sign in again to connect LinkedIn.');
+    const bearer=await linkedinBearer();
     const result=await fetch('/api/linkedin',{headers:{Authorization:'Bearer '+bearer},cache:'no-store',credentials:'same-origin'});
     const data=await result.json().catch(()=>({}));
     if(!result.ok)throw Error((data.error||'Could not reach LinkedIn connection service')+' ('+result.status+').');
@@ -196,8 +208,8 @@ async function refreshLinkedInStatus(user){
 function refreshLinkedIn(){if(session?.user)void refreshLinkedInStatus(session.user)}
 async function linkedinAccount(){
   if(!session?.user||!linkedinLinkStatus.configured)return;
-  const bearer=session.session?.token||session.token;
-  if(!bearer){toast('Reconnect needed','Please sign in again before connecting LinkedIn.');return}
+  let bearer;
+  try{bearer=await linkedinBearer()}catch(e){toast('Reconnect needed',e.message);return}
   const unlink=linkedinLinkStatus.linked;
   if(unlink && !window.confirm('Disconnect your LinkedIn identity? Your existing OppMatcher sign-in and Passport will stay intact.'))return;
   try{
