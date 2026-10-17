@@ -1,5 +1,5 @@
 (async()=>{
-  const BUILD='20261017-v286';
+  const BUILD='20261017-v287';
   // Keep the OAuth callback result available while the workspace's many scripts load.
   try{
     const outcome=new URLSearchParams(window.location.search).get('linkedin_connect');
@@ -27,7 +27,7 @@
     '/app-v96-route-ux.js','/app-v97-product-ux.js','/app-v98-workspace-integrity.js',
     '/app-v109-studio-truth-sync.js','/app-v71-password-recovery-v2.js','/app-v103-boot-finalize.js','/app-v108-prepare-route.js',
     '/app-v110-tracker-pack-status.js','/app-v111-tracker-status-hardfix.js','/app-v113-tracker-prep-summary.js','/app-v114-submission-stage.js','/app-v122-post-submission-lifecycle.js','/app-v115-dashboard-momentum.js','/app-v117-dashboard-momentum-pill.js','/app-v118-live-tracked-context.js','/app-v119-dashboard-actionable-priority.js','/app-v120-dashboard-convergence.js','/app-v121-dashboard-pipeline-truth.js','/app-v123-light-tracker-contrast.js','/app-v124-application-history.js','/app-v125-history-cloud-repair.js','/app-v126-history-milestone-reconcile.js','/app-v127-exact-history-durability.js','/app-v128-live-history-events.js','/app-v138-radar-order-v204.js','/app-v139-smart-next-action-v205.js','/app-v140-journey-hardening-v206.js','/app-v141-submission-deeplink-v207.js','/app-v142-submission-refresh-guard-v208.js','/app-v146-live-action-bridge-v211.js','/app-v147-live-action-v2-bridge-v212.js','/app-v148-official-source-truth-v213.js',
-    '/app-v155-freshness-truth-v286.js'
+    '/app-v155-freshness-truth-v286.js','/app-v156-stale-fit-v287.js'
   ];
 
   try{

@@ -1,5 +1,6 @@
 import { db } from '../lib/db.js';
 import { canonicalUrl, officialHostMatches, verifyCandidate } from '../lib/auto-discovery.js';
+import { resolveOfficialRedirect } from '../lib/verification-redirects.js';
 
 const BATCH = 12;
 const CONCURRENCY = 6;
@@ -18,8 +19,9 @@ async function getProviderHtml(raw) {
     const r=await fetch(current,{redirect:'manual',signal:AbortSignal.timeout(8500),
       headers:{Accept:'text/html,application/xhtml+xml','User-Agent':'OpportunityMatcher-RecordVerification/1.0'}});
     if([301,302,303,307,308].includes(r.status)){
-      const next=canonicalUrl(r.headers.get('location'),current);
-      if(!next || !officialHostMatches(next,original)) throw Error('Official host redirect invalid');
+      // Security-validate each redirect, but keep its real path, including the trailing slash.
+      // Canonicalization removes that slash and can otherwise create a false redirect loop.
+      const next=resolveOfficialRedirect(r.headers.get('location'),current,original);
       current=next;continue;
     }
     if(!r.ok)throw Error('HTTP '+r.status);

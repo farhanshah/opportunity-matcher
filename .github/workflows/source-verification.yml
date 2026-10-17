@@ -1,0 +1,31 @@
+name: OppMatcher source verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/reverify.js'
+      - 'lib/verification-redirects.js'
+      - 'app-v156-stale-fit-v287.js'
+      - 'app-v07.js'
+      - 'tests/source-verification.test.mjs'
+      - '.github/workflows/source-verification.yml'
+  workflow_dispatch:
+concurrency:
+  group: oppmatcher-source-verification-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source-verification-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check api/reverify.js
+          node --check lib/verification-redirects.js
+          node --check app-v156-stale-fit-v287.js
+          node --check app-v07.js
+      - name: Security and source tests
+        run: node --test tests/source-verification.test.mjs
