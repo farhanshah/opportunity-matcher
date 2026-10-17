@@ -1,7 +1,7 @@
 (()=>{
   const $=id=>document.getElementById(id);
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const state={secret:sessionStorage.getItem('oppAdminSecret')||'',data:null,sourceFilter:'all',partialFilter:'all'};
+  const state={secret:sessionStorage.getItem('oppAdminSecret')||'',data:null,sourceFilter:'all',partialFilter:'all',reviewFilter:'high'};
   const TITLES={overview:['Freshness overview','Monitor coverage, rule depth and anything that needs a human decision.'],sources:['Official-source monitors','Inspect every monitored source, its latest success and any fetch issue.'],reviews:['Source evidence alerts','Automated source checks hold any change that lacks confirmed provider evidence.'],partials:['Partially normalized records','See exactly which records are waiting on cycle evidence, route logic or provider-specific detail.']};
 
   const fmtTime=v=>{if(!v)return'Never';const d=new Date(v);if(Number.isNaN(d.getTime()))return'—';return d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})};
@@ -82,7 +82,7 @@
     if(!groups.length)return '';
     return `<details class="reviewEvidence"><summary>View official-source before / after evidence</summary>
       <div class="reviewEvidenceGrid">${groups.map(field=>`<div class="evidenceGroup"><b>${esc(field)}</b><div><small>Previous</small><p>${esc(toText(before[field]).slice(0,430))}</p></div><div><small>Current</small><p>${esc(toText(after[field]).slice(0,430))}</p></div></div>`).join('')}</div>
-      <p class="evidenceNotice">Extracted page text is not proof of a changed application rule. Only independently supported facts can update the published record.</p>
+      <p class="evidenceNotice">These excerpts may include website menus or navigation. Differences are signals for investigation, not proof of a changed eligibility rule. Only independently supported facts can update the published record.</p>
     </details>`;
   }
   function renderReviews(){
@@ -96,12 +96,20 @@
     const highRisk=Number(s.high_risk_pending??0);
     const summaryEl=$('reviewSummary');
     if(summaryEl)summaryEl.textContent=outstanding+' historical events in '+grouped+' evidence groups · '+highRisk+' high-risk events. Automated publishing never uses unresolved page-change alerts.';
-    if(!list.length){$('reviewQueue').innerHTML='<div class="emptyState">No evidence alerts are awaiting re-verification.</div>';return}
-    $('reviewQueue').innerHTML=list.map(x=>{
+    $('riskLegacyCount').textContent=String(s.high_risk_without_fingerprint??'—')+' high-risk events without fingerprint';
+    $('riskUnlinkedCount').textContent=String(s.high_risk_without_opportunity??'—')+' high-risk events without linked opportunity';
+    const selected=list.filter(x=>state.reviewFilter==='all'
+      || state.reviewFilter==='high'&&x.status==='pending_review'&&x.risk_level==='high'
+      || state.reviewFilter==='gaps'&&x.status==='pending_review'&&
+          (Number(x.legacy_unfingerprinted_events||0)>0 || Number(x.events_without_opportunity||0)>0));
+    $('reviewShowing').textContent=selected.length+' groups shown · original events retained';
+    if(!selected.length){$('reviewQueue').innerHTML='<div class="emptyState"><strong>No alert groups match this filter.</strong><p>Try All groups to see other historical events.</p></div>';return}
+    $('reviewQueue').innerHTML=selected.map(x=>{
       const title=x.opportunity_title||String(x.source_key||'Official provider').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
       return `<article class="reviewCard"><div><div class="reviewTop"><span class="reviewRisk ${esc(x.risk_level||'medium')}">${esc(x.risk_level||'review')}</span><span class="reviewDate">${ago(x.detected_at)} · ${esc(x.provider)}</span></div>
         <h3>${esc(title)}</h3><p>${esc(x.diff_summary||x.change_type||'Source text changed')}</p>
-        ${Number(x.related_events||1)>1?`<p class="reviewGroupHint">${Number(x.related_events)} related events. Original history is preserved.</p>`:''}
+        <p class="reviewGroupHint">${Number(x.related_events||1)} related event(s) · ${Number(x.legacy_unfingerprinted_events||0)} without legacy fingerprint · ${Number(x.events_without_opportunity||0)} without direct opportunity link. Original event records are retained.</p>
+        ${(Number(x.legacy_unfingerprinted_events||0)>0 || Number(x.events_without_opportunity||0)>0)?'<p class="reviewEvidenceWarning">Evidence gap: inspect this source manually. Do not infer a changed eligibility rule from navigation text or a missing fingerprint.</p>':''}
         ${evidencePreview(x)}</div>
         <div class="reviewActions"><span class="statusBadge">${x.status==='pending_review'?'Held for automatic verification':esc(x.status)}</span>
           <a class="rowLink" href="${esc(x.source_url||'#')}" target="_blank" rel="noopener noreferrer" title="Official provider page">↗</a></div>
@@ -123,6 +131,14 @@
     $('sourceSearch').addEventListener('input',renderSources);$('partialSearch').addEventListener('input',renderPartials);
     document.querySelectorAll('#sourceFilters button').forEach(b=>b.onclick=()=>{state.sourceFilter=b.dataset.filter;document.querySelectorAll('#sourceFilters button').forEach(x=>x.classList.toggle('active',x===b));renderSources()});
     document.querySelectorAll('#partialFilters button').forEach(b=>b.onclick=()=>{state.partialFilter=b.dataset.filter;document.querySelectorAll('#partialFilters button').forEach(x=>x.classList.toggle('active',x===b));renderPartials()});
+    document.querySelectorAll('#reviewFilters button').forEach(b=>b.onclick=()=>{
+      state.reviewFilter=b.dataset.filter;
+      document.querySelectorAll('#reviewFilters button').forEach(x=>{
+        x.classList.toggle('active',x===b);
+        x.setAttribute('aria-pressed',String(x===b));
+      });
+      renderReviews();
+    });
   }
   window.Ops={review};bind();if(state.secret){$('adminSecret').value=state.secret;load()}
 })();

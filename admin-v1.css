@@ -29,3 +29,14 @@
 @media(max-width:900px){.opsEvidenceFreshness{grid-template-columns:1fr}}
 @media(max-width:520px){.opsEvidenceStats{grid-template-columns:1fr 1fr}}
 .priorityReviewCount{font-size:10px;line-height:1.5;color:var(--amber);font-weight:700;margin-top:-8px;margin-bottom:12px}
+
+/* v291: evidence quality is a triage aid, not automatic acceptance. */
+.reviewTriageIntro{display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid rgba(255,202,104,.22);border-radius:14px;padding:14px 16px;background:rgba(255,202,104,.045);margin-bottom:14px}
+.reviewTriageIntro strong{font-size:12px;color:#f7e2b9}
+.reviewTriageIntro p{margin:5px 0 0;font-size:11px;line-height:1.5;color:var(--muted);max-width:700px}
+.reviewTriageCounts{display:flex;gap:7px;flex-wrap:wrap;min-width:230px}
+.reviewTriageCounts span{font-size:10px;color:var(--amber);padding:7px 9px;border:1px solid rgba(255,202,104,.19);border-radius:9px}
+.reviewToolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:15px}
+.reviewCountText{font-size:11px;color:var(--muted)}
+.reviewEvidenceWarning{margin-top:9px!important;color:#ead0a2!important;line-height:1.55!important}
+@media(max-width:750px){.reviewTriageIntro,.reviewToolbar{flex-direction:column;align-items:stretch}.reviewTriageCounts{min-width:0}}

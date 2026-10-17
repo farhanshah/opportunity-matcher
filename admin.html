@@ -80,6 +80,18 @@
 
       <section id="view-reviews" class="view">
         <div class="reviewIntro"><div><span class="panelEyebrow">Automated evidence safeguards</span><h2>Unverified changes stay off the public database.</h2><p>Changes remain reviewable before affecting matching. Changes lacking decisive evidence remain held automatically. Repeated alerts are grouped, and the original records remain available.</p><p id="reviewSummary" class="reviewSummary">Loading review groups…</p></div><div class="reviewLegend"><span><i class="riskDot high"></i>high</span><span><i class="riskDot medium"></i>medium</span><span><i class="riskDot low"></i>low</span></div></div>
+        <div class="reviewTriageIntro">
+          <div><strong>Evidence-quality checks</strong><p>Historical alerts without evidence fingerprints or a direct opportunity link need manual investigation. These warnings do not prove that a provider's rules changed.</p></div>
+          <div class="reviewTriageCounts"><span id="riskLegacyCount">— legacy evidence</span><span id="riskUnlinkedCount">— without linked opportunity</span></div>
+        </div>
+        <div class="reviewToolbar" aria-label="Review alert filters">
+          <div class="segmented" id="reviewFilters">
+            <button class="active" type="button" data-filter="high" aria-pressed="true">High risk</button>
+            <button type="button" data-filter="gaps" aria-pressed="false">Evidence gaps</button>
+            <button type="button" data-filter="all" aria-pressed="false">All groups</button>
+          </div>
+          <span class="reviewCountText" id="reviewShowing">Loading review groups…</span>
+        </div>
         <div id="reviewQueue" class="reviewQueue"></div>
       </section>
 
@@ -91,6 +103,6 @@
   </div>
 
   <div id="toast" class="toast"></div>
-  <script src="/admin-v1.js?v=290"></script>
+  <script src="/admin-v1.js?v=291"></script>
 </body>
 </html>

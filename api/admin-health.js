@@ -37,6 +37,10 @@ export default async function handler(req, res) {
         (SELECT count(*)::int FROM detected_changes) AS detected_changes,
         (SELECT count(*)::int FROM detected_changes WHERE status='pending_review') AS pending_review,
         (SELECT count(*)::int FROM detected_changes WHERE status='pending_review' AND risk_level='high') AS high_risk_pending,
+        (SELECT count(*)::int FROM detected_changes WHERE status='pending_review' AND risk_level='high'
+          AND evidence_fingerprint IS NULL) AS high_risk_without_fingerprint,
+        (SELECT count(*)::int FROM detected_changes WHERE status='pending_review' AND risk_level='high'
+          AND opportunity_id IS NULL) AS high_risk_without_opportunity,
         (SELECT count(*)::int FROM (
           SELECT DISTINCT source_id, risk_level, change_type
           FROM detected_changes WHERE status='pending_review'
@@ -117,6 +121,16 @@ export default async function handler(req, res) {
               THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
               ELSE c.id::text END
           )::int AS related_events,
+          count(*) FILTER (WHERE c.evidence_fingerprint IS NULL) OVER (
+            PARTITION BY CASE WHEN c.status='pending_review'
+              THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
+              ELSE c.id::text END
+          )::int AS legacy_unfingerprinted_events,
+          count(*) FILTER (WHERE c.opportunity_id IS NULL) OVER (
+            PARTITION BY CASE WHEN c.status='pending_review'
+              THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
+              ELSE c.id::text END
+          )::int AS events_without_opportunity,
           row_number() OVER (
             PARTITION BY CASE WHEN c.status='pending_review'
               THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
@@ -128,7 +142,7 @@ export default async function handler(req, res) {
       SELECT
         c.id, c.change_type, c.risk_level, c.field_name, c.old_value, c.new_value,
         c.diff_summary, c.status, c.detected_at, c.reviewed_at, c.review_note,
-        ranked.related_events,
+        ranked.related_events,ranked.legacy_unfingerprinted_events,ranked.events_without_opportunity,
         jsonb_build_object(
           'previous', jsonb_build_object(
             'dates', prev.extraction_payload->'dates',
