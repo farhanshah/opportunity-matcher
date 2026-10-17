@@ -24,6 +24,7 @@ export default async function handler(req, res) {
         (SELECT count(*)::int FROM opportunity_eligibility_rules WHERE certainty <> 'confirmed') AS uncertain_rules,
         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true) AS active_monitors,
         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_success_at IS NOT NULL) AS successful_monitors,
+        (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_success_at >= now()-interval '7 days') AS successful_monitors_7d,
         (SELECT count(*)::int FROM monitored_sources
           WHERE is_active=true AND last_error IS NULL AND last_success_at IS NOT NULL
             AND last_checked_at > now() - (check_interval_minutes * interval '1 minute')) AS healthy_monitors,
@@ -44,6 +45,9 @@ export default async function handler(req, res) {
         (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='needs_evidence') AS discovered_withheld,
         (SELECT count(*)::int FROM exact_vacancies WHERE status='open' AND status_verified=true) AS verified_live_vacancies,
         (SELECT count(*)::int FROM opportunities WHERE last_verified_at >= now()-INTERVAL '30 days') AS verified_records_30d,
+        (SELECT count(*)::int FROM opportunity_country_routes WHERE is_active) AS active_country_routes,
+        (SELECT count(*)::int FROM opportunity_country_routes WHERE is_active AND last_verified_at >= now()-interval '30 days') AS verified_routes_30d,
+        (SELECT count(*)::int FROM opportunity_eligibility_rules WHERE last_verified_at >= now()-interval '30 days') AS verified_rules_30d,
         (SELECT count(*)::int FROM opportunities WHERE last_recheck_at >= now()-INTERVAL '7 days') AS rechecked_records_7d,
         (SELECT max(last_discovery_at) FROM monitored_sources) AS last_discovery_run,
         (SELECT max(last_recheck_at) FROM opportunities) AS last_recheck_run,

@@ -51,13 +51,22 @@
       <section id="view-overview" class="view active">
         <div class="metricGrid">
           <article class="metricCard heroMetric"><div class="metricLabel">Opportunity coverage</div><div class="coverageWrap"><div id="coverageRing" class="coverageRing"><div><strong id="coveragePct">—</strong><span>normalized</span></div></div><div class="coverageCopy"><h2><span id="normalizedCount">—</span> of <span id="totalOppCount">—</span></h2><p>Fully structured eligibility. Partial records stay conservative until the source supports more certainty.</p></div></div></article>
-          <article class="metricCard"><div class="metricLabel">Official-source monitors</div><strong class="metricBig" id="monitorSuccess">—</strong><div class="metricBottom"><span id="monitorTotal">— active</span><span id="monitorFailPill" class="pill">— issues</span></div></article>
+          <article class="metricCard"><div class="metricLabel">Recent official fetches (7 days)</div><strong class="metricBig" id="monitorSuccess">—</strong><div class="metricBottom"><span id="monitorTotal">— active</span><span id="monitorFailPill" class="pill">— issues</span></div></article>
           <article class="metricCard"><div class="metricLabel">Structured eligibility rules</div><strong class="metricBig" id="ruleCount">—</strong><div class="metricBottom"><span id="nonCountryRules">— non-country</span><span id="uncertainRules" class="pill neutral">— uncertain</span></div></article>
           <article class="metricCard"><div class="metricLabel">Change review queue</div><strong class="metricBig" id="pendingCount">—</strong><div class="metricBottom"><span id="snapshotCount">— snapshots</span><button class="textAction" data-jump="reviews">Open queue →</button></div></article>
         </div>
 
+        <section class="opsEvidenceFreshness" role="status" aria-label="Current source verification">
+          <div><span class="opsEvidenceEyebrow">Verified evidence · past 30 days</span><h2>Freshness is separate from normalization</h2>
+            <p>The 77% normalization figure describes structured data. It does not prove a programme deadline, country route or eligibility rule is current.</p></div>
+          <div class="opsEvidenceStats">
+            <div><strong id="freshProgrammeCount">—</strong><span>Programmes verified</span></div>
+            <div><strong id="freshRoutesCount">—</strong><span>Country routes verified</span></div>
+            <div><strong id="freshRulesCount">—</strong><span>Eligibility rules verified</span></div>
+          </div>
+        </section>
         <div class="overviewGrid">
-          <article class="panel sourceHealthPanel"><div class="panelHead"><div><span class="panelEyebrow">Source monitor</span><h2>Coverage health</h2></div><button class="textAction" data-jump="sources">View all sources →</button></div><div id="healthBars" class="healthBars"></div><div id="sourceIssuePreview" class="issuePreview"></div></article>
+          <article class="panel sourceHealthPanel"><div class="panelHead"><div><span class="panelEyebrow">Source monitor</span><h2>Coverage health</h2></div><button class="textAction" data-jump="sources">View all sources →</button></div><div id="healthBars" class="healthBars"></div><p class="sourceIntervalNote" id="sourceIntervalNote"></p><div id="sourceIssuePreview" class="issuePreview"></div></article>
           <article class="panel"><div class="panelHead"><div><span class="panelEyebrow">Normalization</span><h2>What remains partial</h2></div><button class="textAction" data-jump="partials">Open records →</button></div><div id="partialPreview" class="partialPreview"></div></article>
         </div>
 
@@ -82,6 +91,6 @@
   </div>
 
   <div id="toast" class="toast"></div>
-  <script src="/admin-v1.js"></script>
+  <script src="/admin-v1.js?v=289"></script>
 </body>
 </html>

@@ -15,3 +15,16 @@
 .evidenceGroup p{font-size:11px;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
 .evidenceNotice{font-size:11px;line-height:1.5;color:#a2acc0;margin-top:9px}
 .reviewActions .statusBadge{white-space:normal;max-width:150px;line-height:1.35;text-align:center}
+
+/* v289: evidence freshness cannot be inferred from normalization or monitoring cadence. */
+.opsEvidenceFreshness{margin:12px 0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.5fr);gap:18px;align-items:center;padding:19px;border:1px solid rgba(255,202,104,.35);border-radius:18px;background:linear-gradient(120deg,rgba(255,202,104,.1),rgba(122,97,255,.04))}
+.opsEvidenceEyebrow{color:var(--amber);font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.opsEvidenceFreshness h2{font-size:18px;margin:8px 0;letter-spacing:-.02em}
+.opsEvidenceFreshness p{margin:0;color:#d1c7b5;font-size:11px;line-height:1.55}
+.opsEvidenceStats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.opsEvidenceStats>div{border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:13px;background:rgba(0,0,0,.16)}
+.opsEvidenceStats strong{font-size:19px;letter-spacing:-.04em;color:var(--amber);white-space:nowrap;font-variant-numeric:tabular-nums}
+.opsEvidenceStats span{display:block;font-size:9px;line-height:1.4;color:var(--muted);margin-top:6px}
+.sourceIntervalNote{font-size:10px;color:var(--muted);line-height:1.6;margin:13px 0 0}
+@media(max-width:900px){.opsEvidenceFreshness{grid-template-columns:1fr}}
+@media(max-width:520px){.opsEvidenceStats{grid-template-columns:1fr 1fr}}

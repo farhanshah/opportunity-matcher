@@ -1,0 +1,33 @@
+name: OppMatcher operations accuracy
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/admin-health.js'
+      - 'admin-v1.js'
+      - 'admin-v1.css'
+      - 'admin.html'
+      - 'app-v10-post.js'
+      - 'app-v07.js'
+      - 'tests/operations-accuracy.test.mjs'
+      - '.github/workflows/operations-accuracy.yml'
+  workflow_dispatch:
+concurrency:
+  group: oppmatcher-operations-accuracy-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  operations-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check api/admin-health.js
+          node --check admin-v1.js
+          node --check app-v10-post.js
+          node --check app-v07.js
+      - name: Operations tests
+        run: node --test tests/operations-accuracy.test.mjs
