@@ -1,0 +1,33 @@
+name: OppMatcher freshness truth
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/opportunities.js'
+      - 'api/health.js'
+      - 'lib/opportunity-freshness.js'
+      - 'app-v155-freshness-truth-v286.js'
+      - 'app-v07.js'
+      - 'tests/freshness-truth.test.mjs'
+      - '.github/workflows/opportunity-freshness.yml'
+  workflow_dispatch:
+concurrency:
+  group: oppmatcher-freshness-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  freshness-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check api/opportunities.js
+          node --check api/health.js
+          node --check lib/opportunity-freshness.js
+          node --check app-v155-freshness-truth-v286.js
+          node --check app-v07.js
+      - name: Freshness truth tests
+        run: node --test tests/freshness-truth.test.mjs

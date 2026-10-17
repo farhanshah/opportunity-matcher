@@ -1,4 +1,5 @@
 import { db } from '../lib/db.js';
+import { evidenceIsCurrent,FRESHNESS_WINDOW_DAYS,recheckCategory } from '../lib/opportunity-freshness.js';
 
 function isoDate(value) {
   if (!value) return '';
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
              verification_confidence, eligible_nationalities, education_levels,
              fields_of_study, minimum_gpa, minimum_age, maximum_age,
              work_experience_months, english_requirement, eligibility_notes, benefits,
-             rule_normalization_status, rule_normalized_at
+             rule_normalization_status, rule_normalized_at,last_recheck_at,last_recheck_outcome
       FROM opportunities
       ORDER BY external_id
     `;
@@ -34,6 +35,8 @@ export default async function handler(req, res) {
       FROM opportunity_eligibility_rules
       ORDER BY opportunity_id, rule_code
     `;
+    const nowMs=Date.now();
+    const isStale=value=>!evidenceIsCurrent(value,nowMs);
     const ruleMap = new Map();
     for (const rule of ruleRows) {
       const key = String(rule.opportunity_id);
@@ -48,7 +51,9 @@ export default async function handler(req, res) {
         source_url: rule.source_url || '',
         source_note: rule.source_note || '',
         cycle: rule.effective_cycle || '',
-        last_verified: isoDate(rule.last_verified_at)
+        last_verified: isoDate(rule.last_verified_at),
+        verification_stale: isStale(rule.last_verified_at),
+        freshness_status: isStale(rule.last_verified_at)?'needs_source_recheck':'recently_verified'
       });
     }
 
@@ -81,12 +86,13 @@ export default async function handler(req, res) {
         eligibility_overrides: route.eligibility_overrides || {},
         notes: route.route_notes || '',
         confidence: prettyConfidence(route.verification_confidence),
-        last_verified: isoDate(route.last_verified_at)
+        last_verified: isoDate(route.last_verified_at),
+        verification_stale: isStale(route.last_verified_at),
+        freshness_status: isStale(route.last_verified_at)?'needs_source_recheck':'recently_verified'
       });
     }
 
     const today = new Date().toISOString().slice(0, 10);
-    const verificationCutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
     const opportunities = rows.map(row => ({
       Database_ID: row.id,
       Opportunity_ID: row.external_id,
@@ -104,9 +110,13 @@ export default async function handler(req, res) {
       Official_Source_URL: row.official_source_url || '',
       Application_Fee: row.application_fee || '',
       Last_Verified: isoDate(row.last_verified_at),
+      // Historical provider confidence must not be mistaken for current evidence.
       Verification_Confidence: prettyConfidence(row.verification_confidence),
-      Verification_Stale: !row.last_verified_at || new Date(row.last_verified_at).getTime() < verificationCutoff,
-      Verification_Status: !row.last_verified_at || new Date(row.last_verified_at).getTime() < verificationCutoff ? 'Reverification overdue' : 'Recently source-verified',
+      Verification_Confidence_Current: isStale(row.last_verified_at)?'Needs source recheck':prettyConfidence(row.verification_confidence),
+      Verification_Stale: isStale(row.last_verified_at),
+      Verification_Status: isStale(row.last_verified_at)?'Reverification overdue':'Recently source-verified',
+      Last_Recheck: isoDate(row.last_recheck_at),
+      Recheck_Category: recheckCategory(row.last_recheck_outcome),
       Eligible_Nationalities: Array.isArray(row.eligible_nationalities) ? row.eligible_nationalities : [],
       Education_Levels: Array.isArray(row.education_levels) ? row.education_levels : [],
       Fields_of_Study: Array.isArray(row.fields_of_study) ? row.fields_of_study : [],
@@ -123,8 +133,18 @@ export default async function handler(req, res) {
       Country_Routes: routeMap.get(String(row.id)) || []
     }));
 
+    const freshness={
+      window_days:FRESHNESS_WINDOW_DAYS,
+      programme_total:rows.length,
+      programme_needs_recheck:rows.filter(row=>isStale(row.last_verified_at)).length,
+      rule_total:ruleRows.length,
+      rule_needs_recheck:ruleRows.filter(row=>isStale(row.last_verified_at)).length,
+      country_route_total:routeRows.length,
+      country_route_needs_recheck:routeRows.filter(row=>isStale(row.last_verified_at)).length,
+      meaning:'Official-source monitoring does not prove individual programme, rule or route details are current.'
+    };
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
-    return res.status(200).json({ opportunities, count: opportunities.length, generated_at: new Date().toISOString() });
+    return res.status(200).json({ opportunities, count: opportunities.length, freshness, generated_at: new Date(nowMs).toISOString() });
   } catch (error) {
     return res.status(500).json({ error: 'Database query failed', detail: error.message });
   }
