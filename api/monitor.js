@@ -1,5 +1,6 @@
 import { db } from '../lib/db.js';
-import { SOURCE_OPPORTUNITY_MAP, normalizeHtml, sha256, extractSignals, meaningfulChange, expectedContentPresent } from '../lib/monitor.js';
+import { SOURCE_OPPORTUNITY_MAP, normalizeHtml, sha256, meaningfulChange, expectedContentPresent } from '../lib/monitor.js';
+import { comparableSourceSignals } from '../lib/source-content.js';
 import { ingestExactVacancies } from '../lib/exact-ingest.js';
 
 // Primary daily batch: 20 programme sources plus exact-vacancy ingestion.
@@ -43,9 +44,8 @@ async function processSource(sql, source) {
     if (!expectedContentPresent(text, source.expected_terms)) throw new Error('Expected-content guard failed');
 
     const contentHash = sha256(text);
-    const signals = extractSignals(text);
     const [previous] = await sql`
-      SELECT id, content_hash, extraction_payload
+      SELECT id, content_hash, extraction_payload, raw_html
       FROM source_snapshots WHERE source_id=${source.id}
       ORDER BY fetched_at DESC LIMIT 1
     `;
@@ -55,6 +55,11 @@ async function processSource(sql, source) {
       return { source: source.source_key, result: 'unchanged' };
     }
 
+    // Recompute both historical and current evidence using the same extraction
+    // method. This avoids a wave of false alerts when a page uses a stable <main>
+    // section but changes its menu. The raw page is still saved for human review.
+    const evidence=comparableSourceSignals(fetched.html,previous?.raw_html,previous?.extraction_payload);
+    const signals=evidence.current;
     const [snapshot] = await sql`
       INSERT INTO source_snapshots(source_id, content_hash, http_status, page_title, extracted_text, raw_html, extraction_payload)
       VALUES(${source.id}, ${contentHash}, ${fetched.status}, ${source.provider}, ${text.slice(0, 120000)}, ${fetched.html.slice(0, 500000)}, ${JSON.stringify(signals)}::jsonb)
@@ -62,7 +67,7 @@ async function processSource(sql, source) {
       RETURNING id
     `;
 
-    const change = previous ? meaningfulChange(previous.extraction_payload || {}, signals) : null;
+    const change = previous ? meaningfulChange(evidence.previous, signals) : null;
     let reviewEvent = null;
     if (change) {
       const externalId = SOURCE_OPPORTUNITY_MAP[source.source_key] || null;
