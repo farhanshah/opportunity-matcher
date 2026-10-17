@@ -61,8 +61,8 @@ export default async function handler(req,res){
     let newlyAdded=0;
     if(unique.length){
       const rows=await sql`
-        INSERT INTO opportunity_web_leads(canonical_url,title,snippet,search_query,search_region,matched_official_host)
-        SELECT x.canonical_url,x.title,x.snippet,x.search_query,x.search_region,x.matched_official_host
+        INSERT INTO opportunity_web_leads(canonical_url,title,snippet,search_query,search_region,matched_official_host,review_status)
+        SELECT x.canonical_url,x.title,x.snippet,x.search_query,x.search_region,x.matched_official_host,'unverified'
         FROM jsonb_to_recordset(${JSON.stringify(unique)}::jsonb) AS x(
           canonical_url text,title text,snippet text,search_query text,search_region text,matched_official_host boolean)
         ON CONFLICT (canonical_url) DO UPDATE SET
