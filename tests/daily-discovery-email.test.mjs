@@ -19,7 +19,7 @@ test('report does not invent zero outcomes for missing searches',()=>{
   assert.match(message.text,/No successfully completed worldwide search run/);
   assert.match(message.text,/New opportunities published: Not recorded/);
   assert.match(message.html,/Not recorded/);
-  assert.equal(message.statistics.missingCount,2);
+  assert.equal(message.statistics.missingCount,3);
 });
 test('counts only completed runs and escapes untrusted search titles',()=>{
   const message=discoveryDigest({
@@ -27,9 +27,11 @@ test('counts only completed runs and escapes untrusted search titles',()=>{
     officialRuns:[{status:'completed',scanned_sources:12,found_links:3,new_published:1,withheld:2},
       {status:'failed',scanned_sources:12,new_published:50}],
     worldRuns:[{status:'completed',queries_attempted:12,results_found:26,new_leads:3,provider_errors:1}],
+    verificationRuns:[{status:'completed',inspected:6,published_new:2,provider_errors:0}],
     publishedOpportunities:[{title:'Verified scholarship programme',provider:'University'}],
     worldLeads:[{title:'<script>oops</script>',search_region:'Europe'}]});
-  assert.equal(message.statistics.published,1);
+  assert.equal(message.statistics.published,3);
+  assert.equal(message.statistics.publishedFromWeb,2);
   assert.match(message.html,/Newly published opportunities/);
   assert.match(message.text,/Verified scholarship programme/);
   assert.equal(message.statistics.worldNew,3);
@@ -48,4 +50,5 @@ test('cron is authenticated, private, idempotent, and scheduled after discovery'
   assert.match(api,/sent_at IS NULL AND attempts<4/);
   assert.match(api,/status='sent'/);
   assert.doesNotMatch(api,/@gmail\.com/);
+  assert.match(api,/FROM opportunity_web_verification_runs/);
 });

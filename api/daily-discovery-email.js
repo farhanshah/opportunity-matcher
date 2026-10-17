@@ -50,6 +50,12 @@ export default async function handler(req,res){
       WHERE (started_at AT TIME ZONE 'Europe/London')::date=${day}::date
       ORDER BY started_at DESC LIMIT 4
     `;
+    const verificationRuns=await sql`
+      SELECT status,inspected,published_new,needs_evidence,needs_source_review,provider_errors
+      FROM opportunity_web_verification_runs
+      WHERE (started_at AT TIME ZONE 'Europe/London')::date=${day}::date
+      ORDER BY started_at DESC LIMIT 5
+    `;
     const officialCandidates=await sql`
       SELECT title,provider FROM opportunity_discovery_candidates
       WHERE (detected_at AT TIME ZONE 'Europe/London')::date=${day}::date
@@ -57,10 +63,18 @@ export default async function handler(req,res){
       ORDER BY detected_at DESC LIMIT 6
     `;
     const publishedOpportunities=await sql`
-      SELECT title,provider FROM opportunity_discovery_candidates
-      WHERE (detected_at AT TIME ZONE 'Europe/London')::date=${day}::date
-        AND status='published'
-      ORDER BY detected_at DESC LIMIT 6
+      SELECT title,provider FROM (
+        SELECT title,provider,detected_at AS published_at
+        FROM opportunity_discovery_candidates
+        WHERE (detected_at AT TIME ZONE 'Europe/London')::date=${day}::date
+          AND status='published'
+        UNION ALL
+        SELECT title,COALESCE(verification_evidence->>'registered_provider','Official provider') AS provider,
+          verification_checked_at AS published_at
+        FROM opportunity_web_leads
+        WHERE (verification_checked_at AT TIME ZONE 'Europe/London')::date=${day}::date
+          AND verification_status='published'
+      ) candidates ORDER BY published_at DESC LIMIT 6
     `;
     const worldLeads=await sql`
       SELECT title,search_region FROM opportunity_web_leads
@@ -69,7 +83,7 @@ export default async function handler(req,res){
       ORDER BY first_seen_at DESC LIMIT 6
     `;
 
-    const message=discoveryDigest({day,officialRuns,worldRuns,officialCandidates,publishedOpportunities,worldLeads});
+    const message=discoveryDigest({day,officialRuns,worldRuns,verificationRuns,officialCandidates,publishedOpportunities,worldLeads});
     const response=await fetch('https://api.resend.com/emails',{
       method:'POST',signal:AbortSignal.timeout(15000),
       headers:{
