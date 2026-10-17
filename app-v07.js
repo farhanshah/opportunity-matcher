@@ -1,5 +1,5 @@
 (async()=>{
-  const BUILD='20261017-v287';
+  const BUILD='20261017-v288';
   // Keep the OAuth callback result available while the workspace's many scripts load.
   try{
     const outcome=new URLSearchParams(window.location.search).get('linkedin_connect');

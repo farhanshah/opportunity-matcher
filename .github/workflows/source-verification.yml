@@ -4,10 +4,13 @@ on:
     branches: [main]
     paths:
       - 'api/reverify.js'
+      - 'app-v10-post.js'
+      - 'app-v156-stale-fit-v287.js'
       - 'lib/verification-redirects.js'
       - 'app-v156-stale-fit-v287.js'
       - 'app-v07.js'
       - 'tests/source-verification.test.mjs'
+      - 'tests/stale-match-rendering.test.mjs'
       - '.github/workflows/source-verification.yml'
   workflow_dispatch:
 concurrency:
@@ -26,6 +29,7 @@ jobs:
           node --check api/reverify.js
           node --check lib/verification-redirects.js
           node --check app-v156-stale-fit-v287.js
+          node --check app-v10-post.js
           node --check app-v07.js
       - name: Security and source tests
-        run: node --test tests/source-verification.test.mjs
+        run: node --test tests/source-verification.test.mjs tests/stale-match-rendering.test.mjs
