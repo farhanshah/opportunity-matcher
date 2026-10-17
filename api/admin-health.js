@@ -48,6 +48,9 @@ export default async function handler(req, res) {
         (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='published') AS discovered_published,
         (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='needs_evidence') AS discovered_withheld,
         (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='existing') AS discovered_existing,
+        (SELECT count(*)::int FROM opportunity_web_leads) AS worldwide_leads_total,
+        (SELECT count(*)::int FROM opportunity_web_leads WHERE first_seen_at>=CURRENT_DATE) AS worldwide_leads_today,
+        (SELECT count(*)::int FROM opportunity_web_leads WHERE matched_official_host) AS worldwide_known_provider_leads,
         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_discovery_at >= CURRENT_DATE) AS discovery_scanned_today,
         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_discovery_at >= now()-interval '24 hours') AS discovery_scanned_24h,
         (SELECT count(*)::int FROM opportunity_discovery_candidates
@@ -67,6 +70,16 @@ export default async function handler(req, res) {
         (SELECT max(updated_at) FROM opportunities) AS latest_opportunity_update
     `;
 
+    const webSearchRuns=await sql`
+      SELECT id,started_at,completed_at,status,queries_attempted,results_found,new_leads,
+             matched_official_hosts,provider_errors
+      FROM opportunity_web_search_runs ORDER BY started_at DESC LIMIT 5
+    `;
+    const webSearchLeads=await sql`
+      SELECT title,canonical_url,search_region,matched_official_host,first_seen_at
+      FROM opportunity_web_leads WHERE review_status='unverified'
+      ORDER BY first_seen_at DESC LIMIT 10
+    `;
     const discoveryRuns=await sql`
       SELECT id,started_at,completed_at,status,scanned_sources,found_links,checked_details,
              new_published,withheld,already_existing,source_errors,error_message
@@ -189,6 +202,8 @@ export default async function handler(req, res) {
       generated_at: new Date().toISOString(),
       summary,
       discovery_runs:discoveryRuns,
+      worldwide_runs:webSearchRuns,
+      worldwide_leads:webSearchLeads,
       sources,
       partials,
       changes

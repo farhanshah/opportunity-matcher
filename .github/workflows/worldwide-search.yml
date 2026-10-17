@@ -1,0 +1,30 @@
+name: OppMatcher worldwide search safety
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/worldwide-discover.js'
+      - 'lib/worldwide-search.js'
+      - 'api/admin-health.js'
+      - 'admin-v1.js'
+      - 'admin.html'
+      - 'vercel.json'
+      - 'tests/worldwide-search.test.mjs'
+      - '.github/workflows/worldwide-search.yml'
+  workflow_dispatch:
+jobs:
+  world-search-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check api/worldwide-discover.js
+          node --check lib/worldwide-search.js
+          node --check admin-v1.js
+          node --check api/admin-health.js
+      - name: Worldwide search staging tests
+        run: node --test tests/worldwide-search.test.mjs

@@ -42,6 +42,22 @@
     $('discoveryTodayPublished').textContent=s.discovery_new_published_today??'—';
     $('discoveryCandidateTotals').textContent=(Number(s.discovered_published||0)+Number(s.discovered_withheld||0)+Number(s.discovered_existing||0));
     $('discoveryLastPass').textContent=ago(s.last_discovery_run);
+    const latestWebRun=(state.data.worldwide_runs||[])[0];
+    $('worldwideSearchStatus').textContent=!latestWebRun
+      ?'Worldwide search is awaiting its first scheduled execution (04:30 UTC).'
+      :latestWebRun.status==='not_configured'
+      ?'Web-search API key not configured. Existing official-source discovery remains active.'
+      :'Last '+latestWebRun.status+' pass: '+fmtTime(latestWebRun.started_at)+' · '+
+       String(latestWebRun.queries_attempted||0)+' searches · '+
+       String(latestWebRun.new_leads||0)+' new leads · '+
+       String(latestWebRun.matched_official_hosts||0)+' known official-source hosts.';
+    const worldLeads=state.data.worldwide_leads||[];
+    $('worldwideLeadList').innerHTML=worldLeads.length
+      ?worldLeads.slice(0,8).map(item=>'<div><strong>'+esc(item.title)+'</strong>'+
+        '<span>'+esc(item.search_region||'Worldwide')+
+        (item.matched_official_host?' · known provider host':' · domain needs review')+
+        '</span></div>').join('')
+      :'<span>No worldwide web-search leads collected yet.</span>';
     const passes=state.data.discovery_runs||[];
     $('discoveryRunSummary').innerHTML=passes.length?'<strong>Recent search passes</strong>'+
       passes.slice(0,8).map(pass=>
