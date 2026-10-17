@@ -34,6 +34,7 @@
     $('monitorSuccess').textContent=`${s.successful_monitors_7d??0}/${s.active_monitors??0}`;$('monitorTotal').textContent=`successful official fetches in 7 days`;$('monitorFailPill').textContent=`${s.failing_monitors??0} issues`;
     $('ruleCount').textContent=s.total_rules??'—';$('nonCountryRules').textContent=`${s.non_country_rules??0} non-country`;$('uncertainRules').textContent=`${s.uncertain_rules??0} uncertain`;
     $('pendingCount').textContent=s.pending_review??0;$('snapshotCount').textContent=`${s.total_snapshots??0} snapshots`;
+    $('priorityReviewCount').textContent=String(s.high_risk_pending??0)+' high-risk events · '+String(s.pending_review_groups??0)+' review groups';
     $('navSourceCount').textContent=s.active_monitors??'—';$('navReviewCount').textContent=s.pending_review??0;$('navPartialCount').textContent=s.partial_opportunities??'—';
     $('lastRefresh').textContent=fmtTime(state.data.generated_at);
     const ratio=(n,d)=>String(n??'—')+' / '+String(d??'—');
@@ -46,7 +47,7 @@
 
     const total=Number(s.active_monitors||0)||1,healthy=Number(s.successful_monitors_7d||0),issue=issues,awaiting=Number(s.due_without_error||0);
     $('healthBars').innerHTML=[['Fetched · 7d',healthy,'healthy'],['Current issues',issue,'issue'],['Due · no error',awaiting,'due']].map(([label,n,cls])=>`<div class="healthRow"><span>${label}</span><div class="healthTrack"><i class="${cls}" style="width:${Math.min(100,(n/total)*100)}%"></i></div><b>${n}</b></div>`).join('');
-    $('sourceIntervalNote').textContent=String(s.healthy_monitors??0)+' currently within their scheduled check interval; '+String(due)+' due now (including failures). These counts overlap: a recent successful fetch can also be due for another check. Source checks run daily, although some sources have 6h or 12h configured intervals.';
+    $('sourceIntervalNote').textContent=String(s.healthy_monitors??0)+' currently within their scheduled check interval; '+String(due)+' due now (including failures). These counts overlap: a recent successful fetch can also be due for another check. Primary source monitoring runs at 03:00 UTC, with source-only checks scheduled for 05:00, 11:00, 17:00 and 23:00 UTC. Due-source and 24-hour access-block cooldowns still apply.';
     const failing=(state.data.sources||[]).filter(x=>x.health==='error').slice(0,4);
     $('sourceIssuePreview').innerHTML=failing.length?failing.map(x=>`<div class="issueLine"><i></i><div><b>${esc(x.provider)}</b><span>${esc(x.last_error||'Fetch issue')}</span></div><span>${ago(x.last_checked_at)}</span></div>`).join(''):`<div class="issueLine"><i style="background:var(--green)"></i><div><b>All direct monitors healthy</b><span>No active fetch errors</span></div><span>current</span></div>`;
     const preview=(state.data.partials||[]).slice(0,5);

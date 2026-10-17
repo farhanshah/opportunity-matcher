@@ -1,7 +1,8 @@
 import { db } from '../lib/db.js';
 import { runDueSourceChecks } from './monitor.js';
 
-// Source-only daily pass: runs after the primary monitor job.
+// Source-only scheduled passes at 05:00, 11:00, 17:00 and 23:00 UTC.
+// The 03:00 primary pass also checks due programme sources.
 // This job deliberately does not run exact-vacancy ingestion a second time.
 const MAX_SOURCES_PER_RUN = 26;
 const FETCH_CONCURRENCY = 16;

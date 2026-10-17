@@ -28,3 +28,4 @@
 .sourceIntervalNote{font-size:10px;color:var(--muted);line-height:1.6;margin:13px 0 0}
 @media(max-width:900px){.opsEvidenceFreshness{grid-template-columns:1fr}}
 @media(max-width:520px){.opsEvidenceStats{grid-template-columns:1fr 1fr}}
+.priorityReviewCount{font-size:10px;line-height:1.5;color:var(--amber);font-weight:700;margin-top:-8px;margin-bottom:12px}

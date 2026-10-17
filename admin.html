@@ -53,7 +53,7 @@
           <article class="metricCard heroMetric"><div class="metricLabel">Opportunity coverage</div><div class="coverageWrap"><div id="coverageRing" class="coverageRing"><div><strong id="coveragePct">—</strong><span>normalized</span></div></div><div class="coverageCopy"><h2><span id="normalizedCount">—</span> of <span id="totalOppCount">—</span></h2><p>Fully structured eligibility. Partial records stay conservative until the source supports more certainty.</p></div></div></article>
           <article class="metricCard"><div class="metricLabel">Recent official fetches (7 days)</div><strong class="metricBig" id="monitorSuccess">—</strong><div class="metricBottom"><span id="monitorTotal">— active</span><span id="monitorFailPill" class="pill">— issues</span></div></article>
           <article class="metricCard"><div class="metricLabel">Structured eligibility rules</div><strong class="metricBig" id="ruleCount">—</strong><div class="metricBottom"><span id="nonCountryRules">— non-country</span><span id="uncertainRules" class="pill neutral">— uncertain</span></div></article>
-          <article class="metricCard"><div class="metricLabel">Change review queue</div><strong class="metricBig" id="pendingCount">—</strong><div class="metricBottom"><span id="snapshotCount">— snapshots</span><button class="textAction" data-jump="reviews">Open queue →</button></div></article>
+          <article class="metricCard"><div class="metricLabel">Change review queue</div><strong class="metricBig" id="pendingCount">—</strong><div id="priorityReviewCount" class="priorityReviewCount">— high risk</div><div class="metricBottom"><span id="snapshotCount">— snapshots</span><button class="textAction" data-jump="reviews">Open queue →</button></div></article>
         </div>
 
         <section class="opsEvidenceFreshness" role="status" aria-label="Current source verification">
@@ -91,6 +91,6 @@
   </div>
 
   <div id="toast" class="toast"></div>
-  <script src="/admin-v1.js?v=289"></script>
+  <script src="/admin-v1.js?v=290"></script>
 </body>
 </html>

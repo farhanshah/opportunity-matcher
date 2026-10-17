@@ -1,0 +1,30 @@
+name: OppMatcher monitor cadence
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'vercel.json'
+      - 'api/monitor-sources.js'
+      - 'admin.html'
+      - 'admin-v1.js'
+      - 'admin-v1.css'
+      - 'tests/monitor-cadence.test.mjs'
+      - '.github/workflows/monitor-cadence.yml'
+  workflow_dispatch:
+concurrency:
+  group: oppmatcher-monitor-cadence-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  monitor-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check api/monitor-sources.js
+          node --check admin-v1.js
+      - name: Cron schedule and security tests
+        run: node --test tests/monitor-cadence.test.mjs
