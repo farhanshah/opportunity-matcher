@@ -27,8 +27,11 @@ test('counts only completed runs and escapes untrusted search titles',()=>{
     officialRuns:[{status:'completed',scanned_sources:12,found_links:3,new_published:1,withheld:2},
       {status:'failed',scanned_sources:12,new_published:50}],
     worldRuns:[{status:'completed',queries_attempted:12,results_found:26,new_leads:3,provider_errors:1}],
+    publishedOpportunities:[{title:'Verified scholarship programme',provider:'University'}],
     worldLeads:[{title:'<script>oops</script>',search_region:'Europe'}]});
   assert.equal(message.statistics.published,1);
+  assert.match(message.html,/Newly published opportunities/);
+  assert.match(message.text,/Verified scholarship programme/);
   assert.equal(message.statistics.worldNew,3);
   assert.equal(message.statistics.providerErrors,1);
   assert.doesNotMatch(message.html,/<script>/);

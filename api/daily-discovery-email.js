@@ -56,6 +56,12 @@ export default async function handler(req,res){
         AND status='needs_evidence'
       ORDER BY detected_at DESC LIMIT 6
     `;
+    const publishedOpportunities=await sql`
+      SELECT title,provider FROM opportunity_discovery_candidates
+      WHERE (detected_at AT TIME ZONE 'Europe/London')::date=${day}::date
+        AND status='published'
+      ORDER BY detected_at DESC LIMIT 6
+    `;
     const worldLeads=await sql`
       SELECT title,search_region FROM opportunity_web_leads
       WHERE (first_seen_at AT TIME ZONE 'Europe/London')::date=${day}::date
@@ -63,7 +69,7 @@ export default async function handler(req,res){
       ORDER BY first_seen_at DESC LIMIT 6
     `;
 
-    const message=discoveryDigest({day,officialRuns,worldRuns,officialCandidates,worldLeads});
+    const message=discoveryDigest({day,officialRuns,worldRuns,officialCandidates,publishedOpportunities,worldLeads});
     const response=await fetch('https://api.resend.com/emails',{
       method:'POST',signal:AbortSignal.timeout(15000),
       headers:{
