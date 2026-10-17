@@ -4,7 +4,8 @@ import { readFileSync } from 'node:fs';
 
 const source=readFileSync(new URL('../api/discover.js',import.meta.url),'utf8')
   .replace(/^import .*;\s*$/gm,'')
-  .replace('export default async function handler','async function handler');
+  .replace('export default async function handler','async function handler')
+  .replace(/^export \{ publish, fetchOfficial \};\s*$/gm,'');
 const getPublish=new Function('discoveryId',source+'\nreturn publish;');
 const publish=getPublish(()=> 'AUTO-TEST-0001');
 const url='https://scholarships.example.edu/open-2027-scholarship';

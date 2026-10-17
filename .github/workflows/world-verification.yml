@@ -1,0 +1,31 @@
+name: OppMatcher worldwide verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/verify-worldwide.js'
+      - 'lib/world-verification.js'
+      - 'api/discover.js'
+      - 'vercel.json'
+      - 'api/admin-health.js'
+      - 'admin-v1.js'
+      - 'tests/world-verification.test.mjs'
+      - 'tests/discovery-publish.test.mjs'
+      - '.github/workflows/world-verification.yml'
+  workflow_dispatch:
+jobs:
+  verify-worldwide:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check api/verify-worldwide.js
+          node --check lib/world-verification.js
+          node --check api/discover.js
+          node --check admin-v1.js
+      - name: Verification and publishing tests
+        run: node --test tests/world-verification.test.mjs tests/discovery-publish.test.mjs tests/auto-discovery.test.mjs

@@ -42,6 +42,9 @@
     },
     "api/daily-discovery-email.js": {
       "maxDuration": 30
+    },
+    "api/verify-worldwide.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -151,6 +154,10 @@
     {
       "path": "/api/daily-discovery-email",
       "schedule": "10 8-12 * * *"
+    },
+    {
+      "path": "/api/verify-worldwide",
+      "schedule": "15 7 * * *"
     }
   ]
 }

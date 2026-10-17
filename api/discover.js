@@ -332,3 +332,6 @@ export default async function handler(req,res){
     return res.status(500).json({ok:false,error:'Automatic discovery failed safely; no unverified opportunity approved'});
   }
 }
+
+// Reuse the existing strict verification and atomic publication for verified search leads.
+export { publish, fetchOfficial };

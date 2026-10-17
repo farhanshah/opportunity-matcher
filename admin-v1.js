@@ -51,11 +51,20 @@
        String(latestWebRun.queries_attempted||0)+' searches · '+
        String(latestWebRun.new_leads||0)+' new leads · '+
        String(latestWebRun.matched_official_hosts||0)+' known official-source hosts.';
+    $('worldVerifiedCount').textContent=String(s.worldwide_verified_published??0)+' worldwide leads published';
+    $('worldSourceReviewCount').textContent=String(s.worldwide_source_review??0)+' provider domains need review';
+    $('worldEvidenceCount').textContent=String(s.worldwide_needs_evidence??0)+' leads need evidence';
+    const verifiedRun=(state.data.worldwide_verification_runs||[])[0];
+    $('worldVerifierActivity').textContent=verifiedRun
+      ?'Verifier: '+fmtTime(verifiedRun.started_at)+' · '+esc(verifiedRun.status)+
+        ' · '+Number(verifiedRun.inspected||0)+' checked · '+Number(verifiedRun.published_new||0)+' new published · '+
+        Number(verifiedRun.needs_source_review||0)+' source reviews'
+      :'First official-domain verification pass scheduled daily at 07:15 UTC.';
     const worldLeads=state.data.worldwide_leads||[];
     $('worldwideLeadList').innerHTML=worldLeads.length
       ?worldLeads.slice(0,8).map(item=>'<div><strong>'+esc(item.title)+'</strong>'+
         '<span>'+esc(item.search_region||'Worldwide')+
-        (item.matched_official_host?' · known provider host':' · domain needs review')+
+        (item.matched_official_host?' · known provider host':' · domain needs review')+ ' · '+esc(item.verification_status||'pending')+
         '</span></div>').join('')
       :'<span>No worldwide web-search leads collected yet.</span>';
     const passes=state.data.discovery_runs||[];
