@@ -1,0 +1,25 @@
+name: OppMatcher daily email digest
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'vercel.json'
+      - 'api/daily-discovery-email.js'
+      - 'lib/daily-discovery-email.js'
+      - 'tests/daily-discovery-email.test.mjs'
+      - '.github/workflows/daily-discovery-email.yml'
+  workflow_dispatch:
+jobs:
+  email-digest-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check api/daily-discovery-email.js
+          node --check lib/daily-discovery-email.js
+      - name: Digest and delivery safety tests
+        run: node --test tests/daily-discovery-email.test.mjs
