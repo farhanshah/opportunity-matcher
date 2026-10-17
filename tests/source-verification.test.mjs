@@ -31,7 +31,7 @@ test('stale profile fit is not labelled strong or verified',()=>{
     renderAll:()=>{}
   }};
   vm.runInNewContext(source,sandbox);
-  const fresh=sandbox.window.evaluate({Verification_Stale:false});
+  const fresh=sandbox.window.evaluate({Verification_Stale:false,Last_Verified:new Date().toISOString()});
   assert.equal(fresh.label,'Strong match');
   const stale=sandbox.window.evaluate({Verification_Stale:true});
   assert.equal(stale.label,'Profile fit · verify source');

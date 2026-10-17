@@ -43,9 +43,9 @@ test('current verified entries may retain strong match and existing blockers rem
   assert.equal(blocking(historical).label,'Not eligible');
 });
 test('cards, headline, saved and dashboard use the trusted display evaluation',()=>{
-  assert.equal((v10.match(/evaluate\\(o\\)/g)||[]).length,1,
+  assert.equal((v10.split('evaluate(o)').length-1),1,
     'Only displayMatch should invoke the underlying evaluate(o) function');
-  assert.ok((v10.match(/displayMatch\\(o\\)/g)||[]).length>=8);
+  assert.ok((v10.split('displayMatch(o)').length-1)>=8);
   assert.ok(v10.includes("const v10Card=o=>{const ev=displayMatch(o);"));
   assert.ok(v10.includes("const l=list.filter(o=>displayMatch(o).cls==='eligible').length"));
   assert.ok(v287.includes("opportunity?.Verification_Stale!==false"));
