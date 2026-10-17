@@ -47,6 +47,13 @@ export default async function handler(req, res) {
         ) grouped) AS pending_review_groups,
         (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='published') AS discovered_published,
         (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='needs_evidence') AS discovered_withheld,
+        (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='existing') AS discovered_existing,
+        (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_discovery_at >= CURRENT_DATE) AS discovery_scanned_today,
+        (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND last_discovery_at >= now()-interval '24 hours') AS discovery_scanned_24h,
+        (SELECT count(*)::int FROM opportunity_discovery_candidates
+          WHERE status='needs_evidence' AND detected_at>=CURRENT_DATE) AS discovery_new_held_today,
+        (SELECT count(*)::int FROM opportunity_discovery_candidates
+          WHERE status='published' AND detected_at>=CURRENT_DATE) AS discovery_new_published_today,
         (SELECT count(*)::int FROM exact_vacancies WHERE status='open' AND status_verified=true) AS verified_live_vacancies,
         (SELECT count(*)::int FROM opportunities WHERE last_verified_at >= now()-INTERVAL '30 days') AS verified_records_30d,
         (SELECT count(*)::int FROM opportunity_country_routes WHERE is_active) AS active_country_routes,
@@ -60,6 +67,11 @@ export default async function handler(req, res) {
         (SELECT max(updated_at) FROM opportunities) AS latest_opportunity_update
     `;
 
+    const discoveryRuns=await sql`
+      SELECT id,started_at,completed_at,status,scanned_sources,found_links,checked_details,
+             new_published,withheld,already_existing,source_errors,error_message
+      FROM opportunity_discovery_runs ORDER BY started_at DESC LIMIT 12
+    `;
     const sources = await sql`
       SELECT
         m.id, m.source_key, m.provider, m.source_url, m.source_type,
@@ -176,6 +188,7 @@ export default async function handler(req, res) {
       ok: true,
       generated_at: new Date().toISOString(),
       summary,
+      discovery_runs:discoveryRuns,
       sources,
       partials,
       changes

@@ -37,6 +37,21 @@
     $('priorityReviewCount').textContent=String(s.high_risk_pending??0)+' high-risk events · '+String(s.pending_review_groups??0)+' review groups';
     $('navSourceCount').textContent=s.active_monitors??'—';$('navReviewCount').textContent=s.pending_review??0;$('navPartialCount').textContent=s.partial_opportunities??'—';
     $('lastRefresh').textContent=fmtTime(state.data.generated_at);
+    $('discoveryTodaySources').textContent=String(s.discovery_scanned_today??'—')+' / '+String(s.active_monitors??'—');
+    $('discoveryTodayHeld').textContent=s.discovery_new_held_today??'—';
+    $('discoveryTodayPublished').textContent=s.discovery_new_published_today??'—';
+    $('discoveryCandidateTotals').textContent=(Number(s.discovered_published||0)+Number(s.discovered_withheld||0)+Number(s.discovered_existing||0));
+    $('discoveryLastPass').textContent=ago(s.last_discovery_run);
+    const passes=state.data.discovery_runs||[];
+    $('discoveryRunSummary').innerHTML=passes.length?'<strong>Recent search passes</strong>'+
+      passes.slice(0,8).map(pass=>
+      '<div class="discoveryRunRow"><span>'+esc(fmtTime(pass.started_at))+'</span>'+
+      '<span>'+esc(pass.status)+'</span><span>'+Number(pass.scanned_sources||0)+' sources</span>'+
+      '<span>'+Number(pass.found_links||0)+' links</span>'+
+      '<span>'+Number(pass.new_published||0)+' published</span>'+
+      '<span>'+Number(pass.withheld||0)+' held</span>'+
+      '<span>'+Number(pass.source_errors||0)+' errors</span></div>').join(''):
+      'Individual pass logging starts with the next scheduled search. Historical checks are counted above.';
     const ratio=(n,d)=>String(n??'—')+' / '+String(d??'—');
     $('freshProgrammeCount').textContent=ratio(s.verified_records_30d,s.total_opportunities);
     $('freshRoutesCount').textContent=ratio(s.verified_routes_30d,s.active_country_routes);

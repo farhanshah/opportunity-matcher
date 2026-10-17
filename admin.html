@@ -65,6 +65,20 @@
             <div><strong id="freshRulesCount">—</strong><span>Eligibility rules verified</span></div>
           </div>
         </section>
+        <section class="discoveryPanel" aria-label="Daily global opportunity discovery">
+          <div class="discoveryIntro"><div><span class="panelEyebrow">Daily opportunity discovery</span>
+            <h2>Morning search results</h2>
+            <p>Official-source searches run four times each morning, 06:00–06:45 UTC (before 8 AM UK time). These are registered official sources, not a search of every website worldwide.</p></div>
+            <div class="discoverySummary"><span id="discoveryTodaySources">—</span><small>Sources scanned today</small></div>
+          </div>
+          <div class="discoveryMetrics">
+            <div><strong id="discoveryTodayHeld">—</strong><span>New candidates awaiting evidence today</span></div>
+            <div><strong id="discoveryTodayPublished">—</strong><span>New opportunities published today</span></div>
+            <div><strong id="discoveryCandidateTotals">—</strong><span>All-time reviewed candidates</span></div>
+            <div><strong id="discoveryLastPass">—</strong><span>Last discovery activity</span></div>
+          </div>
+          <div id="discoveryRunSummary" class="discoveryRunSummary">No individually logged discovery runs yet. Historical source checks remain recorded in Neon.</div>
+        </section>
         <div class="overviewGrid">
           <article class="panel sourceHealthPanel"><div class="panelHead"><div><span class="panelEyebrow">Source monitor</span><h2>Coverage health</h2></div><button class="textAction" data-jump="sources">View all sources →</button></div><div id="healthBars" class="healthBars"></div><p class="sourceIntervalNote" id="sourceIntervalNote"></p><div id="sourceIssuePreview" class="issuePreview"></div></article>
           <article class="panel"><div class="panelHead"><div><span class="panelEyebrow">Normalization</span><h2>What remains partial</h2></div><button class="textAction" data-jump="partials">Open records →</button></div><div id="partialPreview" class="partialPreview"></div></article>
@@ -103,6 +117,6 @@
   </div>
 
   <div id="toast" class="toast"></div>
-  <script src="/admin-v1.js?v=291"></script>
+  <script src="/admin-v1.js?v=293"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 import { db } from '../lib/db.js';
 import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId } from '../lib/auto-discovery.js';
+import { resolveOfficialRedirect } from '../lib/verification-redirects.js';
 
 const SOURCE_BATCH = 12;
 const LINKS_PER_SOURCE = 16;
@@ -19,8 +20,7 @@ async function fetchOfficial(url, authority) {
     const r = await fetch(next, {redirect:'manual',signal:AbortSignal.timeout(8500),
       headers:{Accept:'text/html,application/xhtml+xml', 'User-Agent':'OpportunityMatcher-OfficialSources/1.0'}});
     if ([301,302,303,307,308].includes(r.status)) {
-      next = canonicalUrl(r.headers.get('location'), next);
-      if (!next || !officialHostMatches(next, authority)) throw Error('Off-provider redirect blocked');
+      next = resolveOfficialRedirect(r.headers.get('location'),next,authority);
       continue;
     }
     if (!r.ok) throw Error('Provider HTTP '+r.status);
@@ -270,8 +270,14 @@ export default async function handler(req,res){
   if(!['GET','POST'].includes(req.method))return res.status(405).json({error:'Method not allowed'});
   if(!authorised(req))return res.status(401).json({error:'Unauthorized'});
   res.setHeader('Cache-Control','no-store');
+  let sql=null,runId=null;
   try{
-    const sql=db();
+    sql=db();
+    // Keep a durable, private record for every scheduled discovery pass.
+    const [run]=await sql`
+      INSERT INTO opportunity_discovery_runs(status) VALUES('running') RETURNING id
+    `;
+    runId=run.id;
     const sources=await sql`
       SELECT m.id,m.source_key,m.provider,m.source_url,m.last_success_at,
         LEFT(snapshot.raw_html,200000) AS snapshot_html
@@ -288,16 +294,41 @@ export default async function handler(req,res){
     for(let i=0;i<sources.length;i+=CONCURRENCY){
       results.push(...await Promise.all(sources.slice(i,i+CONCURRENCY).map(s=>scanSource(sql,s))));
     }
-    return res.status(200).json({
-      ok:true,scanned:sources.length,
+    const totals={
+      scanned:sources.length,
       discovered_links:results.reduce((n,x)=>n+x.links,0),
+      detail_checked:results.reduce((n,x)=>n+x.detail_checked,0),
       automatically_published:results.reduce((n,x)=>n+x.published,0),
       withheld:results.reduce((n,x)=>n+x.held,0),
       existing_programme_links:results.reduce((n,x)=>n+x.existing,0),
-      sources_with_errors:results.filter(x=>x.errors.length).length,
-      results,checked_at:new Date().toISOString()
+      sources_with_errors:results.filter(x=>x.errors.length).length
+    };
+    const endedAt=new Date().toISOString();
+    await sql`
+      UPDATE opportunity_discovery_runs
+      SET completed_at=${endedAt},status='completed',scanned_sources=${totals.scanned},
+        found_links=${totals.discovered_links},checked_details=${totals.detail_checked},
+        new_published=${totals.automatically_published},withheld=${totals.withheld},
+        already_existing=${totals.existing_programme_links},source_errors=${totals.sources_with_errors},
+        results=${JSON.stringify(results.map(r=>({
+          source:r.source,links:r.links,detail_checked:r.detail_checked,
+          published:r.published,held:r.held,existing:r.existing,errors:r.errors
+        })))}::jsonb
+      WHERE id=${runId}
+    `;
+    return res.status(200).json({
+      ok:true,...totals,results,checked_at:endedAt
     });
-  }catch(e){console.error('Discovery failed',e);
+  }catch(e){console.error('Discovery failed',String(e?.message||e).slice(0,220));
+    if(sql&&runId){
+      try{
+        await sql`
+          UPDATE opportunity_discovery_runs SET status='failed',completed_at=now(),
+            error_message=${String(e?.message||e).slice(0,220)}
+          WHERE id=${runId}
+        `;
+      }catch(err){console.error('Discovery run logging failed',String(err?.message||err).slice(0,160))}
+    }
     return res.status(500).json({ok:false,error:'Automatic discovery failed safely; no unverified opportunity approved'});
   }
 }

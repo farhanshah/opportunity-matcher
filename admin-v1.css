@@ -40,3 +40,18 @@
 .reviewCountText{font-size:11px;color:var(--muted)}
 .reviewEvidenceWarning{margin-top:9px!important;color:#ead0a2!important;line-height:1.55!important}
 @media(max-width:750px){.reviewTriageIntro,.reviewToolbar{flex-direction:column;align-items:stretch}.reviewTriageCounts{min-width:0}}
+
+/* v293: accountable source-discovery reporting. */
+.discoveryPanel{margin:12px 0 14px;padding:18px 20px;background:linear-gradient(130deg,#161a25,#111621);border:1px solid var(--line);border-radius:18px}
+.discoveryIntro{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.discoveryIntro h2{font-size:18px;letter-spacing:-.03em;margin:7px 0}.discoveryIntro p{max-width:850px;font-size:11px;color:var(--muted);line-height:1.6}
+.discoverySummary{border:1px solid rgba(216,255,105,.18);border-radius:12px;padding:12px;min-width:144px;text-align:center}
+.discoverySummary span{font-size:23px;font-weight:850;display:block;color:var(--lime)}.discoverySummary small{font-size:9px;color:var(--muted)}
+.discoveryMetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:15px}
+.discoveryMetrics>div{border:1px solid var(--line);border-radius:11px;padding:12px;background:rgba(0,0,0,.11)}
+.discoveryMetrics strong{font-size:19px;font-weight:800;display:block}.discoveryMetrics span{font-size:10px;color:var(--muted);display:block;margin-top:5px;line-height:1.4}
+.discoveryRunSummary{font-size:10px;color:var(--muted);margin-top:14px;line-height:1.6}
+.discoveryRunSummary>strong{display:block;font-size:11px;color:var(--text);margin-bottom:5px}
+.discoveryRunRow{display:grid;grid-template-columns:1.1fr .7fr repeat(5,1fr);gap:7px;border-top:1px solid var(--line);padding:7px 0;font-variant-numeric:tabular-nums}
+@media(max-width:830px){.discoveryMetrics{grid-template-columns:1fr 1fr}.discoveryIntro{align-items:flex-start}.discoveryRunRow{overflow:auto;font-size:9px}}
+@media(max-width:570px){.discoveryIntro{flex-direction:column}.discoverySummary{min-width:0}}

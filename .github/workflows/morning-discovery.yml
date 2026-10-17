@@ -1,0 +1,31 @@
+name: OppMatcher morning discovery
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'vercel.json'
+      - 'api/discover.js'
+      - 'api/admin-health.js'
+      - 'admin.html'
+      - 'admin-v1.js'
+      - 'tests/morning-discovery.test.mjs'
+      - '.github/workflows/morning-discovery.yml'
+  workflow_dispatch:
+concurrency:
+  group: oppmatcher-morning-discovery-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  morning-discovery-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: |
+          node --check api/discover.js
+          node --check api/admin-health.js
+          node --check admin-v1.js
+      - name: Scheduled discovery safeguards
+        run: node --test tests/morning-discovery.test.mjs tests/auto-discovery.test.mjs tests/discovery-publish.test.mjs
