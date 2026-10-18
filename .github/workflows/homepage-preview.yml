@@ -1,0 +1,19 @@
+name: OppMatcher homepage design preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'design-preview.html'
+      - 'tests/homepage-preview.test.mjs'
+      - '.github/workflows/homepage-preview.yml'
+  workflow_dispatch:
+jobs:
+  preview-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify production isolation, responsive UX and preview integrity
+        run: node --test tests/homepage-preview.test.mjs
