@@ -59,7 +59,7 @@ test('module stylesheet order is controlled only within staging candidate',()=>{
  assert.match(bridge,/head\.appendChild\(stylesheet\)/);
  assert.doesNotMatch(bridge,/\bfetch\s*\(|\bXMLHttpRequest\b|\bsendBeacon\b/);
  assert.doesNotMatch(bridge,/\blocalStorage\.[a-zA-Z]+|sessionStorage\.[a-zA-Z]+/);
- assert.doesNotMatch(bridge,/window\.setView\s*=|window\.renderTracker\s*=/);
+ assert.doesNotMatch(bridge,/window\.setView\s*=(?!=)|window\.renderTracker\s*=(?!=)/);
 });
 test('responsive sidebar retains real nav controls with keyboard and motion safeguards',()=>{
  assert.match(bridge,/\.navbtn/);
