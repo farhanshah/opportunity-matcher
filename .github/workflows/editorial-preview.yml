@@ -1,0 +1,30 @@
+name: OppMatcher turquoise editorial and support previews
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'guides-preview.html'
+      - 'guide-preview.html'
+      - 'about-preview.html'
+      - 'editorial-preview.css'
+      - 'editorial-preview.js'
+      - 'tests/editorial-preview.test.mjs'
+      - '.github/workflows/editorial-preview.yml'
+      - 'design-preview.html'
+      - 'discover-preview.html'
+      - 'passport-preview.html'
+      - 'workspace-preview.html'
+      - 'tests/homepage-preview.test.mjs'
+  workflow_dispatch:
+jobs:
+  editorial-preview-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: node --check editorial-preview.js
+      - name: Editorial, security, responsive and regression tests
+        run: node --test tests/editorial-preview.test.mjs tests/homepage-preview.test.mjs tests/discover-preview.test.mjs tests/passport-preview.test.mjs tests/workspace-preview.test.mjs
