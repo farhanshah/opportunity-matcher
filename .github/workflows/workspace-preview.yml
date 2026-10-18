@@ -1,0 +1,26 @@
+name: OppMatcher turquoise workspace preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'workspace-preview.html'
+      - 'workspace-preview.css'
+      - 'workspace-preview.js'
+      - 'design-preview.html'
+      - 'discover-preview.html'
+      - 'passport-preview.html'
+      - 'tests/workspace-preview.test.mjs'
+      - '.github/workflows/workspace-preview.yml'
+  workflow_dispatch:
+jobs:
+  workspace-preview-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax
+        run: node --check workspace-preview.js
+      - name: Prototype behaviour, privacy, regression and accessibility checks
+        run: node --test tests/workspace-preview.test.mjs tests/passport-preview.test.mjs tests/discover-preview.test.mjs tests/homepage-preview.test.mjs

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b1920">
+<title>Your Workspace | OppMatcher Turquoise Design Concept</title>
+<meta name="description" content="An independent design-only preview of the OppMatcher Dashboard, Saved Opportunities, and Application Tracker.">
+<link rel="icon" type="image/svg+xml" href="/brand-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/workspace-preview.css?v=1"><script src="/workspace-preview.js?v=1" defer></script>
+</head>
+<body>
+<div class="conceptStrip"><span class="signal"></span><strong>OPPMATCHER / DESIGN CONCEPT 04</strong><span>Workspace prototype · Sample records only · No personal data accessed</span><a href="/">Return to live OppMatcher ↗</a></div>
+<div class="layout" id="top">
+  <aside class="sidebar" id="sidebar" aria-label="Workspace navigation">
+    <div class="sideTop"><a class="brand" href="/design-preview.html"><span class="brandIcon"><svg viewBox="0 0 44 44" fill="none" aria-hidden="true"><circle cx="22" cy="22" r="14" stroke="currentColor" stroke-width="2.6"/><path d="M22 8a14 14 0 0 1 14 14" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="29" cy="14" r="3" fill="currentColor"/></svg></span><span><strong>OppMatcher</strong><small>GLOBAL MATCHER</small></span></a><button id="closeMenu" class="mobileClose" type="button" aria-label="Close workspace menu">×</button></div>
+    <div class="sideCaption">YOUR WORKSPACE / CONCEPT</div>
+    <nav class="workspaceNav" aria-label="Design preview sections">
+      <a href="#dashboard" class="sideLink active" data-view="dashboard" aria-current="page"><span class="navIcon">◫</span><span>Dashboard</span><span class="sideArrow">↗</span></a>
+      <a href="#saved" class="sideLink" data-view="saved"><span class="navIcon">☆</span><span>Saved opportunities</span><span class="sideArrow">↗</span></a>
+      <a href="#tracker" class="sideLink" data-view="tracker"><span class="navIcon">▤</span><span>Application tracker</span><span class="sideArrow">↗</span></a>
+    </nav>
+    <div class="sideCaption discoverCaption">EXPLORE THE PLATFORM</div>
+    <nav class="secondNav" aria-label="Other concept pages">
+      <a href="/discover-preview.html"><span>⌕</span> Discover preview ↗</a>
+      <a href="/passport-preview.html"><span>◉</span> Passport preview ↗</a>
+      <a href="/design-preview.html"><span>↖</span> Homepage preview ↗</a>
+      <a href="/blog/"><span>▦</span> Opportunity guides ↗</a>
+    </nav>
+    <div class="sideBottom"><div class="pilotMark">✳ <span>PREVIEW MODE</span></div><p>All opportunities and application activity on this screen are fictional examples. Nothing is read from or written to your account.</p><a href="/">Open the real OppMatcher workspace <span>↗</span></a></div>
+  </aside>
+  <div id="sideScrim" class="sideScrim" hidden></div>
+  <div class="mainColumn">
+    <header class="topbar"><div class="topbarLeft"><button id="openMenu" class="hamburger" aria-label="Open workspace navigation" aria-expanded="false" aria-controls="sidebar" type="button">☰</button><span class="eyebrow"><span class="dot"></span> WORKSPACE / DESIGN PREVIEW</span></div><div class="topbarActions"><a href="/passport-preview.html" class="topTextLink">Your Passport ↗</a><a href="/" class="liveButton">Go to live app <span>↗</span></a><span class="avatar" aria-label="Sample account avatar">OM</span></div></header>
+    <main class="workspaceMain">
+      <section class="pageTop"><div><div class="eyebrow dark"><span class="dot"></span> YOUR OPPORTUNITY JOURNEY</div><h1 id="pageHeading">A clearer view of<br><em>what's next.</em></h1><p id="pageSubheading">Your possibilities, priorities and progress — organized in one beautiful workspace.</p></div><div class="pageTopArt" aria-hidden="true"><div class="artOrbit"></div><span>OPP<br>↗</span></div></section>
+      <div class="sampleBanner"><span class="sampleBadge">SAMPLE DATA</span><p>Interactive design prototype. All programme names, stages and numbers are illustrative — <strong>not your real saved opportunities, eligibility results or applications.</strong> Changes reset when you leave or reload this page.</p><button id="resetDemo" type="button">Reset demo ↻</button></div>
+
+      <section id="dashboardView" class="viewPanel" aria-label="Dashboard concept" data-panel="dashboard">
+        <div class="introRow"><div><span class="sectionLabel">01 / OVERVIEW</span><h2>Your progress,<br>at a glance.</h2></div><a href="#tracker" class="textLink">Review applications <span>↗</span></a></div>
+        <div class="statsGrid">
+          <div class="statCard primary"><small>ILLUSTRATIVE SAVES</small><strong id="statSaved">—</strong><span>opportunities shortlisted</span><div class="statSpark">✦</div></div>
+          <div class="statCard"><small>TRACKED APPLICATIONS</small><strong id="statTracked">—</strong><span>in your example workspace</span><span class="statCorner">↗</span></div>
+          <div class="statCard"><small>SUBMITTED OR BEYOND</small><strong id="statSubmitted">—</strong><span>sample application stages</span><span class="statCorner">◎</span></div>
+          <div class="statCard"><small>CHECKLIST TASKS DONE</small><strong id="statTasks">—</strong><span>of the example tasks</span><span class="statCorner">✓</span></div>
+        </div>
+        <div class="dashboardColumns">
+          <section class="sectionCard actionsCard"><div class="cardHeading"><div><span class="sectionLabel">NEXT / ACTIONS</span><h3>Where to focus next.</h3></div><span class="headerIcon">↗</span></div><div id="priorityActions" class="priorityList"></div></section>
+          <section class="sectionCard pipelineCard"><div class="cardHeading"><div><span class="sectionLabel">YOUR JOURNEY</span><h3>Application pipeline.</h3></div><a href="#tracker" class="miniLink">Open tracker ↗</a></div><div id="pipelineBars" class="pipelineBars"></div><p class="microcopy">Calculated only from fictional demo applications. Not an indication of actual eligibility.</p></section>
+        </div>
+        <section class="sectionCard recentCard"><div class="cardHeading"><div><span class="sectionLabel">A CLOSER LOOK</span><h3>Applications in motion.</h3></div><a class="miniLink" href="#saved">Review saved ↗</a></div><div id="recentActivity" class="recentActivity"></div></section>
+      </section>
+
+      <section id="savedView" class="viewPanel" data-panel="saved" aria-label="Saved opportunities concept" hidden>
+        <div class="introRow"><div><span class="sectionLabel">02 / SHORTLIST</span><h2>Keep what<br>matters close.</h2><p class="introText">Explore a redesigned saved collection with editable demo bookmarks.</p></div><a class="textLink" href="/discover-preview.html">Discover more opportunities ↗</a></div>
+        <div class="savedTools"><label class="searchWrap"><span class="searchIcon">⌕</span><span class="srOnly">Search saved examples</span><input type="search" id="savedSearch" placeholder="Search sample programmes or providers…" autocomplete="off"></label><label class="selectWrap">CATEGORY <select id="savedType"><option value="all">All categories</option><option value="Scholarship">Scholarships</option><option value="Fellowship">Fellowships</option><option value="Internship">Internships</option><option value="Exchange">Exchanges</option></select></label><span id="savedCountLabel" class="savedCountLabel" role="status">— saved examples</span></div>
+        <div id="savedCards" class="savedCards"></div><div id="savedEmpty" class="emptyState" hidden><span>☆</span><h3>Nothing matches these filters.</h3><p>Try a different search or reset the sample list.</p><button id="clearSavedSearch" class="outlineButton" type="button">Clear search ↗</button></div>
+        <div class="noticeBottom">Example bookmarks are not account saves. For real saved opportunities, use the <a href="/">live OppMatcher workspace</a>.</div>
+      </section>
+
+      <section id="trackerView" class="viewPanel" data-panel="tracker" aria-label="Application tracker concept" hidden>
+        <div class="introRow"><div><span class="sectionLabel">03 / APPLICATION TRACKER</span><h2>From idea<br>to <em>action.</em></h2><p class="introText">Try changing stages and ticking document checklists. Every edit is temporary demo-only.</p></div><a href="/passport-preview.html" class="textLink">Review Passport concept ↗</a></div>
+        <div class="trackerTools"><div><span class="tinyDot"></span><strong id="trackedCount">— sample applications</strong></div><label>SHOW <select id="trackerFilter"><option value="all">All stages</option><option value="Planning">Planning</option><option value="Preparing">Preparing</option><option value="Submitted">Submitted &amp; later</option><option value="Outcome">Outcomes</option></select></label></div>
+        <div class="boardScroll"><div id="trackerBoard" class="trackerBoard"></div></div>
+        <div class="trackerCaption">Application changes and checklists exist only in this browser page until reload. This prototype does not prepare or submit applications.</div>
+        <section class="sectionCard checklistPanel"><div class="cardHeading"><div><span class="sectionLabel">PREPARATION MATTERS</span><h3>Small steps. Bigger progress.</h3></div><span class="headerIcon">✓</span></div><p>Each demo application has editable document, statement and reference tasks. Actual submission requirements always depend on the provider.</p><div id="checklistSummary"></div></section>
+      </section>
+      <section class="bottomCTA"><div><span class="sectionLabel">READY FOR THE REAL THING?</span><h2>Turn possibility<br>into progress.</h2><p>The live app handles real profiles, saved programmes and application records. This preview shows only the future look and feel.</p></div><a href="/" class="aquaButton">Open the real workspace ↗</a></section>
+    </main>
+    <footer class="workFooter"><span>© 2026 OppMatcher · Turquoise workspace concept · No actual applications displayed</span><div><a href="/design-preview.html">Homepage</a><a href="/discover-preview.html">Discover</a><a href="/passport-preview.html">Passport</a><a href="#top">Back to top ↑</a></div></footer>
+  </div>
+</div>
+</body></html>
