@@ -1,0 +1,25 @@
+name: OppMatcher turquoise Passport preview
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'passport-preview.html'
+      - 'passport-preview.css'
+      - 'passport-preview.js'
+      - 'design-preview.html'
+      - 'discover-preview.html'
+      - 'tests/passport-preview.test.mjs'
+      - '.github/workflows/passport-preview.yml'
+  workflow_dispatch:
+jobs:
+  passport-preview-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax check
+        run: node --check passport-preview.js
+      - name: Preview usability, privacy and regression tests
+        run: node --test tests/passport-preview.test.mjs tests/homepage-preview.test.mjs tests/discover-preview.test.mjs

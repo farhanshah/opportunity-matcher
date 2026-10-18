@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0c1c21">
+<title>Opportunity Passport — Turquoise Design Preview | OppMatcher</title>
+<meta name="description" content="Private interactive OppMatcher Opportunity Passport design preview. Entries are not saved.">
+<link rel="icon" type="image/svg+xml" href="/brand-icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/passport-preview.css?v=1">
+<script src="/passport-preview.js?v=1" defer></script>
+</head><body>
+<div class="conceptStrip"><span class="signal"></span><strong>OPPMATCHER / DESIGN CONCEPT 03</strong><span>Turquoise Passport preview · Entries are not saved</span><a href="/">Return to live OppMatcher ↗</a></div>
+<header class="siteHeader" id="top">
+  <div class="bgGrid" aria-hidden="true"></div>
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="/design-preview.html" aria-label="OppMatcher concept homepage"><span class="brandIcon"><svg viewBox="0 0 44 44" aria-hidden="true" fill="none"><circle cx="22" cy="22" r="14" stroke="currentColor" stroke-width="2.6"/><path d="M22 8a14 14 0 0 1 14 14" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="29" cy="14" r="3" fill="currentColor"/></svg></span><span class="brandText"><strong>OppMatcher</strong><small>OPPORTUNITY GLOBAL MATCHER</small></span></a>
+    <div class="navLinks" id="navLinks">
+      <a href="/design-preview.html">Home concept</a><a href="/discover-preview.html">Explore opportunities</a><a class="active" aria-current="page" href="/passport-preview.html">Your Passport</a><a href="/design-preview.html#process">How it works</a><a href="/blog/">Guides ↗</a>
+    </div>
+    <a class="navCTA" href="/">Open live workspace <span aria-hidden="true">↗</span></a>
+    <button id="menuToggle" type="button" class="menuToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="navLinks">☰</button>
+  </nav>
+  <div class="headerContent container">
+    <div class="eyebrow"><span></span>YOUR BACKGROUND. YOUR POSSIBILITIES.</div>
+    <div class="headerCopy"><div><h1>One Passport.<br><em>A world of possibility.</em></h1><p>Give your opportunities a starting point. Build a profile that helps you ask better questions about programmes, funding and eligibility around the world.</p></div><div class="heroSeal" aria-hidden="true"><div class="sealRing"></div><span class="sealSpark">✳</span><span>YOUR<br>WORLD<br>AWAITS</span></div></div>
+    <div class="headerMeta"><span>OPPORTUNITY PASSPORT / INTERACTIVE CONCEPT</span><span><span class="dot"></span>5-step guided experience</span></div>
+  </div>
+</header>
+<main>
+  <section class="intro container" data-reveal>
+    <div><span class="sectionLabel">01 / MAKE IT YOURS</span><h2>Start with what makes<br>you, <em>you.</em></h2></div>
+    <p>Nationality, education and field of study help create the first meaningful match. Optional details improve the questions OppMatcher can check, without guessing information you haven't supplied.</p>
+  </section>
+  <section class="wizardOuter container" id="passport-builder" aria-label="Opportunity Passport design walkthrough">
+    <aside class="wizardAside" aria-label="Passport progress">
+      <div class="asideTop"><span class="eyebrow">YOUR PASSPORT</span><h2>Every journey<br>has a <em>starting point.</em></h2><p>A clearer way to build your Opportunity Passport, one section at a time.</p></div>
+      <nav class="stepNav" aria-label="Walkthrough steps">
+        <button class="stepLink active" type="button" data-step="0" aria-current="step"><span class="stepNumber">01</span><span><strong>Identity &amp; location</strong><small>Where you're starting from</small></span><span class="stepArrow">↗</span></button>
+        <button class="stepLink" type="button" data-step="1"><span class="stepNumber">02</span><span><strong>Education &amp; field</strong><small>What you're studying</small></span><span class="stepArrow">↗</span></button>
+        <button class="stepLink" type="button" data-step="2"><span class="stepNumber">03</span><span><strong>Eligibility precision</strong><small>The details that matter</small></span><span class="stepArrow">↗</span></button>
+        <button class="stepLink" type="button" data-step="3"><span class="stepNumber">04</span><span><strong>Your preferences</strong><small>The opportunities you want</small></span><span class="stepArrow">↗</span></button>
+        <button class="stepLink" type="button" data-step="4"><span class="stepNumber">05</span><span><strong>Review Passport</strong><small>Your snapshot, before saving</small></span><span class="stepArrow">↗</span></button>
+      </nav>
+      <div class="asideInsight"><div class="insightIcon">✦</div><strong>Clarity over assumptions.</strong><p>Unknown or provider-specific rules should be shown for checking, never filled in by a guess.</p></div>
+    </aside>
+    <div class="wizardMain">
+      <div class="wizardProgress" aria-live="polite"><div><span class="progressLabel">YOUR PROGRESS</span><strong id="progressText">Step 1 of 5</strong></div><div class="track"><span id="progressFill"></span></div></div>
+      <div class="privateNote" role="note"><span class="noteIcon">◇</span><p><strong>Design-only walkthrough.</strong> Anything you type stays in this open page temporarily. Nothing is saved to your account, browser storage or a server. Open the live app to save a real Passport.</p></div>
+      <form id="passportForm" novalidate>
+        <section class="stepPane" data-pane="0" aria-labelledby="stepTitle0">
+          <div class="stepHeader"><span class="sectionLabel">01 / IDENTITY &amp; LOCATION</span><h2 id="stepTitle0">Tell us where<br>you're <em>starting.</em></h2><p>Your nationality may differ from where you currently live. Both can matter for programme-specific eligibility.</p></div>
+          <div class="fieldGrid">
+            <div class="field"><label for="nat">Nationality <span class="required">Required</span></label><select id="nat" name="nat" required data-required><option value="">Select nationality</option></select><small>Choose your citizenship; don't assume residence equals nationality.</small></div>
+            <div class="field"><label for="residence">Country of residence <span class="optional">Optional</span></label><select id="residence" name="residence"><option value="">Select residence</option></select><small>Used when a scheme has residence-specific routes.</small></div>
+            <div class="field"><label for="age">Age <span class="optional">Optional</span></label><input id="age" name="age" type="number" min="14" max="99" placeholder="e.g. 23"><small>Some programmes set age limits; others don't.</small></div>
+            <div class="field"><label for="english">English readiness <span class="optional">Optional</span></label><select id="english" name="english"><option value="">Not specified</option><option>Comfortable in English</option><option>English test score available</option><option>Degree taught in English</option><option>Native / bilingual</option></select><small>This is not proof of a provider's English requirement.</small></div>
+          </div>
+        </section>
+        <section class="stepPane" data-pane="1" aria-labelledby="stepTitle1" hidden>
+          <div class="stepHeader"><span class="sectionLabel">02 / EDUCATION &amp; FIELD</span><h2 id="stepTitle1">Where you've been.<br><em>Where you're going.</em></h2><p>Your current education level and field help narrow down opportunities with relevant requirements.</p></div>
+          <div class="fieldGrid">
+            <div class="field"><label for="edu">Education level <span class="required">Required</span></label><select id="edu" name="edu" required data-required><option value="">Select your education level</option><option>Secondary school</option><option>Undergraduate student</option><option>Bachelor's degree</option><option>Master's student</option><option>Master's degree</option><option>PhD student</option><option>PhD degree</option></select><small>Choose your actual current level or completed qualification.</small></div>
+            <div class="field"><label for="field">Field of study <span class="required">Required</span></label><select id="field" name="field" required data-required><option value="">Select your discipline</option></select><small>Match against stated academic subject requirements.</small></div>
+            <div class="field"><label for="gpa">GPA / CGPA <span class="optional">Optional</span></label><input id="gpa" name="gpa" type="number" min="0" max="10" step="0.01" inputmode="decimal" placeholder="e.g. 3.65"><small>Include the scale when applying; grading systems vary.</small></div>
+            <div class="field"><label for="degreeName">Degree / qualification name <span class="optional">Optional</span></label><input id="degreeName" name="degreeName" maxlength="140" type="text" placeholder="e.g. BA Business Management"><small>Use the official title of your qualification.</small></div>
+          </div>
+        </section>
+        <section class="stepPane" data-pane="2" aria-labelledby="stepTitle2" hidden>
+          <div class="stepHeader"><span class="sectionLabel">03 / ELIGIBILITY PRECISION</span><h2 id="stepTitle2">Details make<br>the <em>difference.</em></h2><p>These additional details matter only when a programme's official rules explicitly call for them. Leave anything uncertain blank.</p></div>
+          <div class="fieldGrid">
+            <div class="field"><label for="degreeStatus">Current degree status <span class="optional">Optional</span></label><select id="degreeStatus" name="degreeStatus"><option value="">Select academic stage</option><option>Current — Year 1</option><option>Current — Year 2</option><option>Current — Year 3</option><option>Current — Year 4+</option><option>Final year</option><option>Completed</option><option>Not started / awaiting enrolment</option></select></div>
+            <div class="field"><label for="degreeCountry">Degree country <span class="optional">Optional</span></label><select id="degreeCountry" name="degreeCountry"><option value="">Select degree country</option></select></div>
+            <div class="field"><label for="graduationDate">Graduation / expected graduation <span class="optional">Optional</span></label><input type="date" id="graduationDate" name="graduationDate"></div>
+            <div class="field"><label for="experienceYears">Full-time work experience (years) <span class="optional">Optional</span></label><input type="number" min="0" max="40" step="0.5" id="experienceYears" name="experienceYears" placeholder="e.g. 1.5"></div>
+            <div class="field"><label for="workHours">Post-degree work hours <span class="optional">Optional</span></label><input type="number" min="0" max="100000" step="1" id="workHours" name="workHours" placeholder="Only confirmed hours"><small>Never estimate exact hours for a hard eligibility rule.</small></div>
+          </div>
+          <div class="fieldCallout"><span>↗</span><div><strong>Why does this matter?</strong><p>Some fellowships and internships require final-year status, a specific graduation window or confirmed work experience. OppMatcher should verify the provider's rule before deciding.</p></div></div>
+        </section>
+        <section class="stepPane" data-pane="3" aria-labelledby="stepTitle3" hidden>
+          <div class="stepHeader"><span class="sectionLabel">04 / YOUR PREFERENCES</span><h2 id="stepTitle3">What's your<br><em>next move?</em></h2><p>Choose the kinds of programmes you're curious about. Preferences guide discovery, but they never override official eligibility rules.</p></div>
+          <fieldset class="choiceField"><legend>Opportunity type</legend><div class="choiceGrid">
+            <label class="choice"><input name="type" type="radio" value="Any" checked><span class="choiceIcon">◎</span><strong>Explore everything</strong><small>Stay open to possibilities</small></label>
+            <label class="choice"><input name="type" type="radio" value="Scholarship"><span class="choiceIcon">✦</span><strong>Scholarships</strong><small>Study and funding</small></label>
+            <label class="choice"><input name="type" type="radio" value="Internship"><span class="choiceIcon">↗</span><strong>Internships</strong><small>Practical experience</small></label>
+            <label class="choice"><input name="type" type="radio" value="Fellowship"><span class="choiceIcon">⌘</span><strong>Fellowships</strong><small>Research and leadership</small></label>
+            <label class="choice"><input name="type" type="radio" value="Exchange / International Programme"><span class="choiceIcon">↔</span><strong>Global programmes</strong><small>Exchanges and mobility</small></label>
+          </div></fieldset>
+          <div class="fieldGrid spaceTop"><div class="field"><label for="fund">Funding preference</label><select id="fund" name="fund"><option>Any</option><option>Fully Funded</option><option>Paid</option><option>Funding Available</option><option>Partially Funded</option><option>Free / Supported</option></select><small>Programme terms still require confirmation from the provider.</small></div></div>
+        </section>
+        <section class="stepPane" data-pane="4" aria-labelledby="stepTitle4" hidden>
+          <div class="stepHeader"><span class="sectionLabel">05 / YOUR PASSPORT SNAPSHOT</span><h2 id="stepTitle4">Your story.<br><em>Your next chapter.</em></h2><p>Here's how your inputs would look in the redesigned Passport. This is a local design preview, not a saved profile or a real eligibility assessment.</p></div>
+          <div id="reviewCard" class="reviewCard" aria-live="polite"></div>
+          <div class="reviewFoot"><span>✳</span><p><strong>Ready to save for real?</strong> Open the current live OppMatcher site, select <strong>Build my Passport</strong> and enter your details there. Nothing from this preview transfers to your account.</p></div>
+          <a href="/" class="primaryAction realCta">Open live OppMatcher ↗</a>
+        </section>
+        <div id="formError" role="alert" class="formError" hidden></div>
+        <div class="formActions"><button id="backStep" type="button" class="backAction" hidden>← Previous step</button><span class="formHint" id="formHint">Required fields are labelled.</span><button type="button" class="primaryAction" id="nextStep">Continue <span aria-hidden="true">↗</span></button></div>
+      </form>
+      <div class="wizardTools"><button type="button" id="sampleButton">Preview with example details ↗</button><button type="button" id="resetButton">Clear walkthrough</button></div>
+    </div>
+  </section>
+  <section class="whyBand container" data-reveal>
+    <article><span>01 / PERSONAL</span><h3>Built around you.</h3><p>Your nationality, educational background and goals make the journey more relevant.</p></article>
+    <article><span>02 / EVIDENCE</span><h3>Know what needs checking.</h3><p>Provider-specific rules should remain transparent rather than be guessed.</p></article>
+    <article><span>03 / PROGRESS</span><h3>One connected journey.</h3><p>Move from discovery to preparation and tracking inside the live OppMatcher workspace.</p></article>
+  </section>
+  <section class="ctaBand"><div class="container ctaContent" data-reveal><div><span class="sectionLabel">THE FUTURE IS WIDE OPEN</span><h2>One Passport.<br><em>So many possibilities.</em></h2><p>Take the next step in the current OppMatcher app when you're ready.</p></div><a class="primaryAction" href="/">Go to live OppMatcher ↗</a></div></section>
+</main>
+<footer><div class="container footerColumns"><div><a class="footerBrand" href="/design-preview.html">OppMatcher<small>OPPORTUNITY GLOBAL MATCHER</small></a><p>Find opportunities that fit the journey you're making. Always check official programme requirements.</p></div><div><strong>Explore</strong><a href="/discover-preview.html">Discover preview</a><a href="/discover">Live opportunities</a><a href="/blog/">Guides</a></div><div><strong>Your journey</strong><a href="/passport-preview.html">Passport preview</a><a href="/">Live workspace</a><a href="/design-preview.html#process">How it works</a></div><div><strong>About</strong><a href="/design-preview.html">Homepage concept</a><a href="/privacy">Privacy</a></div></div><div class="container footerBottom"><span>© 2026 OppMatcher · Design-only Passport walkthrough</span><a href="#top">Back to top ↑</a></div></footer>
+</body></html>
