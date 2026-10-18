@@ -6,6 +6,7 @@ on:
     paths:
       - 'tests/integration-browser-qa.mjs'
       - '.github/workflows/integration-browser-qa.yml'
+      - 'tests/integration-account-qa.mjs'
 jobs:
   browser-smoke:
     runs-on: ubuntu-latest
@@ -21,6 +22,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Check production-hosted integration candidate in desktop and mobile Chromium
         run: node tests/integration-browser-qa.mjs
+      - name: Check account sign-in and Passport presentation without writing user data
+        run: node tests/integration-account-qa.mjs
       - name: Archive preview screenshots
         if: always()
         uses: actions/upload-artifact@v4
