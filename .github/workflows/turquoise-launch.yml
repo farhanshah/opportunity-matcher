@@ -1,0 +1,46 @@
+name: OppMatcher public turquoise launch checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'launch-ready.html'
+      - 'integration-shell-live.js'
+      - 'index.html'
+      - 'tests/turquoise-release.test.mjs'
+      - 'tests/turquoise-launch-browser.mjs'
+      - '.github/workflows/turquoise-launch.yml'
+  workflow_dispatch:
+jobs:
+  structural:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate launcher syntax
+        run: node --check integration-shell-live.js
+      - name: Check release safety, real app DOM and native routes
+        run: node --test tests/turquoise-release.test.mjs tests/integration-preview-v2.test.mjs
+      - name: Existing application preview regressions
+        run: node --test tests/homepage-preview.test.mjs tests/discover-preview.test.mjs tests/passport-preview.test.mjs tests/workspace-preview.test.mjs tests/editorial-preview.test.mjs
+  chromium:
+    runs-on: ubuntu-latest
+    needs: structural
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Verify launch candidate in real browser before go-live
+        run: node tests/turquoise-launch-browser.mjs
+      - name: Retain screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oppmatcher-turquoise-launch-browser
+          path: launch-browser-artifacts/
+          retention-days: 7
