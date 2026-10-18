@@ -1,0 +1,309 @@
+/* OppMatcher integrated design v2 — structural preview, not production layout.
+   Loaded after runtime styles, scoped to .omTurquoisePreview to preserve real app.
+   Inspired by approved Concept 04; all original controllers and record elements stay functional. */
+html.omTurquoisePreview{
+ --om-v2-ink:#143238;--om-v2-muted:#688481;--om-v2-bg:#f7fbfa;
+ --om-v2-teal:#088f81;--om-v2-aqua:#51e7d6;--om-v2-line:#d9e9e4;
+}
+html.omTurquoisePreview body{font-size:14px!important;line-height:1.6}
+html.omTurquoisePreview .integrationPreviewNotice{min-height:34px;padding-top:7px;padding-bottom:7px}
+html.omTurquoisePreview .integrationWarning{padding-top:7px;padding-bottom:7px;border-color:#e5d7bb}
+html.omTurquoisePreview .app{grid-template-columns:253px minmax(0,1fr)!important;background:#f7fbfa!important;color:#143238!important}
+html.omTurquoisePreview .app .side{
+ padding:28px 15px!important;background:radial-gradient(ellipse at 12% 6%,rgba(55,178,162,.24),transparent 43%),linear-gradient(155deg,#10353c,#08171d 82%)!important;
+ color:#def7f1!important;box-shadow:none!important;border-right:1px solid rgba(160,250,223,.13)!important
+}
+html.omTurquoisePreview .app .side .brand{padding:0 8px 24px!important;border-color:rgba(147,247,222,.20)!important}
+html.omTurquoisePreview .app .side .brandword{font:800 19px/1.05 'Manrope',sans-serif!important;letter-spacing:-.065em}
+html.omTurquoisePreview .app .side .brandword small{font-family:'DM Sans',sans-serif!important;color:#9cbbb5!important;font-size:9px!important;letter-spacing:.16em!important}
+html.omTurquoisePreview .app .side .navbtn{
+ padding:14px 12px!important;margin:5px 0!important;gap:12px!important;
+ font-size:12px!important;font-weight:800!important;line-height:1.25!important;
+ border-radius:12px!important;color:#b1d0ca!important;
+ background:transparent!important;border:1px solid transparent!important;box-shadow:none!important;
+ transition:background .25s ease,transform .25s ease!important
+}
+html.omTurquoisePreview .app .side .navbtn:hover,html.omTurquoisePreview .app .side .navbtn.active{
+ color:#dffff7!important;background:rgba(81,231,214,.13)!important;
+ border:1px solid rgba(81,231,214,.39)!important;box-shadow:none!important
+}
+html.omTurquoisePreview .app .side .navbtn.active{box-shadow:inset 3px 0 0 #51e7d6!important}
+html.omTurquoisePreview .app .side .navbtn .ico{
+ background:rgba(228,255,246,.09)!important;color:#a7e7db!important;
+ height:31px!important;width:31px!important;border-radius:9px!important;font-size:15px!important
+}
+html.omTurquoisePreview .app .side .navbtn.active .ico{background:#51e7d6!important;color:#0e3336!important}
+html.omTurquoisePreview .app .side .sideFoot{padding:16px!important;background:rgba(3,27,30,.38)!important;border:1px solid #8dfbe038!important;border-radius:13px!important;color:#9cbeb7!important}
+html.omTurquoisePreview .app .side .sideFoot b{color:#d4fff4!important}
+html.omTurquoisePreview .app .workspace{background:#f7fbfa!important;color:#173439!important}
+html.omTurquoisePreview .app .appTop{min-height:77px!important;height:auto!important;padding:13px clamp(18px,3.1vw,50px)!important;background:#fff!important;border-bottom:1px solid #dcece7!important;box-shadow:0 5px 24px rgba(15,76,64,.04)!important}
+html.omTurquoisePreview .app .appTop h1{font:800 19px 'Manrope',sans-serif!important;letter-spacing:-.05em!important;color:#153237!important}
+html.omTurquoisePreview .app .appTop p{color:#69827f!important;font-size:12px!important}
+html.omTurquoisePreview .app .appTop .topRight{flex-wrap:wrap!important;justify-content:flex-end!important}
+html.omTurquoisePreview .app .appTop .avatar,
+html.omTurquoisePreview .app .cloudAccountBtn .cloudAvatar{background:#d9f7ed!important;color:#087c70!important;box-shadow:none!important}
+html.omTurquoisePreview .app .cloudAccountBtn{background:#fff!important;color:#173c3b!important;border:1px solid #d7e9e3!important;box-shadow:0 5px 23px #0a6b5110!important}
+html.omTurquoisePreview .app .cloudSyncPill{color:#117a6e!important;background:#e7f8f2!important}
+html.omTurquoisePreview .app .themeToggle,html.omTurquoisePreview .app .themeBtn{border-color:#d9ede5!important}
+html.omTurquoisePreview .app .appBody{padding:28px clamp(17px,3.1vw,50px) 90px!important;background:#f7fbfa!important}
+html.omTurquoisePreview .app .omBridgeHero{
+ margin:27px clamp(17px,3.1vw,50px) 0;
+ min-height:216px;position:relative;overflow:hidden;isolation:isolate;
+ padding:43px 47px;border-radius:22px!important;
+ background:radial-gradient(ellipse at 90% 7%,#2d777963,transparent 38%),radial-gradient(ellipse at 0% 94%,#128e8061,transparent 56%),linear-gradient(126deg,#10434b,#0b1c25 86%)!important;
+ color:#fff!important;display:flex;align-items:center;justify-content:space-between;gap:20px;
+ border:1px solid #4ba8993c!important;
+ box-shadow:0 13px 45px #184f4513
+}
+html.omTurquoisePreview .app .omBridgeHero:before{
+ content:"";position:absolute;inset:0;z-index:-1;
+ background-image:linear-gradient(#a9fff21c 1px,transparent 1px),linear-gradient(90deg,#a9fff21c 1px,transparent 1px);
+ background-size:55px 55px;pointer-events:none
+}
+html.omTurquoisePreview .app .omBridgeEyebrow{
+ display:flex;align-items:center;gap:9px;font-size:9px;font-weight:900;letter-spacing:.17em;
+ color:#a3fff1!important;text-transform:uppercase
+}
+html.omTurquoisePreview .app .omBridgeEyebrow:before{content:"";width:7px;height:7px;background:#51e7d6;border-radius:50%}
+html.omTurquoisePreview .app .omBridgeTitle{
+ font:800 clamp(32px,3.3vw,51px)/1.15 'Manrope',sans-serif!important;
+ letter-spacing:-.07em!important;color:#fff!important;margin:17px 0 11px!important;max-width:650px
+}
+html.omTurquoisePreview .app .omBridgeTitle em{font-style:normal;color:#51e7d6!important}
+html.omTurquoisePreview .app .omBridgeCopy{color:#d0e9e5!important;font-size:12px!important;line-height:1.75!important;margin:0!important;max-width:600px}
+html.omTurquoisePreview .app .omBridgeArt{width:170px;height:170px;border-radius:50%;border:1px solid #acffee6e;box-shadow:0 0 0 30px #affff00a,0 0 0 65px #affff006;display:grid;place-items:center;position:relative;flex-shrink:0;margin-right:30px}
+html.omTurquoisePreview .app .omBridgeArt:before{content:"";position:absolute;width:235px;height:70px;border:1px solid #adfff1a0;border-radius:50%;transform:rotate(-28deg)}
+html.omTurquoisePreview .app .omBridgeArt span{font:800 69px 'Manrope',sans-serif;letter-spacing:-.12em;color:#cafff5}
+html.omTurquoisePreview .app .omBridgeHero[hidden]{display:none!important}
+
+/* Premium, breathable application view surfaces. Original elements still receive real events. */
+html.omTurquoisePreview .app .appBody h1,html.omTurquoisePreview .app .appBody h2,
+html.omTurquoisePreview .app .appBody h3,html.omTurquoisePreview .app .appBody h4{font-family:'Manrope','DM Sans',sans-serif;letter-spacing:-.045em}
+html.omTurquoisePreview .app .appBody .eyebrow,
+html.omTurquoisePreview .app .appBody .panelTitle{color:#078a7c!important}
+html.omTurquoisePreview .app .metric,
+html.omTurquoisePreview .app .intelStat,
+html.omTurquoisePreview .app .savedStat,
+html.omTurquoisePreview .app .trackerMiniStat,
+html.omTurquoisePreview .app .focusSummaryStat,
+html.omTurquoisePreview .app .dashCard,
+html.omTurquoisePreview .app .priorityCard,
+html.omTurquoisePreview .app .dashPanel,
+html.omTurquoisePreview .app .savedTile,
+html.omTurquoisePreview .app .oppCard.upgraded,
+html.omTurquoisePreview .app .filterPanel{
+ background:#fff!important;color:#18363a!important;
+ border:1px solid #dcebe7!important;box-shadow:0 10px 35px rgba(23,83,68,.055)!important;
+ border-radius:17px!important
+}
+html.omTurquoisePreview .app .metric b,
+html.omTurquoisePreview .app .intelStat b,
+html.omTurquoisePreview .app .savedStat b,
+html.omTurquoisePreview .app .focusSummaryStat b,
+html.omTurquoisePreview .app .trackerMiniStat b{color:#123539!important}
+html.omTurquoisePreview .app .metric span,
+html.omTurquoisePreview .app .focusSummaryStat span,
+html.omTurquoisePreview .app .trackerMiniStat span{color:#6c8681!important}
+html.omTurquoisePreview .app .oppCard.upgraded:before,
+html.omTurquoisePreview .app .savedTile:before,
+html.omTurquoisePreview .app .priorityCard:before{background:linear-gradient(90deg,#0b9488,#51e7d6)!important}
+html.omTurquoisePreview .app #tracker,html.omTurquoisePreview .app #dashboard,html.omTurquoisePreview .app #saved{color:#18363a!important}
+html.omTurquoisePreview .app .trackerModeCopy h3{color:#193a3c!important;font-size:18px!important}
+html.omTurquoisePreview .app .trackerModeCopy p{color:#6a8985!important;font-size:11px!important}
+html.omTurquoisePreview .app .viewToggle{background:#e4f1ee!important;border-color:#cddfd9!important;border-radius:12px!important}
+html.omTurquoisePreview .app .viewToggle button{color:#516e69!important;font-size:10px!important}
+html.omTurquoisePreview .app .viewToggle button.active{background:#102e34!important;color:#fff!important}
+html.omTurquoisePreview .app .focusSummary{gap:13px!important;margin-bottom:20px!important}
+html.omTurquoisePreview .app .focusSummaryHero,
+html.omTurquoisePreview .app .trackerOverviewHero{
+ background:radial-gradient(circle at 90% 10%,#28666988,transparent 53%),linear-gradient(126deg,#103b44,#0b1e28)!important;
+ color:#fff!important;border:1px solid #23575a!important;border-radius:17px!important;box-shadow:none!important;
+ padding:24px!important
+}
+html.omTurquoisePreview .app .focusSummaryHero h2,
+html.omTurquoisePreview .app .trackerOverviewHero h2{color:#fff!important;font:800 clamp(19px,1.7vw,27px)/1.2 'Manrope',sans-serif!important;letter-spacing:-.05em!important}
+html.omTurquoisePreview .app .focusSummaryHero p,
+html.omTurquoisePreview .app .trackerOverviewHero p{color:#b9d5d2!important;font-size:11px!important;line-height:1.65!important}
+html.omTurquoisePreview .app .focusSummaryHero span,
+html.omTurquoisePreview .app .trackerOverviewHero .ey{color:#8affea!important}
+html.omTurquoisePreview .app .focusSummaryStat b,
+html.omTurquoisePreview .app .trackerMiniStat b{font:800 clamp(24px,2.3vw,36px) 'Manrope',sans-serif!important}
+html.omTurquoisePreview .app .focusQueue{gap:15px!important}
+html.omTurquoisePreview .app .focusCard{
+ grid-template-columns:minmax(205px,1.1fr) minmax(220px,.85fr) minmax(200px,.75fr)!important;
+ align-items:start!important;gap:15px!important;
+ padding:26px!important;margin:0!important;
+ background:#fff!important;color:#17383b!important;border:1px solid #dcebe7!important;
+ border-radius:18px!important;box-shadow:0 12px 38px #1c645412!important
+}
+html.omTurquoisePreview .app .focusCard:before{background:linear-gradient(180deg,#1ba894,#51e7d6)!important;width:4px!important}
+html.omTurquoisePreview .app .focusCard.urgent:before{background:linear-gradient(180deg,#e6a748,#ffc986)!important}
+html.omTurquoisePreview .app .focusLogo,
+html.omTurquoisePreview .app .boardLogoV11{background:#e2f8f2!important;color:#0a867b!important;border-radius:10px!important}
+html.omTurquoisePreview .app .focusTitle{font:800 16px/1.35 'Manrope',sans-serif!important;color:#17393c!important;letter-spacing:-.035em!important}
+html.omTurquoisePreview .app .focusProvider{font-size:11px!important;color:#78908a!important;margin-top:7px!important}
+html.omTurquoisePreview .app .focusMeta span{font-size:10px!important;color:#567b74!important;background:#f3faf8!important;border:1px solid #deede8!important;padding:6px 9px!important}
+html.omTurquoisePreview .app .focusMeta .deadlineHot{color:#9a6513!important;background:#fff1da!important;border-color:#f4ddb4!important}
+html.omTurquoisePreview .app .focusAction,
+html.omTurquoisePreview .app .nextAction{
+ background:#f4faf8!important;border:1px solid #deede8!important;border-radius:12px!important;padding:15px!important
+}
+html.omTurquoisePreview .app .focusAction span,
+html.omTurquoisePreview .app .nextAction span{color:#068b7b!important;font-size:9px!important}
+html.omTurquoisePreview .app .focusAction b,
+html.omTurquoisePreview .app .nextAction b{color:#274a48!important;font-size:12px!important;line-height:1.5!important}
+html.omTurquoisePreview .app .focusAction small{color:#7e9892!important;font-size:10px!important}
+html.omTurquoisePreview .app .focusRing,
+html.omTurquoisePreview .app .progressRing{background:conic-gradient(#22bba8 calc(var(--p)*1%),#e9f2ee 0)!important}
+html.omTurquoisePreview .app .focusRing:after,
+html.omTurquoisePreview .app .progressRing:after{background:#fff!important}
+html.omTurquoisePreview .app .focusRing b,
+html.omTurquoisePreview .app .focusStage b{color:#193b3d!important}
+html.omTurquoisePreview .app .focusStage span{font-size:10px!important;color:#849994!important}
+html.omTurquoisePreview .app .focusStage select,
+html.omTurquoisePreview .app .stageSelectV11{background:#f6fbf9!important;border:1px solid #b7d8ce!important;color:#1a4e46!important;border-radius:9px!important;font-size:11px!important;min-height:34px!important}
+html.omTurquoisePreview .app .focusTasks{border-top:1px solid #e4f0eb!important;padding-top:14px!important;gap:9px!important}
+html.omTurquoisePreview .app .focusTask,
+html.omTurquoisePreview .app .taskChip{background:#f7fbfa!important;border:1px solid #deece7!important;color:#5a7873!important;border-radius:9px!important;font-size:10px!important;min-height:32px!important}
+html.omTurquoisePreview .app .focusTask.done,
+html.omTurquoisePreview .app .taskChip.done{background:#e6f8ef!important;color:#106e5b!important}
+html.omTurquoisePreview .app .focusTask input,
+html.omTurquoisePreview .app .taskChip input{accent-color:#0da592!important}
+html.omTurquoisePreview .app .focusOpen,
+html.omTurquoisePreview .app .boardOpen,
+html.omTurquoisePreview .app .boardBottomV11 button{color:#077e71!important;font-size:11px!important}
+html.omTurquoisePreview .app .trackerBoard,
+html.omTurquoisePreview .app .trackerBoardV11{gap:15px!important}
+html.omTurquoisePreview .app .boardColumn,
+html.omTurquoisePreview .app .boardColumnV11{background:#edf6f2!important;border:1px solid #d3e6df!important;border-radius:16px!important;padding:12px!important}
+html.omTurquoisePreview .app .boardCard,
+html.omTurquoisePreview .app .boardCardV11{background:#fff!important;color:#173c3c!important;border:1px solid #d8e9e3!important;border-radius:13px!important;box-shadow:0 7px 22px #1d64470a!important}
+html.omTurquoisePreview .app .boardTitle,
+html.omTurquoisePreview .app .boardTitleV11{color:#1d403e!important;font-weight:800!important}
+html.omTurquoisePreview .app .boardHead b,
+html.omTurquoisePreview .app .boardHeadV11 b{color:#153d3c!important;font-weight:800!important}
+html.omTurquoisePreview .app .boardColumnV11.shortlist{box-shadow:inset 0 3px 0 #51e7d6!important}
+html.omTurquoisePreview .app .boardColumnV11.preparing{box-shadow:inset 0 3px 0 #149e92!important}
+html.omTurquoisePreview .app .boardColumnV11.submitted{box-shadow:inset 0 3px 0 #65b4d7!important}
+html.omTurquoisePreview .app .boardColumnV11.outcome{box-shadow:inset 0 3px 0 #e2b75c!important}
+/* Premium authenticated account: the original purple/black modal is intentionally rebuilt
+   as a clear light card with teal accents. No account API or form changes. */
+html.omTurquoisePreview .cloudModal{background:rgba(6,24,28,.69)!important;backdrop-filter:blur(9px)!important}
+html.omTurquoisePreview .cloudModal .cloudAuthCard{
+ background:#fff!important;color:#18373a!important;
+ border:1px solid #c9e9e0!important;border-radius:22px!important;
+ box-shadow:0 30px 90px #071d2563!important;
+ padding:28px!important;width:min(540px,95vw)!important
+}
+html.omTurquoisePreview .cloudModal .cloudAuthCard h2{
+ font:800 clamp(25px,2.5vw,34px)/1.16 'Manrope',sans-serif!important;
+ color:#17393c!important;letter-spacing:-.05em!important
+}
+html.omTurquoisePreview .cloudModal .cloudEy{color:#098c7e!important;font-size:10px!important;letter-spacing:.14em!important}
+html.omTurquoisePreview .cloudModal .cloudLead{color:#6d8584!important;font-size:12px!important;line-height:1.65!important}
+html.omTurquoisePreview .cloudModal .cloudClose{color:#1d6a60!important;background:#eef8f5!important}
+html.omTurquoisePreview .cloudModal .cloudAccountHero,
+html.omTurquoisePreview .cloudModal .cloudIdentity{
+ background:#eaf8f3!important;color:#163e3d!important;border:1px solid #ceebe0!important;border-radius:14px!important
+}
+html.omTurquoisePreview .cloudModal .cloudBigAvatar{
+ background:linear-gradient(140deg,#0f9c8e,#51e7d6)!important;color:#06343b!important
+}
+html.omTurquoisePreview .cloudModal .cloudAccountHero b{color:#14393a!important;font-size:13px!important}
+html.omTurquoisePreview .cloudModal .cloudAccountHero span{color:#718d88!important;font-size:10px!important}
+html.omTurquoisePreview .cloudModal .cloudStatusBox{
+ background:#f7fbfa!important;border:1px solid #dceae7!important;border-radius:14px!important
+}
+html.omTurquoisePreview .cloudModal .cloudStatusBox span{color:#708984!important;font-size:11px!important}
+html.omTurquoisePreview .cloudModal .cloudStatusBox b{color:#235250!important;font-size:11px!important}
+html.omTurquoisePreview .cloudModal .cloudAccountActions button{
+ border:1px solid #d3e7df!important;background:#f4faf8!important;
+ color:#21534d!important;border-radius:10px!important;
+ padding:12px!important;font-size:12px!important
+}
+html.omTurquoisePreview .cloudModal .cloudAccountActions button:hover{background:#e6f7f0!important;border-color:#65d7c6!important}
+html.omTurquoisePreview .cloudModal .cloudAccountActions button.danger{color:#a84b57!important}
+html.omTurquoisePreview .cloudModal .cloudVerifyNotice{
+ background:#fff6e8!important;border:1px solid #e9d4af!important;color:#96651f!important
+}
+html.omTurquoisePreview .cloudModal .cloudVerifyNotice a{color:#087c72!important;text-decoration:underline!important}
+html.omTurquoisePreview .cloudModal .cloudTabs{background:#e7f4ef!important}
+html.omTurquoisePreview .cloudModal .cloudTabs button.active{color:#087d72!important;background:#fff!important}
+html.omTurquoisePreview .cloudModal .cloudField label{color:#587873!important;font-size:10px!important}
+html.omTurquoisePreview .cloudModal .cloudField input,
+html.omTurquoisePreview .cloudModal .cloudField select{
+ background:#f9fcfa!important;color:#153c3b!important;border:1px solid #d4e7e1!important;font-size:12px!important
+}
+html.omTurquoisePreview .cloudModal .cloudSubmit{
+ background:#0d9a8c!important;color:#fff!important;font-size:12px!important;border-radius:12px!important
+}
+html.omTurquoisePreview .cloudModal .cloudSubmit:hover{background:#067368!important}
+html.omTurquoisePreview .cloudModal .cloudGoogle{color:#254e48!important;background:#fff!important;border-color:#d6e8e3!important}
+html.omTurquoisePreview .cloudModal .cloudDivider{color:#6d8683!important}
+html.omTurquoisePreview .cloudModal .cloudConsent span{color:#4d7470!important}
+html.omTurquoisePreview .cloudModal input[type=checkbox]{accent-color:#099f8f!important}
+html.omTurquoisePreview .cloudModal .cloudError{background:#fff2f0!important;color:#a1464c!important}
+html.omTurquoisePreview .cloudModal .cloudMessage{background:#e8f8f1!important;color:#146b54!important}
+
+@media(max-width:1220px){
+ html.omTurquoisePreview .app .focusCard{
+  grid-template-columns:minmax(200px,1.1fr) minmax(180px,.85fr)!important
+ }
+ html.omTurquoisePreview .app .focusProgress{grid-column:2}
+ html.omTurquoisePreview .app .focusTasks{grid-column:1/-1}
+ html.omTurquoisePreview .app .focusSummary{grid-template-columns:repeat(3,1fr)!important}
+ html.omTurquoisePreview .app .focusSummaryHero{grid-column:1/-1}
+}
+@media(max-width:900px){
+ html.omTurquoisePreview .app{grid-template-columns:1fr!important}
+ html.omTurquoisePreview .app .side{
+  width:min(290px,85vw)!important;position:fixed!important;z-index:90!important;
+  height:100dvh!important;min-height:0!important;overflow:auto!important;
+  left:0;top:0;transform:translateX(-110%);transition:transform .25s ease!important
+ }
+ html.omTurquoisePreview .app .side.omMobileOpen{transform:translateX(0)}
+ html.omTurquoisePreview .app .omMobileScrim{
+  position:fixed;inset:0;z-index:80;background:#081c1ec2;backdrop-filter:blur(3px)
+ }
+ html.omTurquoisePreview .app .omMobileMenu{
+  border:1px solid #d5e8df;border-radius:9px;width:37px;height:37px;
+  background:#eaf6f2;color:#0b756d;font-weight:800;margin-right:12px
+ }
+ html.omTurquoisePreview .app .omMobileClose{
+  border:1px solid #376964;background:#1a4146;color:#fff;
+  font-size:22px;width:34px;height:34px;border-radius:50%;margin:8px 0 17px
+ }
+ html.omTurquoisePreview .app .omBridgeHero{margin:18px 18px 0;padding:35px}
+ html.omTurquoisePreview .app .appBody{padding:25px 18px 70px!important}
+}
+@media(min-width:901px){
+ html.omTurquoisePreview .app .omMobileMenu,
+ html.omTurquoisePreview .app .omMobileClose,
+ html.omTurquoisePreview .app .omMobileScrim{display:none!important}
+}
+@media(max-width:620px){
+ html.omTurquoisePreview .integrationPreviewNotice{font-size:9px}
+ html.omTurquoisePreview .app .appTop{padding:10px 14px!important;gap:9px!important}
+ html.omTurquoisePreview .app .appTop h1{font-size:16px!important}
+ html.omTurquoisePreview .app .appTop p{font-size:10px!important}
+ html.omTurquoisePreview .app .omBridgeHero{
+  min-height:225px;padding:26px 22px;margin:14px 11px 0;
+  align-items:flex-start!important;border-radius:17px!important
+ }
+ html.omTurquoisePreview .app .omBridgeTitle{font-size:clamp(30px,8vw,42px)!important}
+ html.omTurquoisePreview .app .omBridgeArt{display:none!important}
+ html.omTurquoisePreview .app .appBody{padding:20px 11px 60px!important}
+ html.omTurquoisePreview .app .focusSummary{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ html.omTurquoisePreview .app .focusSummaryHero{grid-column:1/-1}
+ html.omTurquoisePreview .app .focusSummaryStat{padding:17px!important}
+ html.omTurquoisePreview .app .focusCard{display:block!important;padding:21px!important}
+ html.omTurquoisePreview .app .focusCard>div{margin-bottom:14px}
+ html.omTurquoisePreview .app .focusProgress{display:flex!important;gap:14px!important}
+ html.omTurquoisePreview .app .focusTasks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html.omTurquoisePreview .app .focusOpen{grid-column:1/-1}
+ html.omTurquoisePreview .cloudModal .cloudAuthCard{padding:21px!important;max-height:calc(100dvh - 26px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ html.omTurquoisePreview .app .side{transition:none!important}
+ html.omTurquoisePreview .app .focusCard{transition:none!important}
+}

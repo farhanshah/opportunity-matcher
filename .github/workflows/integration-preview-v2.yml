@@ -1,0 +1,25 @@
+name: OppMatcher connected workspace redesign v2
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'integration-preview-v2.html'
+      - 'integration-turquoise-v2.css'
+      - 'integration-shell-v2.js'
+      - 'tests/integration-preview-v2.test.mjs'
+      - '.github/workflows/integration-preview-v2.yml'
+  workflow_dispatch:
+jobs:
+  visual-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Candidate JavaScript syntax
+        run: node --check integration-shell-v2.js
+      - name: Production structure and connected redesign tests
+        run: node --test tests/integration-preview-v2.test.mjs tests/integration-preview.test.mjs
+      - name: Approved concept page regression suites
+        run: node --test tests/workspace-preview.test.mjs tests/discover-preview.test.mjs tests/passport-preview.test.mjs tests/homepage-preview.test.mjs tests/editorial-preview.test.mjs

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" class="omTurquoisePreview">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0d2c32">
+<meta name="application-name" content="OppMatcher">
+<link rel="icon" type="image/svg+xml" href="/brand-icon.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="/api/brand-image?kind=favicon">
+<link rel="apple-touch-icon" sizes="180x180" href="/api/brand-image?kind=apple">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>OppMatcher | Connected Redesign v2 Preview</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Connected v2 workspace layout built around the existing live OppMatcher application; account changes are real.">
+
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="OppMatcher — Find Scholarships, Internships &amp; Fellowships">
+<meta property="og:description" content="Discover funded opportunities, check eligibility signals and keep official sources attached to every decision.">
+<meta property="og:url" content="https://oppmatcher.tech/">
+<meta property="og:site_name" content="OppMatcher">
+<meta property="og:image" content="https://oppmatcher.tech/api/brand-image?kind=social">
+<meta property="og:image:secure_url" content="https://oppmatcher.tech/api/brand-image?kind=social">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="OppMatcher original logo with scholarships, internships and fellowships">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="OppMatcher — Scholarships, Internships &amp; Fellowships">
+<meta name="twitter:image" content="https://oppmatcher.tech/api/brand-image?kind=social">
+<meta name="twitter:description" content="Discover scholarships, internships and fellowships matched to your Opportunity Passport.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://oppmatcher.tech/#organization","name":"OppMatcher","url":"https://oppmatcher.tech/","logo":{"@type":"ImageObject","url":"https://oppmatcher.tech/api/brand-image?kind=pwa512","width":512,"height":512}},{"@type":"WebSite","@id":"https://oppmatcher.tech/#website","name":"OppMatcher","alternateName":"Opportunity Global Matcher","url":"https://oppmatcher.tech/","description":"Match scholarships, internships and fellowships with your Opportunity Passport.","publisher":{"@id":"https://oppmatcher.tech/#organization"}}]}
+</script>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link rel="stylesheet" href="/styles-v07.css">
+<link rel="stylesheet" href="/feature-polish-v08.css">
+<link rel="stylesheet" href="/public-v264.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/integration-turquoise.css?v=1">
+<link rel="stylesheet" href="/integration-turquoise-v2.css?v=2">
+</head>
+<body>
+<div class="integrationPreviewNotice" role="note">
+  <div><strong>CONNECTED REDESIGN · VERSION 2</strong><span>Approved-inspired workspace structure and turquoise theme · preview only</span></div>
+  <div><a href="/design-preview.html">Approved concept ↗</a><a href="/">Current public site ↗</a></div>
+</div>
+<div class="integrationWarning" role="note"><strong>Important:</strong> This version uses the real OppMatcher application. Your Passport, bookmarks, tracking and account actions here can change your actual data. Test with a separate account.</div>
+<div id="landing" class="landing">
+  <section class="heroWrap">
+    <nav class="nav">
+      <a class="brand" href="#" aria-label="OppMatcher home">
+        <img class="brandmark" src="/brand-icon.svg" alt="" width="48" height="48" decoding="async">
+        <span class="brandword">OppMatcher<small>global matcher</small></span>
+      </a>
+      <div class="navlinks"><a href="#difference">Why us</a><a href="#live-opportunities">Live opportunities</a><a href="/blog/">Blog</a><a href="#engine">Freshness engine</a><a href="#how">How it works</a></div>
+      <button class="btn btnPrimary" onclick="openOnboard()">Build my Passport <span>↗</span></button>
+    </nav>
+    <div class="hero">
+      <div>
+        <span class="kicker"><i class="pulse"></i><span id="heroKicker">Official source matching · live database</span></span>
+        <h1>Your next move shouldn't depend on <em>luck.</em></h1>
+        <p class="heroCopy">Create one Opportunity Passport. We turn your profile into a smarter way to discover scholarships, internships, fellowships and funded international programmes, with the official source always one click away.</p>
+        <div class="heroActions"><button class="btn btnPrimary" onclick="openOnboard()">Create my Opportunity Passport <span>↗</span></button><button class="btn btnGhost" onclick="sample()">Explore a sample profile</button></div>
+        <div class="microTrust"><div class="stat"><strong id="statOpps">50</strong>opportunities in database</div><div class="stat"><strong id="statSources">…</strong>active sources tracked</div><div class="stat"><strong id="statOpen">0</strong>open right now</div></div>
+      </div>
+      <div class="heroVisual" aria-label="Student opportunity stories">
+        <div class="slideShell" id="slideShell">
+          <div class="slide active" style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=86')"><div class="slideInfo"><div><div class="slideTag">Scholarships</div><h3>Study further.<br>Go further.</h3><p>Find funding routes that fit your profile.</p></div><div class="slideCounter"><span class="dot active"><i></i></span><span class="dot"><i></i></span><span class="dot"><i></i></span></div></div></div>
+          <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=86')"><div class="slideInfo"><div><div class="slideTag">Fellowships</div><h3>Build a career<br>with range.</h3><p>Leadership, research and global development programmes.</p></div><div class="slideCounter"><span class="dot"><i></i></span><span class="dot active"><i></i></span><span class="dot"><i></i></span></div></div></div>
+          <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1600&q=86')"><div class="slideInfo"><div><div class="slideTag">International programmes</div><h3>Move across<br>borders.</h3><p>Exchange, internship and funded mobility opportunities.</p></div><div class="slideCounter"><span class="dot"><i></i></span><span class="dot"><i></i></span><span class="dot active"><i></i></span></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="sourceMarquee"><div class="sourceTrack"><b>Monitoring sources from</b><span>CHEVENING</span><span>WORLD BANK</span><span>ERASMUS+</span><span>OXFORD</span><span>RHODES TRUST</span><span>ROTARY</span><span>SWEDISH INSTITUTE</span><span>DAAD</span></div></div>
+  </section>
+
+  <section class="section reveal" id="difference">
+    <div class="sectionHead"><div><div class="eyebrow">Less searching. Better decisions.</div><h2>A search engine that understands who you are.</h2></div><p class="sectionLead">Most opportunity sites hand everyone the same list. Opportunity starts with your background, preferences and eligibility signals, then keeps the official source attached to every result.</p></div>
+    <div class="featureGrid">
+      <article class="feature passportFeature"><div class="featureNum">01 · Your profile</div><h3>One Passport.<br>Used everywhere.</h3><p>Build your academic and career profile once instead of repeating the same filters on dozens of sites.</p><div class="passportMock"><div class="mockRow"><div class="mockBox">Nationality<b>Choose country</b></div><div class="mockBox">Education<b>Choose level</b></div><div class="mockBox">Field<b>Choose discipline</b></div><div class="mockBox">Funding<b>Your preference</b></div></div><div class="passportHint"><span>Nothing is preselected.</span><strong>Build yours ↗</strong></div></div></article>
+      <article class="feature matchFeature"><div class="featureNum">02 · Better matching</div><h3>See the strongest<br>matches first.</h3><p>Opportunity checks the rules it can verify and keeps uncertain conditions visible, so you know what deserves attention and what still needs confirmation.</p><div class="matchMock"><div class="mockTitle">Example eligibility check <span>OFFICIAL RULES</span></div><div class="checkRow"><div class="checkIcon pass">✓</div><div><b>Education level</b><small>Known rule matches profile</small></div><span class="resultPill">PASS</span></div><div class="checkRow"><div class="checkIcon pass">✓</div><div><b>Funding preference</b><small>Fully funded route</small></div><span class="resultPill">FIT</span></div><div class="checkRow"><div class="checkIcon review">!</div><div><b>Country specific rule</b><small>Official source needs review</small></div><span class="resultPill review">CHECK</span></div></div></article>
+      <article class="feature workspaceFeature"><div class="featureNum">03 · One workspace</div><h3>Save it.<br>Track it.</h3><p>Move an opportunity from discovery to research, documents, submission and result without maintaining another spreadsheet.</p><div class="trackerMock"><div class="trackerTop">Application pipeline <span>YOUR WORKSPACE</span></div><div class="trackMini"><div class="trackDot">01</div><div><b>Global Scholarship</b><small>Deadline in 22 days</small></div><span class="stagePill active">PREPARING</span></div><div class="trackMini"><div class="trackDot">02</div><div><b>Research Fellowship</b><small>Documents checklist</small></div><span class="stagePill">SAVED</span></div><div class="trackMini"><div class="trackDot">03</div><div><b>International Programme</b><small>Application submitted</small></div><span class="stagePill">SUBMITTED</span></div><div class="progressRail"><i></i></div></div></article>
+    </div>
+  </section>
+
+  <section class="liveSection" id="live-opportunities"><div class="section reveal"><div class="liveHeader"><div><div class="eyebrow">From the production database</div><h2>Opportunities worth opening.</h2></div><div class="liveBadge"><i class="pulse"></i><span id="liveCopy">Loading live records…</span></div></div><div id="featuredGrid" class="liveGrid"><div class="liveCard"><div class="skeleton" style="width:45%"></div><div class="skeleton" style="width:80%;height:30px"></div><div class="skeleton" style="width:60%"></div></div><div class="liveCard"><div class="skeleton" style="width:45%"></div><div class="skeleton" style="width:80%;height:30px"></div><div class="skeleton" style="width:60%"></div></div><div class="liveCard"><div class="skeleton" style="width:45%"></div><div class="skeleton" style="width:80%;height:30px"></div><div class="skeleton" style="width:60%"></div></div></div></div></section>
+
+    <section class="guideSection" id="guides"><div class="section reveal">
+    <div class="guideHeader"><div><div class="eyebrow">Practical guides</div><h2>Know what to check before you apply.</h2><p>Clear guidance on funding, eligibility, documents and international placements. Every guide is written to help you verify the real provider rules before you spend time on an application.</p></div><a class="btn btnGhost guideAll" href="/blog/">Read the blog <span>↗</span></a></div>
+    <div class="guideGrid">
+      <a class="guideCard" href="/blog/fully-funded-scholarships-international-students/"><span>Scholarships</span><h3>How to find fully funded scholarships for international students</h3><p>What fully funded actually means, where to search and what to verify before applying.</p><b>Read guide ↗</b></a>
+      <a class="guideCard" href="/blog/scholarship-eligibility-checklist/"><span>Eligibility</span><h3>Scholarship eligibility checklist before you apply</h3><p>A practical way to check nationality, degree level, work experience, residence and course rules.</p><b>Read guide ↗</b></a>
+      <a class="guideCard" href="/blog/scholarship-application-documents/"><span>Applications</span><h3>Scholarship application documents and when to prepare them</h3><p>Build the evidence pack the provider actually asks for, without wasting time on unnecessary files.</p><b>Read guide ↗</b></a>
+      <a class="guideCard" href="/blog/international-internships-graduate-placements/"><span>Internships</span><h3>International internships and graduate placements</h3><p>How to compare pay, work rights, location, dates and application requirements.</p><b>Read guide ↗</b></a>
+    </div>
+  </div></section>
+
+  <section class="engine" id="engine"><div class="section reveal"><div><div class="eyebrow" style="color:var(--lime)">Source monitoring</div><h2>Opportunity checks the source again.</h2><p>Deadlines move and eligibility wording changes. Our monitoring system checks official provider pages, stores source snapshots and flags meaningful changes for review before they affect user facing guidance.</p><div class="heroActions"><button class="btn btnPrimary" onclick="openOnboard()">Use the live matcher</button></div></div><div class="enginePanel"><div class="engineTop"><b>Source monitor · change review</b><span>production pipeline</span></div><div class="change"><div class="changeHead"><b>Deadline evidence changed</b><span class="risk med">REVIEW</span></div><div class="diff"><div class="old">− Previous deadline evidence</div><div class="new">+ New official-page evidence</div></div></div><div class="change"><div class="changeHead"><b>Eligibility wording changed</b><span class="risk high">HIGH IMPACT</span></div><div class="diff">Held for human review before changing user-facing eligibility.</div></div><div class="engineStats"><div class="engineStat"><b id="engSources">…</b><span>Tracked sources</span></div><div class="engineStat"><b id="engOpps">50</b><span>Records</span></div><div class="engineStat"><b>Daily</b><span>Free plan checks</span></div></div></div></div></section>
+
+  <section class="section reveal" id="how"><div class="sectionHead"><div><div class="eyebrow">How it works</div><h2>Find it. Check it.<br>Make your move.</h2></div><p class="sectionLead">A cleaner loop from discovery to action without losing the official source, your shortlist or your application progress along the way.</p></div><div class="steps"><article class="step"><div class="stepIcon">01</div><span class="stepNo">BUILD</span><h3>Create your Passport.</h3><p>Tell us the essentials once: nationality, education, field, opportunity type and funding preference.</p><span class="stepArrow">→</span></article><article class="step"><div class="stepIcon">02</div><span class="stepNo">QUALIFY</span><h3>See what deserves attention.</h3><p>Compare live opportunities with source links, deadline context and eligibility notes kept visible.</p><span class="stepArrow">→</span></article><article class="step"><div class="stepIcon">03</div><span class="stepNo">ACT</span><h3>Save, prepare, apply.</h3><p>Move the opportunities that matter into one application tracker and keep the next action obvious.</p></article></div></section>
+
+  <section class="cta reveal"><div class="ctaBg"></div><div class="ctaContent"><div class="eyebrow" style="color:var(--lime)">Your next application starts here</div><h2>One profile.<br>A world of better options.</h2><p>Start with the live database today. The product is early, but the infrastructure underneath it is already being built for freshness and trust.</p><div class="heroActions"><button class="btn btnPrimary" onclick="openOnboard()">Create my Opportunity Passport <span>↗</span></button><button class="btn btnGhost" onclick="sample()">Preview workspace</button></div></div></section>
+  <footer class="footer"><div class="brand"><img class="brandmark" src="/brand-icon.svg" alt="" width="48" height="48" decoding="async"><span class="brandword">OppMatcher<small>global matcher</small></span></div><div class="footerLinks"><a href="/blog/">Blog</a><a href="#live-opportunities">Live opportunities</a><a href="#engine">Freshness engine</a><a href="/privacy">Privacy policy</a><a href="mailto:privacy@oppmatcher.tech">Privacy contact</a><span>Official source links remain the source of truth for applications and eligibility.<br>© 2026 OppMatcher.</span></div></footer>
+</div>
+
+<div id="app" class="app hide">
+  <aside class="side"><div class="brand"><img class="brandmark" src="/brand-icon.svg" alt="" width="48" height="48" decoding="async"><span class="brandword">OppMatcher<small>workspace</small></span></div>
+    <button class="navbtn active" data-v="discover"><span class="ico">⌕</span><span>Discover</span></button><button class="navbtn" data-v="saved"><span class="ico">☆</span><span>Saved</span></button><button class="navbtn" data-v="tracker"><span class="ico">✓</span><span>Tracker</span></button><button class="navbtn" data-v="dashboard"><span class="ico">⌁</span><span>Dashboard</span></button><button class="navbtn" onclick="showLanding()"><span class="ico">↖</span><span>Public site</span></button><div class="sideFoot"><b>Local workspace</b>Your profile, saves and tracker are stored in this browser for now.</div></aside>
+  <div class="workspace"><header class="appTop"><div><h1 id="appTitle">Discover opportunities</h1><p id="appSub">Live production data, filtered through your Opportunity Passport.</p></div><div class="topRight"><span id="apiStatus" class="livePill">Connecting…</span><div class="avatar">OP</div></div></header>
+    <main class="appBody"><section id="discover"><div class="discoverLayout"><aside class="filterPanel"><div class="panelTitle">Opportunity Passport <span class="editTag">EDIT</span></div><div class="field"><label>Nationality</label><input id="nat" placeholder="e.g. Pakistan"></div><div class="field"><label>Education</label><select id="edu"><option value="">Choose</option><option>Bachelor's student</option><option>Bachelor's degree</option><option>Master's student</option><option>Master's degree</option><option>PhD</option></select></div><div class="field"><label>Field</label><input id="field" placeholder="e.g. Business"></div><div class="field"><label>Opportunity type</label><select id="type"><option>Any</option><option>Scholarship</option><option>Internship</option><option>Fellowship</option><option>Exchange / International Programme</option></select></div><div class="field"><label>Funding</label><select id="fund"><option>Any</option><option>Fully Funded</option><option>Paid</option><option>Funding Available</option></select></div><button class="btn" onclick="saveProfile();renderDiscover()">Refresh my matches</button></aside><div><div class="metricRow"><div class="metric"><b id="total">0</b><span>Shown</span></div><div class="metric"><b id="open">0</b><span>Open</span></div><div class="metric"><b id="savedN">0</b><span>Saved</span></div><div class="metric"><b id="trackedN">0</b><span>Tracked</span></div></div><div class="tools"><input id="search" placeholder="Search opportunity, provider or destination"><select id="status"><option>Any status</option><option>Open</option><option>Opening Soon</option><option>Expected to Reopen</option><option>Closed</option></select><select id="sort"><option value="deadline">Nearest deadline</option><option value="name">Name A to Z</option></select></div><div id="oppGrid" class="oppGrid"></div></div></div></section><section id="saved" class="hide"><div id="savedGrid" class="oppGrid"></div></section><section id="tracker" class="hide"><div id="trackCards"></div></section><section id="dashboard" class="hide"><div id="dashGrid" class="dashGrid"></div></section></main></div>
+</div>
+
+<div id="onboard" class="modal hide"><div class="modalBox"><button class="closeX" onclick="closeOnboard()">×</button><div class="eyebrow">Opportunity Passport</div><h2>Tell us enough to make the first cut useful.</h2><p>We keep the first version deliberately short. Your browser stores this profile locally.</p><div class="modalGrid"><div class="field"><label>Nationality</label><input id="obNat" placeholder="Pakistan"></div><div class="field"><label>Education</label><select id="obEdu"><option>Bachelor's student</option><option>Bachelor's degree</option><option>Master's student</option><option>Master's degree</option><option>PhD</option></select></div><div class="field"><label>Field</label><input id="obField" placeholder="Business"></div><div class="field"><label>Funding preference</label><select id="obFund"><option>Any</option><option>Fully Funded</option><option>Paid</option><option>Funding Available</option></select></div></div><div class="modalActions"><button class="btn btnLight" onclick="closeOnboard()">Not now</button><button class="btn" style="background:var(--ink);color:#fff" onclick="finishOnboard()">Enter my workspace ↗</button></div></div></div>
+<div id="detail" class="modal hide"><div class="modalBox"><button class="closeX" onclick="closeDetail()">×</button><div id="detailInner"></div></div></div>
+<script src="/app-v07.js" defer></script>
+<script src="/integration-shell-v2.js" defer></script>
+</body>
+</html>
