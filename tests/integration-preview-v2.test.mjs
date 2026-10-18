@@ -73,3 +73,14 @@ test('responsive sidebar retains real nav controls with keyboard and motion safe
  assert.match(bridge,/scrim\.hidden=true/);
  assert.match(bridge,/addEventListener\('click',shut\)/);
 });
+
+test('preview-specific history routes remain stable through tracker refresh',()=>{
+ assert.match(bridge,/const previewFile='\/integration-preview-v2\.html'/);
+ assert.match(bridge,/for\(const method of \['pushState','replaceState'\]\)/);
+ assert.match(bridge,/views\.has\(path\)/);
+ assert.match(bridge,/requested\.origin===location\.origin/);
+ assert.match(bridge,/history\[method\]=function/);
+ assert.match(bridge,/initialView=location\.hash\.slice\(1\)/);
+ assert.match(bridge,/window\.setView\(initialView/);
+ assert.doesNotMatch(live,/integration-preview-v2\.html/);
+});

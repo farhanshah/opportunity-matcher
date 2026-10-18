@@ -25,6 +25,42 @@
    dashboard:{eyebrow:'04 / DASHBOARD',title:'A clearer view of<br><em>what is next.</em>',
      copy:'Your real shortlist, application progress and matching signals in one connected workspace.'}
  };
+
+ // SPA routes normally push /tracker, /saved etc. In the isolated preview those
+ // paths reload production index.html and lose the approved theme. Retain this
+ // preview document URL and express the route as a hash, without touching live routing.
+ const previewFile='/integration-preview-v2.html';
+ const views=new Set(Object.keys(route));
+ for(const method of ['pushState','replaceState']){
+   const original=history[method];
+   history[method]=function(state,title,nextUrl){
+     if(nextUrl!==undefined&&nextUrl!==null){
+       try{
+         const requested=new URL(String(nextUrl),location.href);
+         const path=requested.pathname.replace(/^\/+|\/+$/g,'').toLowerCase();
+         if(requested.origin===location.origin&&views.has(path)){
+           return original.call(this,state,title,previewFile+location.search+'#'+path);
+         }
+       }catch{}
+     }
+     return original.apply(this,arguments);
+   };
+ }
+ // Recover the selected view after refreshing /integration-preview-v2.html#tracker.
+ // This restores presentation only. No account data, save or sync is performed.
+ const initialView=location.hash.slice(1).toLowerCase();
+ if(views.has(initialView)){
+   let attempts=0;
+   const restoration=setInterval(()=>{
+     attempts++;
+     if(typeof window.showApp==='function'&&typeof window.setView==='function'){
+       clearInterval(restoration);
+       window.showApp();
+       window.setView(initialView,{replace:true});
+     }else if(attempts>=300){clearInterval(restoration);}
+   },100);
+ }
+
  const hero=document.createElement('section');
  hero.className='omBridgeHero';
  hero.setAttribute('aria-label','Opportunity workspace introduction');

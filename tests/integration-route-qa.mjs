@@ -19,13 +19,15 @@ for(const [device,width,height] of [['desktop',1366,900],['mobile',390,844]]){
    }));
    const lastUrl=page.url();
    await page.reload({waitUntil:'domcontentloaded',timeout:30000});
-   await page.waitForTimeout(250);
+   await page.waitForFunction(()=>typeof window.setView==='function',{timeout:40000});
+   await page.waitForFunction(()=>!document.querySelector('#tracker')?.classList.contains('hide'),{timeout:12000});
    const after=await page.evaluate(()=>({
      pathname:location.pathname,
      previewBanner:!!document.querySelector('.integrationPreviewNotice'),
-     scopedStyle:document.documentElement.classList.contains('omTurquoisePreview')
+     scopedStyle:document.documentElement.classList.contains('omTurquoisePreview'),
+     trackerVisible:!document.querySelector('#tracker')?.classList.contains('hide')
    }));
-   const ok=before.trackerView&&before.scopedStyle&&after.scopedStyle&&after.previewBanner;
+   const ok=before.trackerView&&before.scopedStyle&&after.scopedStyle&&after.previewBanner&&after.trackerVisible&&after.pathname==='/integration-preview-v2.html';
    results.push({device,ok,before,after,lastUrl});
  }catch(e){results.push({device,ok:false,error:String(e.message).slice(0,650)})}
  finally{await page.close()}

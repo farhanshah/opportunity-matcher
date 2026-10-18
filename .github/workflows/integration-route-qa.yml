@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'tests/integration-route-qa.mjs'
+      - 'integration-shell-v2.js'
       - '.github/workflows/integration-route-qa.yml'
 jobs:
   route-retention:
