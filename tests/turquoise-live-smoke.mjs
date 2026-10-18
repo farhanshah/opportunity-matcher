@@ -63,7 +63,10 @@ for(const entry of cases){
    check(post.url===entry.path&&post.theme,label+' refresh retains public route and theme',JSON.stringify(post));
   }
   if(entry.path==='/tracker'){
-   await page.evaluate(()=>window.OpportunityCloud?.openAuth?.());
+   // Cloud auth is loaded asynchronously after app shell. Wait for its API
+   // rather than silently optional-calling before the module is ready.
+   await page.waitForFunction(()=>typeof window.OpportunityCloud?.openAuth==='function',{timeout:45000});
+   await page.evaluate(()=>window.OpportunityCloud.openAuth());
    await page.locator('#cloudAuthModal').waitFor({state:'visible',timeout:14000});
    const bg=await page.locator('#cloudAuthCard').evaluate(node=>getComputedStyle(node).backgroundColor);
    check(bg==='rgb(255, 255, 255)',label+' account popup redesigned',bg);
