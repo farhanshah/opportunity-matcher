@@ -1,0 +1,21 @@
+name: OppMatcher integration route retention QA
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/integration-route-qa.mjs'
+      - '.github/workflows/integration-route-qa.yml'
+jobs:
+  route-retention:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Ensure tracker navigation and refresh retain preview styling
+        run: node tests/integration-route-qa.mjs
