@@ -307,3 +307,13 @@ html.omTurquoisePreview .cloudModal .cloudMessage{background:#e8f8f1!important;c
  html.omTurquoisePreview .app .side{transition:none!important}
  html.omTurquoisePreview .app .focusCard{transition:none!important}
 }
+
+/* Visible keyboard focus for light workspace surfaces and dark navigation. */
+html.omTurquoisePreview .app button:focus-visible,
+html.omTurquoisePreview .app a:focus-visible,
+html.omTurquoisePreview .app input:focus-visible,
+html.omTurquoisePreview .app select:focus-visible,
+html.omTurquoisePreview .cloudModal button:focus-visible,
+html.omTurquoisePreview .cloudModal input:focus-visible{
+ outline:3px solid #0cb8a6!important;outline-offset:3px!important
+}
