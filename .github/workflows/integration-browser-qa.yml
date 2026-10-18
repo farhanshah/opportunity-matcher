@@ -1,0 +1,30 @@
+name: OppMatcher real-browser launch QA
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/integration-browser-qa.mjs'
+      - '.github/workflows/integration-browser-qa.yml'
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install browser test runner
+        run: npm install --no-save playwright@1.56.1
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Check production-hosted integration candidate in desktop and mobile Chromium
+        run: node tests/integration-browser-qa.mjs
+      - name: Archive preview screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oppmatcher-integration-v2-browser-qa
+          path: browser-qa-artifacts/
+          retention-days: 7
