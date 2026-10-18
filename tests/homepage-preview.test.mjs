@@ -12,7 +12,7 @@ test('preview has a distinct turquoise visual identity with noindex',()=>{
 test('design has working navigation, responsive states and reduced-motion fallback',()=>{
   for(const id of ['top','why','categories','process','workspace','faq','navLinks','menuBtn'])
     assert.ok(preview.includes('id="'+id+'"'),id+' missing');
-  for(const target of ['href="/discover"','href="/blog/"','href="/privacy"','href="/"'])
+  for(const target of ['href="/discover-preview.html"','href="/blog/"','href="/privacy"','href="/"'])
     assert.ok(preview.includes(target),target+' missing');
   assert.match(preview, /prefers-reduced-motion:reduce/);
   assert.match(preview, /IntersectionObserver/);
