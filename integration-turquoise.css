@@ -1,0 +1,235 @@
+/* Connected integration candidate — scoped exclusively to integration-preview.html.
+   No changes to production index, cloud data handling or runtime modules. */
+html.omTurquoisePreview {
+ --ink:#0b181e;--ink2:#13272f;--paper:#f5faf8;--paper2:#fdfefd;
+ --muted:#627d81;--violet:#0b9489;--violet2:#51e7d6;--lime:#51e7d6;
+ --mint:#51e7d6;--shadow:0 26px 70px rgba(20,82,75,.13);
+ --om-violet:#0b9d90;--om-violet-2:#51e7d6;--om-lime:#51e7d6;
+ --om-mint:#51e7d6;--om-amber:#ffc45f;
+ font-family:'DM Sans',sans-serif;
+ color-scheme:light;
+}
+html.omTurquoisePreview[data-om-theme='light']{
+ --om-bg:#f4faf8;--om-bg-2:#fcfefd;--om-surface:#fff;--om-surface-2:#f2faf7;
+ --om-surface-3:#eaf6f2;--om-surface-glass:rgba(250,255,253,.9);
+ --om-text:#1a3638;--om-heading:#142e33;--om-muted:#637d82;--om-faint:#839996;
+ --om-line:rgba(9,89,78,.12);--om-line-strong:rgba(9,89,78,.21)
+}
+html.omTurquoisePreview[data-om-theme='dark']{
+ --om-bg:#08191f;--om-bg-2:#0b2027;--om-surface:#14272e;
+ --om-surface-2:#1a3438;--om-surface-3:#244048;--om-surface-glass:rgba(8,26,32,.88);
+ --om-text:#e0f5f1;--om-heading:#fff;--om-muted:#accbc9;--om-faint:#88aaa7;
+ --om-line:rgba(134,244,226,.12);--om-line-strong:rgba(134,244,226,.24)
+}
+html.omTurquoisePreview body{font-family:'DM Sans',system-ui,sans-serif;background:#f5faf8;min-width:0}
+html.omTurquoisePreview h1,html.omTurquoisePreview h2,html.omTurquoisePreview h3,
+html.omTurquoisePreview .brandword{font-family:'Manrope','DM Sans',sans-serif;letter-spacing:-.055em}
+html.omTurquoisePreview button:focus-visible,html.omTurquoisePreview a:focus-visible,
+html.omTurquoisePreview input:focus-visible,html.omTurquoisePreview select:focus-visible{
+ outline:3px solid #10a999;outline-offset:3px
+}
+.integrationPreviewNotice{min-height:42px;background:#08151b;color:#c2dedd;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px max(20px,calc((100vw - 1200px)/2));font-size:10px;position:relative;z-index:300;flex-wrap:wrap}
+.integrationPreviewNotice>div{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.integrationPreviewNotice strong{color:#78f3e3;font-size:9px;letter-spacing:.13em}
+.integrationPreviewNotice a{color:#d7fff7;text-decoration:underline;text-underline-offset:3px;font-weight:800}
+.integrationWarning{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:#fff7eb;border-bottom:1px solid #e4d1b4;color:#76582a;padding:10px max(20px,calc((100vw - 1200px)/2));font-size:11px;line-height:1.6;position:relative;z-index:290}
+.integrationWarning strong{font-weight:900}
+html.omTurquoisePreview #landing.landing{background:#f8fcfb!important;color:#14292e}
+html.omTurquoisePreview #landing .heroWrap{
+ min-height:720px;
+ background:radial-gradient(ellipse at 90% 19%,rgba(44,144,150,.34),transparent 46%),
+ radial-gradient(ellipse at 0% 91%,rgba(25,161,141,.39),transparent 50%),
+ linear-gradient(122deg,#0f3b44,#07131d 85%)!important;
+ color:#fff
+}
+html.omTurquoisePreview #landing .heroWrap:before{background:radial-gradient(circle,rgba(48,202,176,.27),transparent 66%)}
+html.omTurquoisePreview #landing .heroWrap:after{
+ border-color:rgba(124,248,227,.22);
+ box-shadow:0 0 0 88px rgba(80,232,211,.04),0 0 0 176px rgba(80,232,211,.02)
+}
+html.omTurquoisePreview #landing .heroWrap>.nav{
+ width:min(1200px,calc(100% - 42px));max-width:1200px;
+ min-height:67px;height:auto;margin:19px auto 0;
+ padding:9px 19px;border-radius:80px;
+ border:1px solid rgba(128,250,226,.25);
+ background:rgba(5,20,26,.94)!important;box-shadow:0 23px 55px rgba(0,0,0,.29)
+}
+html.omTurquoisePreview #landing .navlinks{gap:clamp(8px,1.9vw,27px)}
+html.omTurquoisePreview #landing .navlinks a{color:#cbe6e2;font-weight:800;font-size:11px}
+html.omTurquoisePreview #landing .navlinks a:hover{color:#51e7d6}
+html.omTurquoisePreview #landing .brandword{color:#fff;font-size:19px}
+html.omTurquoisePreview #landing .brandword small{color:#a3c9c2}
+html.omTurquoisePreview #landing .brandmark{filter:drop-shadow(0 4px 15px rgba(80,232,211,.29))}
+html.omTurquoisePreview #landing .hero{
+ grid-template-columns:1.05fr .95fr;gap:4%;
+ max-width:1200px;padding:84px 22px 88px;min-height:630px
+}
+html.omTurquoisePreview #landing .hero h1{
+ color:#fff!important;font-size:clamp(53px,5.5vw,83px);
+ font-weight:800;line-height:1.075;letter-spacing:-.07em;margin:21px 0
+}
+html.omTurquoisePreview #landing .hero h1 em{color:#51e7d6!important;font-style:normal}
+html.omTurquoisePreview #landing .heroCopy{color:#d1e6e5;font-size:14px;line-height:1.8;max-width:530px}
+html.omTurquoisePreview #landing .kicker{background:rgba(60,231,208,.1);border:1px solid rgba(140,248,232,.32);color:#b3fff0;letter-spacing:.04em}
+html.omTurquoisePreview #landing .btnPrimary,
+html.omTurquoisePreview #landing .btn.btnPrimary{background:#51e7d6!important;color:#102b2c!important;box-shadow:0 12px 35px rgba(70,231,206,.17);border-radius:30px}
+html.omTurquoisePreview #landing .btnPrimary:hover{background:#a8fff0!important}
+html.omTurquoisePreview #landing .btnGhost{background:rgba(255,255,255,.08);border:1px solid rgba(194,254,242,.43);color:#fff!important;border-radius:30px}
+html.omTurquoisePreview #landing .btnGhost:hover{background:rgba(255,255,255,.2)}
+html.omTurquoisePreview #landing .heroVisual{filter:drop-shadow(0 28px 55px rgba(0,0,0,.25))}
+html.omTurquoisePreview #landing .slideShell{border-radius:23px;border:1px solid rgba(114,231,212,.33);overflow:hidden}
+html.omTurquoisePreview #landing .slideShell:after{background:linear-gradient(0deg,rgba(3,22,26,.6),transparent)}
+html.omTurquoisePreview #landing .slide{background-blend-mode:normal}
+html.omTurquoisePreview #landing .slideTag{color:#bcfff1}
+html.omTurquoisePreview #landing .microTrust{border-top-color:rgba(211,255,246,.27)!important}
+html.omTurquoisePreview #landing .microTrust strong{color:#a1fff0!important}
+html.omTurquoisePreview #landing .sourceMarquee{background:#fdfefd;border-bottom:1px solid #d5e8e2;color:#657e7a}
+html.omTurquoisePreview #landing .sourceMarquee span{color:#4c746c}
+html.omTurquoisePreview #landing .sourceMarquee b{color:#0e9d8f}
+html.omTurquoisePreview #landing .section{max-width:1200px}
+html.omTurquoisePreview #landing .section h2{color:#163337!important;line-height:1.1}
+html.omTurquoisePreview #landing .eyebrow{color:#048e82!important}
+html.omTurquoisePreview #landing .feature{
+ border:1px solid #d8e9e4!important;border-radius:21px!important;background:#fff!important;
+ box-shadow:0 13px 38px rgba(13,77,65,.06);min-height:360px
+}
+html.omTurquoisePreview #landing .feature:first-child{
+ background:linear-gradient(145deg,#155354,#0c272e)!important;color:#fff!important;
+ border-color:#21665b!important
+}
+html.omTurquoisePreview #landing .feature:first-child h3,
+html.omTurquoisePreview #landing .feature:first-child .featureNum{color:#fff!important}
+html.omTurquoisePreview #landing .feature:first-child p{color:#c1dfdb}
+html.omTurquoisePreview #landing .passportMock{box-shadow:0 20px 55px rgba(0,0,0,.18)}
+html.omTurquoisePreview #landing .liveSection{background:#f3faf8!important;border-color:#dbece7}
+html.omTurquoisePreview #landing .liveCard{background:#fff!important;border:1px solid #d9e8e4;border-radius:19px}
+html.omTurquoisePreview #landing .liveCard:before{background:linear-gradient(90deg,#1a9e91,#51e7d6)!important}
+html.omTurquoisePreview #landing .liveBadge{color:#0b9181}
+html.omTurquoisePreview #landing .guideSection{background:#fff}
+html.omTurquoisePreview #landing .guideCard{
+ background:linear-gradient(145deg,#113b41,#081820)!important;
+ border:1px solid rgba(90,207,193,.24)!important;border-radius:19px;
+ transition:transform .25s,border-color .25s
+}
+html.omTurquoisePreview #landing .guideCard:hover{border-color:#51e7d6!important}
+html.omTurquoisePreview #landing .guideCard>span{color:#51e7d6!important}
+html.omTurquoisePreview #landing .engine{
+ background:linear-gradient(145deg,#071319,#0b2e35 72%)!important;
+}
+html.omTurquoisePreview #landing .engine .eyebrow{color:#51e7d6!important}
+html.omTurquoisePreview #landing .enginePanel{border-color:rgba(80,231,211,.3)}
+html.omTurquoisePreview #landing .cta{
+ background:linear-gradient(125deg,#0c3e42,#0a1720)!important;
+ border-radius:23px;max-width:1180px
+}
+html.omTurquoisePreview #landing .ctaBg{background-image:
+ linear-gradient(90deg,rgba(6,34,38,.96),rgba(9,49,51,.45)),
+ url('https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1800&q=85')!important}
+html.omTurquoisePreview #landing .cta .eyebrow{color:#9cfff0!important}
+html.omTurquoisePreview #landing .footer{border-top-color:#d6eae4}
+html.omTurquoisePreview #landing .footer a:hover{color:#098d80}
+
+/* Actual production dashboard/Passport/tracker DOM; never rename IDs or rewrite JS. */
+html.omTurquoisePreview .app{
+ background:#f4faf8!important;
+}
+html.omTurquoisePreview .app .side{
+ background:radial-gradient(ellipse at 0 0,rgba(29,111,109,.28),transparent 44%),linear-gradient(155deg,#0d2d33,#08151c 80%)!important;
+ border-right:1px solid rgba(99,224,206,.18);
+}
+html.omTurquoisePreview .app .side .brandword{color:#fff!important}
+html.omTurquoisePreview .app .side .brandmark{filter:drop-shadow(0 8px 16px rgba(51,234,204,.2))}
+html.omTurquoisePreview .app .side .brandword small{color:#8eb4b0!important}
+html.omTurquoisePreview .app .navbtn{
+ border:1px solid transparent!important;border-radius:11px!important;
+ color:#bad2cd!important;background:transparent!important
+}
+html.omTurquoisePreview .app .navbtn:hover,
+html.omTurquoisePreview .app .navbtn.active{
+ color:#cbfff1!important;background:rgba(81,231,214,.12)!important;
+ border-color:rgba(100,236,214,.26)!important
+}
+html.omTurquoisePreview .app .navbtn.active .ico{
+ color:#092327!important;background:#51e7d6!important;box-shadow:0 8px 24px rgba(81,231,214,.16)
+}
+html.omTurquoisePreview .app .sideFoot{color:#a2c0bc;border-color:rgba(98,220,197,.25)}
+html.omTurquoisePreview .app .sideFoot b{color:#c6fff3}
+html.omTurquoisePreview .app .workspace{background:#f4faf8!important;min-width:0}
+html.omTurquoisePreview .app .appBody{background:#f4faf8!important}
+html.omTurquoisePreview .app .appTop{
+ background:#fff!important;border-bottom:1px solid #dceae6!important
+}
+html.omTurquoisePreview .app .appTop h1{color:#143239!important;font-weight:800}
+html.omTurquoisePreview .app .appTop p{color:#6c8485!important}
+html.omTurquoisePreview .app .avatar{background:linear-gradient(140deg,#0c7e77,#51e7d6)!important;color:#063036}
+html.omTurquoisePreview .app .filterPanel,
+html.omTurquoisePreview .app .metric,
+html.omTurquoisePreview .app .oppCard,
+html.omTurquoisePreview .app .savedTile,
+html.omTurquoisePreview .app .dashCard,
+html.omTurquoisePreview .app .dashPanel,
+html.omTurquoisePreview .app .boardCard,
+html.omTurquoisePreview .app .boardCardV11{
+ border-color:#dbeae6!important;border-radius:16px!important;
+ box-shadow:0 10px 34px rgba(20,77,67,.065)
+}
+html.omTurquoisePreview .app .oppCard:hover,
+html.omTurquoisePreview .app .savedTile:hover{border-color:#69d8c9!important;box-shadow:0 24px 54px rgba(15,94,78,.15)}
+html.omTurquoisePreview .app .oppCard.upgraded:before,
+html.omTurquoisePreview .app .savedTile:before{
+ background:linear-gradient(90deg,#119f92,#51e7d6)!important
+}
+html.omTurquoisePreview .app .editTag{color:#028b7e!important}
+html.omTurquoisePreview .app .field input:focus,
+html.omTurquoisePreview .app .field select:focus,
+html.omTurquoisePreview .app .tools input:focus,
+html.omTurquoisePreview .app .tools select:focus{
+ border-color:#1cbda9!important;box-shadow:0 0 0 3px rgba(81,231,214,.17)!important
+}
+html.omTurquoisePreview .app .btnPrimary{background:#51e7d6!important;color:#102b2f!important}
+html.omTurquoisePreview .app .livePill{background:#e4f7f1;color:#096a61}
+html.omTurquoisePreview #onboard .modalBox,
+html.omTurquoisePreview #detail .modalBox{
+ border:1px solid #bce5db!important;border-radius:20px;
+ box-shadow:0 36px 95px rgba(4,27,30,.24)
+}
+html.omTurquoisePreview #onboard .modalBox h2,
+html.omTurquoisePreview #detail .modalBox h2{font-family:'Manrope',sans-serif}
+html.omTurquoisePreview #onboard .modalBox .eyebrow{color:#098e80}
+html.omTurquoisePreview #onboard .passportSubmit{background:#0c8f84!important;color:#fff!important}
+html.omTurquoisePreview #onboard .passportSubmit:hover{background:#0a695f!important}
+html.omTurquoisePreview .modal .closeX:focus-visible{outline-color:#0a9c8a}
+@media(max-width:1040px){
+ html.omTurquoisePreview #landing .heroWrap>.nav{padding:10px 15px}
+ html.omTurquoisePreview #landing .navlinks{gap:10px}
+ html.omTurquoisePreview #landing .navlinks a{font-size:10px}
+ html.omTurquoisePreview #landing .hero{padding:72px 24px 88px;gap:32px}
+}
+@media(max-width:790px){
+ html.omTurquoisePreview #landing .hero{grid-template-columns:1fr;gap:26px}
+ html.omTurquoisePreview #landing .hero h1{font-size:clamp(45px,9vw,68px)}
+ html.omTurquoisePreview #landing .heroWrap>.nav{min-height:70px;flex-wrap:wrap}
+ html.omTurquoisePreview #landing .navlinks{flex-wrap:wrap;gap:8px}
+ html.omTurquoisePreview #landing .navlinks a{padding:7px 5px}
+ html.omTurquoisePreview #landing .heroVisual{max-width:650px;width:100%}
+ html.omTurquoisePreview .app .side{overflow:auto}
+}
+@media(max-width:560px){
+ .integrationPreviewNotice{font-size:9px}
+ .integrationPreviewNotice>div{gap:9px}
+ .integrationWarning{font-size:10px}
+ html.omTurquoisePreview #landing .heroWrap>.nav{width:calc(100% - 22px);margin-top:10px;padding:10px;gap:10px}
+ html.omTurquoisePreview #landing .hero h1{font-size:clamp(43px,10vw,54px)}
+ html.omTurquoisePreview #landing .hero{padding:42px 16px 55px}
+ html.omTurquoisePreview #landing .section{padding:70px 20px}
+ html.omTurquoisePreview #landing .feature{min-height:335px}
+ html.omTurquoisePreview #landing .featureGrid{gap:12px}
+ html.omTurquoisePreview #landing .cta{margin:0 10px 14px}
+ html.omTurquoisePreview #landing .ctaContent{padding:45px 23px}
+ html.omTurquoisePreview #landing .cta h2{font-size:clamp(35px,10vw,51px)}
+}
+@media(prefers-reduced-motion:reduce){
+ html.omTurquoisePreview *,html.omTurquoisePreview *:before,html.omTurquoisePreview *:after{
+  scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important
+ }
+}

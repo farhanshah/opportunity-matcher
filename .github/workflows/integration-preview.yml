@@ -1,0 +1,22 @@
+name: OppMatcher connected turquoise integration safety
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'integration-preview.html'
+      - 'integration-turquoise.css'
+      - 'tests/integration-preview.test.mjs'
+      - '.github/workflows/integration-preview.yml'
+  workflow_dispatch:
+jobs:
+  integration-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Production DOM parity, accessibility and isolation checks
+        run: node --test tests/integration-preview.test.mjs
+      - name: Existing approved design regression suites
+        run: node --test tests/homepage-preview.test.mjs tests/discover-preview.test.mjs tests/passport-preview.test.mjs tests/workspace-preview.test.mjs tests/editorial-preview.test.mjs
