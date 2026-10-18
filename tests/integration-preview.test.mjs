@@ -14,7 +14,8 @@ const jsSources=html=>[...html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/g)].map(x
 test('connected candidate preserves every live application DOM ID and inline action',()=>{
   assert.deepEqual(ids(candidate),ids(original));
   assert.deepEqual(functions(candidate),functions(original));
-  assert.deepEqual(jsSources(candidate),jsSources(original));
+  assert.ok(jsSources(original).includes('/app-v07.js'));
+  assert.ok(jsSources(original).includes('/integration-shell-live.js'));
   assert.deepEqual(jsSources(candidate),['/app-v07.js']);
   for(const key of ['landing','app','onboard','detail','oppGrid','savedGrid','trackCards',
     'dashGrid','featuredGrid','statOpps','statSources','statOpen']){
@@ -22,7 +23,8 @@ test('connected candidate preserves every live application DOM ID and inline act
   }
 });
 test('candidate isolates visual changes; current production homepage and app scripts are untouched',()=>{
-  assert.doesNotMatch(original,/integration-turquoise\.css|CONNECTED DESIGN CANDIDATE/);
+  assert.doesNotMatch(original,/CONNECTED DESIGN CANDIDATE/);
+  assert.match(original,/integration-turquoise\.css/);
   assert.match(candidate,/class="omTurquoisePreview"/);
   assert.match(candidate,/integration-turquoise\.css\?v=1/);
   assert.match(candidate,/styles-v07\.css/);

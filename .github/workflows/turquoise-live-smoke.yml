@@ -1,0 +1,31 @@
+name: OppMatcher live turquoise public smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'integration-shell-live.js'
+      - 'tests/turquoise-live-smoke.mjs'
+      - '.github/workflows/turquoise-live-smoke.yml'
+  workflow_dispatch:
+jobs:
+  public-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare Playwright
+        run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Smoke test current public homepage, deep links, refresh and guest account UI
+        run: node tests/turquoise-live-smoke.mjs
+      - name: Archive live website screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oppmatcher-live-turquoise-public-qa
+          path: public-launch-artifacts/
+          retention-days: 7

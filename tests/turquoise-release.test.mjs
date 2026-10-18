@@ -28,7 +28,7 @@ test('canonical and public metadata remain intact during rollout',()=>{
  assert.doesNotMatch(release,/integrationPreviewNotice|integrationWarning|DESIGN CONCEPT 0/);
  if(hasV2){
   assert.doesNotMatch(legacy,/name="robots" content="noindex/);
-  assert.equal(release.replace('<meta name="robots" content="noindex,nofollow">\\n',''),legacy);
+  assert.equal(release.replace(/<meta name="robots" content="noindex,nofollow">\s*/,'').trim(),legacy.trim());
  }else{
   assert.doesNotMatch(legacy,/integration-shell-live\.js|integration-turquoise-v2\.css/);
  }
