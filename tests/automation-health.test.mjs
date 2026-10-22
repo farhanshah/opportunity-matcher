@@ -19,3 +19,17 @@ test('health endpoint requires secret, deduplicates per UK day and never alters 
  assert.match(api,/Idempotency-Key/);
  assert.doesNotMatch(api,/UPDATE opportunities|INSERT INTO opportunities/);
 });
+
+
+test('missing official-grants cron is an alert only after rollout grace period',()=>{
+ const healthy={official_discovery:1,worldwide_discovery:1,worldwide_verification:1,
+   digest_sent:1,due_records:0,catalogue_rechecks:1};
+ assert.deepEqual(healthFindings({...healthy,official_grants_api:null}),[]);
+ const errors=healthFindings({...healthy,official_grants_api:0});
+ assert.equal(errors.length,1);
+ assert.match(errors[0],/Grants.gov/);
+ assert.deepEqual(healthFindings({...healthy,official_grants_api:1}),[]);
+ const code=readFileSync(new URL('../api/automation-health-watch.js',import.meta.url),'utf8');
+ assert.match(code,/2026-10-24T00:00:00Z/);
+ assert.match(code,/opportunity_official_feed_runs/);
+});
