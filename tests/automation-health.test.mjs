@@ -33,3 +33,14 @@ test('missing official-grants cron is an alert only after rollout grace period',
  assert.match(code,/2026-10-24T00:00:00Z/);
  assert.match(code,/opportunity_official_feed_runs/);
 });
+
+
+test('government feed is watched after its first run but never raises launch-day false positives',()=>{
+ const base={official_discovery:1,worldwide_discovery:1,worldwide_verification:1,
+  digest_sent:1,due_records:0,catalogue_rechecks:12};
+ assert.deepEqual(healthFindings({...base,official_feed_prior:0,official_feed_recent:0}),[]);
+ assert.deepEqual(healthFindings({...base,official_feed_prior:3,official_feed_recent:1}),[]);
+ const findings=healthFindings({...base,official_feed_prior:3,official_feed_recent:0});
+ assert.equal(findings.length,1);
+ assert.match(findings[0],/government feed/);
+});
