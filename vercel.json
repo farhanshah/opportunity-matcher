@@ -14,13 +14,13 @@
       "maxDuration": 30
     },
     "api/undp-openings.js": {
-      "maxDuration": 30
+      "maxDuration": 40
     },
     "api/wfp-openings.js": {
-      "maxDuration": 30
+      "maxDuration": 45
     },
     "api/unops-openings.js": {
-      "maxDuration": 30
+      "maxDuration": 40
     },
     "api/monitor-sources.js": {
       "maxDuration": 60
