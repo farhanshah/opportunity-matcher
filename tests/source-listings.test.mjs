@@ -95,3 +95,21 @@ test('editorial FAQ, facts, alumni and applicant help pages never become opportu
   assert.equal(candidate.ok,false,title+' must not be published as a programme');
  }
 });
+
+
+test('partial provider facts are retained as evidence but never grant eligibility',()=>{
+ const html='<main><h1>2027 Global University Scholarship</h1>'+
+  '<p>Closing date: 18 May 2027</p>'+
+  '<p>Funding: Fully funded</p>'+
+  '<p>Eligible applicants: Pakistani citizens</p>'+
+  '<p>University programme applicants should consult official selection criteria. '+
+  'Different programme pathways may require separate academic or institutional checks. '+
+  'Please confirm application requirements directly with the programme office.</p></main>';
+ const result=sourceListingEvidence({html,url,source});
+ assert.equal(result.ok,true,result.reason);
+ assert.equal(result.evidence.declared_facts.closing_date,'2027-05-18');
+ assert.equal(result.evidence.declared_facts.funding_text,'Fully funded');
+ assert.equal(result.evidence.declared_facts.nationality_text,'Pakistani citizens');
+ assert.equal(result.evidence.declared_facts.matching_approved,false);
+ assert.ok(result.evidence.unverified.includes('nationalities'));
+});
