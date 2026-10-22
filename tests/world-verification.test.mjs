@@ -32,8 +32,8 @@ test('automated verifier is bounded, atomic, and reuses official validation and 
   const api=readFileSync(new URL('../api/verify-worldwide.js',import.meta.url),'utf8');
   const discover=readFileSync(new URL('../api/discover.js',import.meta.url),'utf8');
   const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
-  assert.equal(WORLD_VERIFICATION_BATCH_SIZE,12);
-  assert.equal(config.crons.find(x=>x.path==='/api/verify-worldwide').schedule,'15 2,7,8,12,17 * * *');
+  assert.equal(WORLD_VERIFICATION_BATCH_SIZE,16);
+  assert.equal(config.crons.find(x=>x.path==='/api/verify-worldwide').schedule,'15 1,5,8,11,14,17,20,23 * * *');
   for(const phrase of ['FOR UPDATE SKIP LOCKED','verification_attempts<4',
     'trustedSourceForLead(lead,sources)','fetchOfficial(trust.url,trust.source.source_url)',
     'verifyCandidate(page.html,page.url,trust.source.provider)',
