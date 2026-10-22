@@ -4,7 +4,7 @@ const authorised=req=>Boolean(process.env.CRON_SECRET)&&req.headers.authorizatio
 const FEEDS=[['UNDP','/api/undp-openings'],['WFP','/api/wfp-openings'],['UNOPS','/api/unops-openings']];
 async function fetchConfirmed(provider,path){
  const response=await fetch('https://oppmatcher.tech'+path,{
-   signal:AbortSignal.timeout(28000),headers:{Accept:'application/json','Cache-Control':'no-cache'}
+   signal:AbortSignal.timeout(42000),headers:{Accept:'application/json','Cache-Control':'no-cache'}
  });
  if(!response.ok)throw Error(provider+' provider adapter HTTP '+response.status);
  const body=await response.text();
