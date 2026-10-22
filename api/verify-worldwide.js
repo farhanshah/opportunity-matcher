@@ -32,7 +32,7 @@ export default async function handler(req,res){
            -- programme-specific source and evidence checks below.
            OR (l.verification_status='source_review'
              AND l.verification_reason='Provider hostname is not in the official-source registry'
-             AND l.verification_checked_at<now()-interval '1 day'
+             AND (l.verification_checked_at IS NULL OR l.verification_checked_at<now()-interval '1 day')
              AND EXISTS (
                SELECT 1 FROM monitored_sources m
                WHERE m.is_active=true AND
