@@ -70,3 +70,44 @@ test('schema and visible fact-sheet deadline disagreement prevents publication',
   assert.equal(result.verified,false);
   assert.ok(result.reasons.includes('structured data conflicts with visible official programme facts'));
 });
+
+
+test('official definition-list facts are accepted only as complete adjacent pairs',()=>{
+  const markup='<html><main><h1>2027 Global University Scholarship</h1><dl>'+
+    '<dt>Application closing date</dt><dd><time>18 May 2027</time></dd>'+
+    '<dt>Applications start</dt><dd>1 October 2026</dd>'+
+    '<dt>Funding</dt><dd>Fully funded</dd>'+
+    '<dt>Nationality eligibility</dt><dd>All nationalities</dd>'+
+    '<dt>Education requirement</dt><dd>Bachelor degree</dd>'+
+    '<dt>Fields of study</dt><dd>All fields</dd>'+
+    '<dt>Host country</dt><dd>United Kingdom</dd>'+
+    '</dl></main></html>';
+  const result=parseOfficialFactSheet(markup);
+  assert.equal(result.complete,true,result.reasons.join('; '));
+  const verified=verifyCandidate(markup,url,'Official University',new Date('2026-10-22T12:00:00Z'));
+  assert.equal(verified.verified,true,verified.reasons.join('; '));
+  assert.equal(verified.record.deadline,'2027-05-18');
+  const ambiguous=markup.replace('</dl>','<dd>29 May 2027</dd></dl>');
+  assert.equal(parseOfficialFactSheet(ambiguous).complete,false);
+});
+test('one-row-one-value official tables may provide explicit facts',()=>{
+  const rows=[
+    ['Deadline to apply','18 May 2027'],['Application opens','1 October 2026'],
+    ['Funding','Fully funded'],['Nationality eligibility','All nationalities'],
+    ['Education requirement','Bachelor degree'],['Fields of study','All fields'],
+    ['Host country','United Kingdom']
+  ];
+  const html='<main><h1>2027 Global University Scholarship</h1><table>'+
+    rows.map(([k,v])=>'<tr><th scope="row">'+k+'</th><td>'+v+'</td></tr>').join('')+
+    '</table></main>';
+  const parsed=parseOfficialFactSheet(html);
+  assert.equal(parsed.complete,true,parsed.reasons.join('; '));
+  const duplicate=html.replace('</table>','<tr><th>Deadline to apply</th><td>29 May 2027</td></tr></table>');
+  assert.equal(parseOfficialFactSheet(duplicate).complete,false);
+  const unrelated='<nav><table>'+rows.map(([k,v])=>'<tr><th>'+k+'</th><td>'+v+'</td></tr>').join('')+
+    '</table></nav><main><h1>2027 Global University Scholarship</h1></main>';
+  assert.equal(parseOfficialFactSheet(unrelated).complete,false);
+  const multipart=html.replace('<tr><th scope="row">Funding</th><td>Fully funded</td></tr>',
+    '<tr><th>Funding</th><td>Fully funded</td><td>Conditional</td></tr>');
+  assert.equal(parseOfficialFactSheet(multipart).complete,false);
+});
