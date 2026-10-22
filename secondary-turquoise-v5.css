@@ -150,3 +150,16 @@ html.omSecondary[data-page="privacy"] .foot{color:#5c8178!important;border-color
  html.omSecondary[data-page="admin"] .lockCard{padding:23px!important}
  html.omSecondary[data-page="prepare"] .topbar{height:auto!important;min-height:76px!important;gap:12px!important}
 }
+
+/* Privacy light panels: override legacy white text on the new pale surfaces. */
+html.omSecondary[data-page="privacy"] .toc b,
+html.omSecondary[data-page="privacy"] .highlights h2{color:#133e3d!important}
+html.omSecondary[data-page="privacy"] .toc a{color:#336e65!important}
+html.omSecondary[data-page="privacy"] .highlights p{color:#3e6c63!important;line-height:1.8!important}
+html.omSecondary[data-page="privacy"] .updated span{
+ background:#e0f2ea!important;border:1px solid #bfe2d4!important;
+ color:#225f56!important
+}
+html.omSecondary[data-page="privacy"] .contact a,
+html.omSecondary[data-page="privacy"] .contact p{color:#256c60!important}
+html.omSecondary[data-page="privacy"] .foot a{color:#136b60!important}
