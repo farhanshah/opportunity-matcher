@@ -1,0 +1,51 @@
+name: OppMatcher automation and launch integrity
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/verify-worldwide.js'
+      - 'api/reverify.js'
+      - 'api/expand-providers.js'
+      - 'api/automation-health-watch.js'
+      - 'api/health.js'
+      - 'api/opportunities.js'
+      - 'lib/world-verification.js'
+      - 'lib/automation-health.js'
+      - 'lib/auto-discovery.js'
+      - 'lib/official-facts.js'
+      - 'lib/daily-discovery-email.js'
+      - 'tests/provider-expansion.test.mjs'
+      - 'tests/security-hardening.test.mjs'
+      - 'tests/automation-health.test.mjs'
+      - 'tests/official-facts.test.mjs'
+      - 'tests/auto-discovery.test.mjs'
+      - 'tests/world-verification.test.mjs'
+      - 'tests/reverify-schedule.test.mjs'
+      - 'tests/daily-discovery-email.test.mjs'
+      - 'vercel.json'
+      - '.github/workflows/automation-launch-safety.yml'
+  workflow_dispatch:
+jobs:
+  launch-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install locked application dependencies
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund
+      - name: Parse protected API code and helpers
+        run: |
+          node --check api/verify-worldwide.js
+          node --check api/reverify.js
+          node --check api/expand-providers.js
+          node --check api/automation-health-watch.js
+          node --check lib/automation-health.js
+          node --check lib/official-facts.js
+          node --check api/health.js
+          node --check api/opportunities.js
+      - name: Automation, publication, verification and security tests
+        run: |
+          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs
