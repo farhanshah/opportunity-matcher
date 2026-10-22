@@ -5,17 +5,17 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0b1019",
-  "theme_color": "#0b1019",
+  "background_color": "#08191f",
+  "theme_color": "#0e3038",
   "icons": [
     {
-      "src": "/api/brand-image?kind=pwa192",
+      "src": "/api/brand-image?kind=pwa192&v=2",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/api/brand-image?kind=pwa512",
+      "src": "/api/brand-image?kind=pwa512&v=2",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
