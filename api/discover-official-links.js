@@ -27,7 +27,7 @@ export default async function handler(req,res){
    WHERE m.is_active=true AND s.http_status=200
      AND s.fetched_at>=now()-interval '7 days'
      AND s.raw_html IS NOT NULL
-   ORDER BY md5(m.source_key || to_char(now() AT TIME ZONE 'UTC','YYYYMMDDHH12'))
+   ORDER BY md5(m.source_key || to_char(now() AT TIME ZONE 'UTC','YYYYMMDDHH24'))
    LIMIT 40
   `;
   const sources=await sql`SELECT id,provider,source_url,is_active
