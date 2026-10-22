@@ -1,5 +1,5 @@
 import {db} from '../lib/db.js';
-import {CHEVENING_OPEN_CALLS,officialPageSaysOpen} from '../lib/official-open-calls.js';
+import {OFFICIAL_OPEN_CALLS,officialPageSaysOpen} from '../lib/official-open-calls.js';
 const authorised=req=>Boolean(process.env.CRON_SECRET)&&req.headers.authorization==='Bearer '+process.env.CRON_SECRET;
 async function fetchProvider(url){
  let current=url;
@@ -7,7 +7,7 @@ async function fetchProvider(url){
   const r=await fetch(current,{redirect:'manual',signal:AbortSignal.timeout(10000),headers:{Accept:'text/html','User-Agent':'OppMatcher-Official-Call-Status/1.0'}});
   if([301,302,303,307,308].includes(r.status)){
    const next=new URL(r.headers.get('location')||'',current);
-   if(next.protocol!=='https:'||next.hostname!=='www.chevening.org')throw Error('Provider redirect outside trusted domain');
+   if(next.protocol!=='https:'||!['www.chevening.org','royalsociety.org','www.royalsociety.org'].includes(next.hostname))throw Error('Provider redirect outside trusted domain');
    current=next.href;continue;
   }
   if(!r.ok)throw Error('Provider HTTP '+r.status);
@@ -25,7 +25,7 @@ export default async function handler(req,res){
   const sql=db();
   let open=0,closed=0,needsRecheck=0;
   const results=[];
-  for(const call of CHEVENING_OPEN_CALLS){
+  for(const call of OFFICIAL_OPEN_CALLS){
    let status='needs_recheck';
    let reason='Provider response unavailable';
    if(Date.now()>=Date.parse(call.deadline)){status='closed';reason='Published deadline elapsed';}
