@@ -78,17 +78,23 @@ export default async function handler(req,res){
               WHERE regexp_replace(official_source_url,'/+$','')=${page.url.replace(/\/+$/,'')}
               LIMIT 1
             `;
-            if(existing){
-              status='already_listed';reviewStatus='already_listed';
-              publishedId=existing.id;reason='Officially verified page already exists in catalogue';
-            }else{
-              const outcome=await publish(sql,trust.source,page.url,checked);
-              if(outcome.status==='published'){
-                status='published';reviewStatus='reviewed';publishedId=outcome.id;
-                reason='Complete official programme evidence verified';
+            // An existing URL is not proof that the stored award is current.
+            // Reuse the strict publication path: it checks title, funding,
+            // type, nationalities and protected country-specific routes
+            // before updating an existing record's verified timestamp.
+            const outcome=await publish(sql,trust.source,page.url,checked);
+            if(outcome.status==='published'){
+              if(existing){
+                status='already_listed';reviewStatus='already_listed';
+                reason='Existing catalogue record safely refreshed from current official evidence';
               }else{
-                status='needs_evidence';reason=String(outcome.reason||'Publication conflict').slice(0,900);
+                status='published';reviewStatus='reviewed';
+                reason='New programme published with complete official evidence';
               }
+              publishedId=outcome.id;
+            }else{
+              status='needs_evidence';
+              reason=String(outcome.reason||'Publication conflict').slice(0,900);
             }
           }
         }
