@@ -44,3 +44,14 @@ test('government feed is watched after its first run but never raises launch-day
  assert.equal(findings.length,1);
  assert.match(findings[0],/government feed/);
 });
+
+test('daily health detects silent stops in scaled provider link and exact-vacancy discovery',()=>{
+ const base={official_discovery:1,worldwide_discovery:1,worldwide_verification:1,
+  digest_sent:1,due_records:0,catalogue_rechecks:1,official_grants_api:1,
+  official_feed_prior:0,official_feed_recent:0};
+ const flagged=healthFindings({...base,official_links:0,exact_internships:0});
+ assert.ok(flagged.some(x=>x.includes('Official-provider link discovery')));
+ assert.ok(flagged.some(x=>x.includes('Exact official internship discovery')));
+ assert.deepEqual(healthFindings({...base,official_links:1,exact_internships:1}),[]);
+ assert.deepEqual(healthFindings({...base,official_links:null,exact_internships:null}),[]);
+});
