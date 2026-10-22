@@ -4,18 +4,23 @@ on:
     branches: [main]
     paths:
       - 'api/verify-worldwide.js'
+      - 'api/source-listings.js'
       - 'api/reverify.js'
       - 'api/expand-providers.js'
       - 'api/automation-health-watch.js'
       - 'api/health.js'
       - 'api/opportunities.js'
       - 'lib/world-verification.js'
+      - 'lib/source-listings.js'
+      - 'worldwide.html'
+      - 'worldwide-v1.js'
       - 'lib/automation-health.js'
       - 'lib/auto-discovery.js'
       - 'lib/official-facts.js'
       - 'lib/daily-discovery-email.js'
       - 'tests/provider-expansion.test.mjs'
-      - 'tests/security-hardening.test.mjs'
+      - 'tests/source-listings.test.mjs'
+      - 'tests/security-hardening.test.mjs tests/source-listings.test.mjs'
       - 'tests/automation-health.test.mjs'
       - 'tests/official-facts.test.mjs'
       - 'tests/auto-discovery.test.mjs'
@@ -39,6 +44,9 @@ jobs:
       - name: Parse protected API code and helpers
         run: |
           node --check api/verify-worldwide.js
+          node --check api/source-listings.js
+          node --check lib/source-listings.js
+          node --check worldwide-v1.js
           node --check api/reverify.js
           node --check api/expand-providers.js
           node --check api/automation-health-watch.js
