@@ -54,6 +54,9 @@
     },
     "api/automation-health-watch.js": {
       "maxDuration": 30
+    },
+    "api/source-listings.js": {
+      "maxDuration": 15
     }
   },
   "headers": [
@@ -125,6 +128,10 @@
     {
       "source": "/privacy",
       "destination": "/privacy.html"
+    },
+    {
+      "source": "/worldwide",
+      "destination": "/worldwide.html"
     },
     {
       "source": "/discover",
