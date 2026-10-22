@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - 'api/verify-worldwide.js'
+      - 'api/discover-official-links.js'
+      - 'api/worldwide-discover.js'
+      - 'lib/worldwide-search.js'
       - 'api/discover-grantsgov.js'
       - 'api/discover.js'
       - 'api/source-listings.js'
@@ -46,6 +49,8 @@ on:
       - 'tests/discovery-publish.test.mjs'
       - 'tests/auto-discovery.test.mjs'
       - 'tests/world-verification.test.mjs'
+      - 'tests/official-link-discovery.test.mjs'
+      - 'tests/worldwide-search.test.mjs'
       - 'tests/reverify-schedule.test.mjs'
       - 'tests/daily-discovery-email.test.mjs'
       - 'vercel.json'
@@ -69,6 +74,9 @@ jobs:
           node --check app-v08-boot.js
           node --check app-v08-tracker.js
           node --check api/verify-worldwide.js
+          node --check api/discover-official-links.js
+          node --check api/worldwide-discover.js
+          node --check lib/worldwide-search.js
           node --check api/discover.js
           node --check lib/official-open-calls.js
           node --check api/open-calls.js
@@ -89,4 +97,4 @@ jobs:
           node --check api/opportunities.js
       - name: Automation, publication, verification and security tests
         run: |
-          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/verification-eligibility.test.mjs tests/grantsgov-feed.test.mjs tests/stale-catalogue-ui.test.mjs tests/official-open-calls.test.mjs tests/complete-publication-cycle.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs
+          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/verification-eligibility.test.mjs tests/grantsgov-feed.test.mjs tests/stale-catalogue-ui.test.mjs tests/official-open-calls.test.mjs tests/complete-publication-cycle.test.mjs tests/worldwide-search.test.mjs tests/official-link-discovery.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs
