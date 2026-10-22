@@ -146,6 +146,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).json({ opportunities, count: opportunities.length, freshness, generated_at: new Date(nowMs).toISOString() });
   } catch (error) {
-    return res.status(500).json({ error: 'Database query failed', detail: error.message });
+    console.error('Public catalogue endpoint unavailable');
+    return res.status(503).json({ error: 'Catalogue temporarily unavailable' });
   }
 }
