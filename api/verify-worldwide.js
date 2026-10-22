@@ -21,24 +21,37 @@ export default async function handler(req,res){
     const leads=await sql`
       WITH queue AS (
         SELECT l.id FROM opportunity_web_leads l
-        WHERE l.review_status='unverified' AND l.verification_attempts<4 AND
-          (l.verification_status='pending'
-           OR (l.verification_status='checking' AND l.verification_checked_at<now()-interval '40 minutes')
-           OR (l.verification_status='needs_evidence' AND l.verification_checked_at<now()-interval '7 days')
-           OR (l.verification_status='retry_needed' AND l.verification_checked_at<now()-interval '1 day')
-           -- A rejected domain can become eligible if an official provider is
-           -- registered later. Reconsider it only when that exact hostname is
-           -- now in the active registry. The full page must still pass the
-           -- programme-specific source and evidence checks below.
-           OR (l.verification_status='source_review'
-             AND l.verification_reason='Provider hostname is not in the official-source registry'
-             AND (l.verification_checked_at IS NULL OR l.verification_checked_at<now()-interval '1 day')
-             AND EXISTS (
-               SELECT 1 FROM monitored_sources m
-               WHERE m.is_active=true AND
-                 lower(regexp_replace(split_part(m.source_url,'/',3),'^www[.]',''))=
-                 lower(regexp_replace(split_part(l.canonical_url,'/',3),'^www[.]',''))
-             )))
+        WHERE l.review_status='unverified' AND
+          -- New search leads get a small burst of attempts; valid official
+          -- programmes are never permanently abandoned after four tries.
+          ( (l.verification_status='pending' AND l.verification_attempts<4)
+            OR (l.verification_status='checking'
+               AND l.verification_checked_at<now()-interval '40 minutes'
+               AND l.verification_attempts<4)
+            OR (l.verification_status='needs_evidence'
+               AND l.matched_official_host=true
+               AND l.verification_checked_at<now()-interval '14 days')
+            OR (l.verification_status='retry_needed'
+               AND l.matched_official_host=true
+               AND l.verification_checked_at<now() -
+                 CASE WHEN l.verification_reason ILIKE '%HTTP 403%'
+                        THEN interval '14 days'
+                      WHEN l.verification_reason ILIKE '%HTTP 429%'
+                        THEN interval '7 days'
+                      WHEN l.verification_reason ILIKE '%HTTP 404%'
+                        THEN interval '7 days'
+                      ELSE interval '3 days' END)
+            -- If we later register a genuinely official source domain,
+            -- allow old leads back into verification even after 4 failures.
+            OR (l.verification_status='source_review'
+               AND l.verification_reason='Provider hostname is not in the official-source registry'
+               AND (l.verification_checked_at IS NULL OR l.verification_checked_at<now()-interval '1 day')
+               AND EXISTS (
+                 SELECT 1 FROM monitored_sources m WHERE m.is_active=true
+                   AND lower(regexp_replace(split_part(m.source_url,'/',3),'^www[.]',''))=
+                       lower(regexp_replace(split_part(l.canonical_url,'/',3),'^www[.]',''))
+               ))
+          )
         -- Give real, registered provider pages and programme-shaped URLs
         -- first consideration. This only controls queue order, never trust.
         ORDER BY l.matched_official_host DESC,
