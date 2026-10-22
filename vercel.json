@@ -72,6 +72,9 @@
     },
     "api/discover-official-links.js": {
       "maxDuration": 60
+    },
+    "api/discover-exact-internships.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -249,6 +252,10 @@
     {
       "path": "/api/discover-official-links",
       "schedule": "10 1,13 * * *"
+    },
+    {
+      "path": "/api/discover-exact-internships",
+      "schedule": "50 6,18 * * *"
     }
   ]
 }
