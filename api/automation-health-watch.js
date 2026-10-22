@@ -26,13 +26,14 @@ export default async function handler(req,res){
   if(!issues.length)return res.status(200).json({ok:true,healthy:true,alerts_sent:0,stats});
   if(!process.env.RESEND_API_KEY||!process.env.DISCOVERY_REPORT_TO_EMAIL||!process.env.WELCOME_FROM_EMAIL)
    return res.status(200).json({ok:false,healthy:false,issues,alert_configured:false});
-  const day=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  const dateParts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+  const day=dateParts.year+'-'+dateParts.month+'-'+dateParts.day;
   const [claim]=await sql`INSERT INTO opportunity_automation_alerts(report_date,status,alert_json)
    VALUES (${day}::date,'sending',${JSON.stringify(issues)}::jsonb)
    ON CONFLICT(report_date) DO NOTHING RETURNING report_date`;
   if(!claim)return res.status(200).json({ok:true,healthy:false,issues,alerts_sent:0,deduplicated:true});
-  const message='OppMatcher automatic health warning ('+day+')\\n\\n'+issues.join('\\n')+
-    '\\n\\nInspect the private Operations console. This does not mark unverified programmes as verified.';
+  const message='OppMatcher automatic health warning ('+day+')\n\n'+issues.join('\n')+
+    '\n\nInspect the private Operations console. This does not mark unverified programmes as verified.';
   let id=null;
   try{
    const result=await fetch('https://api.resend.com/emails',{method:'POST',signal:AbortSignal.timeout(15000),
