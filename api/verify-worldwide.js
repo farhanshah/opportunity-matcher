@@ -31,6 +31,7 @@ export default async function handler(req,res){
            -- now in the active registry. The full page must still pass the
            -- programme-specific source and evidence checks below.
            OR (l.verification_status='source_review'
+             AND l.verification_reason='Provider hostname is not in the official-source registry'
              AND l.verification_checked_at<now()-interval '1 day'
              AND EXISTS (
                SELECT 1 FROM monitored_sources m
