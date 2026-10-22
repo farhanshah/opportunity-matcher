@@ -18,6 +18,8 @@ test('empty first Workday host does not hide internships on second host',async()
  const result=await api.searchWorkday();
  assert.match(result.root,/wd5\.myworkdaysite\.com/);
  assert.equal(result.rows.length,1);
+ assert.equal(result.entries.length,1);
+ assert.match(result.entries[0].root,/wd5\.myworkdaysite\.com/);
  assert.equal(result.host_errors.length,1);
  assert.equal(requests.length,3);
 });
@@ -56,4 +58,19 @@ test('official internship importer retains per-provider diagnostics and does not
  assert.doesNotMatch(source,/INSERT INTO opportunities|UPDATE opportunities SET/);
  const mig=readFileSync(new URL('../migrations/20261022-feed-provider-details.sql',import.meta.url),'utf8');
  assert.match(mig,/ADD COLUMN IF NOT EXISTS details jsonb/);
+});
+
+test('multiple readable Workday hosts contribute unique internship vacancy paths',async()=>{
+ const fake=async(url,opts)=>{
+  if(url.includes('wd3.myworkdaysite.com'))return response({jobPostings:[
+    {title:'Intern - Policy',externalPath:'/job/Rome/Intern-Policy_JR001'}],total:1},url);
+  if(url.includes('wd5.myworkdaysite.com'))return response({jobPostings:[
+    {title:'Intern - Policy',externalPath:'/job/Rome/Intern-Policy_JR001'},
+    {title:'Intern - Communications',externalPath:'/job/Dakar/Intern-Communications_JR002'}],total:2},url);
+  return response({jobPostings:[],total:0},url);
+ };
+ const result=await adapter(fake).searchWorkday();
+ assert.equal(result.entries.length,2);
+ assert.equal(new Set(result.entries.map(e=>e.row.externalPath)).size,2);
+ assert.equal(result.host_errors.length,0);
 });
