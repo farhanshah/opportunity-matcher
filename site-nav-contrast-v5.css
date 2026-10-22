@@ -179,3 +179,169 @@ html.omTurquoisePreview #landing .liveCard .liveBottom a{
   scroll-behavior:auto!important
  }
 }
+
+
+/* Unified v6: colour ownership and legibility across public and workspace surfaces.
+   This is the single final presentation layer after late-loaded legacy CSS.
+   Every mode maps the same semantic surfaces to matching ink/background colours. */
+html.omTurquoisePreview{
+  --violet:#0b9488;--violet2:#51e7d6;--lime:#51e7d6;
+  --om-violet:#0b9488;--om-violet-2:#51e7d6;--om-lime:#51e7d6;
+  --om-mint:#51e7d6;--om-blue:#61b9cb;
+  --om-brand-contrast:#0c3334;
+}
+html.omTurquoisePreview[data-om-theme="light"]{
+  --om-bg:#f4faf8;--om-bg-2:#fbfefd;
+  --om-surface:#fff;--om-surface-2:#eff8f5;--om-surface-3:#e5f2ed;
+  --om-text:#18383a;--om-heading:#133438;--om-muted:#4a696a;--om-faint:#597879;
+  --om-line:#cfe2dc;--om-line-strong:#a5c9bf;
+  --om-input:#fff;--om-input-ink:#14383a;--om-action:#0b7369;--om-on-action:#fff;
+}
+html.omTurquoisePreview[data-om-theme="dark"]{
+  --om-bg:#08191f;--om-bg-2:#0b2229;
+  --om-surface:#142c33;--om-surface-2:#1b363d;--om-surface-3:#24464b;
+  --om-text:#e2f5f1;--om-heading:#f4fffd;--om-muted:#b1d0ca;--om-faint:#a0c0bc;
+  --om-line:#34545a;--om-line-strong:#577a7b;
+  --om-input:#102931;--om-input-ink:#f0fffc;--om-action:#67e8d5;--om-on-action:#092b30;
+}
+html.omTurquoisePreview body{background:var(--om-bg);color:var(--om-text)}
+html.omTurquoisePreview .app,
+html.omTurquoisePreview .app .workspace,
+html.omTurquoisePreview .app .appBody{
+  background:var(--om-bg)!important;color:var(--om-text)!important;
+}
+html.omTurquoisePreview .app .appTop{
+  background:var(--om-surface)!important;color:var(--om-text)!important;
+  border-bottom:1px solid var(--om-line)!important;
+}
+html.omTurquoisePreview .app .appTop h1,
+html.omTurquoisePreview .app .appBody h1,
+html.omTurquoisePreview .app .appBody h2,
+html.omTurquoisePreview .app .appBody h3,
+html.omTurquoisePreview .app .appBody h4{color:var(--om-heading)}
+html.omTurquoisePreview .app .appTop p{color:var(--om-muted)!important}
+html.omTurquoisePreview .app .omThemeToggle{
+  background:var(--om-surface-2)!important;color:var(--om-heading)!important;
+  border:1px solid var(--om-line-strong)!important;opacity:1!important;
+}
+html.omTurquoisePreview .app .omThemeToggle *{color:inherit!important}
+html.omTurquoisePreview .app .avatar{
+  background:linear-gradient(130deg,#08796e,#154c51)!important;color:#fff!important;
+}
+html.omTurquoisePreview .app .side .navbtn.active .ico{
+  background:#51e7d6!important;color:#0d3035!important;
+  box-shadow:none!important;
+}
+/* All content cards use semantic surfaces. In dark mode no white cards remain. */
+html.omTurquoisePreview .app :is(.metric,.intelStat,.savedStat,.trackerMiniStat,.focusSummaryStat,.dashCard,.dashPanel,.priorityCard,.savedTile,.oppCard,.oppCard.upgraded,.filterPanel,.focusCard,.boardCard,.boardCardV11,.track,.empty,.deepV2Card,.routeWorkCard,.reviewDriversCard,.nextSignalCard){
+  background:var(--om-surface)!important;
+  border-color:var(--om-line)!important;
+  color:var(--om-text)!important;
+}
+html.omTurquoisePreview .app :is(.boardColumn,.boardColumnV11,.focusAction,.nextAction,.focusMeta span,.trackerModeCopy,.tools,.editPassport,.summaryItem,.detailItem){
+  background:var(--om-surface-2)!important;
+  border-color:var(--om-line)!important;color:var(--om-text)!important;
+}
+html.omTurquoisePreview .app :is(#tracker,#dashboard,#saved,#discover,.trackerModeCopy h3,.focusTitle,.focusStage b,.boardTitle,.boardTitleV11,.boardHead b,.boardHeadV11 b,.metric b,.intelStat b,.savedStat b,.focusSummaryStat b,.trackerMiniStat b,.dashCard b,.priorityCard h4,.savedTile h3,.oppCard h3,.oppCard.upgraded h3,.focusCard h3,.savedHero h2,.panelTitle){
+  color:var(--om-heading)!important;
+}
+html.omTurquoisePreview .app :is(.savedTile,.oppCard,.focusCard,.dashCard,.priorityCard,.dashPanel) :is(h2,h3,h4,b,strong){
+  color:var(--om-heading)!important;
+}
+html.omTurquoisePreview .app :is(.metric span,.focusSummaryStat span,.trackerMiniStat span,.savedStat span,.savedTile .provider,.savedTile .savedDeadline,.oppCard .provider,.oppCard .deadline,.savedHero p,.trackerModeCopy p,.focusProvider,.focusStage span,.panelHint,.appTop p,.dashCard p,.dashCard h3){
+  color:var(--om-muted)!important;opacity:1!important;
+}
+html.omTurquoisePreview .app :is(.field label,.summaryItem span,.summaryItem b,.passportGroupTitle,.matchWhy,.matchWhy span,.oppTag,.oppTags,.oppMeta,.savedTile .tag,.savedTile p,.savedTile small,.oppCard p,.focusTask,.taskChip,.focusAction b,.nextAction b){
+  color:var(--om-text)!important;opacity:1!important;
+}
+html.omTurquoisePreview .app :is(.field input,.field select,.tools input,.tools select,.track select,.track textarea,.focusStage select,.stageSelectV11,input:not([type="checkbox"]),select,textarea){
+  background:var(--om-input)!important;color:var(--om-input-ink)!important;
+  border-color:var(--om-line-strong)!important;opacity:1!important;
+}
+html.omTurquoisePreview .app :is(input,textarea)::placeholder{
+  color:var(--om-muted)!important;opacity:1!important;
+}
+html.omTurquoisePreview .app :is(.tools,.filterPanel,.savedTile,.oppCard,.focusCard) a:not(.btn){
+  text-underline-offset:3px;
+}
+/* A fixed semantic action colour replaces old lavender/lime buttons. */
+html.omTurquoisePreview .app :is(.filterPanel>.btn,.smallBtn.primary,.btnPrimary){
+  background:var(--om-action)!important;color:var(--om-on-action)!important;
+  border-color:var(--om-action)!important;
+}
+html.omTurquoisePreview .app :is(.filterPanel>.btn,.smallBtn.primary,.btnPrimary) *{
+  color:var(--om-on-action)!important;
+}
+html.omTurquoisePreview .app :is(.smallBtn,.savedTileActions button,.viewToggle button){
+  border-color:var(--om-line-strong)!important;
+}
+html.omTurquoisePreview .app :is(.smallBtn.saved,.viewToggle button.active){
+  background:var(--om-surface-3)!important;color:var(--om-heading)!important;
+}
+html.omTurquoisePreview .app :is(.oppCard.upgraded,.savedTile,.priorityCard):before{
+  background:linear-gradient(90deg,#0b9488,#51e7d6)!important;
+}
+/* The public marketing dark panels never inherit light-surface heading colours. */
+html.omTurquoisePreview #landing .engine .section h2,
+html.omTurquoisePreview #landing .engine .section h2 *,
+html.omTurquoisePreview #landing .cta h2{
+  color:#f3fffc!important;
+}
+html.omTurquoisePreview #landing .engine .section p,
+html.omTurquoisePreview #landing .cta p{
+  color:#c3ded9!important;
+}
+html.omTurquoisePreview #landing .guideCard{
+  background:linear-gradient(145deg,#123e44,#0c252e)!important;
+  border-color:#3b7473!important;
+  color:#f4fffc!important;
+}
+html.omTurquoisePreview #landing .guideCard h3,
+html.omTurquoisePreview #landing .guideCard b,
+html.omTurquoisePreview #landing .guideCard a{
+  color:#f4fffc!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing .guideCard p{color:#c0dfda!important;opacity:1!important}
+html.omTurquoisePreview #landing .guideCard>span{color:#8dfae5!important}
+html.omTurquoisePreview #landing .guideSection .btn,
+html.omTurquoisePreview #landing .guideSection .btn *,
+html.omTurquoisePreview #landing a.btnLight{
+  color:#10383a!important;
+}
+html.omTurquoisePreview #landing .guideSection .btn{
+  background:#cefff2!important;border:1px solid #79e1cf!important;
+}
+html.omTurquoisePreview #landing .heroWrap .hero .kicker{color:#ddfff7!important}
+html.omTurquoisePreview #landing .enginePanel,
+html.omTurquoisePreview #landing .enginePanel .change,
+html.omTurquoisePreview #landing .enginePanel .engineStat{
+  background:#153039!important;border-color:#31575c!important;color:#f0fff9!important;
+}
+html.omTurquoisePreview #landing .enginePanel :is(.engineTop span,.engineStat span,.diff){
+  color:#bedbd7!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing .stepNo{color:#087b70!important}
+html.omTurquoisePreview #landing .stepIcon{background:#0d3b43!important;color:#94f3df!important}
+html.omTurquoisePreview #landing .feature.passportFeature{
+  background:linear-gradient(145deg,#087e73,#11414a)!important;color:#f1fffc!important;
+}
+html.omTurquoisePreview #landing .feature.passportFeature :is(h3,p,.featureNum){
+  color:#f1fffc!important;
+}
+html.omTurquoisePreview #landing .feature.workspaceFeature{
+  background:linear-gradient(145deg,#102d35,#0a1c24)!important;color:#f1fffc!important;
+}
+html.omTurquoisePreview #landing .feature.workspaceFeature :is(h3,p,.featureNum){
+  color:#effff9!important;
+}
+html.omTurquoisePreview #landing .liveCard h3{color:#14383a!important}
+html.omTurquoisePreview #landing .section:not(.engine) .sectionLead{color:#416763!important}
+@media(max-width:700px){
+  html.omTurquoisePreview .app :is(input,select,textarea){font-size:16px!important}
+  html.omTurquoisePreview .app :is(.oppGrid,.savedGridPremium){min-width:0}
+  html.omTurquoisePreview #landing .guideCard{min-height:0!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html.omTurquoisePreview .app :is(.oppCard,.savedTile,.focusCard),
+  html.omTurquoisePreview #landing .guideCard{transition:none!important}
+}
