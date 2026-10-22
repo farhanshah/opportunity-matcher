@@ -188,3 +188,24 @@ test('funded is not synonymous with explicitly paid for internships',()=>{
  assert.equal(candidate.verified,true,candidate.reasons.join('; '));
  assert.equal(candidate.record.funding,'Funding Available');
 });
+
+
+test('permissive structured scholarship data cannot override partial visible country or subject restrictions',()=>{
+ const schema={
+  '@type':'Scholarship',name:'2027 Global University Scholarship',
+  url,description:'Fully funded scholarship.',
+  qualifications:"Bachelor degree. Open to all nationalities. All fields of study.",
+  applicationStartDate:'2026-10-01',applicationDeadline:'2027-05-18',
+  location:{name:'United Kingdom'}
+ };
+ const visible='<main><h1>2027 Global University Scholarship</h1>'+
+   '<p>Nationality eligibility: Pakistan</p>'+
+   '<p>Fields of study: Computer Science, AI & Data</p>'+
+   '<p>All candidates must have at least 2 years work experience.</p></main>';
+ const page=visible+'<script type="application/ld+json">'+JSON.stringify(schema)+'</script>';
+ const result=verifyCandidate(page,url,'Official University',new Date('2026-10-22T12:00:00Z'));
+ assert.equal(result.verified,false);
+ assert.ok(result.reasons.includes('structured nationality metadata conflicts with visible provider restriction'));
+ assert.ok(result.reasons.includes('structured field metadata conflicts with visible provider restriction'));
+ assert.ok(result.reasons.includes('visible provider restrictions require explicit rule modelling'));
+});
