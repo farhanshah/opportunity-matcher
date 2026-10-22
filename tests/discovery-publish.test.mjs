@@ -88,3 +88,36 @@ test('conflicting existing funding is not overwritten or falsely verified',async
   assert.equal(response.status,'needs_evidence');
   assert.equal(db.statements.some(s=>s.statement.includes('UPDATE opportunities SET')),false);
 });
+
+
+test('single-country and single-subject verified scholarship has hard matched rules',async()=>{
+ const db=mockDb();
+ const restricted={...result,record:{...result.record,
+   nationality:['Pakistan'],fields:['Computer Science, AI & Data']}};
+ const response=await publish(db.sql,provider,url,restricted);
+ assert.equal(response.status,'published');
+ const insertion=db.statements.find(item=>item.statement.includes('WITH upserted AS'));
+ assert.ok(insertion);
+ assert.ok(insertion.values.some(x=>typeof x==='string'&&x.includes('"scope":"explicit_list"')&&x.includes('Pakistan')));
+ assert.ok(insertion.values.some(x=>typeof x==='string'&&x.includes('"values":["Computer Science, AI & Data"]')));
+ assert.ok(insertion.values.includes('one_of'));
+ assert.ok(insertion.values.includes(true));
+});
+test('verified rechecks with changed nationality or subject cannot silently stamp stored award fresh',async()=>{
+ const existing={
+  id:'existing-id',external_id:'AUTO-ABCD',title:result.record.title,
+  opportunity_type:result.record.type,funding_type:result.record.funding,
+  eligible_nationalities:['All Nationalities'],
+  education_levels:["Bachelor's degree"],
+  fields_of_study:['All fields']
+ };
+ for(const record of [
+  {...result.record,nationality:['Pakistan']},
+  {...result.record,fields:['Computer Science, AI & Data']}
+ ]){
+  const db=mockDb({existing});
+  const response=await publish(db.sql,provider,url,{...result,record});
+  assert.equal(response.status,'needs_evidence');
+  assert.equal(db.statements.some(x=>x.statement.includes('UPDATE opportunities SET')),false);
+ }
+});
