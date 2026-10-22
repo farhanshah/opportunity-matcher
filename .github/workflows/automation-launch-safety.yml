@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'api/verify-worldwide.js'
+      - 'api/discover.js'
       - 'api/source-listings.js'
       - 'api/reverify.js'
       - 'api/expand-providers.js'
