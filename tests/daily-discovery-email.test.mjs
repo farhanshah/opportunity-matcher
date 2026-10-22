@@ -87,3 +87,18 @@ test('cron is authenticated, private, idempotent, and scheduled after discovery'
   assert.match(api,/FROM opportunities/);
   assert.match(api,/catalogueHealth/);
 });
+
+
+test('official government API feed reports as source-only, not fully verified',()=>{
+ const message=discoveryDigest({day:'2026-10-22',
+   officialRuns:[{status:'completed',scanned_sources:50,found_links:0,new_published:0}],
+   worldRuns:[{status:'completed',queries_attempted:12,new_leads:3}],
+   verificationRuns:[{status:'completed',inspected:12,published_new:0}],
+   sourceListingStats:{published_pages:8,added_last_24h:0},
+   governmentFeedStats:{runs:1,completed:1,official_source_records:5,errors:0}
+ });
+ assert.equal(message.statistics.published,0);
+ assert.equal(message.statistics.governmentFeedRuns,1);
+ assert.equal(message.statistics.governmentSourceRecords,5);
+ assert.match(message.text,/Official government feed: 1 runs, 5 source-only records, 0 errors/);
+});
