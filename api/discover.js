@@ -70,6 +70,17 @@ async function publish(sql,source,url,result) {
       SELECT count(*)::int AS total FROM opportunity_country_routes
       WHERE opportunity_id=${o.id} AND is_active=true
     `;
+    // A rechecked page may NOT silently broaden or narrow eligibility.
+    // Both the stored catalogue arrays and confirmed rule(s) must be handled
+    // separately if a provider updates its terms.
+    const sameValues=(stored,extracted)=>
+      JSON.stringify((Array.isArray(stored)?stored:[]).map(x=>String(x).trim().toLowerCase()).sort())===
+      JSON.stringify((Array.isArray(extracted)?extracted:[]).map(x=>String(x).trim().toLowerCase()).sort());
+    if(!sameValues(o.eligible_nationalities,r.nationality)||
+       !sameValues(o.education_levels,r.education)||
+       !sameValues(o.fields_of_study,r.fields))
+      return {status:'needs_evidence',reason:'Existing nationality, education or field rules differ from current provider evidence'};
+
     if(routeCheck.total>0) return {
       status:'needs_evidence',reason:'Existing country-specific application routes cannot be overwritten from a general page'
     };
@@ -152,8 +163,11 @@ async function publish(sql,source,url,result) {
         opportunity_id,rule_code,rule_label,operator,value_json,hard_rule,certainty,
         source_url,source_note,last_verified_at
       )
-      SELECT upserted.id,'field','Field of study','not_applicable','{}'::jsonb,
-        false,'confirmed',${url},'Provider explicitly permits all fields',now()
+      SELECT upserted.id,'field','Field of study',
+        ${r.fields.includes('All fields')?'not_applicable':'one_of'},
+        ${JSON.stringify(r.fields.includes('All fields')?{}:{values:r.fields})}::jsonb,
+        ${!r.fields.includes('All fields')},'confirmed',${url},
+        ${r.fields.includes('All fields')?'Provider explicitly permits all fields':'Provider explicitly restricts fields to a named study discipline'},now()
       FROM upserted
       WHERE NOT EXISTS (
         SELECT 1 FROM opportunity_eligibility_rules rr
