@@ -406,3 +406,214 @@ html.omTurquoisePreview .app :is(.savedTile,.oppCard) :is(.oppLogo,.savedLogo){
 html.omTurquoisePreview .app :is(.matchIntel,.savedGridPremium,.discoverLayout,.metricRow){
   color:var(--om-text)!important;
 }
+
+
+/* v7 visual integrity: scoped corrections from the Oct 22 desktop screenshots.
+   Existing application behaviour, saved records and internal IDs are unchanged. */
+/* The homepage pill is pale in both modes and must always have dark ink. */
+html.omTurquoisePreview #landing .heroWrap .hero .kicker,
+html.omTurquoisePreview #landing .heroWrap .hero .kicker *,
+html.omTurquoisePreview #landing .heroWrap .kicker{
+ background:#d5f9f1!important;color:#104441!important;opacity:1!important;
+ border-color:#98e9d6!important;
+ text-shadow:none!important;
+}
+html.omTurquoisePreview #landing .heroWrap .hero .kicker .pulse{
+ background:#12a994!important;border-color:transparent!important;
+}
+/* Feature cards: never use absolute positioning for demos. All three cards own
+   their natural flow from the header down to the mock, on desktop and mobile. */
+html.omTurquoisePreview #landing #difference .featureGrid{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:16px!important;align-items:stretch!important;
+}
+html.omTurquoisePreview #landing #difference .feature{
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:flex-start!important;
+ position:relative!important;min-width:0!important;
+ min-height:570px!important;height:auto!important;
+ padding:25px!important;gap:0!important;overflow:hidden!important;
+}
+html.omTurquoisePreview #landing #difference .feature>h3{
+ margin:14px 0 12px!important;line-height:1.14!important;
+ font-size:clamp(22px,2vw,30px)!important;letter-spacing:-.04em!important;
+ max-width:none!important;overflow-wrap:break-word!important;
+}
+html.omTurquoisePreview #landing #difference .feature>p{
+ display:block!important;margin:0 0 24px!important;min-height:0!important;
+ max-width:none!important;font-size:13px!important;
+ line-height:1.65!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing #difference .feature :is(.passportMock,.matchMock,.trackerMock){
+ display:block!important;position:relative!important;inset:auto!important;
+ left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ flex:0 0 auto!important;margin:auto 0 0!important;
+ transform:none!important;box-shadow:none!important;
+ border-radius:17px!important;padding:15px!important;overflow:visible!important;
+}
+html.omTurquoisePreview #landing #difference .feature.matchFeature{
+ background:#fff!important;border-color:#cbe3dc!important;color:#163b3b!important;
+}
+html.omTurquoisePreview #landing #difference .feature.matchFeature>h3,
+html.omTurquoisePreview #landing #difference .feature.matchFeature .featureNum{
+ color:#153a3b!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing #difference .feature.matchFeature>p{color:#426c66!important}
+html.omTurquoisePreview #landing #difference .feature.matchFeature .matchMock{
+ background:#eaf8f3!important;border:1px solid #bfddd2!important;
+ color:#163b3a!important;
+}
+html.omTurquoisePreview #landing #difference .matchMock :is(.mockTitle,.mockTitle b,.checkRow b){
+ color:#143e3b!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing #difference .matchMock :is(small,.mockTitle span){
+ color:#456e67!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing #difference .matchMock .checkRow{
+ display:grid!important;grid-template-columns:23px minmax(0,1fr) auto!important;
+ gap:8px!important;min-width:0!important;
+}
+html.omTurquoisePreview #landing #difference .matchMock .checkRow>div:nth-child(2){
+ min-width:0!important;overflow-wrap:anywhere!important;
+}
+html.omTurquoisePreview #landing #difference .matchMock .checkRow small{
+ display:block!important;font-size:10px!important;line-height:1.45!important;
+}
+html.omTurquoisePreview #landing #difference .feature.passportFeature .passportMock{
+ background:#f7fffc!important;color:#183d39!important;
+ border:1px solid #b8dfd0!important;
+}
+html.omTurquoisePreview #landing #difference .feature.passportFeature .mockBox{
+ background:#eaf4ee!important;color:#1c4541!important;
+}
+html.omTurquoisePreview #landing #difference .feature.passportFeature .mockBox b:after{
+ color:#3f6760!important;
+}
+html.omTurquoisePreview #landing #difference .feature.passportFeature .passportHint,
+html.omTurquoisePreview #landing #difference .feature.passportFeature .passportHint span{
+ color:#416d65!important;
+}
+html.omTurquoisePreview #landing #difference .feature.passportFeature .passportHint strong{
+ color:#066c63!important;
+}
+html.omTurquoisePreview #landing #difference .feature.workspaceFeature .trackerMock{
+ background:#153239!important;border-color:#3c6967!important;color:#f3fffc!important;
+}
+html.omTurquoisePreview #landing #difference .feature.workspaceFeature .trackerTop,
+html.omTurquoisePreview #landing #difference .feature.workspaceFeature .trackMini b{
+ color:#f2fffc!important;
+}
+html.omTurquoisePreview #landing #difference .feature.workspaceFeature .trackMini small,
+html.omTurquoisePreview #landing #difference .feature.workspaceFeature .trackerTop span{
+ color:#b8dcd3!important;
+}
+html.omTurquoisePreview #landing #difference .feature.workspaceFeature .stagePill.active{
+ background:#64ead7!important;color:#083633!important;
+}
+html.omTurquoisePreview #landing #difference .feature.workspaceFeature .trackDot{
+ background:#28545a!important;color:#adfff0!important;
+}
+html.omTurquoisePreview #landing #difference .feature.workspaceFeature .progressRail i{
+ background:linear-gradient(90deg,#0da995,#78f0d9)!important;
+}
+html.omTurquoisePreview #landing #difference .feature.workspaceFeature .stagePill:not(.active){
+ background:#295058!important;color:#d1f3ec!important;
+}
+/* Simulated content is presented consistently regardless of workspace theme.
+   The public marketing section intentionally stays light on either mode. */
+html.omTurquoisePreview[data-om-theme="dark"] #landing #difference .feature.matchFeature>h3{
+ color:#143b3a!important;
+}
+/* Public programme cards are informational but must keep provider, tags and status readable. */
+html.omTurquoisePreview #landing .liveSection .liveCard{
+ background:#fff!important;color:#143938!important;border-color:#badbd2!important;
+}
+html.omTurquoisePreview #landing .liveSection .liveCard :is(.provider,.liveTags span,.tag,.liveBottom span){
+ color:#466b64!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing .liveSection .liveCard .liveReason{
+ background:#17393f!important;color:#d0ebe5!important;
+}
+html.omTurquoisePreview #landing .liveSection .liveCard .liveReason :is(b,strong){
+ color:#f5fffc!important;
+}
+html.omTurquoisePreview #landing .liveSection .liveBadge{
+ color:#006e62!important;
+}
+/* Workspace: the saved spotlight uses its own contrast mode, independent from
+   the light/dark dashboard. The class is assigned to the existing saved panel. */
+html.omTurquoisePreview .app #saved .omSavedSpotlight{
+ background:radial-gradient(circle at 90% 22%,rgba(44,163,146,.22),transparent 43%),
+ linear-gradient(123deg,#103941,#0a252d 95%)!important;
+ color:#f3fffb!important;
+ border-color:#32645f!important;
+}
+html.omTurquoisePreview .app #saved .omSavedSpotlight :is(h1,h2,h3,h4,b,strong),
+html.omTurquoisePreview .app #saved .omSavedSpotlight :is(h1,h2,h3,h4,b,strong) *{
+ color:#f4fffc!important;opacity:1!important;
+}
+html.omTurquoisePreview .app #saved .omSavedSpotlight p,
+html.omTurquoisePreview .app #saved .omSavedSpotlight :is(small,span){
+ color:#c1e6dc!important;opacity:1!important;
+}
+/* Original purple tracker/dashboard action blocks, including content rendered
+   by later modules, use the same turquoise dark-surface palette. */
+html.omTurquoisePreview .app #tracker :is(.focusSummaryHero,.trackerOverviewHero,.focusHero,.actionQueueHero,.trackerHero),
+html.omTurquoisePreview .app #dashboard :is(.dashHero,.intelHero,.matchIntelHero,.momentumHero,.liveOpeningsHero,.bestLiveHero,.exactOpeningsHero),
+html.omTurquoisePreview .app #dashboard .omLegacyDarkPanel,
+html.omTurquoisePreview .app #tracker .omLegacyDarkPanel{
+ background:radial-gradient(circle at 95% 12%,rgba(71,196,176,.16),transparent 42%),
+ linear-gradient(126deg,#102f39,#0b202a 92%)!important;
+ color:#f3fffb!important;border-color:#326d6c!important;
+}
+html.omTurquoisePreview .app #tracker :is(.focusSummaryHero,.trackerOverviewHero,.focusHero,.actionQueueHero,.trackerHero) :is(h1,h2,h3,h4,b,strong),
+html.omTurquoisePreview .app #dashboard :is(.dashHero,.intelHero,.matchIntelHero,.momentumHero,.liveOpeningsHero,.bestLiveHero,.exactOpeningsHero) :is(h1,h2,h3,h4,b,strong),
+html.omTurquoisePreview .app :is(#tracker,#dashboard) .omLegacyDarkPanel :is(h1,h2,h3,h4,b,strong){
+ color:#f5fffc!important;opacity:1!important;
+}
+html.omTurquoisePreview .app :is(#tracker,#dashboard) .omLegacyDarkPanel p,
+html.omTurquoisePreview .app #dashboard :is(.dashHero,.intelHero,.matchIntelHero,.momentumHero) p{
+ color:#bdded8!important;opacity:1!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.dashHero,.intelHero,.matchIntelHero,.momentum,.bestLiveHero,.exactOpeningsHero) .btn,
+html.omTurquoisePreview .app #dashboard :is(.dashHero,.intelHero,.matchIntelHero,.momentum,.bestLiveHero,.exactOpeningsHero) button:not([disabled]){
+ border-color:#70e6d2!important;background:#5ce5d2!important;color:#082c2d!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.dashHero,.intelHero,.matchIntelHero) .btn *,
+html.omTurquoisePreview .app #dashboard .momentumRail i{
+ color:#082c2d!important;background:linear-gradient(90deg,#11a28f,#6de9d7)!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.dashHero,.intelHero,.matchIntelHero) .btn *{
+ background:transparent!important;
+}
+html.omTurquoisePreview .app #dashboard .momentum{
+ background:#17353d!important;border:1px solid #3a6367!important;color:#e9fff9!important;
+}
+html.omTurquoisePreview .app #dashboard .momentum :is(b,strong,span){
+ color:#f0fffb!important;
+}
+html.omTurquoisePreview .app #dashboard .momentum small{
+ color:#c1ddd7!important;
+}
+html.omTurquoisePreview .app :is(#dashboard,#tracker) [class*="reviewDrivers"],
+html.omTurquoisePreview .app :is(#dashboard,#tracker) .priorityLogo{
+ border-color:var(--om-line)!important;
+}
+@media(max-width:1000px){
+ html.omTurquoisePreview #landing #difference .featureGrid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+ html.omTurquoisePreview #landing #difference .feature.passportFeature{grid-column:1/-1!important}
+ html.omTurquoisePreview #landing #difference .feature{min-height:0!important}
+}
+@media(max-width:700px){
+ html.omTurquoisePreview #landing #difference .featureGrid{grid-template-columns:minmax(0,1fr)!important}
+ html.omTurquoisePreview #landing #difference .feature.passportFeature{grid-column:auto!important}
+ html.omTurquoisePreview #landing #difference .feature{
+  min-height:0!important;padding:22px!important;
+ }
+ html.omTurquoisePreview #landing #difference .feature :is(.matchMock,.passportMock,.trackerMock){
+  margin-top:10px!important;
+ }
+}
