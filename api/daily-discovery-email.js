@@ -95,8 +95,15 @@ export default async function handler(req,res){
         count(*) FILTER (WHERE last_recheck_outcome LIKE 'retry_needed:%')::int AS retry_needed
       FROM opportunities
     `;
+    const [sourceListingStats]=await sql`
+      SELECT count(*)::int AS published_pages,
+        count(*) FILTER (WHERE created_at>now()-interval '24 hours')::int AS added_last_24h
+      FROM worldwide_source_listings
+      WHERE source_status='source_confirmed'
+        AND verified_page_at>now()-interval '30 days'
+    `;
     const message=discoveryDigest({day,officialRuns,worldRuns,verificationRuns,
-      officialCandidates,publishedOpportunities,worldLeads,catalogueHealth});
+      officialCandidates,publishedOpportunities,worldLeads,catalogueHealth,sourceListingStats});
     const response=await fetch('https://api.resend.com/emails',{
       method:'POST',signal:AbortSignal.timeout(15000),
       headers:{
