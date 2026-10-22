@@ -32,3 +32,8 @@ html[data-om-theme="dark"] .status{color:#bdd7d1}
 
 #official-open-calls{margin-bottom:48px}
 #official-open-calls .card{border-top-color:#2fc7b5}
+
+.worldLoadMore{display:block;margin:24px auto 0;padding:13px 24px;cursor:pointer;border:1px solid #0a8b7d;background:#e5f8f0;border-radius:999px;color:#075b56;font-weight:800;font:inherit}
+.worldLoadMore[hidden]{display:none}
+.worldLoadMore:disabled{cursor:wait;opacity:.65}
+html[data-om-theme="dark"] .worldLoadMore{background:#143e40;color:#9ff8e8;border-color:#427f75}
