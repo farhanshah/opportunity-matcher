@@ -1,0 +1,34 @@
+name: OppMatcher mobile visual regression v4
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile-visual-v4.html'
+      - 'blog-visual-v4.html'
+      - 'integration-turquoise-v4.css'
+      - 'integration-shell-mobile-v4.js'
+      - 'blog-turquoise-v4.css'
+      - 'tests/mobile-visual-v4.mjs'
+      - '.github/workflows/mobile-visual-v4.yml'
+  workflow_dispatch:
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check integration-shell-mobile-v4.js
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Verify feature panels don't overlap titles, normal flow, blog typography and viewport sizes
+        run: node tests/mobile-visual-v4.mjs
+      - name: Archive visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oppmatcher-mobile-v4-visual-evidence
+          path: mobile-v4-visual-screens/
+          retention-days: 7
