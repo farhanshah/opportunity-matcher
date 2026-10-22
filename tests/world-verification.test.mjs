@@ -59,3 +59,16 @@ test('admin records decisions separately from raw search results',()=>{
     assert.ok(api.includes(field));
   }
 });
+
+
+test('only dated, explicitly named official calls may pass a news path gate',()=>{
+ const call='https://university.example/news/2026/open-call-for-internship-programme';
+ const genuine={canonical_url:call,title:'Open Call for Internship at University 2026'};
+ assert.equal(trustedSourceForLead(genuine,[source]).status,'trusted');
+ const generic={canonical_url:'https://university.example/news/2026/education-scholarship-research',title:'2026 Scholarship Research News'};
+ assert.equal(trustedSourceForLead(generic,[source]).status,'source_review');
+ const unrelated={canonical_url:call,title:'General News 2026'};
+ assert.equal(trustedSourceForLead(unrelated,[source]).status,'source_review');
+ const old={canonical_url:'https://university.example/news/2020/open-call-for-internship-programme',title:genuine.title};
+ assert.equal(trustedSourceForLead(old,[source]).status,'source_review');
+});
