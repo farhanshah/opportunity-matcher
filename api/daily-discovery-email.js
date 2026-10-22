@@ -102,8 +102,18 @@ export default async function handler(req,res){
       WHERE source_status='source_confirmed'
         AND verified_page_at>now()-interval '30 days'
     `;
+    const [governmentFeedStats]=await sql`
+      SELECT
+        count(*)::int AS runs,
+        count(*) FILTER(WHERE status='completed')::int AS completed,
+        COALESCE(sum(recorded) FILTER(WHERE status IN ('completed','partial')),0)::int AS official_source_records,
+        COALESCE(sum(errors),0)::int AS errors
+      FROM opportunity_official_feed_runs
+      WHERE started_at>=now()-interval '24 hours'
+    `;
     const message=discoveryDigest({day,officialRuns,worldRuns,verificationRuns,
-      officialCandidates,publishedOpportunities,worldLeads,catalogueHealth,sourceListingStats});
+      officialCandidates,publishedOpportunities,worldLeads,catalogueHealth,
+      sourceListingStats,governmentFeedStats});
     const response=await fetch('https://api.resend.com/emails',{
       method:'POST',signal:AbortSignal.timeout(15000),
       headers:{
