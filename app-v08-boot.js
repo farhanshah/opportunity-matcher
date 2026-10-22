@@ -103,6 +103,20 @@ async function updateWorldwideCount(){
     node.textContent=String(n);
   }catch{node.textContent='—'}
 }
+async function updateOfficialOpenCallCount(){
+  const el=$('heroOpenCallsLabel');
+  if(!el)return;
+  try{
+    const response=await fetch('/api/open-calls',{headers:{Accept:'application/json'},cache:'no-store'});
+    if(!response.ok)throw Error('Official open call endpoint unavailable');
+    const data=await response.json();
+    if(!Array.isArray(data.calls)||!Number.isSafeInteger(Number(data.count)))throw Error('Invalid official open call response');
+    const count=data.calls.filter(call=>Date.parse(call.closes_at)>Date.now()).length;
+    el.textContent=count>0
+      ?count+' calls advertised open on official sites · Check eligibility ↗'
+      :'Browse official programmes and upcoming calls ↗';
+  }catch{el.textContent='Explore official provider opportunities ↗'}
+}
 async function updateSourceStats(){
   const ids=['statSources','engSources'];
   try{
@@ -117,4 +131,4 @@ async function updateSourceStats(){
     ids.forEach(id=>{const node=$(id);if(node)node.textContent='—'});
   }
 }
-document.querySelectorAll('.navbtn[data-v]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));let slideIndex=0;setInterval(()=>{let slides=[...document.querySelectorAll('.slide')];if(!slides.length)return;slides[slideIndex].classList.remove('active');slideIndex=(slideIndex+1)%slides.length;slides[slideIndex].classList.add('active')},5000);let io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));loadProfileState();buildOnboarding();buildWorkspaceShell();persist();loadData();updateSourceStats();updateWorldwideCount();
+document.querySelectorAll('.navbtn[data-v]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));let slideIndex=0;setInterval(()=>{let slides=[...document.querySelectorAll('.slide')];if(!slides.length)return;slides[slideIndex].classList.remove('active');slideIndex=(slideIndex+1)%slides.length;slides[slideIndex].classList.add('active')},5000);let io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));loadProfileState();buildOnboarding();buildWorkspaceShell();persist();loadData();updateSourceStats();updateWorldwideCount();updateOfficialOpenCallCount();
