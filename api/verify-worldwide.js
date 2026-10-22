@@ -19,13 +19,25 @@ export default async function handler(req,res){
     // Claim atomically to prevent overlapping jobs from verifying the same lead.
     const leads=await sql`
       WITH queue AS (
-        SELECT id FROM opportunity_web_leads
-        WHERE review_status='unverified' AND verification_attempts<4 AND
-          (verification_status='pending'
-           OR (verification_status='checking' AND verification_checked_at<now()-interval '40 minutes')
-           OR (verification_status='needs_evidence' AND verification_checked_at<now()-interval '7 days')
-           OR (verification_status='retry_needed' AND verification_checked_at<now()-interval '1 day'))
-        ORDER BY matched_official_host DESC,first_seen_at ASC
+        SELECT l.id FROM opportunity_web_leads l
+        WHERE l.review_status='unverified' AND l.verification_attempts<4 AND
+          (l.verification_status='pending'
+           OR (l.verification_status='checking' AND l.verification_checked_at<now()-interval '40 minutes')
+           OR (l.verification_status='needs_evidence' AND l.verification_checked_at<now()-interval '7 days')
+           OR (l.verification_status='retry_needed' AND l.verification_checked_at<now()-interval '1 day')
+           -- A rejected domain can become eligible if an official provider is
+           -- registered later. Reconsider it only when that exact hostname is
+           -- now in the active registry. The full page must still pass the
+           -- programme-specific source and evidence checks below.
+           OR (l.verification_status='source_review'
+             AND l.verification_checked_at<now()-interval '1 day'
+             AND EXISTS (
+               SELECT 1 FROM monitored_sources m
+               WHERE m.is_active=true AND
+                 lower(regexp_replace(split_part(m.source_url,'/',3),'^www[.]',''))=
+                 lower(regexp_replace(split_part(l.canonical_url,'/',3),'^www[.]',''))
+             )))
+        ORDER BY l.matched_official_host DESC,l.first_seen_at ASC
         LIMIT ${WORLD_VERIFICATION_BATCH_SIZE} FOR UPDATE SKIP LOCKED
       )
       UPDATE opportunity_web_leads l SET verification_status='checking',
