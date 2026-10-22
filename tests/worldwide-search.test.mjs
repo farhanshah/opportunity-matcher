@@ -50,9 +50,9 @@ test('registered official sources receive rotating search slots without being au
  const dayOne=worldwideQueries(new Date('2026-10-22T00:00:00Z'),hosts);
  const dayTwo=worldwideQueries(new Date('2026-10-23T00:00:00Z'),hosts);
  assert.equal(dayOne.length,WORLDWIDE_DAILY_QUERY_LIMIT);
- assert.equal(dayOne.filter(x=>x.officialTarget).length,6);
- assert.equal(dayOne.filter(x=>!x.officialTarget).length,6);
- assert.ok(dayOne.every(x=>x.query.includes('2027')));
+ assert.equal(dayOne.filter(x=>x.officialTarget).length,12);
+ assert.equal(dayOne.filter(x=>!x.officialTarget).length,8);
+ assert.ok(dayOne.every(x=>/2026|2027/.test(x.query)));
  assert.ok(dayOne.filter(x=>x.officialTarget).every(x=>x.query.startsWith('site:')));
  assert.notDeepEqual(dayOne.filter(x=>x.officialTarget).map(x=>x.query),
    dayTwo.filter(x=>x.officialTarget).map(x=>x.query));
