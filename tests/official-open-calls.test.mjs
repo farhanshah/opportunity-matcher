@@ -7,7 +7,7 @@ const sample=(call)=>'<html><main><h1>'+call.title+'</h1>'+
  '<p>Applications are open</p>'+
  '<p>Eligibility: '+call.countries.join(', ')+' citizens and relevant researchers.</p>'+
  '<p>Postgraduate qualification and five years professional research experience. '+
- 'Applicants should always confirm the instructions directly with the official provider.</p>'+
+ 'Applicants should always confirm the instructions directly with the official provider. Applications must follow all published eligibility rules and the provider reserves the right to close an intake early.</p>'+
  '</main></html>';
 test('provider calls open on 22 October only with explicit date and country conditions',()=>{
  for(const c of CHEVENING_OPEN_CALLS){
