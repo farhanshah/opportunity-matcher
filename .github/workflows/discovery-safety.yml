@@ -15,6 +15,7 @@ on:
       - 'lib/exact-ingest.js'
       - 'tests/exact-ingest.test.mjs'
       - 'tests/auto-discovery.test.mjs'
+      - 'tests/reverify-schedule.test.mjs'
       - '.github/workflows/discovery-safety.yml'
   workflow_dispatch:
 jobs:
@@ -35,4 +36,4 @@ jobs:
           node --check api/reverify.js
           node --check lib/exact-ingest.js
       - name: Automated verifier tests
-        run: node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/exact-ingest.test.mjs tests/monitor.test.mjs tests/discovery-publish.test.mjs
+        run: node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/exact-ingest.test.mjs tests/monitor.test.mjs tests/discovery-publish.test.mjs tests/reverify-schedule.test.mjs
