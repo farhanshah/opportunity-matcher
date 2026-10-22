@@ -617,3 +617,58 @@ html.omTurquoisePreview .app :is(#dashboard,#tracker) .priorityLogo{
   margin-top:10px!important;
  }
 }
+
+
+/* v8: exact live-opening panel classes from app-v46/v48/v57.
+   Preserve the product's ranking and readiness data, replace obsolete purple/lime skin. */
+html.omTurquoisePreview .app #dashboard :is(.deepLiveV2,.deepLive,.bestLiveFeed){
+ background:radial-gradient(circle at 100% 0%,rgba(71,204,186,.17),transparent 42%),linear-gradient(145deg,#102e37,#0b242d 90%)!important;
+ border:1px solid #32605f!important;color:#f2fffa!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepLiveV2,.deepLive,.bestLiveFeed):after{
+ border-color:rgba(57,192,173,.13)!important;
+ box-shadow:0 0 0 28px rgba(57,192,173,.04)!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Card,.deepLiveCard,.bestLiveCard){
+ background:#18353d!important;color:#f0fffb!important;
+ border-color:#497476!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Card,.deepLiveCard,.bestLiveCard) :is(h3,h4,b,strong){
+ color:#f3fffc!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Head,.deepLiveHead,.bestLiveHead) h3{
+ color:#f6fffd!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Head,.deepLiveHead,.bestLiveHead) p,
+html.omTurquoisePreview .app #dashboard :is(.deepV2Card,.deepLiveCard,.bestLiveCard) p,
+html.omTurquoisePreview .app #dashboard :is(.deepV2Foot,.deepLiveFoot,.bestLiveFoot){
+ color:#b7dcd6!important;opacity:1!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Provider,.deepLiveProvider,.bestLiveProvider){
+ color:#8ef4e0!important;opacity:1!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Meta,.deepLiveMeta,.bestLiveMeta) span{
+ border-color:#517b7a!important;background:#24464d!important;color:#dcf7f0!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Verdict,.deepLiveVerdict,.bestLiveRank){
+ background:#25514f!important;color:#c6fff0!important;border-color:#547f78!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Signal,.deepSignal){
+ background:#24444b!important;border:1px solid #3e6b6c!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Signal,.deepSignal) span{
+ color:#b1d5ce!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Signal,.deepSignal) b{
+ color:#f0fffb!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Actions,.deepLiveActions,.bestLiveActions) a{
+ background:#63ead4!important;color:#093331!important;border-color:#63ead4!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Actions,.deepLiveActions,.bestLiveActions) button{
+ background:#27505a!important;color:#e8fff9!important;border:1px solid #528b85!important;
+}
+html.omTurquoisePreview .app #dashboard :is(.deepV2Actions,.deepLiveActions,.bestLiveActions) a *,
+html.omTurquoisePreview .app #dashboard :is(.deepV2Actions,.deepLiveActions,.bestLiveActions) button *{
+ color:inherit!important;
+}
