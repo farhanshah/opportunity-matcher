@@ -91,3 +91,13 @@ test('WIPO programme-specific fellowship news calls are eligible only for eviden
   assert.equal(trustedSourceForLead({title,canonical_url:url},registry).status,
     'trusted',title);
 });
+
+
+test('official evidence and provider registration can be rechecked past the old attempt cap',()=>{
+ const api=readFileSync(new URL('../api/verify-worldwide.js',import.meta.url),'utf8');
+ assert.match(api,/l\.verification_status='pending' AND l\.verification_attempts<4/);
+ assert.match(api,/l\.verification_status='needs_evidence'[\s\S]*?l\.matched_official_host=true[\s\S]*?interval '14 days'/);
+ assert.match(api,/l\.verification_status='retry_needed'[\s\S]*?HTTP 403%[\s\S]*?interval '14 days'/);
+ assert.match(api,/l\.verification_status='source_review'[\s\S]*?Provider hostname is not in the official-source registry[\s\S]*?FROM monitored_sources/);
+ assert.doesNotMatch(api,/review_status='unverified' AND l\.verification_attempts<4/);
+});
