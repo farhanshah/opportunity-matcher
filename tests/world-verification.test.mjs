@@ -32,13 +32,18 @@ test('automated verifier is bounded, atomic, and reuses official validation and 
   const discover=readFileSync(new URL('../api/discover.js',import.meta.url),'utf8');
   const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
   assert.equal(WORLD_VERIFICATION_BATCH_SIZE,12);
-  assert.equal(config.crons.find(x=>x.path==='/api/verify-worldwide').schedule,'15 7 * * *');
+  assert.equal(config.crons.find(x=>x.path==='/api/verify-worldwide').schedule,'15 2,7,8,12,17 * * *');
   for(const phrase of ['FOR UPDATE SKIP LOCKED','verification_attempts<4',
     'trustedSourceForLead(lead,sources)','fetchOfficial(trust.url,trust.source.source_url)',
     'verifyCandidate(page.html,page.url,trust.source.provider)',
-    'publish(sql,trust.source,page.url,checked)',"WHERE review_status='unverified'"]){
+    'publish(sql,trust.source,page.url,checked)',"l.review_status='unverified'"]){
     assert.ok(api.includes(phrase),'Missing '+phrase);
   }
+  // Previously rejected third-party URLs stay withheld. Only leads from an
+  // exact newly-registered official hostname may rejoin the verification queue.
+  assert.match(api,/l\.verification_status='source_review'/);
+  assert.match(api,/FROM monitored_sources m/);
+  assert.match(api,/split_part\(l\.canonical_url,'\/',3\)/);
   assert.ok(api.includes('if(!authorised(req))return res.status(401)'));
   assert.ok(discover.includes('export { publish, fetchOfficial };'));
   assert.ok(discover.includes('WITH upserted AS'));
