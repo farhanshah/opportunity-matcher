@@ -109,11 +109,23 @@ export default async function handler(req,res){
         COALESCE(sum(recorded) FILTER(WHERE status IN ('completed','partial')),0)::int AS official_source_records,
         COALESCE(sum(errors),0)::int AS errors
       FROM opportunity_official_feed_runs
+      WHERE provider='grantsgov' AND started_at>=now()-interval '24 hours'
+    `;
+    const [supplementalFeedStats]=await sql`
+      SELECT
+        count(*) FILTER(WHERE provider='official_provider_links' AND status='completed')::int AS official_links_runs,
+        COALESCE(sum(fetched) FILTER(WHERE provider='official_provider_links' AND status='completed'),0)::int AS official_link_leads,
+        COALESCE(sum(recorded) FILTER(WHERE provider='official_provider_links' AND status='completed'),0)::int AS new_official_link_leads,
+        count(*) FILTER(WHERE provider='exact_internships' AND status='completed')::int AS internship_runs,
+        COALESCE(sum(fetched) FILTER(WHERE provider='exact_internships' AND status='completed'),0)::int AS exact_vacancies_checked,
+        COALESCE(sum(recorded) FILTER(WHERE provider='exact_internships' AND status='completed'),0)::int AS new_internship_publications,
+        COALESCE(sum(errors) FILTER(WHERE provider IN ('official_provider_links','exact_internships')),0)::int AS additional_errors
+      FROM opportunity_official_feed_runs
       WHERE started_at>=now()-interval '24 hours'
     `;
     const message=discoveryDigest({day,officialRuns,worldRuns,verificationRuns,
       officialCandidates,publishedOpportunities,worldLeads,catalogueHealth,
-      sourceListingStats,governmentFeedStats});
+      sourceListingStats,governmentFeedStats,supplementalFeedStats});
     const response=await fetch('https://api.resend.com/emails',{
       method:'POST',signal:AbortSignal.timeout(15000),
       headers:{
