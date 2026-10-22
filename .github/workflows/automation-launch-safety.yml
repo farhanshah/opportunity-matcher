@@ -6,6 +6,7 @@ on:
       - 'api/verify-worldwide.js'
       - 'api/discover.js'
       - 'api/source-listings.js'
+      - 'api/promote-source-snapshots.js'
       - 'api/reverify.js'
       - 'api/expand-providers.js'
       - 'api/automation-health-watch.js'
@@ -46,6 +47,7 @@ jobs:
         run: |
           node --check api/verify-worldwide.js
           node --check api/source-listings.js
+          node --check api/promote-source-snapshots.js
           node --check lib/source-listings.js
           node --check worldwide-v1.js
           node --check api/reverify.js
