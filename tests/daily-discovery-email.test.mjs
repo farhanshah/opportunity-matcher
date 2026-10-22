@@ -126,3 +126,24 @@ test('daily publishing report separates Grants.gov, provider links and exact int
  assert.match(api,/official_links_runs/);
  assert.match(api,/new_internship_publications/);
 });
+
+test('daily report identifies which official internship provider returned results or failed',()=>{
+ const digest=discoveryDigest({day:'2026-10-22',
+  sourceListingStats:{published_pages:12,added_last_24h:2},
+  supplementalFeedStats:{official_links_runs:1,new_official_link_leads:4,
+   internship_runs:1,new_internship_publications:1},
+  exactProviderDetails:{providers:{
+   UNDP:{status:'completed',accepted:1,provider_candidates:7},
+   WFP:{status:'failed',reason:'Official HTTP 429'},
+   UNOPS:{status:'completed',accepted:0,provider_candidates:0}
+  }}
+ });
+ assert.match(digest.text,/Provider status — UNDP: 1 exact vacancy records/);
+ assert.match(digest.text,/Provider status — WFP: unavailable/);
+ assert.match(digest.text,/Provider status — UNOPS: 0 exact vacancy records/);
+ assert.match(digest.html,/Internship provider detail/);
+ assert.match(digest.html,/WFP: unavailable/);
+ const endpoint=readFileSync(new URL('../api/daily-discovery-email.js',import.meta.url),'utf8');
+ assert.match(endpoint,/latestExactInternshipRun/);
+ assert.match(endpoint,/exactProviderDetails:/);
+});
