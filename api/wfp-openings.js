@@ -28,20 +28,35 @@ async function searchWorkday(){
   // Workday exposes multiple deployment hosts. An empty result from one
   // host is not proof the other host has no vacancies.
   const request={method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({appliedFacets:{},limit:60,offset:0,searchText:'intern'})};
+    body:JSON.stringify({appliedFacets:{},limit:30,offset:0,searchText:'intern'})};
   const checks=await Promise.allSettled(SEARCH_ROOTS.map(root=>fetchJson(root,request,10500)));
   const results=[];const errors=[];
   for(let i=0;i<checks.length;i++){
     const result=checks[i];
     if(result.status!=='fulfilled'){errors.push(SEARCH_ROOTS[i].split('/')[2]+': '+String(result.reason?.message||result.reason).slice(0,55));continue}
     const data=result.value.json;
-    const rows=Array.isArray(data?.jobPostings)?data.jobPostings:Array.isArray(data?.items)?data.items:[];
+    if(!Array.isArray(data?.jobPostings)&&!Array.isArray(data?.items)){
+      errors.push(SEARCH_ROOTS[i].split('/')[2]+': unexpected official API response');
+      continue;
+    }
+    const rows=Array.isArray(data.jobPostings)?data.jobPostings:data.items;
     results.push({root:SEARCH_ROOTS[i],rows,total:Number(data?.total||rows.length||0)});
   }
   if(!results.length)throw new Error('WFP Workday search unreadable across configured official hosts: '+errors.join('; '));
   results.sort((a,b)=>b.rows.length-a.rows.length);
   const best=results[0];
-  return {...best,successful_hosts:results.map(x=>new URL(x.root).hostname),
+  // Different official Workday hosts can have different result windows.
+  // Merge distinct vacancy paths rather than discarding valid secondary hits.
+  const seen=new Set(),entries=[];
+  for(const group of results){
+    for(const row of group.rows){
+      const key=externalPath(row).replace(/[?#].*$/,'');
+      if(!/^\/(?:job|details)\//i.test(key)||seen.has(key))continue;
+      seen.add(key);
+      entries.push({row,root:group.root});
+    }
+  }
+  return {...best,entries,successful_hosts:results.map(x=>new URL(x.root).hostname),
     empty_hosts:results.filter(x=>!x.rows.length).map(x=>new URL(x.root).hostname),
     host_errors:errors};
 }
@@ -52,4 +67,4 @@ async function verifyRow(row,searchRoot){const path=externalPath(row);if(!path||
  const statedDeadline=applicationDeadlineFromDescription(description);
  if(structuredDeadline&&statedDeadline&&structuredDeadline!==statedDeadline)return null;
  const deadline=statedDeadline||structuredDeadline;const today=new Date().toISOString().slice(0,10);if(!deadline||deadline<today)return null;const location=String(info?.location||info?.locationText||info?.primaryLocation||row?.locationsText||row?.location||'').trim();const req=String(info?.jobReqId||info?.jobPostingId||row?.jobReqId||'').trim();const url=`${publicRoot(searchRoot)}${path}`;const body=clean(description).slice(0,65000);return{title:title||'WFP Internship',url,location,deadline,source:'WFP',job_id:req,status_verified:true,verification_level:'exact',status_source:'wfp-workday-exact-job-json',quality:'status-verified-vacancy',verification_basis:'current WFP Workday exact-job record with a current end date',detail_text:`${title}. ${location?`Location ${location}. `:''}Application deadline ${deadline}. ${body} ${POLICY}`.trim(),detail_evidence_quality:body.length>=700?'high':'medium',detail_scope:'wfp-workday-exact-job-json'} }
-export default async function handler(req,res){if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});res.setHeader('Cache-Control','no-store');try{const search=await searchWorkday(),rows=search.rows.filter(r=>internLike(r?.title||'',r?.bulletFields?.join?.(' ')||''));const checked=[];let i=0;async function worker(){while(i<rows.length&&i<18){const row=rows[i++],x=await verifyRow(row,search.root);if(x)checked.push(x)}}await Promise.all(Array.from({length:Math.min(8,Math.max(1,rows.length))},worker));const seen=new Set(),openings=checked.filter(x=>{const k=x.url;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>(a.deadline||'9999').localeCompare(b.deadline||'9999'));return res.status(200).json({ok:true,provider:'WFP',board_url:'https://www.wfp.org/careers',workday_root:search.root,successful_hosts:search.successful_hosts,empty_hosts:search.empty_hosts,host_errors:search.host_errors,fetched_at:new Date().toISOString(),adapter_state:'exact-workday',candidate_count:rows.length,exact_verified_count:openings.length,openings,notice:'Only exact WFP Workday postings whose detail JSON identifies an internship and supplies a current closing date are promoted.'})}catch(e){return res.status(200).json({ok:true,provider:'WFP',board_url:'https://www.wfp.org/careers',fetched_at:new Date().toISOString(),adapter_state:'unreadable',candidate_count:0,exact_verified_count:0,openings:[],fetch_error:e.message,notice:'WFP recruitment could not be verified safely right now, so no opening was promoted.'})}}
+export default async function handler(req,res){if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});res.setHeader('Cache-Control','no-store');try{const search=await searchWorkday(),rows=search.entries.filter(({row:r})=>internLike(r?.title||'',r?.bulletFields?.join?.(' ')||''));const checked=[];let i=0;async function worker(){while(i<rows.length&&i<18){const entry=rows[i++],x=await verifyRow(entry.row,entry.root);if(x)checked.push(x)}}await Promise.all(Array.from({length:Math.min(8,Math.max(1,rows.length))},worker));const seen=new Set(),openings=checked.filter(x=>{const k=x.url;if(seen.has(k))return false;seen.add(k);return true}).sort((a,b)=>(a.deadline||'9999').localeCompare(b.deadline||'9999'));return res.status(200).json({ok:true,provider:'WFP',board_url:'https://www.wfp.org/careers',workday_root:search.root,successful_hosts:search.successful_hosts,empty_hosts:search.empty_hosts,host_errors:search.host_errors,fetched_at:new Date().toISOString(),adapter_state:'exact-workday',candidate_count:rows.length,exact_verified_count:openings.length,openings,notice:'Only exact WFP Workday postings whose detail JSON identifies an internship and supplies a current closing date are promoted.'})}catch(e){return res.status(200).json({ok:true,provider:'WFP',board_url:'https://www.wfp.org/careers',fetched_at:new Date().toISOString(),adapter_state:'unreadable',candidate_count:0,exact_verified_count:0,openings:[],fetch_error:e.message,notice:'WFP recruitment could not be verified safely right now, so no opening was promoted.'})}}
