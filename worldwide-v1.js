@@ -65,11 +65,11 @@
       el.append(text('h3','',item.title));
       el.append(text('div','provider',item.provider));
       const countries=Array.isArray(item.eligible_countries)?item.eligible_countries.join(' · '):'See provider';
-      el.append(text('p','unknown','Citizenship: '+countries+'. Additional eligibility conditions apply.'));
+      el.append(text('p','unknown',Array.isArray(item.eligible_countries)&&item.eligible_countries.length?'Citizenship restricted to: '+countries+'. Further conditions apply.':'Eligibility restrictions apply. Check provider-specific location, career stage, and qualification rules.'));
       if(item.requirements_note)el.append(text('p','unknown',item.requirements_note));
       const cutoff=new Date(item.closes_at);
       if(!Number.isNaN(cutoff.getTime()))el.append(text('p','time',
-       'Advertised deadline: '+cutoff.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'})+' · 12:00 UTC'));
+       'Advertised deadline: '+cutoff.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'})+(item.deadline_time_confirmed?' · '+cutoff.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC':' · confirm exact closing time with provider')));
       const link=document.createElement('a');
       try{
         const official=new URL(item.official_url);
