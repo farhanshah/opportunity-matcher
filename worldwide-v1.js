@@ -43,5 +43,52 @@
     status.textContent=items.length?'':'No source-confirmed listings are available yet. Official-provider checks run automatically.';
    }catch{status.textContent='Source-confirmed listings cannot be loaded right now. Please try again later.';count.textContent='Unavailable'}
  }
+
+ async function loadOpenCalls(){
+  const wrap=document.getElementById('official-open-calls'),
+        cards=document.getElementById('openCallGrid'),
+        counter=document.getElementById('openCallCount'),
+        info=document.getElementById('openCallStatus');
+  if(!wrap||!cards||!counter||!info)return;
+  try{
+    const res=await fetch('/api/open-calls',{cache:'no-store'});
+    if(!res.ok)throw Error('Open calls service unavailable');
+    const data=await res.json();
+    const calls=Array.isArray(data.calls)?data.calls:[];
+    const now=Date.now();
+    const active=calls.filter(x=>Date.parse(x.closes_at)>now);
+    cards.replaceChildren();
+    for(const item of active){
+      const el=document.createElement('article');
+      el.className='card';
+      el.append(text('span','level','Official page lists applications open'));
+      el.append(text('h3','',item.title));
+      el.append(text('div','provider',item.provider));
+      const countries=Array.isArray(item.eligible_countries)?item.eligible_countries.join(' · '):'See provider';
+      el.append(text('p','unknown','Citizenship: '+countries+'. Additional eligibility conditions apply.'));
+      if(item.requirements_note)el.append(text('p','unknown',item.requirements_note));
+      const cutoff=new Date(item.closes_at);
+      if(!Number.isNaN(cutoff.getTime()))el.append(text('p','time',
+       'Advertised deadline: '+cutoff.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'})+' · 12:00 UTC'));
+      const link=document.createElement('a');
+      try{
+        const official=new URL(item.official_url);
+        if(official.protocol==='https:'){
+          link.href=official.href;link.className='source';link.target='_blank';
+          link.rel='noopener noreferrer';link.textContent='Check official requirements and apply ↗';
+          el.append(link);
+        }
+      }catch{}
+      cards.append(el);
+    }
+    counter.textContent=active.length+' official open calls';
+    info.textContent=active.length?'':'No calls currently pass the explicit open-status and deadline checks. Browse official programme pages below.';
+  }catch{
+    counter.textContent='Unavailable';
+    info.textContent='Current open-call status cannot be confirmed. Check official programme links below.';
+  }
+ }
+ loadOpenCalls();
+
  load();
 })();
