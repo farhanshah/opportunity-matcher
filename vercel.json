@@ -69,6 +69,9 @@
     },
     "api/recheck-open-calls.js": {
       "maxDuration": 60
+    },
+    "api/discover-official-links.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -217,7 +220,7 @@
     },
     {
       "path": "/api/verify-worldwide",
-      "schedule": "15 2,7,8,12,17 * * *"
+      "schedule": "15 1,5,8,11,14,17,20,23 * * *"
     },
     {
       "path": "/api/uk-morning-discover",
@@ -233,7 +236,7 @@
     },
     {
       "path": "/api/promote-source-snapshots",
-      "schedule": "40 6 * * *"
+      "schedule": "40 6,18 * * *"
     },
     {
       "path": "/api/discover-grantsgov",
@@ -242,6 +245,10 @@
     {
       "path": "/api/recheck-open-calls",
       "schedule": "20 */6 * * *"
+    },
+    {
+      "path": "/api/discover-official-links",
+      "schedule": "10 1,13 * * *"
     }
   ]
 }
