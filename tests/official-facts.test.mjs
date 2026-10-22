@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import { parseOfficialFactSheet } from '../lib/official-facts.js';
 import { verifyCandidate } from '../lib/auto-discovery.js';
 
@@ -124,4 +125,28 @@ test('US written dates are valid, ambiguous numeric and impossible dates are not
   assert.equal(parseOfficialFactSheet(ambiguous).complete,false);
   const impossible=body.replace('18 May 2027','February 30, 2027');
   assert.equal(parseOfficialFactSheet(impossible).complete,false);
+});
+
+
+test('explicit Pakistan-only programme can be verified without being labelled worldwide',()=>{
+ const national=body.replace('Nationality eligibility: All nationalities','Nationality eligibility: Pakistan');
+ const parsed=parseOfficialFactSheet(national);
+ assert.equal(parsed.complete,true,parsed.reasons.join('; '));
+ assert.deepEqual(parsed.nationality,['Pakistan']);
+ assert.deepEqual(parsed.nationalityScope,{scope:'explicit_list',countries:['Pakistan']});
+ const result=verifyCandidate(national,url,'Official University',new Date('2026-10-22T12:00:00Z'));
+ assert.equal(result.verified,true,result.reasons.join('; '));
+ assert.deepEqual(result.record.nationality,['Pakistan']);
+ assert.ok(!result.record.nationality.includes('All Nationalities'));
+ const publisher=readFileSync(new URL('../api/discover.js',import.meta.url),'utf8');
+ assert.match(publisher,/scope:'explicit_list',countries:r\.nationality/);
+});
+test('unresolved regional nationality wording never becomes unrestricted eligibility',()=>{
+ for(const nation of ['Commonwealth countries','Developing countries','Pakistan and India','Eligible countries listed separately']){
+  const changed=body.replace('Nationality eligibility: All nationalities','Nationality eligibility: '+nation);
+  const parsed=parseOfficialFactSheet(changed);
+  assert.equal(parsed.complete,false,nation);
+  const match=verifyCandidate(changed,url,'Official University',new Date('2026-10-22T12:00:00Z'));
+  assert.equal(match.verified,false,nation);
+ }
 });
