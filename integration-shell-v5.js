@@ -129,6 +129,38 @@
  document.addEventListener('keydown',event=>{if(event.key==='Escape')shut()});
  window.matchMedia('(min-width:901px)').addEventListener('change',e=>{if(e.matches)shut()});
 
+
+ // The saved summary card is produced by a late-loaded renderer. Identify the
+ // existing visual panel by its visible title, not by an internal data contract.
+ // Never modify the saved records, button callbacks or app persistence.
+ function markSavedSpotlight(){
+   const saved=document.getElementById('saved');
+   if(!saved||saved.querySelector('.omSavedSpotlight'))return;
+   const headings=saved.querySelectorAll('h1,h2,h3,h4');
+   const target=[...headings].find(el=>/routes?\s+worth\s+a\s+second\s+look/i.test(el.textContent||''));
+   if(!target)return;
+   let current=target.parentElement;
+   for(let i=0;current&&current!==saved&&i<7;i++,current=current.parentElement){
+     const style=getComputedStyle(current);
+     const image=String(style.backgroundImage||'');
+     if(image.includes('gradient')&&current.getBoundingClientRect().width>250){
+       current.classList.add('omSavedSpotlight');return;
+     }
+   }
+   target.parentElement?.classList.add('omSavedSpotlight');
+ }
+ // Route contents arrive after shell initialization and can be rerendered.
+ const dynamicWatch=new MutationObserver(()=>{
+   if(dynamicWatch._queued)return;
+   dynamicWatch._queued=true;
+   requestAnimationFrame(()=>{
+     dynamicWatch._queued=false;
+     markSavedSpotlight();
+   });
+ });
+ dynamicWatch.observe(appBody,{subtree:true,childList:true});
+ markSavedSpotlight();
+
  // Late runtime-loaded module styles (theme, tracker, cloud) must not supersede
  // the isolated candidate visual layer. Keep candidate CSS as the final head sheet.
  const stylesheet=document.querySelector('link[href^="/site-nav-contrast-v5.css"]');
