@@ -26,6 +26,14 @@ export default async function handler(req,res){
        WHERE provider='exact_internships' AND status='completed'
          AND started_at>now()-interval '36 hours')
       ELSE null END) AS exact_internships,
+   (CASE WHEN now()>='2026-10-27T00:00:00Z'::timestamptz THEN
+     (SELECT count(*)::int FROM worldwide_source_listings
+       WHERE source_status='source_confirmed'
+         AND created_at>now()-interval '72 hours')
+     ELSE null END) AS new_source_publications_72h,
+   (SELECT count(*)::int FROM opportunity_official_feed_runs
+     WHERE status='completed' AND provider IN ('official_provider_links','exact_internships','grantsgov')
+       AND started_at>now()-interval '72 hours') AS completed_source_runs_72h,
    (SELECT count(*)::int FROM opportunity_daily_digest_delivery WHERE status='sent' AND sent_at>now()-interval '24 hours') AS digest_sent,
    (SELECT count(*)::int FROM opportunities WHERE last_recheck_at>now()-interval '24 hours') AS catalogue_rechecks,
    (SELECT count(*)::int FROM opportunities WHERE last_recheck_at IS NULL) AS due_records`;
