@@ -102,3 +102,27 @@ test('official government API feed reports as source-only, not fully verified',(
  assert.equal(message.statistics.governmentSourceRecords,5);
  assert.match(message.text,/Official government feed: 1 runs, 5 source-only records, 0 errors/);
 });
+
+
+test('daily publishing report separates Grants.gov, provider links and exact internships',()=>{
+ const message=discoveryDigest({day:'2026-10-22',
+  officialRuns:[{status:'completed',scanned_sources:10,new_published:0}],
+  worldRuns:[{status:'completed',queries_attempted:20,new_leads:16}],
+  verificationRuns:[{status:'completed',inspected:16,published_new:0}],
+  sourceListingStats:{published_pages:25,added_last_24h:7},
+  governmentFeedStats:{runs:1,completed:1,official_source_records:2,errors:0},
+  supplementalFeedStats:{official_links_runs:2,new_official_link_leads:12,
+     internship_runs:2,new_internship_publications:5}});
+ assert.equal(message.statistics.sourceAdded,7);
+ assert.equal(message.statistics.officialLinkLeads,12);
+ assert.equal(message.statistics.internshipPublished,5);
+ assert.equal(message.statistics.published,0);
+ assert.match(message.text,/New official-provider programme links queued: 12/);
+ assert.match(message.text,/New exact internship vacancies published: 5/);
+ assert.match(message.html,/New source-confirmed pages · last 24h/);
+ assert.match(message.html,/NOT eligibility verified/);
+ const api=readFileSync(new URL('../api/daily-discovery-email.js',import.meta.url),'utf8');
+ assert.match(api,/WHERE provider='grantsgov'/);
+ assert.match(api,/official_links_runs/);
+ assert.match(api,/new_internship_publications/);
+});
