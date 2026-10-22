@@ -72,3 +72,22 @@ test('only dated, explicitly named official calls may pass a news path gate',()=
  const old={canonical_url:'https://university.example/news/2020/open-call-for-internship-programme',title:genuine.title};
  assert.equal(trustedSourceForLead(old,[source]).status,'source_review');
 });
+
+
+test('WIPO programme-specific fellowship news calls are eligible only for evidence checks',()=>{
+ const calls=[
+  ['2026-2027 WIPO Indigenous Fellowship Program – Extended application deadline',
+   'https://www.wipo.int/en/web/traditional-knowledge/w/news/2026/wipo-indigenous-fellowship-program-2026-2027'],
+  ['World Intellectual Property Organization: Call for Applications to the PCT Fellowship Program for Graduate Students',
+   'https://www.wipo.int/en/web/wipo-pearl/w/news/2026/call-for-applications-to-the-pct-fellowship-program-for-graduate-students'],
+  ['Applications Open: 2026 Short-Term Fellowship Programme for International Students in Japan',
+   'https://www.wipo.int/en/web/office-japan/w/news/2026/applications-open-2026-short-term-fellowship-programme-international-students-japan'],
+  ['Open Call for Internship at WIPO Japan Office',
+   'https://www.wipo.int/en/web/office-japan/w/news/2026/open-call-for-internship-at-wipo-japan-office']
+ ];
+ const registry=[{id:'wipo',provider:'World Intellectual Property Organization',
+   source_url:'https://www.wipo.int/en/web/working-at-wipo/fellowship-program',is_active:true}];
+ for(const [title,url] of calls)
+  assert.equal(trustedSourceForLead({title,canonical_url:url},registry).status,
+    'trusted',title);
+});
