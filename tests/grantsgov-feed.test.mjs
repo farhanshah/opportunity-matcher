@@ -50,6 +50,9 @@ test('feed never inserts a strong match and cron requires secret',()=>{
  const cfg=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
  assert.match(code,/CRON_SECRET/);
  assert.match(code,/worldwide_source_listings/);
+ assert.match(code,/opportunity_official_feed_runs/);
+ assert.match(code,/status='completed'/);
+ assert.match(code,/status='failed'/);
  assert.doesNotMatch(code,/INSERT INTO opportunities|UPDATE opportunities/);
  assert.match(code,/slice\(0,5\)/);
  assert.equal(cfg.crons.find(x=>x.path==='/api/discover-grantsgov').schedule,'40 3 * * *');
