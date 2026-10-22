@@ -111,3 +111,17 @@ test('one-row-one-value official tables may provide explicit facts',()=>{
     '<tr><th>Funding</th><td>Fully funded</td><td>Conditional</td></tr>');
   assert.equal(parseOfficialFactSheet(multipart).complete,false);
 });
+
+
+test('US written dates are valid, ambiguous numeric and impossible dates are not',()=>{
+  const american=body.replace('18 May 2027','May 18, 2027')
+    .replace('1 October 2026','October 1, 2026');
+  const parsed=parseOfficialFactSheet(american);
+  assert.equal(parsed.complete,true,parsed.reasons.join('; '));
+  assert.equal(parsed.deadline,'2027-05-18');
+  assert.equal(parsed.openDate,'2026-10-01');
+  const ambiguous=body.replace('18 May 2027','05/18/2027');
+  assert.equal(parseOfficialFactSheet(ambiguous).complete,false);
+  const impossible=body.replace('18 May 2027','February 30, 2027');
+  assert.equal(parseOfficialFactSheet(impossible).complete,false);
+});
