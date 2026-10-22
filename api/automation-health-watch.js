@@ -11,6 +11,9 @@ export default async function handler(req,res){
    (SELECT count(*)::int FROM opportunity_discovery_runs WHERE status='completed' AND started_at>now()-interval '24 hours') AS official_discovery,
    (SELECT count(*)::int FROM opportunity_web_search_runs WHERE status='completed' AND started_at>now()-interval '24 hours') AS worldwide_discovery,
    (SELECT count(*)::int FROM opportunity_web_verification_runs WHERE status='completed' AND started_at>now()-interval '24 hours') AS worldwide_verification,
+   (CASE WHEN now()>='2026-10-24T00:00:00Z'::timestamptz THEN
+     (SELECT count(*)::int FROM opportunity_official_feed_runs WHERE provider='grantsgov' AND status='completed' AND started_at>now()-interval '36 hours')
+     ELSE null END) AS official_grants_api,
    (SELECT count(*)::int FROM opportunity_daily_digest_delivery WHERE status='sent' AND sent_at>now()-interval '24 hours') AS digest_sent,
    (SELECT count(*)::int FROM opportunities WHERE last_recheck_at>now()-interval '24 hours') AS catalogue_rechecks,
    (SELECT count(*)::int FROM opportunities WHERE last_recheck_at IS NULL) AS due_records`;
