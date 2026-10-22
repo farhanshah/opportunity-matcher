@@ -19,6 +19,8 @@ on:
       - 'lib/automation-health.js'
       - 'lib/auto-discovery.js'
       - 'lib/official-facts.js'
+      - 'lib/verification-eligibility.js'
+      - 'tests/verification-eligibility.test.mjs'
       - 'lib/daily-discovery-email.js'
       - 'tests/provider-expansion.test.mjs'
       - 'tests/source-listings.test.mjs'
@@ -57,8 +59,9 @@ jobs:
           node --check api/automation-health-watch.js
           node --check lib/automation-health.js
           node --check lib/official-facts.js
+          node --check lib/verification-eligibility.js
           node --check api/health.js
           node --check api/opportunities.js
       - name: Automation, publication, verification and security tests
         run: |
-          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs
+          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/verification-eligibility.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs
