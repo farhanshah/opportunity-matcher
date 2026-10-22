@@ -37,7 +37,13 @@ export default async function handler(req,res){
                  lower(regexp_replace(split_part(m.source_url,'/',3),'^www[.]',''))=
                  lower(regexp_replace(split_part(l.canonical_url,'/',3),'^www[.]',''))
              )))
-        ORDER BY l.matched_official_host DESC,l.first_seen_at ASC
+        -- Give real, registered provider pages and programme-shaped URLs
+        -- first consideration. This only controls queue order, never trust.
+        ORDER BY l.matched_official_host DESC,
+          CASE WHEN l.canonical_url ~*
+            '/(scholarships?|fellowships?|internships?|studentships?|opportunities|grants?|awards?|funding|careers?|applications?|programmes?)'
+            THEN 0 ELSE 1 END,
+          l.first_seen_at ASC
         LIMIT ${WORLD_VERIFICATION_BATCH_SIZE} FOR UPDATE SKIP LOCKED
       )
       UPDATE opportunity_web_leads l SET verification_status='checking',
