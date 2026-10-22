@@ -32,6 +32,22 @@ for(const width of [360,390,768,1280,1440]){
    };
   });
   check(state.scroll<=width+6,width+' no horizontal overflow',state);
+
+  const visual=await page.evaluate(()=>{
+   const rect=s=>{const n=document.querySelector(s);if(!n)return null;const r=n.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
+   const rgb=s=>getComputedStyle(document.querySelector(s)).color;
+   return {kicker:rgb('#landing .heroWrap .hero .kicker'),
+    cards:['passportFeature','matchFeature','workspaceFeature'].map(cls=>({
+      cls,header:rect('#difference .'+cls+' h3'),
+      demo:rect('#difference .'+cls+' .'+({passportFeature:'passportMock',matchFeature:'matchMock',workspaceFeature:'trackerMock'}[cls]))
+    }))
+   };
+  });
+  check(visual.kicker==='rgb(16, 68, 65)',width+' homepage badge readable',visual.kicker);
+  for(const card of visual.cards)
+   check(card.header&&card.demo&&card.demo.top>=card.header.bottom+4,
+     width+' '+card.cls+' demo does not overlap heading',card);
+
   check(state.nav.h<=192,width+' navigation compact',state.nav);
   check(state.brandColor==='rgb(244, 255, 253)',width+' brand readable',state.brandColor);
   check(state.secondaryColor==='rgb(239, 255, 251)',width+' secondary button readable',state.secondaryColor);
