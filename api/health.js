@@ -28,6 +28,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store');
     return res.status(200).json({ ok: true, database: 'connected', ...stats, checked_at: new Date().toISOString() });
   } catch (error) {
-    return res.status(500).json({ ok: false, database: 'error', error: error.message });
+    console.error('Public health endpoint unavailable');
+    return res.status(503).json({ ok: false, database: 'unavailable', error: 'Service temporarily unavailable' });
   }
 }
