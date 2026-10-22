@@ -125,6 +125,17 @@ export default async function handler(req,res){
     const records=await sql`
       SELECT id,external_id,title,provider,opportunity_type,funding_type,destination_country,official_source_url,eligible_nationalities,education_levels,fields_of_study
       FROM opportunities WHERE official_source_url IS NOT NULL AND official_source_url<>''
+        -- Honour provider rate limits and inaccessible routes. Check eligible
+        -- records first rather than retrying a known blocked page every 2h.
+        AND (last_recheck_at IS NULL OR last_recheck_at <= now() -
+          CASE
+            WHEN last_recheck_outcome LIKE 'retry_needed: HTTP 403%' THEN interval '7 days'
+            WHEN last_recheck_outcome LIKE 'retry_needed: HTTP 429%' THEN interval '2 days'
+            WHEN last_recheck_outcome LIKE 'retry_needed: HTTP 404%' THEN interval '3 days'
+            WHEN last_recheck_outcome LIKE 'retry_needed: %redirect%' THEN interval '3 days'
+            WHEN last_recheck_outcome LIKE 'retry_needed: %timeout%' THEN interval '6 hours'
+            ELSE interval '12 hours'
+          END)
       ORDER BY last_recheck_at NULLS FIRST,external_id LIMIT ${BATCH}
     `;
     const results=[];
