@@ -31,6 +31,21 @@ export default async function handler(req,res){
             OR (l.verification_status='needs_evidence'
                AND l.matched_official_host=true
                AND l.verification_checked_at<now()-interval '14 days')
+            -- A current, named official news call may have been checked
+            -- before the enhanced call-page classifier was deployed.
+            -- Retry it a few times promptly, but do not publish without a
+            -- fresh fetch and the usual official-page evidence checks.
+            OR (l.verification_status='needs_evidence'
+               AND l.matched_official_host=true
+               AND l.verification_attempts<6
+               AND l.verification_checked_at BETWEEN
+                   now()-interval '7 days' AND now()-interval '45 minutes'
+               AND l.canonical_url ~* '/news/20[0-9]{2}/'
+               AND l.title ~* '(open call|call for applications?|applications? open|extended application deadline)'
+               AND NOT EXISTS (
+                   SELECT 1 FROM worldwide_source_listings w
+                   WHERE w.canonical_url=l.canonical_url
+                     AND w.source_status='source_confirmed'))
             OR (l.verification_status='retry_needed'
                AND l.matched_official_host=true
                AND l.verification_checked_at<now() -
