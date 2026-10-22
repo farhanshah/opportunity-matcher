@@ -29,3 +29,6 @@ html[data-om-theme="dark"] .level{background:#244b47;color:#a4f8e7}
 html[data-om-theme="dark"] .source{color:#8ef5e2}
 html[data-om-theme="dark"] .notice{background:#193b3d;color:#d4f4ed;border-color:#446d67}
 html[data-om-theme="dark"] .status{color:#bdd7d1}
+
+#official-open-calls{margin-bottom:48px}
+#official-open-calls .card{border-top-color:#2fc7b5}
