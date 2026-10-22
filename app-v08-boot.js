@@ -100,7 +100,8 @@ async function updateWorldwideCount(){
     const d=await r.json();
     const n=Number(d.count);
     if(!Number.isSafeInteger(n)||n<0||!Array.isArray(d.listings)||d.listings.length!==n)throw Error('Invalid source count');
-    node.textContent=String(n);
+    const total=Number(d.total_source_confirmed);
+    node.textContent=String(Number.isSafeInteger(total)&&total>=n?total:n);
   }catch{node.textContent='—'}
 }
 async function updateOfficialOpenCallCount(){
