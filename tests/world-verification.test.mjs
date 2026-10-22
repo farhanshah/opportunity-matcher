@@ -43,6 +43,8 @@ test('automated verifier is bounded, atomic, and reuses official validation and 
   // exact newly-registered official hostname may rejoin the verification queue.
   assert.match(api,/l\.verification_status='source_review'/);
   assert.match(api,/FROM monitored_sources m/);
+  assert.match(api,/ORDER BY l\.matched_official_host DESC/);
+  assert.match(api,/l\.canonical_url ~\*/);
   assert.match(api,/split_part\(l\.canonical_url,'\/',3\)/);
   assert.ok(api.includes('if(!authorised(req))return res.status(401)'));
   assert.ok(discover.includes('export { publish, fetchOfficial };'));
