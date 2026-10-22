@@ -20,6 +20,7 @@ test('search results are URLs only, never trusted programme evidence',()=>{
  assert.equal(item.search_region,'Europe');
  assert.equal(normalizeWebLead({title:'Bad URL title',url:'http://localhost/private'},'EU','q'),null);
  assert.equal(normalizeWebLead({title:'Social media programme 2027',url:'https://instagram.com/p/1234'},'EU','q'),null);
+ assert.equal(normalizeWebLead({title:'Government scholarship 2027',url:'https://www.studyinkorea.go.kr/$$$$$$$$$$$$$$$$$$$$$%7BlangCd%7D/plan/scholarship.do'},'Asia','q',['studyinkorea.go.kr']),null);
  assert.equal(uniqueLeads([item,item]).length,1);
 });
 test('web search is authenticated, bounded, rate budgeted, and cannot automatically publish leads',()=>{
