@@ -9,7 +9,7 @@ export default async function handler(req,res){
   const countRaw=Number(req.query?.limit||36);
   const limit=Number.isInteger(countRaw)?Math.min(72,Math.max(1,countRaw)):36;
   const rows=await sql`
-    SELECT l.title,l.provider,l.canonical_url,l.verified_page_at
+    SELECT l.title,l.provider,l.canonical_url,l.verified_page_at,l.evidence->>'opportunity_kind' AS opportunity_kind
     FROM worldwide_source_listings l
     WHERE l.source_status='source_confirmed'
       AND l.verified_page_at>=now()-interval '30 days'
@@ -28,7 +28,7 @@ export default async function handler(req,res){
     listings:allowed.map(row=>({
       title:row.title,provider:row.provider,official_url:row.canonical_url,
       source_confirmed_at:row.verified_page_at,
-      publication_level:'source_confirmed',application_status:'unknown',
+      publication_level:'source_confirmed',opportunity_kind:row.opportunity_kind||'official programme page',application_status:'unknown',
       deadline:null,eligibility:'not_verified',personal_match:'not_assessed'
     })),
     count:allowed.length,
