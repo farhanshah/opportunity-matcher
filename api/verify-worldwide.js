@@ -146,8 +146,8 @@ export default async function handler(req,res){
       else summary.provider_errors++;
       results.push({id:lead.id,status,reason:reason.slice(0,180)});
     }
-    for(let offset=0;offset<leads.length;offset+=3)
-      await Promise.all(leads.slice(offset,offset+3).map(inspect));
+    for(let offset=0;offset<leads.length;offset+=4)
+      await Promise.all(leads.slice(offset,offset+4).map(inspect));
     await sql`
       UPDATE opportunity_web_verification_runs SET status='completed',completed_at=now(),
         inspected=${summary.inspected},published_new=${summary.published_new},
