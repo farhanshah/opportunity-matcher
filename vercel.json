@@ -107,6 +107,22 @@
   ],
   "rewrites": [
     {
+      "source": "/opportunities-sitemap.xml",
+      "destination": "/api/public-opportunities?format=sitemap"
+    },
+    {
+      "source": "/opportunities",
+      "destination": "/api/public-opportunities"
+    },
+    {
+      "source": "/opportunities/",
+      "destination": "/api/public-opportunities"
+    },
+    {
+      "source": "/opportunities/:id",
+      "destination": "/api/public-opportunities?id=:id"
+    },
+    {
       "source": "/privacy",
       "destination": "/privacy.html"
     },
