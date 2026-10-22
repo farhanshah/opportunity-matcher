@@ -2,6 +2,7 @@ import {db} from '../lib/db.js';
 import {verifyCandidate} from '../lib/auto-discovery.js';
 import {trustedSourceForLead,WORLD_VERIFICATION_BATCH_SIZE} from '../lib/world-verification.js';
 import {fetchOfficial,publish} from './discover.js';
+import {storeSourceListing} from '../lib/source-listings.js';
 
 const authorised=req=>Boolean(process.env.CRON_SECRET)&&
   req.headers.authorization==='Bearer '+process.env.CRON_SECRET;
@@ -54,7 +55,7 @@ export default async function handler(req,res){
     const sources=await sql`SELECT id,source_url,provider,is_active
       FROM monitored_sources WHERE is_active=true`;
     const summary={inspected:leads.length,published_new:0,verified_existing:0,
-      needs_evidence:0,needs_source_review:0,provider_errors:0};
+      needs_evidence:0,needs_source_review:0,provider_errors:0,source_confirmed:0};
     const results=[];
     async function inspect(lead){
       let status='retry_needed',reason='Provider check incomplete',evidence={},
@@ -72,6 +73,16 @@ export default async function handler(req,res){
             registered_source:trust.source.source_url};
           if(!checked.verified){
             status='needs_evidence';reason=checked.reasons.join('; ').slice(0,900);
+            // A real provider page may be source-confirmed even when its
+            // deadline/eligibility cannot be verified. Store it ONLY in the
+            // separate discovery tier, never as a matchable opportunity.
+            try{
+              const listing=await storeSourceListing(sql,lead,trust.source,page);
+              if(listing.stored)summary.source_confirmed++;
+            }catch(listingError){
+              console.warn('Partial source listing unavailable',
+                String(listingError?.message||listingError).slice(0,100));
+            }
           }else{
             const [existing]=await sql`
               SELECT id FROM opportunities
@@ -126,7 +137,7 @@ export default async function handler(req,res){
     await sql`
       UPDATE opportunity_web_verification_runs SET status='completed',completed_at=now(),
         inspected=${summary.inspected},published_new=${summary.published_new},
-        verified_existing=${summary.verified_existing},
+        verified_existing=${summary.verified_existing},source_confirmed=${summary.source_confirmed},
         needs_evidence=${summary.needs_evidence},
         needs_source_review=${summary.needs_source_review},
         provider_errors=${summary.provider_errors},results=${JSON.stringify(results)}::jsonb
