@@ -1,0 +1,152 @@
+/* Shared OppMatcher v5 companion branding for static/privacy and protected tools.
+   CSS only. No accounts, keys, storage, permissions or routing are changed. */
+html.omSecondary{--brand-teal:#51e7d6;--brand-deep:#0d2b34;--brand-line:#317168;color-scheme:dark}
+html.omSecondary body{
+  font-family:'DM Sans',Inter,system-ui,-apple-system,sans-serif;
+  background:radial-gradient(ellipse at 84% 0%,rgba(36,151,141,.14),transparent 44%),#08171e;
+  color:#eaf8f4
+}
+html.omSecondary h1,html.omSecondary h2,html.omSecondary h3,
+html.omSecondary .brand,html.omSecondary .brand b,
+html.omSecondary .opsBrand b{
+  font-family:'Manrope','DM Sans',sans-serif;letter-spacing:-.045em
+}
+html.omSecondary a:focus-visible,html.omSecondary button:focus-visible,
+html.omSecondary input:focus-visible,html.omSecondary textarea:focus-visible,
+html.omSecondary select:focus-visible{
+  outline:3px solid #51e7d6!important;outline-offset:3px!important
+}
+/* Protected operations / admin: maintain dark theme with turquoise navigation */
+html.omSecondary[data-page="admin"]{
+ --bg:#071820;--panel:#102630;--panel2:#17313a;
+ --line:rgba(126,234,215,.13);--line2:rgba(126,234,215,.22);
+ --text:#e8f6f3;--muted:#b1cbc6;--muted2:#8caeaa;
+ --lime:#51e7d6;--purple:#40b7a7;--green:#51e7d6
+}
+html.omSecondary[data-page="admin"] .lockCard{
+ background:linear-gradient(148deg,#13353a,#0b202a)!important;
+ border-color:#4bad9b80!important;box-shadow:0 30px 75px rgba(4,18,24,.28)
+}
+html.omSecondary[data-page="admin"] .lockBrand b,
+html.omSecondary[data-page="admin"] .opsBrand b{color:#f1fffc!important}
+html.omSecondary[data-page="admin"] .lockBrand small,
+html.omSecondary[data-page="admin"] .opsBrand small{color:#9cc7bb!important}
+html.omSecondary[data-page="admin"] .lockEyebrow,
+html.omSecondary[data-page="admin"] .opsKicker,
+html.omSecondary[data-page="admin"] .panelEyebrow{color:#7df1d8!important}
+html.omSecondary[data-page="admin"] .brandMark{
+ background:#123238!important;border-color:#55aa9780!important
+}
+html.omSecondary[data-page="admin"] .brandMark:after{
+ background:linear-gradient(135deg,#51e7d6,#168b7f) border-box!important
+}
+html.omSecondary[data-page="admin"] .primaryBtn{
+ background:#51e7d6!important;color:#082e31!important;border-color:#51e7d6!important;
+ font-weight:900!important
+}
+html.omSecondary[data-page="admin"] .ghostBtn,
+html.omSecondary[data-page="admin"] .opsNavBtn.active{
+ border-color:#4b998d66!important;
+ background:rgba(81,231,214,.13)!important;color:#d9fff5!important
+}
+html.omSecondary[data-page="admin"] .opsSide{
+ background:linear-gradient(150deg,#12383e,#081a23)!important;
+ border-color:#3f897960!important
+}
+html.omSecondary[data-page="admin"] .metricCard,
+html.omSecondary[data-page="admin"] .panel{
+ border-color:#3676686e!important;background:#102a32!important
+}
+html.omSecondary[data-page="admin"] input,
+html.omSecondary[data-page="admin"] select{
+ border-color:#387d706c!important
+}
+/* Application Studio: compact connected teal theme, preserve real controls. */
+html.omSecondary[data-page="prepare"] body{background:#0a2029!important;color:#e9f8f4!important}
+html.omSecondary[data-page="prepare"] .topbar{
+ background:rgba(8,30,38,.94)!important;border-color:#376d6780!important
+}
+html.omSecondary[data-page="prepare"] .brand,
+html.omSecondary[data-page="prepare"] .brand b{color:#f5fffc!important}
+html.omSecondary[data-page="prepare"] .brand small{color:#96cfc2!important}
+html.omSecondary[data-page="prepare"] .brandMark{
+ background:#12343b!important;border-color:#4a988880!important
+}
+html.omSecondary[data-page="prepare"] .brandMark:before{
+ border-color:#51e7d6!important;border-right-color:#159e91!important
+}
+html.omSecondary[data-page="prepare"] .heroCard{
+ background:radial-gradient(ellipse at 95% 10%,rgba(81,231,214,.14),transparent 45%),
+ linear-gradient(135deg,#123b44,#0c212b)!important;border-color:#387d6e83!important
+}
+html.omSecondary[data-page="prepare"] .eyebrow,
+html.omSecondary[data-page="prepare"] .sectionEy{color:#86efd9!important}
+html.omSecondary[data-page="prepare"] .primaryBtn,
+html.omSecondary[data-page="prepare"] .readyBtn{
+ background:#51e7d6!important;border-color:#51e7d6!important;color:#102f32!important
+}
+html.omSecondary[data-page="prepare"] .ghostBtn{
+ color:#e4f9f3!important;border-color:#4f9b8b91!important;
+ background:#173840!important
+}
+html.omSecondary[data-page="prepare"] .surfaceCard,
+html.omSecondary[data-page="prepare"] .docCard,
+html.omSecondary[data-page="prepare"] .progressCard{
+ background:#122c35!important;border-color:#37766888!important;color:#eaf8f4!important
+}
+html.omSecondary[data-page="prepare"] .heroMain h1,
+html.omSecondary[data-page="prepare"] .surfaceCard h2{color:#fff!important}
+html.omSecondary[data-page="prepare"] .stageBtn.active{
+ background:#143e3f!important;border-color:#6edcc5!important
+}
+html.omSecondary[data-page="prepare"] .stageBtn.active b{color:#a1f7e5!important}
+/* Public privacy notice: dark teal editorial masthead, bright readable content. */
+html.omSecondary[data-page="privacy"]{
+ --bg:#f7fbfa;--panel:#eef8f3;--text:#244a47;--muted:#547970;
+ --edge:#d3e9df;--accent:#0a8d7c;--violet:#0d9987;color-scheme:light
+}
+html.omSecondary[data-page="privacy"] body{
+ background:#f7fcfa!important;color:#264b46!important
+}
+html.omSecondary[data-page="privacy"] .nav{
+ border-bottom:1px solid #bcded2!important;
+ background:#0b2c33!important;padding:18px 20px!important;
+ margin:12px auto!important;border-radius:52px!important
+}
+html.omSecondary[data-page="privacy"] .nav .brand{color:#effffb!important}
+html.omSecondary[data-page="privacy"] .nav .navlinks a{color:#c4ebe0!important}
+html.omSecondary[data-page="privacy"] .nav .navlinks a:hover{color:#6aedd3!important}
+html.omSecondary[data-page="privacy"] .hero{max-width:850px;padding:65px 5px 42px!important}
+html.omSecondary[data-page="privacy"] .hero h1{color:#103b3c!important}
+html.omSecondary[data-page="privacy"] .hero h1 span{color:#078c7e!important}
+html.omSecondary[data-page="privacy"] .hero .intro{color:#4c706a!important}
+html.omSecondary[data-page="privacy"] .updated span{color:#416c63!important}
+html.omSecondary[data-page="privacy"] .eyebrow{color:#058778!important}
+html.omSecondary[data-page="privacy"] .layout .toc,
+html.omSecondary[data-page="privacy"] .content .highlights,
+html.omSecondary[data-page="privacy"] .contact{
+ background:#eaf6f1!important;border-color:#c5e5da!important
+}
+html.omSecondary[data-page="privacy"] .content .section{
+ border-color:#d2e8df!important
+}
+html.omSecondary[data-page="privacy"] .content .section h2{
+ color:#163d3b!important
+}
+html.omSecondary[data-page="privacy"] .content .section p,
+html.omSecondary[data-page="privacy"] .content .section li,
+html.omSecondary[data-page="privacy"] .content .table td{
+ color:#436862!important
+}
+html.omSecondary[data-page="privacy"] .content .section strong{color:#173d3a!important}
+html.omSecondary[data-page="privacy"] a{color:#087f72}
+html.omSecondary[data-page="privacy"] .foot{color:#5c8178!important;border-color:#d2e8df!important}
+@media(max-width:640px){
+ html.omSecondary[data-page="privacy"] .nav{border-radius:22px!important;gap:10px!important}
+ html.omSecondary[data-page="privacy"] .nav .brand{font-size:15px!important}
+ html.omSecondary[data-page="privacy"] .nav .navlinks{gap:9px!important;flex-wrap:wrap}
+ html.omSecondary[data-page="privacy"] .nav .navlinks a{font-size:11px!important}
+ html.omSecondary[data-page="privacy"] .hero{padding:45px 0 26px!important}
+ html.omSecondary[data-page="admin"] .lockCard{padding:23px!important}
+ html.omSecondary[data-page="prepare"] .topbar{height:auto!important;min-height:76px!important;gap:12px!important}
+}
