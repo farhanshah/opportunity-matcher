@@ -11,10 +11,15 @@ export default async function handler(req,res){
   const offset=Number.isSafeInteger(offRaw)?Math.max(0,Math.min(10000,offRaw)):0;
   const rows=await sql`
     SELECT l.title,l.provider,l.canonical_url,l.verified_page_at,
-      l.evidence->>'opportunity_kind' AS opportunity_kind
+      l.evidence->>'opportunity_kind' AS opportunity_kind,
+      l.evidence->>'application_deadline' AS application_deadline,
+      l.evidence->>'location' AS location
     FROM worldwide_source_listings l
     WHERE l.source_status='source_confirmed'
       AND l.verified_page_at>=now()-interval '30 days'
+      AND (coalesce(l.evidence->>'opportunity_kind','')<>'official internship vacancy'
+        OR (l.evidence->>'application_deadline'>=to_char(now() AT TIME ZONE 'UTC','YYYY-MM-DD')
+          AND l.verified_page_at>=now()-interval '36 hours'))
       AND NOT EXISTS(
         SELECT 1 FROM opportunities o
         WHERE regexp_replace(o.official_source_url,'/+$','')=
@@ -30,6 +35,9 @@ export default async function handler(req,res){
     SELECT count(*)::int AS total FROM worldwide_source_listings l
     WHERE l.source_status='source_confirmed'
       AND l.verified_page_at>=now()-interval '30 days'
+      AND (coalesce(l.evidence->>'opportunity_kind','')<>'official internship vacancy'
+        OR (l.evidence->>'application_deadline'>=to_char(now() AT TIME ZONE 'UTC','YYYY-MM-DD')
+          AND l.verified_page_at>=now()-interval '36 hours'))
       AND NOT EXISTS(
         SELECT 1 FROM opportunities o
         WHERE regexp_replace(o.official_source_url,'/+$','')=
@@ -44,7 +52,9 @@ export default async function handler(req,res){
       source_confirmed_at:row.verified_page_at,
       publication_level:'source_confirmed',
       opportunity_kind:row.opportunity_kind||'official programme page',
-      application_status:'unknown',deadline:null,
+      application_status:row.opportunity_kind==='official internship vacancy'?'open_from_exact_provider_record':'unknown',
+      deadline:row.opportunity_kind==='official internship vacancy'?row.application_deadline:null,
+      location:row.location||null,
       eligibility:'not_verified',personal_match:'not_assessed'
     })),
     count:allowed.length,
