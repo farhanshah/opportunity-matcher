@@ -15,6 +15,7 @@ function featuredHighlights(notes){
   return (focused.length?focused:usable).slice(0,2).join('. ').replace(/\.\./g,'.').replace(/[. ]+$/,'');
 }
 function featuredReason(o){
+  if(o?.Verification_Stale!==false)return 'Historical programme information. Confirm this cycle’s funding, eligibility and application instructions directly with the provider.';
   const notes=String(o.Eligibility_Notes||'');
   const gate=featuredNominationGate(o);
   if(gate)return gate.passed
@@ -35,6 +36,7 @@ function featuredReason(o){
   return 'Check the provider requirements, funding terms and application route before applying.';
 }
 function featuredDeadline(o){
+  if(o?.Verification_Stale!==false)return deadline(o);
   const notes=String(o.Eligibility_Notes||'');
   const precise=notes.match(/\bDeadline\s+(\d{1,2}\s+[A-Za-z]{3,9}\s+20\d{2}),?\s+(\d{1,2}:\d{2})\s+(JST|UTC|GMT|BST|EST|EDT|PST|PDT)\b/i);
   if(precise)return 'Closes '+precise[1]+' at '+precise[2]+' '+precise[3].toUpperCase();
@@ -53,11 +55,11 @@ function renderFeatured(){
   candidates=candidates.slice(0,3);
   $('featuredGrid').innerHTML=candidates.map(o=>{
     const gate=featuredNominationGate(o);
-    const label=gate&&gate.passed?'Nominees only':(o.Status||'Explore');
+    const label=o.Verification_Stale!==false?'Needs source recheck':gate&&gate.passed?'Nominees only':(o.Status||'Explore');
     const url=String(o.Official_Source_URL||'').trim();
     const safeUrl=/^https?:\/\//i.test(url);
     return '<article class="liveCard">'
-      +'<div class="liveTop"><div class="providerMark">'+esc(logoLetter(o))+'</div><span class="statusPill'+(gate&&gate.passed?' needsCheck':'')+'">'+esc(label)+'</span></div>'
+      +'<div class="liveTop"><div class="providerMark">'+esc(logoLetter(o))+'</div><span class="statusPill'+(o.Verification_Stale!==false||gate&&gate.passed?' needsCheck':'')+'">'+esc(label)+'</span></div>'
       +'<h3>'+esc(o.Opportunity_Name)+'</h3><div class="provider">'+esc(o.Provider)+'</div>'
       +'<div class="tagRow"><span class="tag">'+esc(o.Type)+'</span><span class="tag">'+esc(o.Destination||'Global')+'</span><span class="tag">'+esc(o.Funding||'Funding varies')+'</span></div>'
       +'<div class="liveReason"><b>Worth knowing</b><br>'+esc(featuredReason(o))+'</div>'
@@ -73,8 +75,8 @@ async function loadData(){
     if(!r.ok)throw new Error('HTTP '+r.status);
     let j=await r.json();opps=j.opportunities||[];
     $('apiStatus').textContent='Live database';
-    const active=opps.filter(publicActive).length;
-    $('liveCopy').textContent=`${active} active or upcoming routes · ${opps.length} monitored records · official source links`;
+    const active=opps.filter(o=>o.Verification_Stale===false&&publicActive(o)).length;
+    $('liveCopy').textContent=`${active} recently verified active/upcoming routes · ${opps.length} monitored records · official source links`;
     updateStats();renderFeatured();renderAll()
   }catch(err){
     $('apiStatus').textContent='Database unavailable';
@@ -83,7 +85,7 @@ async function loadData(){
   }
 }
 function updateStats(){
-  const activeOpen=opps.filter(o=>publicActive(o)&&String(o.Status||'').toLowerCase()==='open').length;
+  const activeOpen=opps.filter(o=>o.Verification_Stale===false&&publicActive(o)&&String(o.Status||'').toLowerCase()==='open').length;
   $('statOpps').textContent=opps.length||'0';
   $('statOpen').textContent=activeOpen||'0';
   $('engOpps').textContent=opps.length||'0'
