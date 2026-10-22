@@ -264,7 +264,7 @@ async function scanSource(sql,source) {
         if(!verified.verified){
           try{
             const listing=await storeSourceListing(sql,{title:link.title},source,page);
-            if(listing.stored)result.source_confirmed++;
+            if(listing.isNew)result.source_confirmed++;
           }catch(partialError){
             console.warn('Official-source listing withheld',
               String(partialError?.message||partialError).slice(0,100));
