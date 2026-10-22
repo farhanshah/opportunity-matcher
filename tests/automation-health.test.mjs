@@ -55,3 +55,21 @@ test('daily health detects silent stops in scaled provider link and exact-vacanc
  assert.deepEqual(healthFindings({...base,official_links:1,exact_internships:1}),[]);
  assert.deepEqual(healthFindings({...base,official_links:null,exact_internships:null}),[]);
 });
+
+
+test('three-day publication drought alerts only after successful discovery runs',()=>{
+ const base={official_discovery:1,worldwide_discovery:1,worldwide_verification:1,
+   digest_sent:1,due_records:0,catalogue_rechecks:2,official_feed_prior:0,
+   official_grants_api:null,official_links:null,exact_internships:null};
+ assert.deepEqual(healthFindings({...base,completed_source_runs_72h:2,
+   new_source_publications_72h:0}),[]);
+ const problems=healthFindings({...base,completed_source_runs_72h:4,
+   new_source_publications_72h:0});
+ assert.equal(problems.length,1);
+ assert.match(problems[0],/72 hours/);
+ assert.deepEqual(healthFindings({...base,completed_source_runs_72h:4,
+   new_source_publications_72h:3}),[]);
+ const api=readFileSync(new URL('../api/automation-health-watch.js',import.meta.url),'utf8');
+ assert.match(api,/2026-10-27T00:00:00Z/);
+ assert.match(api,/new_source_publications_72h/);
+});
