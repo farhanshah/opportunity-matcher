@@ -1,13 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {eligibilityRecheckCompatible} from '../lib/verification-eligibility.js';
 
 const source=readFileSync(new URL('../api/discover.js',import.meta.url),'utf8')
   .replace(/^import .*;\s*$/gm,'')
   .replace('export default async function handler','async function handler')
   .replace(/^export \{ publish, fetchOfficial \};\s*$/gm,'');
-const getPublish=new Function('discoveryId',source+'\nreturn publish;');
-const publish=getPublish(()=> 'AUTO-TEST-0001');
+const getPublish=new Function('discoveryId','eligibilityRecheckCompatible',source+'\nreturn publish;');
+const publish=getPublish(()=> 'AUTO-TEST-0001',eligibilityRecheckCompatible);
 const url='https://scholarships.example.edu/open-2027-scholarship';
 const provider={id:'test-source',provider:'Verified University'};
 const result={
