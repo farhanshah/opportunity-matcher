@@ -8,6 +8,8 @@ const failures=[];let passed=0;const measures=[];
 function check(ok,msg,data){if(ok)passed++;else failures.push({msg,data});}
 for(const width of [320,360,390,430,768,1280]){
  const page=await browser.newPage({viewport:{width,height:840},deviceScaleFactor:1});
+ const cssRequests=[];
+ page.on('response',x=>{if(x.url().includes('blog.css')||x.url().includes('blog-turquoise-v4.css'))cssRequests.push({url:x.url(),status:x.status(),type:x.headers()['content-type']})});
  try{
   const resp=await page.goto(base+'/mobile-visual-v4.html',{waitUntil:'domcontentloaded',timeout:32000});
   check(resp.status()===200,width+' homepage v4 200',resp.status());
@@ -46,6 +48,7 @@ for(const width of [320,360,390,430,768,1280]){
     await page.screenshot({path:join('mobile-v4-visual-screens',width+'-homepage.png'),fullPage:true,animations:'disabled'});
   const blogResp=await page.goto(base+'/blog-visual-v4.html',{waitUntil:'domcontentloaded',timeout:30000});
   check(blogResp.status()===200,width+' blog preview 200');
+  await page.waitForLoadState('load',{timeout:25000});
   const blog=await page.evaluate(()=>{
     const hero=document.querySelector('.blogHero'),card=document.querySelector('.blogCard'),nav=document.querySelector('.blogNav');
     const h=getComputedStyle(hero),c=getComputedStyle(card);
@@ -53,7 +56,7 @@ for(const width of [320,360,390,430,768,1280]){
     return {scroll:document.documentElement.scrollWidth,viewport:innerWidth,cardBg:c.backgroundColor,
       cardText:c.color,heroBg:h.backgroundImage,navWidth:r.width,cardCount:document.querySelectorAll('.blogCard').length};
   });
-  measures.push({width,mode:'blog',...blog});
+  measures.push({width,mode:'blog',...blog,cssRequests,styleLinks:await page.locator('link[rel="stylesheet"]').count(),styleSheets:await page.evaluate(()=>document.styleSheets.length)});
   check(blog.scroll<=width+4,width+' blog no overflow',blog);
   check(blog.cardBg==='rgb(255, 255, 255)',width+' blog white readable cards',blog.cardBg);
   check(blog.heroBg.includes('gradient'),width+' blog turquoise hero',blog.heroBg);
