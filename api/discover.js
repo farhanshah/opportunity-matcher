@@ -2,6 +2,7 @@ import { db } from '../lib/db.js';
 import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId } from '../lib/auto-discovery.js';
 import { resolveOfficialRedirect } from '../lib/verification-redirects.js';
 import {storeSourceListing} from '../lib/source-listings.js';
+import {eligibilityRecheckCompatible} from '../lib/verification-eligibility.js';
 
 const SOURCE_BATCH = 12;
 const LINKS_PER_SOURCE = 16;
@@ -70,17 +71,11 @@ async function publish(sql,source,url,result) {
       SELECT count(*)::int AS total FROM opportunity_country_routes
       WHERE opportunity_id=${o.id} AND is_active=true
     `;
-    // A rechecked page may NOT silently broaden or narrow eligibility.
-    // Both the stored catalogue arrays and confirmed rule(s) must be handled
-    // separately if a provider updates its terms.
-    const sameValues=(stored,extracted)=>
-      JSON.stringify((Array.isArray(stored)?stored:[]).map(x=>String(x).trim().toLowerCase()).sort())===
-      JSON.stringify((Array.isArray(extracted)?extracted:[]).map(x=>String(x).trim().toLowerCase()).sort());
-    if(!sameValues(o.eligible_nationalities,r.nationality)||
-       !sameValues(o.education_levels,r.education)||
-       !sameValues(o.fields_of_study,r.fields))
-      return {status:'needs_evidence',reason:'Existing nationality, education or field rules differ from current provider evidence'};
-
+    // The stored eligibility restrictions must match the current source
+    // exactly before any existing programme can be stamped verified.
+    if(!eligibilityRecheckCompatible(o,r))
+      return {status:'needs_evidence',
+        reason:'Stored nationality, degree or study-field restrictions differ from official evidence'};
     if(routeCheck.total>0) return {
       status:'needs_evidence',reason:'Existing country-specific application routes cannot be overwritten from a general page'
     };
