@@ -63,12 +63,27 @@ export default async function handler(req,res){
     let newlyAdded=0;
     if(unique.length){
       const rows=await sql`
-        INSERT INTO opportunity_web_leads(canonical_url,title,snippet,search_query,search_region,matched_official_host,review_status)
-        SELECT x.canonical_url,x.title,x.snippet,x.search_query,x.search_region,x.matched_official_host,'unverified'
+        INSERT INTO opportunity_web_leads(canonical_url,title,snippet,search_query,search_region,
+          matched_official_host,review_status,verification_status,verification_reason)
+        SELECT x.canonical_url,x.title,x.snippet,x.search_query,x.search_region,
+          x.matched_official_host,'unverified',
+          CASE WHEN x.matched_official_host THEN 'pending' ELSE 'source_review' END,
+          CASE WHEN x.matched_official_host THEN NULL
+             ELSE 'Provider hostname is not in the official-source registry' END
         FROM jsonb_to_recordset(${JSON.stringify(unique)}::jsonb) AS x(
           canonical_url text,title text,snippet text,search_query text,search_region text,matched_official_host boolean)
         ON CONFLICT (canonical_url) DO UPDATE SET
-          last_seen_at=now(),matched_official_host=EXCLUDED.matched_official_host
+          last_seen_at=now(),matched_official_host=EXCLUDED.matched_official_host,
+          verification_status=CASE
+            WHEN EXCLUDED.matched_official_host
+             AND opportunity_web_leads.verification_status='source_review'
+             AND opportunity_web_leads.verification_reason='Provider hostname is not in the official-source registry'
+            THEN 'pending' ELSE opportunity_web_leads.verification_status END,
+          verification_reason=CASE
+            WHEN EXCLUDED.matched_official_host
+             AND opportunity_web_leads.verification_status='source_review'
+             AND opportunity_web_leads.verification_reason='Provider hostname is not in the official-source registry'
+            THEN NULL ELSE opportunity_web_leads.verification_reason END
         RETURNING (xmax=0) AS newly_added
       `;
       newlyAdded=rows.filter(r=>r.newly_added).length;
