@@ -48,6 +48,9 @@
     },
     "api/uk-morning-discover.js": {
       "maxDuration": 60
+    },
+    "api/expand-providers.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
@@ -165,6 +168,10 @@
     {
       "path": "/api/uk-morning-discover",
       "schedule": "0 7,8 * * *"
+    },
+    {
+      "path": "/api/expand-providers",
+      "schedule": "20 1 * * *"
     }
   ]
 }
