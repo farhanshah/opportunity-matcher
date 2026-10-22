@@ -1,4 +1,5 @@
 import {db} from '../lib/db.js';
+import {isProgrammePage} from '../lib/source-listings.js';
 
 export default async function handler(req,res){
  if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});
@@ -22,14 +23,15 @@ export default async function handler(req,res){
     ORDER BY l.verified_page_at DESC,l.id DESC
     LIMIT ${limit}
   `;
+  const allowed=rows.filter(row=>isProgrammePage(row.title,row.canonical_url));
   return res.status(200).json({
-    listings:rows.map(row=>({
+    listings:allowed.map(row=>({
       title:row.title,provider:row.provider,official_url:row.canonical_url,
       source_confirmed_at:row.verified_page_at,
       publication_level:'source_confirmed',application_status:'unknown',
       deadline:null,eligibility:'not_verified',personal_match:'not_assessed'
     })),
-    count:rows.length,
+    count:allowed.length,
     meaning:'Official programme pages found. Application status, deadlines, funding and eligibility are not verified at this level.',
     generated_at:new Date().toISOString()
   });
