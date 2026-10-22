@@ -123,9 +123,15 @@ export default async function handler(req,res){
       FROM opportunity_official_feed_runs
       WHERE started_at>=now()-interval '24 hours'
     `;
+    const [latestExactInternshipRun]=await sql`
+      SELECT details FROM opportunity_official_feed_runs
+      WHERE provider='exact_internships' AND started_at>=now()-interval '24 hours'
+      ORDER BY started_at DESC LIMIT 1
+    `;
     const message=discoveryDigest({day,officialRuns,worldRuns,verificationRuns,
       officialCandidates,publishedOpportunities,worldLeads,catalogueHealth,
-      sourceListingStats,governmentFeedStats,supplementalFeedStats});
+      sourceListingStats,governmentFeedStats,supplementalFeedStats,
+      exactProviderDetails:latestExactInternshipRun?.details||null});
     const response=await fetch('https://api.resend.com/emails',{
       method:'POST',signal:AbortSignal.timeout(15000),
       headers:{
