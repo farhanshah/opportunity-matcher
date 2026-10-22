@@ -10,6 +10,7 @@ test('unrecognized domains, fake subdomains and private addresses cannot auto-pu
   assert.equal(trustedSourceForLead(lead('https://untrusted.example/scholarship/2027'),[source]).status,'source_review');
   assert.equal(trustedSourceForLead(lead('https://university.example.evil.org/scholarship/2027'),[source]).status,'source_review');
   assert.equal(trustedSourceForLead(lead('http://127.0.0.1/scholarships'),[source]).status,'invalid_url');
+  assert.equal(trustedSourceForLead(lead('https://university.example/$$$$$$$$%7Byear%7D/scholarships'),[source]).status,'invalid_url');
 });
 test('registered provider and programme-specific path are eligible for verification only',()=>{
   assert.equal(trustedSourceForLead(lead('https://university.example/scholarships/2027-award'),[source]).status,'trusted');
