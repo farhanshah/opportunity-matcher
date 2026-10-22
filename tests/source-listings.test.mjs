@@ -55,7 +55,9 @@ test('recently verified matching catalogue entry is not duplicated in source tie
 test('public listing API cannot represent source-only data as verified or open',()=>{
  const endpoint=readFileSync(new URL('../api/source-listings.js',import.meta.url),'utf8');
  assert.match(endpoint,/publication_level:'source_confirmed'/);
- assert.match(endpoint,/application_status:'unknown'/);
+ assert.match(endpoint,/application_status:row\.opportunity_kind===/);
+ assert.match(endpoint,/:'unknown'/);
+ assert.match(endpoint,/personal_match:'not_assessed'/);
  assert.match(endpoint,/eligibility:'not_verified'/);
  assert.match(endpoint,/personal_match:'not_assessed'/);
  assert.doesNotMatch(endpoint,/INSERT INTO opportunities|UPDATE opportunities/);
