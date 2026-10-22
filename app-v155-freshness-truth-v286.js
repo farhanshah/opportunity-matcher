@@ -12,6 +12,12 @@
     .oppFreshnessTruthV286 .oppFreshnessIcon{font-weight:900;font-size:16px;line-height:1.3}
     .landing .oppFreshnessTruthV286{margin:0 0 24px}
     #app .oppFreshnessTruthV286{background:#292414;color:#f7ead0;border-color:#846b35}
+    #app .oppFreshnessTruthV286{padding:10px 14px;margin-bottom:14px;gap:10px}
+    #app .oppFreshnessTruthV286 strong{font-size:12px;line-height:1.45}
+    #app .oppFreshnessTruthV286 details{margin-top:3px}
+    #app .oppFreshnessTruthV286 summary{cursor:pointer;display:inline-block;color:#acf6e5;font-size:11px;font-weight:750}
+    #app .oppFreshnessTruthV286 details[open] summary{margin-bottom:5px}
+    #app .oppFreshnessTruthV286 details p{margin-top:3px;max-width:930px}
     @media(max-width:700px){.oppFreshnessTruthV286{padding:12px;font-size:11px}.oppFreshnessTruthV286 strong{font-size:12px}}
   `;
   document.head.appendChild(style);
@@ -39,9 +45,22 @@
             ?` Source monitoring fetched ${success} of ${sources} official pages successfully in the past 7 days, but that does not re-verify every programme rule.`:''}</p>`
       :`<strong>Catalogue source checks are current.</strong>
          <p>Always confirm your country's application requirements and deadline on the official provider page.</p>`;
+    const workspaceMessage=stale>0
+      ?`<strong>${stale} of ${total} records need source re-verification. Check official details before applying.</strong>
+       <details class="oppFreshnessMore"><summary>Why this matters</summary>
+       <p>Saved deadlines and profile matches are leads, not proof of current eligibility.
+       ${Number.isSafeInteger(sources)&&Number.isSafeInteger(success)
+         ?`Provider monitoring fetched ${success} of ${sources} sources in the last 7 days,
+            but a successful fetch does not verify individual programme rules.`:''}
+       </p></details>`
+      :message;
     for(const kind of ['public','workspace']){
       const container=mount(kind);
-      if(container){container.innerHTML='<span class="oppFreshnessIcon" aria-hidden="true">!</span><div>'+message+'</div>';container.hidden=false;}
+      if(container){
+        container.innerHTML='<span class="oppFreshnessIcon" aria-hidden="true">!</span><div>'+
+          (kind==='workspace'?workspaceMessage:message)+'</div>';
+        container.hidden=false;
+      }
     }
   }
   function unavailable(){
