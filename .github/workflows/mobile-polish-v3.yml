@@ -1,0 +1,32 @@
+name: OppMatcher mobile polish v3 browser QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile-preview.html'
+      - 'integration-turquoise-v3.css'
+      - 'integration-shell-mobile-v3.js'
+      - 'tests/mobile-polish-v3.mjs'
+      - '.github/workflows/mobile-polish-v3.yml'
+  workflow_dispatch:
+jobs:
+  chrome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check integration-shell-mobile-v3.js
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Verify responsive layout, navigation, cards, and Tracker from 320px to desktop
+        run: node tests/mobile-polish-v3.mjs
+      - name: Archive before-launch phone screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oppmatcher-v3-mobile-design
+          path: mobile-v3-screens/
+          retention-days: 7
