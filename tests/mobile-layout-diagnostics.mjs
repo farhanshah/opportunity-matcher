@@ -25,7 +25,7 @@ for(const width of [320,360,390,430,768]){
     const overflowing=[...document.querySelectorAll('body *')].filter(e=>visible(e)).map(e=>{
       const r=e.getBoundingClientRect();
       if(r.right>screen+5||r.left< -5) return {tag:e.tagName.toLowerCase(),css: typeof e.className==='string'?e.className.slice(0,65):'',id:e.id,txt:(e.innerText||'').slice(0,44).replace(/\s+/g,' '),x:Math.round(r.x),right:Math.round(r.right),w:Math.round(r.width)};
-    }).filter(x=>x.w<3000).sort((a,b)=>b.right-a.right).slice(0,11);
+    }).filter(x=>x&&x.w<10000).sort((a,b)=>b.right-a.right).slice(0,18);
     const get=s=>{const e=document.querySelector(s);if(!e)return null;const r=e.getBoundingClientRect(),st=getComputedStyle(e);return {x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height),display:st.display,grid:st.gridTemplateColumns,overflow:st.overflowX}};
     return {view:v,scroll:root.scrollWidth,width:screen,overflowing,selectors:Object.fromEntries(['#landing .nav','#landing .navlinks','#landing .heroWrap>.nav .btnPrimary','#landing .hero','#landing .heroVisual','#landing .featureGrid','#landing .sourceMarquee','#landing .sourceTrack','#landing .liveGrid','#landing .guideGrid','.app .appTop','.app .topRight','.app .omMobileMenu','.app .appBody','.app .focusCard','.app .trackerBoard','.app .discoverLayout','#onboard .modalBox','#cloudAuthCard'].map(s=>[s,get(s)]).filter(x=>x[1]))};
    },view);
