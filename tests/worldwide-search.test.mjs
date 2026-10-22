@@ -42,3 +42,22 @@ test('private operations can track worldwide searches without promoting unverifi
  assert.ok(api.includes('if (!authorised(req)) return res.status(401)'));
  assert.ok(html.includes('worldwideSearchStatus'));
 });
+
+
+test('registered official sources receive rotating search slots without being auto-trusted',()=>{
+ const hosts=Array.from({length:34},(_,i)=>'provider'+i+'.example.org');
+ const dayOne=worldwideQueries(new Date('2026-10-22T00:00:00Z'),hosts);
+ const dayTwo=worldwideQueries(new Date('2026-10-23T00:00:00Z'),hosts);
+ assert.equal(dayOne.length,WORLDWIDE_DAILY_QUERY_LIMIT);
+ assert.equal(dayOne.filter(x=>x.officialTarget).length,6);
+ assert.equal(dayOne.filter(x=>!x.officialTarget).length,6);
+ assert.ok(dayOne.every(x=>x.query.includes('2027')));
+ assert.ok(dayOne.filter(x=>x.officialTarget).every(x=>x.query.startsWith('site:')));
+ assert.notDeepEqual(dayOne.filter(x=>x.officialTarget).map(x=>x.query),
+   dayTwo.filter(x=>x.officialTarget).map(x=>x.query));
+ assert.equal(worldwideQueries(new Date('2026-10-22T00:00:00Z'),[]).length,12);
+ const source=load('api/worldwide-discover.js');
+ assert.ok(source.includes('worldwideQueries(new Date(),officialHosts)'));
+ assert.ok(source.includes('if(!officialTarget)url.searchParams.set'));
+ assert.ok(source.includes("review_status"));
+});
