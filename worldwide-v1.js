@@ -20,10 +20,13 @@
  function text(tag,cls,value){const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=value;return el}
  function card(item){
    const el=document.createElement('article');el.className='card';
-   el.append(text('span','level','Official page confirmed'));
+   const federalGrant=item.opportunity_kind==='US federal grant';
+   el.append(text('span','level',federalGrant?'Official U.S. grant record':'Official page confirmed'));
+
    el.append(text('h3','',item.title||'Programme page'));
    el.append(text('div','provider',item.provider||'Official provider'));
-   el.append(text('p','unknown','Opening status, deadline, funding and eligibility are not yet verified. Check this cycle’s official instructions.'));
+   el.append(text('p','unknown',federalGrant?'A U.S. federal funding notice. Many are for organisations, not individual students. Applicant type, deadline and eligibility must be checked on Grants.gov.':'Opening status, deadline, funding and eligibility are not yet verified. Check this cycle’s official instructions.'));
+
    try{const url=new URL(item.official_url);if(url.protocol==='https:'){
      const a=document.createElement('a');a.className='source';a.href=url.href;
      a.target='_blank';a.rel='noopener noreferrer';a.textContent='View official provider page ↗';el.append(a)
