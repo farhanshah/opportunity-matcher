@@ -90,7 +90,11 @@ test('editorial FAQ, facts, alumni and applicant help pages never become opportu
   ['Important information for scholarship applicants','https://uni.example/information-for-scholarship-applicants'],
   ['Alumni and Lifelong Fellowship','https://uni.example/scholar-community/alumni-and-lifelong-fellowship'],
   ['2027 Scholarship Program','https://uni.example/awards/faq'],
-  ['How to Apply for the Scholarship','https://uni.example/awards/how-to-apply']
+  ['How to Apply for the Scholarship','https://uni.example/awards/how-to-apply'],
+  ['Criteria & Scholarship Programs','https://uni.example/scholarshipsprograms'],
+  ['Full-Time Scholarships','https://uni.example/fulltimeprograms'],
+  ['Commonwealth Fellowships – information for candidates','https://uni.example/scholarships/commonwealth-fellowships-information-for-candidates'],
+  ['Swiss Government Excellence Scholarships at a Glance','https://uni.example/en/swiss-government-excellence-scholarships-at-a-glance']
  ];
  for(const [title,pageUrl] of examples){
   const candidate=sourceListingEvidence({html:base.replace('REPLACE',title),url:pageUrl,source});
