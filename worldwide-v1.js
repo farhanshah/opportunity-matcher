@@ -34,15 +34,36 @@
    if(item.source_confirmed_at){const d=new Date(item.source_confirmed_at);if(!Number.isNaN(d.getTime()))el.append(text('div','time','Source checked: '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})))}
    return el
  }
- async function load(){
-   try{
-    const response=await fetch('/api/source-listings?limit=60',{cache:'no-store'});
-    if(!response.ok)throw new Error('Service unavailable');
-    const data=await response.json();const items=Array.isArray(data.listings)?data.listings:[];
-    grid.replaceChildren(...items.map(card));count.textContent=items.length+' confirmed pages';
-    status.textContent=items.length?'':'No source-confirmed listings are available yet. Official-provider checks run automatically.';
-   }catch{status.textContent='Source-confirmed listings cannot be loaded right now. Please try again later.';count.textContent='Unavailable'}
+ const more=document.getElementById('worldLoadMore');
+ let nextOffset=0,moreLoading=false;
+ async function loadPage(reset=false){
+  if(moreLoading)return;
+  moreLoading=true;
+  if(more){more.disabled=true;more.hidden=true;}
+  try{
+   const offset=reset?0:nextOffset;
+   const response=await fetch('/api/source-listings?limit=60&offset='+offset,{cache:'no-store'});
+   if(!response.ok)throw Error('Source programme directory unavailable');
+   const data=await response.json();
+   const items=Array.isArray(data.listings)?data.listings:[];
+   if(reset)grid.replaceChildren();
+   grid.append(...items.map(card));
+   const total=Number(data.total_source_confirmed);
+   count.textContent=Number.isSafeInteger(total)?total+' confirmed pages':grid.children.length+' confirmed pages';
+   status.textContent=grid.children.length?'':'No source-confirmed listings are available yet. Official-provider checks run automatically.';
+   nextOffset=Number.isSafeInteger(data.next_offset)?data.next_offset:null;
+   if(more)more.hidden=nextOffset===null||!(Number.isSafeInteger(total)&&nextOffset<total);
+  }catch{
+   status.textContent='Source-confirmed listings cannot be loaded right now. Please try again later.';
+   if(more&&!reset)more.hidden=false;
+   if(reset)count.textContent='Unavailable';
+  }finally{
+   moreLoading=false;
+   if(more)more.disabled=false;
+  }
  }
+ if(more)more.addEventListener('click',()=>loadPage());
+ async function load(){await loadPage(true)}
 
  async function loadOpenCalls(){
   const wrap=document.getElementById('official-open-calls'),
