@@ -83,7 +83,20 @@ export default async function handler(req,res){
       ORDER BY first_seen_at DESC LIMIT 6
     `;
 
-    const message=discoveryDigest({day,officialRuns,worldRuns,verificationRuns,officialCandidates,publishedOpportunities,worldLeads});
+    // Checking a provider page is not the same as verifying its programme
+    // conditions. Keep the two counts separate in the daily email.
+    const [catalogueHealth]=await sql`
+      SELECT
+        count(*)::int AS total_records,
+        count(*) FILTER (WHERE last_recheck_at >= now()-interval '24 hours')::int AS rechecked_24h,
+        count(*) FILTER (WHERE last_verified_at >= now()-interval '30 days')::int AS verified_30d,
+        count(*) FILTER (WHERE last_recheck_at IS NULL)::int AS never_checked,
+        count(*) FILTER (WHERE last_recheck_outcome LIKE 'needs_evidence:%')::int AS needs_evidence,
+        count(*) FILTER (WHERE last_recheck_outcome LIKE 'retry_needed:%')::int AS retry_needed
+      FROM opportunities
+    `;
+    const message=discoveryDigest({day,officialRuns,worldRuns,verificationRuns,
+      officialCandidates,publishedOpportunities,worldLeads,catalogueHealth});
     const response=await fetch('https://api.resend.com/emails',{
       method:'POST',signal:AbortSignal.timeout(15000),
       headers:{
