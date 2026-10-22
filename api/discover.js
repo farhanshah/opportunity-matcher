@@ -1,6 +1,7 @@
 import { db } from '../lib/db.js';
 import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId } from '../lib/auto-discovery.js';
 import { resolveOfficialRedirect } from '../lib/verification-redirects.js';
+import {storeSourceListing} from '../lib/source-listings.js';
 
 const SOURCE_BATCH = 12;
 const LINKS_PER_SOURCE = 16;
@@ -215,7 +216,7 @@ async function noteExistingLink(sql,source,link,known){
   `;
 }
 async function scanSource(sql,source) {
-  const result={source:source.source_key,links:0,detail_checked:0,published:0,held:0,existing:0,used_monitor_snapshot:false,errors:[]};
+  const result={source:source.source_key,links:0,detail_checked:0,published:0,held:0,existing:0,source_confirmed:0,used_monitor_snapshot:false,errors:[]};
   try{
     // Reuse the last accepted official monitor snapshot when a recent
     // successful recheck attests that the page has not changed.
@@ -249,6 +250,15 @@ async function scanSource(sql,source) {
         const page=await fetchOfficial(link.url,source.source_url);
         const verified=verifyCandidate(page.html,page.url,source.provider);
         const published=await publish(sql,source,page.url,verified);
+        if(!verified.verified){
+          try{
+            const listing=await storeSourceListing(sql,{title:link.title},source,page);
+            if(listing.stored)result.source_confirmed++;
+          }catch(partialError){
+            console.warn('Official-source listing withheld',
+              String(partialError?.message||partialError).slice(0,100));
+          }
+        }
         const reason=published.reason|| (published.status==='published' ? 'Verified on official provider page' : verified.reasons.join('; '));
         if(!published.candidateStored) {
           await saveCandidate(sql,source,page.url,link.title,verified,published.status,reason);
@@ -299,6 +309,7 @@ export default async function handler(req,res){
       discovered_links:results.reduce((n,x)=>n+x.links,0),
       detail_checked:results.reduce((n,x)=>n+x.detail_checked,0),
       automatically_published:results.reduce((n,x)=>n+x.published,0),
+      source_confirmed:results.reduce((n,x)=>n+x.source_confirmed,0),
       withheld:results.reduce((n,x)=>n+x.held,0),
       existing_programme_links:results.reduce((n,x)=>n+x.existing,0),
       sources_with_errors:results.filter(x=>x.errors.length).length
@@ -308,11 +319,11 @@ export default async function handler(req,res){
       UPDATE opportunity_discovery_runs
       SET completed_at=${endedAt},status='completed',scanned_sources=${totals.scanned},
         found_links=${totals.discovered_links},checked_details=${totals.detail_checked},
-        new_published=${totals.automatically_published},withheld=${totals.withheld},
+        new_published=${totals.automatically_published},source_confirmed=${totals.source_confirmed},withheld=${totals.withheld},
         already_existing=${totals.existing_programme_links},source_errors=${totals.sources_with_errors},
         results=${JSON.stringify(results.map(r=>({
           source:r.source,links:r.links,detail_checked:r.detail_checked,
-          published:r.published,held:r.held,existing:r.existing,errors:r.errors
+          published:r.published,source_confirmed:r.source_confirmed,held:r.held,existing:r.existing,errors:r.errors
         })))}::jsonb
       WHERE id=${runId}
     `;
