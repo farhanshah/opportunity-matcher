@@ -45,6 +45,9 @@
     },
     "api/verify-worldwide.js": {
       "maxDuration": 60
+    },
+    "api/uk-morning-discover.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -141,7 +144,7 @@
     },
     {
       "path": "/api/reverify",
-      "schedule": "0 8 * * *"
+      "schedule": "0 */2 * * *"
     },
     {
       "path": "/api/welcome-email",
@@ -157,7 +160,11 @@
     },
     {
       "path": "/api/verify-worldwide",
-      "schedule": "15 7 * * *"
+      "schedule": "15 2,7,8,12,17 * * *"
+    },
+    {
+      "path": "/api/uk-morning-discover",
+      "schedule": "0 7,8 * * *"
     }
   ]
 }
