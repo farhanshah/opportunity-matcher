@@ -62,3 +62,25 @@ test('registered official sources receive rotating search slots without being au
  assert.ok(source.includes('if(!officialTarget)url.searchParams.set'));
  assert.ok(source.includes("review_status"));
 });
+
+
+test('low-quality navigation and financial-news results do not enter verification queue',()=>{
+ for(const [title,url] of [
+  ['USEFP - Press Releases','https://usefp.org/media-room/press-releases.cfm'],
+  ['Lending Rates & Fees','https://treasury.worldbank.org/en/about/lending-rates-and-fees'],
+  ['University Information | Scholarships','https://studyinkorea.go.kr/ko/search/universityInfo.do'],
+  ['Frequently Asked Questions on the Internship Program','https://wipo.int/en/web/working-at-wipo/internship-program/faqs'],
+  ['2027 Global Scholarships Announcement','https://example.edu/news/global-scholarships-2027']
+ ]){
+  assert.equal(normalizeWebLead({title,url},'Global','query',['example.edu']),null,title);
+ }
+});
+test('official named application calls and programme pages survive lead filtering',()=>{
+ for(const [title,url] of [
+  ['Open Call for Internship at WIPO Japan Office','https://www.wipo.int/en/web/office-japan/w/news/2026/open-call-for-internship-at-wipo-japan-office'],
+  ['World Bank Scholarships Program JJ WBGSP','https://www.worldbank.org/en/programs/scholarships/jj-wbgsp'],
+  ['Türkiye Scholarships Full-Time Scholarship Program','https://www.turkiyeburslari.gov.tr/fulltimeprograms']
+ ]){
+  assert.ok(normalizeWebLead({title,url},'Global','query'),title);
+ }
+});
