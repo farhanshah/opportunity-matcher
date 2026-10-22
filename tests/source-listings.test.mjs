@@ -74,3 +74,24 @@ test('daily official snapshot promoter is secret protected and evidence-bound',(
  assert.match(api,/storeSourceListing\(sql/);
  assert.doesNotMatch(api,/INSERT INTO opportunities|UPDATE opportunities/);
 });
+
+
+test('editorial FAQ, facts, alumni and applicant help pages never become opportunities',()=>{
+ const base='<main><h1>REPLACE</h1><p>'+
+   'Programme advice and information are available to students interested in applying. '+
+   'The provider hosts several educational resources for prospective candidates. '+
+   'Individual opportunity rules, deadlines, programme conditions and eligibility vary.'+
+   '</p></main>';
+ const examples=[
+  ['Frequently Asked Questions on the Internship Program','https://uni.example/internship-program/faqs'],
+  ['Key Facts about the Rhodes Scholarship','https://uni.example/scholarships/key-facts-about-the-rhodes-scholarship'],
+  ['Important information for scholarship applicants','https://uni.example/information-for-scholarship-applicants'],
+  ['Alumni and Lifelong Fellowship','https://uni.example/scholar-community/alumni-and-lifelong-fellowship'],
+  ['2027 Scholarship Program','https://uni.example/awards/faq'],
+  ['How to Apply for the Scholarship','https://uni.example/awards/how-to-apply']
+ ];
+ for(const [title,pageUrl] of examples){
+  const candidate=sourceListingEvidence({html:base.replace('REPLACE',title),url:pageUrl,source});
+  assert.equal(candidate.ok,false,title+' must not be published as a programme');
+ }
+});
