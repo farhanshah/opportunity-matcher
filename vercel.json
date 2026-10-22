@@ -57,6 +57,9 @@
     },
     "api/source-listings.js": {
       "maxDuration": 15
+    },
+    "api/promote-source-snapshots.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -202,6 +205,10 @@
     {
       "path": "/api/automation-health-watch",
       "schedule": "40 12 * * *"
+    },
+    {
+      "path": "/api/promote-source-snapshots",
+      "schedule": "40 6 * * *"
     }
   ]
 }
