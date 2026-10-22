@@ -63,6 +63,12 @@
     },
     "api/discover-grantsgov.js": {
       "maxDuration": 60
+    },
+    "api/open-calls.js": {
+      "maxDuration": 15
+    },
+    "api/recheck-open-calls.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -232,6 +238,10 @@
     {
       "path": "/api/discover-grantsgov",
       "schedule": "40 3 * * *"
+    },
+    {
+      "path": "/api/recheck-open-calls",
+      "schedule": "20 */6 * * *"
     }
   ]
 }
