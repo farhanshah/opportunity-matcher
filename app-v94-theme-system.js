@@ -17,8 +17,7 @@
   }
 
   function autoTheme(){
-    const hour=new Date().getHours();
-    return hour>=7&&hour<19?'light':'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
   }
   function resolved(){return mode==='auto'?autoTheme():mode}
   function icon(){if(mode==='auto')return resolved()==='dark'?'◐':'◑';return mode==='dark'?'☾':'☀'}
@@ -26,7 +25,7 @@
   function apply(){
     const theme=resolved();
     root.dataset.omTheme=theme;root.dataset.omThemeMode=mode;
-    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=theme==='dark'?'#0b1017':'#f5f3ee';
+    const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=theme==='dark'?'#08191f':'#f4faf8';
     document.querySelectorAll('.omThemeToggle').forEach(btn=>{
       btn.setAttribute('aria-label',`Theme: ${label()}. Click to change.`);
       btn.title=`Theme: ${label()} · ${theme==='dark'?'night':'day'} appearance`;
@@ -61,6 +60,7 @@
   function refresh(){mountButtons();setupMotion()}
   addFont();addThemeCss();apply();
   const observer=new MutationObserver(()=>{clearTimeout(observer._t);observer._t=setTimeout(refresh,70)});observer.observe(document.body,{subtree:true,childList:true});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(mode==='auto')apply()});
   window.addEventListener('focus',()=>{if(mode==='auto')apply();refresh()});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&mode==='auto')apply()});
   setInterval(()=>{if(mode==='auto')apply()},300000);
