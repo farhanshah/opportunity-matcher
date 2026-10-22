@@ -15,7 +15,15 @@ async function fetchConfirmed(provider,path){
  const fetched=new Date(data.fetched_at);
  if(!Number.isFinite(fetched.getTime())||Math.abs(Date.now()-fetched.getTime())>15*60000)
   throw Error(provider+' provider observation is stale');
- return data.openings.slice(0,35).map(row=>verifiedInternship(row,provider,fetched)).filter(Boolean);
+ const verified=data.openings.slice(0,35).map(row=>verifiedInternship(row,provider,fetched)).filter(Boolean);
+ return {openings:verified,diagnostic:{
+    status:'completed',adapter_state:String(data.adapter_state||'unknown').slice(0,55),
+    provider_candidates:Number(data.candidate_count||0),
+    exact_jobs_reported:Number(data.exact_verified_count||0),
+    accepted:verified.length,
+    checked_at:fetched.toISOString(),
+    provider_host_errors:Array.isArray(data.host_errors)?data.host_errors.slice(0,3).map(x=>String(x).slice(0,95)):[]
+ }};
 }
 export default async function handler(req,res){
  res.setHeader('Cache-Control','no-store');
@@ -29,15 +37,26 @@ export default async function handler(req,res){
   runId=run.id;
   const checks=await Promise.allSettled(FEEDS.map(([name,path])=>fetchConfirmed(name,path)));
   const records=new Map();let providerErrors=0,successfulSources=0;
-  for(const check of checks){
+  const providerDetails={};
+  for(let i=0;i<checks.length;i++){
+   const check=checks[i];const provider=FEEDS[i][0];
    if(check.status!=='fulfilled'){
-    providerErrors++;console.warn('Official internship feed unavailable',String(check.reason?.message||check.reason).slice(0,120));
+    const reason=String(check.reason?.message||check.reason).slice(0,140);
+    providerDetails[provider]={status:'failed',reason};
+    providerErrors++;
+    console.warn('Official internship feed unavailable',provider+': '+reason);
     continue;
    }
+   providerDetails[provider]=check.value.diagnostic;
    successfulSources++;
-   for(const row of check.value)if(!records.has(row.canonical_url))records.set(row.canonical_url,row);
+   for(const row of check.value.openings)
+      if(!records.has(row.canonical_url))records.set(row.canonical_url,row);
   }
-  if(!successfulSources)throw Error('No official vacancy adapter returned verified data');
+  if(!successfulSources){
+   await sql`UPDATE opportunity_official_feed_runs
+      SET details=${JSON.stringify({providers:providerDetails})}::jsonb WHERE id=${runId}`;
+   throw Error('No official vacancy adapter returned readable data');
+  }
   let newEntries=0,refreshed=0,skipped=0;
   for(const row of [...records.values()].slice(0,60)){
    try{
@@ -62,10 +81,11 @@ export default async function handler(req,res){
   }
   await sql`UPDATE opportunity_official_feed_runs
     SET status='completed',completed_at=now(),queries_attempted=${FEEDS.length},
-      fetched=${records.size},recorded=${newEntries},errors=${providerErrors+skipped}
+      fetched=${records.size},recorded=${newEntries},errors=${providerErrors+skipped},
+      details=${JSON.stringify({providers:providerDetails,refreshed,skipped})}::jsonb
     WHERE id=${runId}`;
   return res.status(200).json({ok:true,provider_feeds_checked:FEEDS.length,
-   provider_feeds_available:successfulSources,exact_vacancies:records.size,
+   provider_feeds_available:successfulSources,providers:providerDetails,exact_vacancies:records.size,
    newly_published:newEntries,refreshed,withheld:skipped,
    source_tier:'Exact official vacancies only; no personal eligibility claims'});
  }catch(err){
