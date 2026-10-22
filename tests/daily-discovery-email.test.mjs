@@ -39,6 +39,25 @@ test('counts only completed runs and escapes untrusted search titles',()=>{
   assert.doesNotMatch(message.html,/<script>/);
   assert.match(message.html,/&lt;script&gt;/);
 });
+test('catalogue checks are not described as verified opportunities',()=>{
+ const message=discoveryDigest({day:'2026-10-22',
+   officialRuns:[{status:'completed',scanned_sources:12,found_links:4,new_published:0}],
+   worldRuns:[{status:'completed',queries_attempted:12,results_found:32,new_leads:19}],
+   verificationRuns:[{status:'completed',inspected:12,published_new:0}],
+   catalogueHealth:{total_records:100,rechecked_24h:12,verified_30d:0,
+     never_checked:16,needs_evidence:54,retry_needed:30}});
+ assert.match(message.text,/Programme records checked, last 24h: 12 \/ 100/);
+ assert.match(message.text,/Programme records verified in last 30d: 0 \/ 100/);
+ assert.match(message.text,/Never checked \/ need evidence \/ need retry: 16 \/ 54 \/ 30/);
+ assert.match(message.html,/Catalogue verification:/);
+ assert.equal(message.statistics.catalogueChecked24h,12);
+ assert.equal(message.statistics.catalogueVerified30d,0);
+ assert.equal(message.statistics.published,0);
+ const unavailable=discoveryDigest({day:'2026-10-22'});
+ assert.match(unavailable.text,/Programme records checked, last 24h: Not recorded/);
+ assert.equal(unavailable.statistics.catalogueChecked24h,null);
+});
+
 test('cron is authenticated, private, idempotent, and scheduled after discovery',()=>{
   const api=readFileSync(new URL('../api/daily-discovery-email.js',import.meta.url),'utf8');
   const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
@@ -51,4 +70,6 @@ test('cron is authenticated, private, idempotent, and scheduled after discovery'
   assert.match(api,/status='sent'/);
   assert.doesNotMatch(api,/@gmail\.com/);
   assert.match(api,/FROM opportunity_web_verification_runs/);
+  assert.match(api,/FROM opportunities/);
+  assert.match(api,/catalogueHealth/);
 });
