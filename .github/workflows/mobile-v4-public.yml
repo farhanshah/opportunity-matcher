@@ -1,0 +1,46 @@
+name: OppMatcher public mobile v4 and blog launch
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'integration-turquoise-v4.css'
+      - 'integration-shell-mobile-v4.js'
+      - 'blog/**/index.html'
+      - 'blog/index.html'
+      - 'blog-turquoise-v4.css'
+      - 'tests/mobile-v4-public.mjs'
+      - 'tests/mobile-v4-contract.test.mjs'
+      - '.github/workflows/mobile-v4-public.yml'
+  workflow_dispatch:
+jobs:
+  structural:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: No data, route or SEO changes
+        run: node --test tests/mobile-v4-contract.test.mjs
+      - run: node --check integration-shell-mobile-v4.js
+  browser:
+    runs-on: ubuntu-latest
+    needs: structural
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Real public phone overlap, blog layout and article checks
+        run: node tests/mobile-v4-public.mjs
+      - name: Keep launch screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oppmatcher-mobile-v4-public-evidence
+          path: mobile-v4-visual-screens/
+          retention-days: 7

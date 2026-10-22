@@ -15,7 +15,7 @@ test('connected candidate preserves every live application DOM ID and inline act
   assert.deepEqual(ids(candidate),ids(original));
   assert.deepEqual(functions(candidate),functions(original));
   assert.ok(jsSources(original).includes('/app-v07.js'));
-  assert.ok(jsSources(original).some(x=>x==='/integration-shell-live.js'||x==='/integration-shell-mobile-v3.js'));
+  assert.ok(jsSources(original).some(x=>x==='/integration-shell-live.js'||x==='/integration-shell-mobile-v3.js'||x==='/integration-shell-mobile-v4.js'));
   assert.deepEqual(jsSources(candidate),['/app-v07.js']);
   for(const key of ['landing','app','onboard','detail','oppGrid','savedGrid','trackCards',
     'dashGrid','featuredGrid','statOpps','statSources','statOpen']){

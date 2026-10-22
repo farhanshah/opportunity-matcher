@@ -16,7 +16,7 @@ test('v2 carries every live DOM ID, handler, original loader and integration gua
  assert.match(current,/Use a test account|Test with a separate account/);
  assert.match(current,/can change your actual data/);
  assert.doesNotMatch(live,/integration-shell-v2\.js|omBridgeHero/);
- assert.match(live,/integration-shell-(?:live|mobile-v3)\.js/);
+ assert.match(live,/integration-shell-(?:live|mobile-v3|mobile-v4)\.js/);
  assert.doesNotMatch(current,/<link rel="canonical"/);
 });
 test('redesign is a new preview route and does not switch production',()=>{
