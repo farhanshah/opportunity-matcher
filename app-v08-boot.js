@@ -85,10 +85,23 @@ async function loadData(){
   }
 }
 function updateStats(){
-  const activeOpen=opps.filter(o=>o.Verification_Stale===false&&publicActive(o)&&String(o.Status||'').toLowerCase()==='open').length;
+  // Do not advertise historical 2026 programme records as currently open.
+  // The hero's third figure is now independently sourced from the safe
+  // worldwide discovery API rather than the stale full-verification count.
   $('statOpps').textContent=opps.length||'0';
-  $('statOpen').textContent=activeOpen||'0';
   $('engOpps').textContent=opps.length||'0'
+}
+async function updateWorldwideCount(){
+  const node=$('statOpen');
+  if(!node)return;
+  try{
+    const r=await fetch('/api/source-listings?limit=72',{headers:{Accept:'application/json'},cache:'no-store'});
+    if(!r.ok)throw Error('Official programme count unavailable');
+    const d=await r.json();
+    const n=Number(d.count);
+    if(!Number.isSafeInteger(n)||n<0||!Array.isArray(d.listings)||d.listings.length!==n)throw Error('Invalid source count');
+    node.textContent=String(n);
+  }catch{node.textContent='—'}
 }
 async function updateSourceStats(){
   const ids=['statSources','engSources'];
@@ -104,4 +117,4 @@ async function updateSourceStats(){
     ids.forEach(id=>{const node=$(id);if(node)node.textContent='—'});
   }
 }
-document.querySelectorAll('.navbtn[data-v]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));let slideIndex=0;setInterval(()=>{let slides=[...document.querySelectorAll('.slide')];if(!slides.length)return;slides[slideIndex].classList.remove('active');slideIndex=(slideIndex+1)%slides.length;slides[slideIndex].classList.add('active')},5000);let io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));loadProfileState();buildOnboarding();buildWorkspaceShell();persist();loadData();updateSourceStats();
+document.querySelectorAll('.navbtn[data-v]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.v)));let slideIndex=0;setInterval(()=>{let slides=[...document.querySelectorAll('.slide')];if(!slides.length)return;slides[slideIndex].classList.remove('active');slideIndex=(slideIndex+1)%slides.length;slides[slideIndex].classList.add('active')},5000);let io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in')}),{threshold:.12});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));loadProfileState();buildOnboarding();buildWorkspaceShell();persist();loadData();updateSourceStats();updateWorldwideCount();
