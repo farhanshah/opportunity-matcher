@@ -92,7 +92,7 @@ export default async function handler(req,res){
             // separate discovery tier, never as a matchable opportunity.
             try{
               const listing=await storeSourceListing(sql,lead,trust.source,page);
-              if(listing.stored)summary.source_confirmed++;
+              if(listing.isNew)summary.source_confirmed++;
             }catch(listingError){
               console.warn('Partial source listing unavailable',
                 String(listingError?.message||listingError).slice(0,100));
