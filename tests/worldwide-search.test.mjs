@@ -5,7 +5,7 @@ import {worldwideQueries,normalizeWebLead,uniqueLeads,WORLDWIDE_DAILY_QUERY_LIMI
 const load=x=>readFileSync(new URL('../'+x,import.meta.url),'utf8');
 test('bounded daily search covers regions and different opportunity categories',()=>{
  const queries=worldwideQueries(new Date('2026-10-17T00:00:00Z'));
- assert.equal(queries.length,WORLDWIDE_DAILY_QUERY_LIMIT);
+ assert.equal(queries.length,12); // 12 regional categories; targeted queries require trusted hosts.
  assert.ok(queries.some(x=>x.region==='Africa'));
  assert.ok(queries.some(x=>x.region==='Europe'));
  assert.ok(queries.some(x=>x.region==='Oceania'));
