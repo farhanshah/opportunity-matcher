@@ -128,6 +128,22 @@
       "destination": "/api/public-opportunities"
     },
     {
+      "source": "/opportunities/other",
+      "destination": "/api/public-opportunities?category=other"
+    },
+    {
+      "source": "/opportunities/scholarships",
+      "destination": "/api/public-opportunities?category=scholarships"
+    },
+    {
+      "source": "/opportunities/fellowships",
+      "destination": "/api/public-opportunities?category=fellowships"
+    },
+    {
+      "source": "/opportunities/internships",
+      "destination": "/api/public-opportunities?category=internships"
+    },
+    {
       "source": "/opportunities/:id",
       "destination": "/api/public-opportunities?id=:id"
     },
