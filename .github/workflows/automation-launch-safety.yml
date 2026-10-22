@@ -20,7 +20,7 @@ on:
       - 'lib/daily-discovery-email.js'
       - 'tests/provider-expansion.test.mjs'
       - 'tests/source-listings.test.mjs'
-      - 'tests/security-hardening.test.mjs tests/source-listings.test.mjs'
+      - 'tests/security-hardening.test.mjs'
       - 'tests/automation-health.test.mjs'
       - 'tests/official-facts.test.mjs'
       - 'tests/auto-discovery.test.mjs'
@@ -56,4 +56,4 @@ jobs:
           node --check api/opportunities.js
       - name: Automation, publication, verification and security tests
         run: |
-          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs
+          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs
