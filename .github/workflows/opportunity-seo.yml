@@ -1,0 +1,31 @@
+name: OppMatcher public opportunity SEO
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/public-opportunities.js'
+      - 'lib/public-opportunity-seo.js'
+      - 'tests/public-opportunity-seo.test.mjs'
+      - 'vercel.json'
+      - '.github/workflows/opportunity-seo.yml'
+  workflow_dispatch:
+concurrency:
+  group: oppmatcher-opportunity-seo-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  opportunity-seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax and routing
+        run: |
+          node --check api/public-opportunities.js
+          node --check lib/public-opportunity-seo.js
+          node --check tests/public-opportunity-seo.test.mjs
+          node -e "const c=require('./vercel.json'); if(!c.rewrites.some(x=>x.source==='/opportunities/:id')) process.exit(1); if(!c.rewrites.some(x=>x.source==='/opportunities-sitemap.xml')) process.exit(1)"
+      - name: Lifecycle, source and indexing rules
+        run: node --test tests/public-opportunity-seo.test.mjs
