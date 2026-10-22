@@ -1,5 +1,22 @@
 (()=>{'use strict';
  const grid=document.getElementById('worldGrid'),status=document.getElementById('worldStatus'),count=document.getElementById('worldCount');
+ const themeButton=document.getElementById('themeBtn'),modes=['auto','light','dark'];
+ let mode='auto';try{const stored=localStorage.getItem('oppThemeModeV1');if(modes.includes(stored))mode=stored}catch{}
+ const darkPreference=window.matchMedia('(prefers-color-scheme: dark)');
+ function applyTheme(){
+   const resolved=mode==='auto'?(darkPreference.matches?'dark':'light'):mode;
+   document.documentElement.dataset.omTheme=resolved;
+   if(themeButton){
+     themeButton.textContent=mode==='auto'?'◐ Auto':mode==='dark'?'☾ Dark':'☀ Light';
+     themeButton.setAttribute('aria-label','Appearance: '+mode+'. Click to change');
+   }
+ }
+ themeButton?.addEventListener('click',()=>{mode=modes[(modes.indexOf(mode)+1)%modes.length];
+   try{localStorage.setItem('oppThemeModeV1',mode)}catch{}
+   applyTheme()
+ });
+ darkPreference.addEventListener('change',()=>{if(mode==='auto')applyTheme()});
+ applyTheme();
  function text(tag,cls,value){const el=document.createElement(tag);if(cls)el.className=cls;el.textContent=value;return el}
  function card(item){
    const el=document.createElement('article');el.className='card';
