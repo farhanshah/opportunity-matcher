@@ -123,8 +123,10 @@ async function publish(sql,source,url,result) {
         source_url,source_note,last_verified_at
       )
       SELECT upserted.id,'country_scope','Nationality eligibility','country_scope',
-        ${JSON.stringify({scope:'worldwide',countries:[]})}::jsonb,true,'confirmed',${url},
-        'Explicit worldwide eligibility in official programme structured data',now()
+        ${JSON.stringify(r.nationality.includes('All Nationalities')
+          ? {scope:'worldwide',countries:[]}
+          : {scope:'explicit_list',countries:r.nationality})}::jsonb,true,'confirmed',${url},
+        'Explicit nationality eligibility in current programme-specific official evidence',now()
       FROM upserted
       WHERE NOT EXISTS (
         SELECT 1 FROM opportunity_eligibility_rules r
