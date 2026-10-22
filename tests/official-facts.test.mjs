@@ -150,3 +150,41 @@ test('unresolved regional nationality wording never becomes unrestricted eligibi
   assert.equal(match.verified,false,nation);
  }
 });
+
+
+test('explicit computer science scholarship stays subject restricted through publication',()=>{
+ const narrow=body.replace('Fields of study: All fields','Fields of study: Computer Science, AI & Data');
+ const parsed=parseOfficialFactSheet(narrow);
+ assert.equal(parsed.complete,true,parsed.reasons.join('; '));
+ assert.deepEqual(parsed.fields,['Computer Science, AI & Data']);
+ const result=verifyCandidate(narrow,url,'Official University',new Date('2026-10-22T12:00:00Z'));
+ assert.equal(result.verified,true,result.reasons.join('; '));
+ assert.deepEqual(result.record.fields,['Computer Science, AI & Data']);
+ assert.ok(!result.record.fields.includes('All fields'));
+ const publisher=readFileSync(new URL('../api/discover.js',import.meta.url),'utf8');
+ assert.match(publisher,/r\.fields\.includes\('All fields'\)\?'not_applicable':'one_of'/);
+ assert.match(publisher,/values:r\.fields/);
+});
+test('ambiguous subject scope cannot be silently converted to all fields',()=>{
+ for(const subject of ['Science and other subjects','Computer Science or Mathematics','Engineering disciplines','Fields vary by department']){
+  const result=parseOfficialFactSheet(body.replace('Fields of study: All fields','Fields of study: '+subject));
+  assert.equal(result.complete,false,subject);
+ }
+});
+test('rolling dates remain unverified even on a programme-specific official page',async()=>{
+ const {parseApplicationTiming}=await import('../lib/official-facts.js');
+ const rolling=body.replace('Application deadline: 18 May 2027','Applications: Rolling');
+ assert.deepEqual(parseApplicationTiming(rolling),{type:'rolling',wording:'Rolling',current_open_verified:false});
+ const candidate=verifyCandidate(rolling,url,'Official University',new Date('2026-10-22T12:00:00Z'));
+ assert.equal(candidate.verified,false);
+ const institution=body.replace('Application deadline: 18 May 2027','Application period: Varies by institution');
+ assert.equal(parseApplicationTiming(institution).type,'institution_specific');
+ assert.equal(verifyCandidate(institution,url,'Official University').verified,false);
+});
+test('funded is not synonymous with explicitly paid for internships',()=>{
+ const internship=body.replaceAll('Scholarship','Internship').replaceAll('scholarship','internship')
+  .replace('Funding: Fully funded','Funding: Funded');
+ const candidate=verifyCandidate(internship,url,'Official University',new Date('2026-10-22T12:00:00Z'));
+ assert.equal(candidate.verified,true,candidate.reasons.join('; '));
+ assert.equal(candidate.record.funding,'Funding Available');
+});
