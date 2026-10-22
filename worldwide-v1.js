@@ -21,11 +21,14 @@
  function card(item){
    const el=document.createElement('article');el.className='card';
    const federalGrant=item.opportunity_kind==='US federal grant';
-   el.append(text('span','level',federalGrant?'Official U.S. grant record':'Official page confirmed'));
+   const exactInternship=item.opportunity_kind==='official internship vacancy';
+   el.append(text('span','level',exactInternship?'Exact official internship vacancy':federalGrant?'Official U.S. grant record':'Official page confirmed'));
 
    el.append(text('h3','',item.title||'Programme page'));
    el.append(text('div','provider',item.provider||'Official provider'));
-   el.append(text('p','unknown',federalGrant?'A U.S. federal funding notice. Many are for organisations, not individual students. Applicant type, deadline and eligibility must be checked on Grants.gov.':'Opening status, deadline, funding and eligibility are not yet verified. Check this cycle’s official instructions.'));
+   el.append(text('p','unknown',exactInternship?'The official vacancy record had a future application deadline at the last check. Citizenship, education, visa and work eligibility must still be confirmed.':federalGrant?'A U.S. federal funding notice. Many are for organisations, not individual students. Applicant type, deadline and eligibility must be checked on Grants.gov.':'Opening status, deadline, funding and eligibility are not yet verified. Check this cycle’s official instructions.'));
+   if(exactInternship&&item.deadline){const d=new Date(String(item.deadline)+'T12:00:00Z');if(!Number.isNaN(d.getTime()))el.append(text('p','time','Official deadline: '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})+' · confirm local closing time'));}
+   if(exactInternship&&item.location)el.append(text('div','provider','Location: '+item.location));
 
    try{const url=new URL(item.official_url);if(url.protocol==='https:'){
      const a=document.createElement('a');a.className='source';a.href=url.href;
