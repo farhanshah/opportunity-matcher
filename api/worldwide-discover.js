@@ -5,12 +5,14 @@ function authorised(req){
   const secret=process.env.CRON_SECRET;
   return Boolean(secret)&&req.headers.authorization==='Bearer '+secret;
 }
-async function searchBrave(query,secret){
+async function searchBrave(query,secret,officialTarget=false){
   const url=new URL('https://api.search.brave.com/res/v1/web/search');
   url.searchParams.set('q',query);
   url.searchParams.set('count','10');
   url.searchParams.set('search_lang','en');
-  url.searchParams.set('freshness','pm');
+  // Official programme pages can be older than a month yet still current.
+  // General discovery retains freshness filtering to limit repeated results.
+  if(!officialTarget)url.searchParams.set('freshness','pm');
   const response=await fetch(url,{signal:AbortSignal.timeout(9500),headers:{
     Accept:'application/json','X-Subscription-Token':secret
   }});
@@ -37,13 +39,13 @@ export default async function handler(req,res){
     const officialHosts=[...new Set(sources.map(s=>{
       try{return new URL(s.source_url).hostname.toLowerCase().replace(/^www\./,'')}catch{return ''}
     }).filter(Boolean))];
-    const tasks=worldwideQueries();
+    const tasks=worldwideQueries(new Date(),officialHosts);
     const leads=[];
     let queries=0,providerErrors=0,foundResults=0;
     for(let offset=0;offset<tasks.length;offset+=4){
       const batch=tasks.slice(offset,offset+4);
       const results=await Promise.all(batch.map(async task=>{
-        try{return {task,items:await searchBrave(task.query,secret),ok:true}}
+        try{return {task,items:await searchBrave(task.query,secret,task.officialTarget),ok:true}}
         catch(error){console.warn('Worldwide search query unavailable',task.region,String(error?.message||error).slice(0,70));
           return {task,items:[],ok:false}}
       }));
