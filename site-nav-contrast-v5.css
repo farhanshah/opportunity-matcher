@@ -345,3 +345,64 @@ html.omTurquoisePreview #landing .section:not(.engine) .sectionLead{color:#41676
   html.omTurquoisePreview .app :is(.oppCard,.savedTile,.focusCard),
   html.omTurquoisePreview #landing .guideCard{transition:none!important}
 }
+
+
+/* v6 companion: convert live workspace hero modules and Passport v2 remnants. */
+html.omTurquoisePreview .app :is(.savedHero,.intelHero,.matchIntelHero,.focusSummaryHero,.trackerOverviewHero){
+  background:radial-gradient(circle at 90% 2%,rgba(66,205,184,.19),transparent 43%),
+    linear-gradient(125deg,#0d3139,#091e29 93%)!important;
+  color:#effffb!important;border-color:#3a7773!important;
+}
+html.omTurquoisePreview .app :is(.savedHero,.intelHero,.matchIntelHero,.focusSummaryHero,.trackerOverviewHero) :is(h1,h2,h3,h4,b,strong){
+  color:#f4fffb!important;
+}
+html.omTurquoisePreview .app :is(.savedHero,.intelHero,.matchIntelHero,.focusSummaryHero,.trackerOverviewHero) p{
+  color:#bfdfd8!important;opacity:1!important;
+}
+html.omTurquoisePreview .app :is(.savedHero,.intelHero,.matchIntelHero,.focusSummaryHero,.trackerOverviewHero):after{
+  background:radial-gradient(circle,rgba(75,211,195,.17),transparent 72%)!important;
+}
+html.omTurquoisePreview .app :is(.matchIntelEy,.savedHero .ey,.matchIntelUplift span){
+  color:#8df2de!important;
+}
+html.omTurquoisePreview .app .passportPrecisionCard{
+  background:var(--om-surface-2)!important;
+  border:1px solid var(--om-line)!important;
+}
+html.omTurquoisePreview .app .passportPrecisionCard span,
+html.omTurquoisePreview .app .passportPrecisionCard small,
+html.omTurquoisePreview .app #passportSummary .summaryItem span{
+  color:var(--om-muted)!important;opacity:1!important;
+}
+html.omTurquoisePreview .app .passportPrecisionCard b,
+html.omTurquoisePreview .app #passportSummary .summaryItem b{
+  color:var(--om-heading)!important;opacity:1!important;
+}
+html.omTurquoisePreview .app .passportPrecisionCard .v2Tag{
+  color:var(--om-action)!important;
+}
+html.omTurquoisePreview .app .v2PrecisionHint{
+  background:var(--om-surface-2)!important;
+  color:var(--om-muted)!important;
+  border-color:var(--om-line)!important;
+}
+html.omTurquoisePreview .app .v2PrecisionHint b{color:var(--om-heading)!important}
+html.omTurquoisePreview .app :is(.summaryItem,.precisionSignal,.matchDistCard){
+  color:var(--om-text)!important;opacity:1!important;
+}
+html.omTurquoisePreview .app :is(.precisionSignal,.matchDistCard){
+  background:var(--om-surface)!important;border-color:var(--om-line)!important;
+}
+html.omTurquoisePreview .app :is(.precisionSignal,.matchDistCard) b{color:var(--om-heading)!important}
+html.omTurquoisePreview .app :is(.precisionSignal,.matchDistCard) span{color:var(--om-muted)!important}
+html.omTurquoisePreview .app .metric:after,
+html.omTurquoisePreview .app .savedStat:after,
+html.omTurquoisePreview .app .intelStat:after{
+  background:radial-gradient(circle,rgba(67,198,183,.12),transparent 74%)!important;
+}
+html.omTurquoisePreview .app :is(.savedTile,.oppCard) :is(.oppLogo,.savedLogo){
+  background:var(--om-surface-3)!important;color:var(--om-heading)!important;
+}
+html.omTurquoisePreview .app :is(.matchIntel,.savedGridPremium,.discoverLayout,.metricRow){
+  color:var(--om-text)!important;
+}
