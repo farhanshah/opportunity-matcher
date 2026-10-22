@@ -24,6 +24,11 @@ on:
       - 'lib/grantsgov-feed.js'
       - 'tests/verification-eligibility.test.mjs'
       - 'tests/grantsgov-feed.test.mjs'
+      - 'tests/stale-catalogue-ui.test.mjs'
+      - 'app-v08-base.js'
+      - 'app-v08-match.js'
+      - 'app-v08-boot.js'
+      - 'app-v08-tracker.js'
       - 'lib/daily-discovery-email.js'
       - 'tests/provider-expansion.test.mjs'
       - 'tests/source-listings.test.mjs'
@@ -51,6 +56,10 @@ jobs:
         run: npm install --no-save --ignore-scripts --no-audit --no-fund
       - name: Parse protected API code and helpers
         run: |
+          node --check app-v08-base.js
+          node --check app-v08-match.js
+          node --check app-v08-boot.js
+          node --check app-v08-tracker.js
           node --check api/verify-worldwide.js
           node --check api/discover.js
           node --check api/discover-grantsgov.js
@@ -69,4 +78,4 @@ jobs:
           node --check api/opportunities.js
       - name: Automation, publication, verification and security tests
         run: |
-          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/verification-eligibility.test.mjs tests/grantsgov-feed.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs
+          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/verification-eligibility.test.mjs tests/grantsgov-feed.test.mjs tests/stale-catalogue-ui.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs
