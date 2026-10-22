@@ -20,3 +20,5 @@ CREATE INDEX IF NOT EXISTS worldwide_source_listings_public_idx
  WHERE source_status='source_confirmed';
 
 ALTER TABLE opportunity_web_verification_runs ADD COLUMN IF NOT EXISTS source_confirmed integer NOT NULL DEFAULT 0;
+
+ALTER TABLE opportunity_discovery_runs ADD COLUMN IF NOT EXISTS source_confirmed integer NOT NULL DEFAULT 0;
