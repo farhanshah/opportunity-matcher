@@ -56,6 +56,15 @@ test('keeps discovered links on the configured provider host', () => {
   assert.equal(officialHostMatches('https://university.example.evil.org/awards/scholarship',official),false);
 });
 
+
+test('official-source discovery follows the current intake cycle rather than fixed 2026-2028 years',()=>{
+  const html='<a href="/awards/global-2029">2029 Global Scholarship Applications</a>'+
+    '<a href="/awards/2019-old">2019 Global Scholarship Applications</a>';
+  const current=findOfficialLinks(html,'https://university.example/awards/',8,new Date('2028-06-01T00:00:00Z'));
+  assert.equal(current.length,1);
+  assert.equal(current[0].url,'https://university.example/awards/global-2029');
+});
+
 test('canonical URLs drop tracking parameters and reject unsafe schemes', () => {
   assert.equal(canonicalUrl('https://university.example/awards/2027-global-scholarship/?utm_source=ads#top'),official);
   assert.equal(canonicalUrl('javascript:alert(1)'), '');
