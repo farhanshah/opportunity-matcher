@@ -84,3 +84,16 @@ test('official named application calls and programme pages survive lead filterin
   assert.ok(normalizeWebLead({title,url},'Global','query'),title);
  }
 });
+
+
+test('unregistered search leads are held before official verification, then eligible for host registration',()=>{
+ const discovery=load('api/worldwide-discover.js');
+ const verifier=load('api/verify-worldwide.js');
+ assert.match(discovery,/CASE WHEN x\.matched_official_host THEN 'pending' ELSE 'source_review' END/);
+ assert.match(discovery,/Provider hostname is not in the official-source registry/);
+ assert.match(discovery,/opportunity_web_leads\.verification_status='source_review'/);
+ assert.match(discovery,/THEN 'pending' ELSE opportunity_web_leads\.verification_status END/);
+ assert.match(verifier,/l\.verification_reason='Provider hostname is not in the official-source registry'/);
+ assert.match(verifier,/l\.verification_checked_at IS NULL OR l\.verification_checked_at/);
+ assert.doesNotMatch(discovery,/INSERT INTO opportunities\s*\(/);
+});
