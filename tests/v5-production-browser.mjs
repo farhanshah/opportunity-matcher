@@ -54,6 +54,46 @@ for(const width of [360,390,768,1280,1440]){
    }
    check(colors.every(c=>c==='rgb(239, 255, 251)'),width+' clear secondary CTA in all three themes',colors);
   }
+
+  // Regression: the old light workspace backgrounds used dark-theme ink, and
+  // both source-monitoring and guide headings disappeared against dark panels.
+  if(width===390||width===1440){
+   const regression=await page.evaluate(()=>{
+    const css=selector=>getComputedStyle(document.querySelector(selector)).color;
+    const source=css('#landing .engine h2');
+    const guide=css('#landing .guideCard h3');
+    const guideAction=css('#landing .guideCard b');
+    const sample=document.createElement('article');
+    sample.className='savedTile';
+    sample.innerHTML='<h3>Regression: saved title must always be readable</h3>';
+    document.querySelector('#saved').appendChild(sample);
+    const rgb=value=>(value.match(/[\d.]+/g)||[]).slice(0,3).map(Number);
+    const luminance=value=>{
+     const a=rgb(value).map(c=>{c/=255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4});
+     return a[0]*.2126+a[1]*.7152+a[2]*.0722;
+    };
+    const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+    const result={source,guide,guideAction};
+    for(const mode of ['light','dark']){
+     window.OpportunityTheme.setMode(mode);
+     const bg=getComputedStyle(sample).backgroundColor;
+     const fg=getComputedStyle(sample.querySelector('h3')).color;
+     const workspace=getComputedStyle(document.querySelector('#app .workspace')).backgroundColor;
+     result[mode]={bg,fg,workspace,contrast:contrast(bg,fg)};
+    }
+    sample.remove();
+    window.OpportunityTheme.setMode('auto');
+    return result;
+   });
+   check(regression.source==='rgb(243, 255, 252)',width+' source monitor heading visible',regression.source);
+   check(regression.guide==='rgb(244, 255, 252)',width+' guide headings visible',regression.guide);
+   check(regression.guideAction==='rgb(244, 255, 252)',width+' guide links visible',regression.guideAction);
+   check(regression.light.contrast>=4.5&&regression.dark.contrast>=4.5,
+     width+' saved titles pass 4.5:1 contrast in both themes',regression);
+   check(regression.light.bg!==regression.dark.bg&&regression.light.workspace!==regression.dark.workspace,
+     width+' dark/light changes card and workspace surfaces',regression);
+  }
+
   check(jsErrors.length===0,width+' no uncaught JS exceptions',jsErrors);
  }catch(e){errors.push({label:width+' home fatal',info:String(e.stack||e).slice(0,900)})}finally{await page.close();}
 }
