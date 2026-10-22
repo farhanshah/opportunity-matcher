@@ -1,6 +1,7 @@
 import { db } from '../lib/db.js';
 import { canonicalUrl, officialHostMatches, verifyCandidate } from '../lib/auto-discovery.js';
 import { resolveOfficialRedirect } from '../lib/verification-redirects.js';
+import {eligibilityRecheckCompatible} from '../lib/verification-eligibility.js';
 
 const BATCH = 12;
 const CONCURRENCY = 6;
@@ -58,13 +59,10 @@ async function checkOne(sql,opp){
         (oldFunding && oldFunding!==report.record.funding.toLowerCase()) ||
         (oldDestination && oldDestination!==report.record.destination.toLowerCase().trim())
       );
-      const oldCountry=JSON.stringify(opp.eligible_nationalities||[]).toLowerCase();
-      const oldDegree=JSON.stringify(opp.education_levels||[]).toLowerCase();
-      const oldFields=JSON.stringify(opp.fields_of_study||[]).toLowerCase();
-      const fitCountry=!oldCountry || oldCountry==='[]' || oldCountry.includes('all nationalit');
-      const fitDegree=!oldDegree || oldDegree==='[]' || oldDegree.includes(report.record.education[0].toLowerCase());
-      const fitFields=!oldFields || oldFields==='[]' || oldFields.includes('all field');
-      if(materialMismatch || !fitCountry || !fitDegree || !fitFields){
+      // Only an exact country, degree and subject match can refresh a
+      // verified timestamp. Legacy unknown values remain unverified.
+      const sameEligibility=eligibilityRecheckCompatible(opp,report.record);
+      if(materialMismatch || !sameEligibility){
         outcome='needs_evidence: verified source differs from stored eligibility';
       } else {
         // Country-specific paths are independently scoped, so a general
@@ -79,12 +77,6 @@ async function checkOne(sql,opp){
           const r=report.record;
           const [saved]=await sql`
             UPDATE opportunities SET application_close_date=${r.deadline}, application_open_date=${r.openDate || null},
-              eligible_nationalities=CASE WHEN eligible_nationalities IS NULL OR eligible_nationalities='[]'::jsonb
-                THEN ${JSON.stringify(r.nationality)}::jsonb ELSE eligible_nationalities END,
-              education_levels=CASE WHEN education_levels IS NULL OR education_levels='[]'::jsonb
-                THEN ${JSON.stringify(r.education)}::jsonb ELSE education_levels END,
-              fields_of_study=CASE WHEN fields_of_study IS NULL OR fields_of_study='[]'::jsonb
-                THEN ${JSON.stringify(r.fields)}::jsonb ELSE fields_of_study END,
               status=${r.status},last_verified_at=now(),verification_confidence='high',
               updated_at=now()
             WHERE id=${opp.id} RETURNING id
