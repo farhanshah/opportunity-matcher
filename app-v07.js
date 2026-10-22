@@ -1,5 +1,5 @@
 (async()=>{
-  const BUILD='20261017-v289';
+  const BUILD='20261022-v290';
   // Keep the OAuth callback result available while the workspace's many scripts load.
   try{
     const outcome=new URLSearchParams(window.location.search).get('linkedin_connect');
@@ -32,8 +32,7 @@
 
   try{
     const mode=localStorage.getItem('oppThemeModeV1')||'auto';
-    const hour=new Date().getHours();
-    const theme=mode==='auto'?(hour>=7&&hour<19?'light':'dark'):mode;
+    const theme=mode==='auto'?(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):mode;
     if(theme==='light'||theme==='dark'){
       document.documentElement.dataset.omTheme=theme;
       document.documentElement.dataset.omThemeMode=mode;
