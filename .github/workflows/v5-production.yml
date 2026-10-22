@@ -1,0 +1,52 @@
+name: OppMatcher v5 consolidated public release QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'blog/**/index.html'
+      - 'blog/index.html'
+      - 'privacy.html'
+      - 'admin.html'
+      - 'prepare.html'
+      - 'site-nav-contrast-v5.css'
+      - 'site-aux-nav-v5.css'
+      - 'site-aux-nav-v5.js'
+      - 'secondary-turquoise-v5.css'
+      - 'integration-shell-v5.js'
+      - 'tests/v5-production.test.mjs'
+      - 'tests/v5-production-browser.mjs'
+      - '.github/workflows/v5-production.yml'
+  workflow_dispatch:
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check integration-shell-v5.js
+      - run: node --check site-aux-nav-v5.js
+      - run: node --test tests/v5-production.test.mjs
+  real-browser:
+    needs: contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Render public pages and verify nav, contrast, ads code and deep links
+        run: node tests/v5-production-browser.mjs
+      - name: Archive website screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oppmatcher-v5-live-visual-qa
+          path: v5-public-screens/
+          retention-days: 7

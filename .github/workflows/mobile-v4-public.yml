@@ -1,17 +1,6 @@
 name: OppMatcher public mobile v4 and blog launch
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'index.html'
-      - 'integration-turquoise-v4.css'
-      - 'integration-shell-mobile-v4.js'
-      - 'blog/**/index.html'
-      - 'blog/index.html'
-      - 'blog-turquoise-v4.css'
-      - 'tests/mobile-v4-public.mjs'
-      - 'tests/mobile-v4-contract.test.mjs'
-      - '.github/workflows/mobile-v4-public.yml'
+  # Historical design suite retained for manual diagnostics only.
   workflow_dispatch:
 jobs:
   structural:

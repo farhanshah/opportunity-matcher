@@ -1,0 +1,54 @@
+/* The same Explore navigation pattern across public content pages. */
+header.blogNav,html.omSecondary[data-page="privacy"] header.nav{
+ position:relative!important;overflow:visible!important;
+ display:flex!important;flex-wrap:nowrap!important;align-items:center!important;
+ justify-content:flex-start!important;gap:12px!important;
+}
+header.blogNav .blogBrand,html.omSecondary[data-page="privacy"] header.nav .brand{
+ flex:0 1 auto!important;min-width:0!important;margin-right:auto!important;
+ white-space:nowrap!important
+}
+header.blogNav .omAuxMenu,html.omSecondary[data-page="privacy"] header.nav .omAuxMenu{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ border-radius:28px!important;min-height:41px!important;min-width:95px!important;
+ border:1px solid #79e5d080!important;background:rgba(81,231,214,.12)!important;
+ color:#f1fff9!important;font-family:inherit!important;
+ font-weight:850!important;font-size:12px!important;padding:10px 15px!important;
+ cursor:pointer!important;white-space:nowrap!important
+}
+header.blogNav .blogNavLinks,html.omSecondary[data-page="privacy"] header.nav .navlinks{
+ display:none!important;position:absolute!important;z-index:60!important;
+ top:calc(100% + 8px)!important;right:clamp(10px,16%,240px)!important;
+ left:auto!important;width:min(280px,calc(100% - 20px))!important;
+ border:1px solid #6ccdb889!important;background:#0b2a32!important;
+ border-radius:16px!important;box-shadow:0 19px 42px rgba(0,0,0,.29)!important;
+ padding:10px!important;flex-direction:column!important;align-items:stretch!important;gap:4px!important
+}
+header.blogNav.omAuxOpen .blogNavLinks,
+html.omSecondary[data-page="privacy"] header.nav.omAuxOpen .navlinks{display:flex!important}
+header.blogNav .blogNavLinks a,
+html.omSecondary[data-page="privacy"] header.nav .navlinks a{
+ display:block!important;width:100%!important;min-height:39px!important;
+ padding:11px 12px!important;border-radius:9px!important;line-height:1.45!important;
+ font-size:12px!important;font-weight:800!important;color:#e6fff7!important
+}
+header.blogNav .blogNavLinks a:hover,
+html.omSecondary[data-page="privacy"] header.nav .navlinks a:hover{background:#256052!important}
+header.blogNav .blogNavCta{min-height:41px!important}
+@media(max-width:600px){
+ header.blogNav{padding:11px 15px!important;gap:8px!important;flex-wrap:wrap!important}
+ header.blogNav .blogBrand{font-size:16px!important}
+ header.blogNav .blogNavCta{
+  order:3!important;flex:1 0 100%!important;max-width:none!important;
+  border-radius:28px!important;min-height:40px!important
+ }
+ header.blogNav .blogNavLinks{right:10px!important}
+ html.omSecondary[data-page="privacy"] header.nav{
+  padding:13px!important;gap:9px!important
+ }
+ header.blogNav .omAuxMenu,
+ html.omSecondary[data-page="privacy"] header.nav .omAuxMenu{
+  min-height:41px!important;min-width:80px!important;padding:9px 12px!important
+ }
+ html.omSecondary[data-page="privacy"] header.nav .navlinks{right:6px!important}
+}

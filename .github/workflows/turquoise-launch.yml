@@ -1,14 +1,6 @@
 name: OppMatcher public turquoise launch checks
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'launch-ready.html'
-      - 'integration-shell-live.js'
-      - 'index.html'
-      - 'tests/turquoise-release.test.mjs'
-      - 'tests/turquoise-launch-browser.mjs'
-      - '.github/workflows/turquoise-launch.yml'
+  # Historical design suite retained for manual diagnostics only.
   workflow_dispatch:
 jobs:
   structural:

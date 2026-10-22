@@ -1,13 +1,6 @@
 name: OppMatcher public mobile layout regression
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'index.html'
-      - 'integration-turquoise-v3.css'
-      - 'integration-shell-mobile-v3.js'
-      - 'tests/mobile-public-v3.mjs'
-      - '.github/workflows/mobile-public-v3.yml'
+  # Historical design suite retained for manual diagnostics only.
   workflow_dispatch:
 jobs:
   mobile-live:
