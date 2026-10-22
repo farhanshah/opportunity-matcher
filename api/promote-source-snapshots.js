@@ -23,15 +23,16 @@ export default async function handler(req,res){
      WHERE m.is_active=true AND s.http_status=200
        AND s.fetched_at>=now()-interval '72 hours'
        AND s.raw_html IS NOT NULL
-     ORDER BY s.fetched_at DESC LIMIT 24
+     ORDER BY md5(m.source_key || to_char(now() AT TIME ZONE 'UTC','YYYYMMDDHH12')) LIMIT 28
    `;
-   let recorded=0,withheld=0,alreadyCurrent=0;
+   let recorded=0,refreshed=0,withheld=0,alreadyCurrent=0;
    for(const s of sources){
      try{
        const result=await storeSourceListing(sql,null,s,{
          url:s.source_url,html:s.html,checkedAt:s.fetched_at
        });
-       if(result.stored)recorded++;
+       if(result.isNew)recorded++;
+       else if(result.stored)refreshed++;
        else if(result.reason==='Programme already recently fully verified')alreadyCurrent++;
        else withheld++;
      }catch(err){
@@ -40,7 +41,7 @@ export default async function handler(req,res){
      }
    }
    return res.status(200).json({ok:true,scanned:sources.length,
-     recorded,already_fully_verified:alreadyCurrent,withheld,
+     newly_published:recorded,refreshed,already_fully_verified:alreadyCurrent,withheld,
      claim:'Source confirmed only; application status and eligibility not verified'});
  }catch(error){
    console.error('Snapshot publication unavailable',String(error?.message||error).slice(0,160));
