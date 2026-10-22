@@ -41,6 +41,18 @@ test('counts only completed runs and escapes untrusted search titles',()=>{
   assert.doesNotMatch(message.html,/<script>/);
   assert.match(message.html,/&lt;script&gt;/);
 });
+test('daily report distinguishes source-confirmed pages from verified matches',()=>{
+ const message=discoveryDigest({day:'2026-10-22',
+   officialRuns:[{status:'completed',scanned_sources:12,new_published:0}],
+   worldRuns:[{status:'completed',queries_attempted:12,new_leads:12}],
+   verificationRuns:[{status:'completed',inspected:12,published_new:0,source_confirmed:2}],
+   sourceListingStats:{published_pages:2,added_last_24h:2}});
+ assert.equal(message.statistics.published,0);
+ assert.equal(message.statistics.sourceCount,2);
+ assert.match(message.text,/Source-confirmed programme pages: 2/);
+ assert.match(message.html,/NOT eligibility verified/);
+});
+
 test('catalogue checks are not described as verified opportunities',()=>{
  const message=discoveryDigest({day:'2026-10-22',
    officialRuns:[{status:'completed',scanned_sources:12,found_links:4,new_published:0}],
