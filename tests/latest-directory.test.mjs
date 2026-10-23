@@ -52,5 +52,5 @@ test('directory is public, rendered server-side, linked and protected against in
  assert.match(page,/not yet|not confirmed|not personally assessed/i);
  assert.ok(!page.includes('INSERT INTO opportunities'));
  assert.match(read('index.html'),/href="\/latest"/);
- assert.match(read('api/public-opportunities.js'),/BASE\+'\/latest'/);
+ assert.ok(read('api/public-opportunities.js').includes("BASE+'/latest</loc>"));
 });

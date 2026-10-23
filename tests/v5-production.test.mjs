@@ -33,7 +33,8 @@ test('Sensitive private admin and application-preparation views have no ad netwo
 });
 test('Production navbar uses accessible Explore dropdown without changing SPA controls',()=>{
  const html=get('index.html'),old=get('nav-contrast-preview-v5.html');
- assert.deepEqual(ids(html),ids(old));
+ assert.deepEqual(ids(html).filter(id=>id!=='heroOpenCallsLabel'),ids(old));
+ assert.ok(ids(html).includes('heroOpenCallsLabel'));
  assert.deepEqual(actions(html),actions(old));
  assert.match(html,/site-nav-contrast-v5\.css\?v=5/);
  assert.match(html,/integration-shell-v5\.js/);

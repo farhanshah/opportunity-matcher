@@ -47,7 +47,9 @@ function render(rows,category,q){
  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
   '<title>'+title+' | OppMatcher</title><meta name="robots" content="'+(filtered?'noindex,follow':'index,follow')+'">'+
   '<meta name="description" content="'+esc(meta)+'"><link rel="canonical" href="'+BASE+'/latest">'+
-  '<link rel="icon" type="image/svg+xml" href="/brand-icon.svg"><style>'+css+'</style></head><body>'+
+  '<link rel="icon" type="image/svg+xml" href="/brand-icon.svg">'+
+  '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1916126969266611" crossorigin="anonymous"></script>'+
+  '<style>'+css+'</style></head><body>'+
   '<header><a href="/"><strong>OppMatcher</strong></a><nav><a href="/">Home</a><a href="/worldwide">Worldwide</a><a href="/opportunities">Verified postings</a><a href="/blog/">Guides</a></nav></header>'+
   '<main>'+body+'</main><footer>OppMatcher · <a href="/blog/methodology/">Verification policy</a> · <a href="/privacy">Privacy</a></footer></body></html>';
 }
