@@ -58,6 +58,9 @@
     "api/source-listings.js": {
       "maxDuration": 15
     },
+    "api/latest.js": {
+      "maxDuration": 15
+    },
     "api/promote-source-snapshots.js": {
       "maxDuration": 60
     },
@@ -127,6 +130,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/latest",
+      "destination": "/api/latest"
+    },
     {
       "source": "/opportunities-sitemap.xml",
       "destination": "/api/public-opportunities?format=sitemap"
@@ -255,7 +262,7 @@
     },
     {
       "path": "/api/discover-exact-internships",
-      "schedule": "50 6,18 * * *"
+      "schedule": "50 0,6,12,18 * * *"
     }
   ]
 }

@@ -45,7 +45,7 @@ test('official live internship ingestion is private, bounded, audited and never 
  assert.match(api,/INSERT INTO worldwide_source_listings/);
  assert.match(api,/slice\(0,60\)/);
  assert.doesNotMatch(api,/INSERT INTO opportunities|UPDATE opportunities SET/);
- assert.equal(v.crons.find(c=>c.path==='/api/discover-exact-internships').schedule,'50 6,18 * * *');
+ assert.equal(v.crons.find(c=>c.path==='/api/discover-exact-internships').schedule,'50 0,6,12,18 * * *');
  const listing=readFileSync(new URL('../api/source-listings.js',import.meta.url),'utf8');
  assert.match(listing,/application_deadline/);
  assert.match(listing,/interval '36 hours'/);

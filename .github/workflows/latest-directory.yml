@@ -1,0 +1,30 @@
+name: OppMatcher public daily directory
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/latest.js'
+      - 'lib/latest-directory.js'
+      - 'index.html'
+      - 'worldwide.html'
+      - 'vercel.json'
+      - 'api/public-opportunities.js'
+      - 'tests/latest-directory.test.mjs'
+      - 'tests/exact-internship-publishing.test.mjs'
+      - '.github/workflows/latest-directory.yml'
+  workflow_dispatch:
+jobs:
+  public-directory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax validation
+        run: |
+          node --check api/latest.js
+          node --check lib/latest-directory.js
+          node --check api/public-opportunities.js
+      - name: Public freshness and publication tests
+        run: node --test tests/latest-directory.test.mjs tests/exact-internship-publishing.test.mjs tests/public-opportunity-seo.test.mjs tests/source-listings.test.mjs

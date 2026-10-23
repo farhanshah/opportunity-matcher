@@ -139,7 +139,8 @@ function detail(row){
 function sitemap(rows){
   const categories=[...new Set(rows.map(categoryType))];
   const prefix='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+
-    '<url><loc>'+BASE+'/opportunities</loc></url>\n';
+    '<url><loc>'+BASE+'/opportunities</loc></url>\n'+
+    '<url><loc>'+BASE+'/latest</loc></url>\n';
   return prefix+categories.map(category=>'<url><loc>'+BASE+'/opportunities/'+category+'</loc></url>\n').join('')+
     rows.map(row=>'<url><loc>'+esc(BASE+path(row))+'</loc><lastmod>'+esc(day(row.last_verified_at))+'</lastmod></url>\n').join('')+
     '</urlset>\n';
