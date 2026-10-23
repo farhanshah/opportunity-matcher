@@ -30,6 +30,9 @@ test('due check uses provider retry cooldown and host limits',()=>{
   assert.ok(source.includes('hostBatches(due,concurrency)'));
   assert.ok(source.includes('AbortSignal.timeout(17000)'));
   assert.ok(source.includes('WHERE host_rank<=2'));
+  assert.ok(source.includes('WITH blocked_hosts AS'));
+  assert.ok(source.includes("COUNT(*) FILTER (WHERE last_http_status=403 AND last_checked_at > now()-interval '7 days') >= 2"));
+  assert.ok(source.includes("COUNT(*) FILTER (WHERE last_http_status=503 AND last_checked_at > now()-interval '24 hours') >= 3"));
   assert.ok(source.includes('WHERE is_active=true'));
 });
 test('high-risk review events are surfaced without erasing pending review history',()=>{

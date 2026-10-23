@@ -1,4 +1,5 @@
 import { db } from '../lib/db.js';
+import { getRecoveryLink } from '../lib/official-recovery-links.js';
 
 function authorised(req) {
   const secret = process.env.CRON_SECRET;
@@ -236,7 +237,10 @@ export default async function handler(req, res) {
       worldwide_runs:webSearchRuns,
       worldwide_verification_runs:worldwideVerificationRuns,
       worldwide_leads:webSearchLeads,
-      sources,
+      sources:sources.map(source=>({
+        ...source,
+        recovery_url: source.last_error ? getRecoveryLink(source.source_key) : null
+      })),
       partials,
       changes
     });

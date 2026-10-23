@@ -138,15 +138,25 @@ async function processDueSources(sql, due, concurrency = FETCH_CONCURRENCY) {
 
 export async function runDueSourceChecks(sql, maxSources = MAX_SOURCES_PER_RUN, concurrency = FETCH_CONCURRENCY) {
   const due = await sql`
-    WITH ready_sources AS (
+    WITH blocked_hosts AS (
+      SELECT lower(split_part(source_url,'/',3)) AS hostname
+      FROM monitored_sources WHERE is_active=true
+      GROUP BY 1
+      HAVING COUNT(*) FILTER (WHERE last_http_status=429 AND last_checked_at > now()-interval '2 days') >= 1
+        OR COUNT(*) FILTER (WHERE last_http_status=403 AND last_checked_at > now()-interval '7 days') >= 2
+        OR COUNT(*) FILTER (WHERE last_http_status=503 AND last_checked_at > now()-interval '24 hours') >= 3
+    ), ready_sources AS (
     SELECT id, source_key, provider, source_url, expected_terms, etag, last_modified,
            check_interval_minutes, last_checked_at,
            ROW_NUMBER() OVER (
              PARTITION BY lower(split_part(source_url,'/',3))
              ORDER BY last_checked_at NULLS FIRST, source_key
            ) AS host_rank
-    FROM monitored_sources
+    FROM monitored_sources m
     WHERE is_active=true
+      AND NOT EXISTS (
+        SELECT 1 FROM blocked_hosts b WHERE b.hostname=lower(split_part(m.source_url,'/',3))
+      )
       AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))
       -- Official sites refusing automated requests should not be hammered.
       AND (last_http_status NOT IN (403,429,503) OR last_http_status IS NULL

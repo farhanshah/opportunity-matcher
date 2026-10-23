@@ -308,6 +308,15 @@ export default async function handler(req,res){
         WHERE s.source_id=m.id ORDER BY s.fetched_at DESC LIMIT 1
       ) snapshot ON true
       WHERE m.is_active=true
+        AND NOT EXISTS (
+          SELECT 1 FROM monitored_sources blocked
+          WHERE blocked.is_active=true
+            AND lower(split_part(blocked.source_url,'/',3))=lower(split_part(m.source_url,'/',3))
+          GROUP BY lower(split_part(blocked.source_url,'/',3))
+          HAVING count(*) FILTER (WHERE blocked.last_http_status=429 AND blocked.last_checked_at > now()-interval '2 days') >= 1
+             OR count(*) FILTER (WHERE blocked.last_http_status=403 AND blocked.last_checked_at > now()-interval '7 days') >= 2
+             OR count(*) FILTER (WHERE blocked.last_http_status=503 AND blocked.last_checked_at > now()-interval '24 hours') >= 3
+        )
         -- Provider refusals are not new opportunities. Prefer readable,
         -- trusted sources instead of wasting each 15-minute discovery pass.
         AND (m.last_http_status IS NULL OR m.last_http_status NOT IN (403,429,503)
