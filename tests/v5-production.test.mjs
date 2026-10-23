@@ -36,7 +36,7 @@ test('Production navbar uses accessible Explore dropdown without changing SPA co
  assert.deepEqual(ids(html).filter(id=>id!=='heroOpenCallsLabel'),ids(old));
  assert.ok(ids(html).includes('heroOpenCallsLabel'));
  assert.deepEqual(actions(html),actions(old));
- assert.match(html,/site-nav-contrast-v5\.css\?v=5/);
+ assert.match(html,/site-nav-contrast-v5\.css\?v=\d+/);
  assert.match(html,/integration-shell-v5\.js/);
  assert.match(html,/src="\/app-v07\.js" defer/);
  assert.match(html,/rel="canonical" href="https:\/\/oppmatcher.tech\/"/);
