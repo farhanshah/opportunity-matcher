@@ -6,7 +6,7 @@ const get=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const config=JSON.parse(get('vercel.json'));
 test('official alternatives are unique, scoped, and not direct database replacements',()=>{
  const rows=safeSuccessors();
- assert.equal(rows.length,5);
+ assert.equal(rows.length,8);
  assert.ok(rows.every(x=>x.source_url.startsWith('https://')&&x.expected_terms.length));
  assert.ok(rows.every(x=>x.original_key!==x.successor_key));
  assert.throws(()=>safeSuccessors([{original_key:'a',successor_key:'successor_bad',provider:'bad',source_url:'http://localhost',expected_terms:['test']}]));
@@ -24,7 +24,7 @@ test('successor cannot retire an original without new successful checked evidenc
 });
 test('historic no-change triage demands exact same main body, safe provider allowlist, dates and retained evidence',()=>{
  const code=get('api/triage-nonmaterial.js');
- for(const snippet of ['community_college_initiative_pakistan','fulbright_pakistan',
+ for(const snippet of ['before.http_status BETWEEN 200 AND 299','after.http_status BETWEEN 200 AND 299',
   'regexp_count(before.raw_html','before.id<>after.id',"'dates'",
   "status='resolved_nonmaterial'",'review_note=','before.source_id=s.id']){
   assert.ok(code.includes(snippet),snippet);
