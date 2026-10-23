@@ -36,3 +36,20 @@ test('existing public pages keep required AdSense publisher identification',()=>
  assert.ok(get('api/latest.js').includes(ADS));
  assert.ok(get('api/public-opportunities.js').includes('adsbygoogle.js')||get('api/public-opportunities.js').includes(ADS),'SEO opportunity pages must include publisher integration');
 });
+
+test('scholarship pillar explains funding comparison and links to exact provider guides',()=>{
+ const pillar=get('blog/fully-funded-scholarships-international-students/index.html');
+ assert.ok(pillar.includes('"dateModified":"2026-10-23"'));
+ assert.ok(pillar.includes('id="compare"'));
+ assert.ok(pillar.includes('id="routes"'));
+ assert.ok(pillar.includes('href="/latest"'));
+ assert.ok(pillar.includes('The provider')||pillar.includes('provider'));
+ assert.ok(!pillar.includes('href="/#live-opportunities"'));
+ for(const slug of ['erasmus-mundus-joint-masters-application','daad-scholarships-germany-guide',
+    'chevening-scholarship-application-guide','commonwealth-masters-scholarship-guide',
+    'gates-cambridge-scholarship-application','mext-japan-scholarships-embassy-route',
+    'australia-awards-scholarships-guide','global-korea-scholarship-application']){
+   assert.ok(get('blog/'+slug+'/index.html').includes('href="/blog/fully-funded-scholarships-international-students/"'),slug+' should link to funding comparison');
+ }
+ assert.ok(sitemap.includes('<loc>https://oppmatcher.tech/blog/fully-funded-scholarships-international-students/</loc><lastmod>2026-10-23</lastmod>'));
+});
