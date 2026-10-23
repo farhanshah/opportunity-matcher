@@ -1,0 +1,23 @@
+name: OppMatcher SEO sitemap and publisher coverage
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'blog/**'
+      - 'sitemap.xml'
+      - 'robots.txt'
+      - 'api/latest.js'
+      - 'api/public-opportunities.js'
+      - 'tests/seo-publication-coverage.test.mjs'
+      - '.github/workflows/seo-coverage.yml'
+  workflow_dispatch:
+jobs:
+  verify-public-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate sitemap, canonical URLs, indexing and AdSense
+        run: node --test tests/seo-publication-coverage.test.mjs
