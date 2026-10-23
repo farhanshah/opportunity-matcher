@@ -67,3 +67,13 @@ test('new editorial guide clusters and all 61 sitemap URLs are linked correctly'
   assert.ok(html.includes('href="/latest"'),slug+' should link to official listings');
  }
 });
+
+test('priority application guides are connected to existing relevant pillar pages',()=>{
+ const scholarship=get('blog/fully-funded-scholarships-international-students/index.html');
+ const internship=get('blog/international-internships-graduate-placements/index.html');
+ for(const slug of ['scholarships-without-ielts-what-counts','masters-scholarships-international-students-guide'])
+  assert.ok(scholarship.includes('href="/blog/'+slug+'/"'));
+ assert.ok(internship.includes('href="/blog/un-internship-application-checklist/"'));
+ assert.ok(internship.includes('href="/latest"'));
+ assert.ok(!internship.includes('href="/#live-opportunities"'));
+});
