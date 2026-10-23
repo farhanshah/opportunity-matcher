@@ -8,7 +8,7 @@ const folders=readdirSync(new URL('../blog/',import.meta.url)).filter(x=>x!=='in
 const sitemap=get('sitemap.xml'),index=get('blog/index.html'),robots=get('robots.txt');
 const ADS='ca-pub-1916126969266611';
 test('every published guide is in the sitemap and blog directory, with canonical metadata and publisher tag',()=>{
- assert.ok(folders.length>=25,'Expected at least 20 new + 5 existing editorial pages');
+ assert.ok(folders.length>=55,'Expected 30 additional guides plus 25 existing pages');
  const locs=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(x=>x[1]);
  assert.equal(locs.length,new Set(locs).size,'Duplicate sitemap URLs');
  for(const slug of folders){
@@ -52,4 +52,18 @@ test('scholarship pillar explains funding comparison and links to exact provider
    assert.ok(get('blog/'+slug+'/index.html').includes('href="/blog/fully-funded-scholarships-international-students/"'),slug+' should link to funding comparison');
  }
  assert.ok(sitemap.includes('<loc>https://oppmatcher.tech/blog/fully-funded-scholarships-international-students/</loc><lastmod>2026-10-23</lastmod>'));
+});
+
+test('new editorial guide clusters and all 61 sitemap URLs are linked correctly',()=>{
+ const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(x=>x[1]);
+ assert.ok(urls.length>=61,'31 previous URLs and 30 new guides required');
+ for(const group of ['scholarship','internship','research'])
+  assert.ok(index.includes('id="new-'+group+'-guides"'));
+ for(const slug of folders){
+  const html=get('blog/'+slug+'/index.html');
+  if(!html.includes('OppMatcher editorial ·'))continue;
+  const plain=html.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+  assert.ok(plain.split(' ').length>=300,slug+' lacks substantial guidance');
+  assert.ok(html.includes('href="/latest"'),slug+' should link to official listings');
+ }
 });
