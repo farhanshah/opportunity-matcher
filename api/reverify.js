@@ -123,6 +123,7 @@ export default async function handler(req,res){
           CASE
             WHEN last_recheck_outcome LIKE 'retry_needed: HTTP 403%' THEN interval '7 days'
             WHEN last_recheck_outcome LIKE 'retry_needed: HTTP 429%' THEN interval '2 days'
+            WHEN last_recheck_outcome LIKE 'retry_needed: HTTP 503%' THEN interval '24 hours'
             WHEN last_recheck_outcome LIKE 'retry_needed: HTTP 404%' THEN interval '3 days'
             WHEN last_recheck_outcome LIKE 'retry_needed: %redirect%' THEN interval '3 days'
             WHEN last_recheck_outcome LIKE 'retry_needed: %timeout%' THEN interval '6 hours'

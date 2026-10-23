@@ -4,10 +4,10 @@ import { resolveOfficialRedirect } from '../lib/verification-redirects.js';
 import {storeSourceListing} from '../lib/source-listings.js';
 import {eligibilityRecheckCompatible} from '../lib/verification-eligibility.js';
 
-const SOURCE_BATCH = 12;
+const SOURCE_BATCH = 16;
 const LINKS_PER_SOURCE = 16;
 const DETAIL_CHECKS_PER_SOURCE = 2;
-const CONCURRENCY = 6;
+const CONCURRENCY = 8;
 function authorised(req) {
   return Boolean(process.env.CRON_SECRET) && req.headers.authorization === 'Bearer ' + process.env.CRON_SECRET;
 }
@@ -308,6 +308,15 @@ export default async function handler(req,res){
         WHERE s.source_id=m.id ORDER BY s.fetched_at DESC LIMIT 1
       ) snapshot ON true
       WHERE m.is_active=true
+        -- Provider refusals are not new opportunities. Prefer readable,
+        -- trusted sources instead of wasting each 15-minute discovery pass.
+        AND (m.last_http_status IS NULL OR m.last_http_status NOT IN (403,429,503)
+          OR m.last_checked_at IS NULL
+          OR m.last_checked_at < now() - CASE
+            WHEN m.last_http_status=403 THEN interval '7 days'
+            WHEN m.last_http_status=429 THEN interval '2 days'
+            WHEN m.last_http_status=503 THEN interval '24 hours'
+            ELSE interval '24 hours' END)
       ORDER BY m.last_discovery_at NULLS FIRST,m.source_key
       LIMIT ${SOURCE_BATCH}
     `;

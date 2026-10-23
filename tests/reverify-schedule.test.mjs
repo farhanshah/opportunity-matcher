@@ -9,7 +9,7 @@ test('two-hour catalogue cron uses provider-aware cooldowns',()=>{
   assert.equal(entry?.schedule,'0 */2 * * *');
   const code=read('api/reverify.js');
   for(const [match,retry] of [
-    ["HTTP 403","7 days"],["HTTP 429","2 days"],
+    ["HTTP 403","7 days"],["HTTP 429","2 days"],["HTTP 503","24 hours"],
     ["HTTP 404","3 days"],["%redirect%","3 days"],
     ["%timeout%","6 hours"]
   ]){

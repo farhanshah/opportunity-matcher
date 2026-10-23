@@ -137,14 +137,28 @@ async function processDueSources(sql, due, concurrency = FETCH_CONCURRENCY) {
 
 export async function runDueSourceChecks(sql, maxSources = MAX_SOURCES_PER_RUN, concurrency = FETCH_CONCURRENCY) {
   const due = await sql`
+    WITH ready_sources AS (
     SELECT id, source_key, provider, source_url, expected_terms, etag, last_modified,
-           check_interval_minutes, last_checked_at
+           check_interval_minutes, last_checked_at,
+           ROW_NUMBER() OVER (
+             PARTITION BY lower(split_part(source_url,'/',3))
+             ORDER BY last_checked_at NULLS FIRST, source_key
+           ) AS host_rank
     FROM monitored_sources
     WHERE is_active=true
       AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))
       -- Official sites refusing automated requests should not be hammered.
-      AND (last_http_status NOT IN (403,429) OR last_http_status IS NULL
-           OR last_checked_at < now() - interval '24 hours')
+      AND (last_http_status NOT IN (403,429,503) OR last_http_status IS NULL
+           OR last_checked_at < now() - CASE
+             WHEN last_http_status=403 THEN interval '7 days'
+             WHEN last_http_status=429 THEN interval '2 days'
+             WHEN last_http_status=503 THEN interval '24 hours'
+             ELSE interval '24 hours' END)
+    )
+    SELECT id,source_key,provider,source_url,expected_terms,etag,last_modified,
+           check_interval_minutes,last_checked_at
+    FROM ready_sources
+    WHERE host_rank<=3
     ORDER BY last_checked_at NULLS FIRST, check_interval_minutes ASC, source_key
     LIMIT ${maxSources}
   `;

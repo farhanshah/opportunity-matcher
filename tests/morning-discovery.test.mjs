@@ -9,11 +9,16 @@ test('search executes four mornings before 8am both BST and GMT',()=>{
  assert.equal(discovery[0].schedule,'*/15 6 * * *');
  assert.ok(!crons.some(c=>c.path==='/api/discover'&&c.schedule==='0 7 * * *'));
 });
-test('daily 4 passes cover 46-source registry when successful and nonoverlapping',()=>{
+test('daily 4 passes can cover a 61-source registry while deferring blocked providers',()=>{
  const code=read('api/discover.js');
- assert.ok(code.includes('const SOURCE_BATCH = 12'));
+ assert.ok(code.includes('const SOURCE_BATCH = 16'));
  assert.ok(code.includes('ORDER BY m.last_discovery_at NULLS FIRST,m.source_key'));
- assert.ok(4*12>=46);
+ assert.ok(4*16>=61);
+ assert.ok(code.includes('const CONCURRENCY = 8'));
+ assert.ok(code.includes('m.last_http_status NOT IN (403,429,503)'));
+ assert.ok(code.includes("WHEN m.last_http_status=403 THEN interval '7 days'"));
+ assert.ok(code.includes("WHEN m.last_http_status=429 THEN interval '2 days'"));
+ assert.ok(code.includes("WHEN m.last_http_status=503 THEN interval '24 hours'"));
 });
 test('search outcomes saved with each pass for operations, without exposing secret',()=>{
  const code=read('api/discover.js');

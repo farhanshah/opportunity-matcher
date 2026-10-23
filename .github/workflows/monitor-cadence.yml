@@ -5,6 +5,7 @@ on:
     paths:
       - 'vercel.json'
       - 'api/monitor-sources.js'
+      - 'api/monitor.js'
       - 'admin.html'
       - 'admin-v1.js'
       - 'admin-v1.css'

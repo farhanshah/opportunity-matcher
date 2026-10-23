@@ -8,7 +8,7 @@ test('primary ingest remains daily and source-only cron provides four UTC checks
   assert.equal(cron('/api/monitor').schedule,'0 3 * * *');
   assert.equal(cron('/api/monitor-sources').schedule,'0 5,11,17,23 * * *');
   assert.equal(config.crons.filter(x=>x.path==='/api/monitor-sources').length,1);
-  assert.equal(cron('/api/reverify').schedule,'0 8 * * *');
+  assert.equal(cron('/api/reverify').schedule,'0 */2 * * *');
   assert.equal(cron('/api/welcome-email').schedule,'*/5 * * * *');
 });
 test('source-only monitor keeps bounded batches, request auth, and no second vacancy ingestion',()=>{
@@ -19,11 +19,15 @@ test('source-only monitor keeps bounded batches, request auth, and no second vac
   assert.ok(source.includes('if (!authorised(req)) return res.status(401)'));
   assert.ok(!source.includes('ingestExactVacancies('));
 });
-test('due check respects per-source interval and 24-hour 403/429 cooldown',()=>{
+test('due check uses provider retry cooldown and host limits',()=>{
   const source=get('api/monitor.js');
   assert.ok(source.includes('check_interval_minutes * interval'));
-  assert.ok(source.includes('last_http_status NOT IN (403,429)'));
-  assert.ok(source.includes("interval '24 hours'"));
+  assert.ok(source.includes('last_http_status NOT IN (403,429,503)'));
+  assert.ok(source.includes("WHEN last_http_status=403 THEN interval '7 days'"));
+  assert.ok(source.includes("WHEN last_http_status=429 THEN interval '2 days'"));
+  assert.ok(source.includes("WHEN last_http_status=503 THEN interval '24 hours'"));
+  assert.ok(source.includes('ROW_NUMBER() OVER'));
+  assert.ok(source.includes('WHERE host_rank<=3'));
   assert.ok(source.includes('WHERE is_active=true'));
 });
 test('high-risk review events are surfaced without erasing pending review history',()=>{
