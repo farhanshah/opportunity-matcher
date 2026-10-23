@@ -6,7 +6,10 @@ test('operations source summary uses last seven days rather than next-check due 
  const api=load('api/admin-health.js'),js=load('admin-v1.js');
  assert.ok(api.includes('AS successful_monitors_7d'));
  assert.ok(js.includes('s.successful_monitors_7d'));
- assert.ok(js.includes('These counts overlap'));
+ assert.ok(js.includes('s.cooling_down_monitors'));
+ assert.ok(js.includes('eligible for retry now'));
+ assert.ok(api.includes('AS cooling_down_monitors'));
+ assert.ok(api.includes('AS blocked_monitors'));
  assert.ok(!js.includes('active · healthy now'));
 });
 test('distinct verification freshness metrics reach the admin dashboard',()=>{
