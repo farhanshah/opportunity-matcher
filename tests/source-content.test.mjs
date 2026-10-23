@@ -59,5 +59,6 @@ test('source watcher saves raw snapshots and continues to hold unverified change
  assert.ok(source.includes('comparableSourceSignals(fetched.html,previous?.raw_html,previous?.extraction_payload)'));
  assert.ok(source.includes('meaningfulChange(evidence.previous, signals)'));
  assert.ok(source.includes("'pending_review'"));
- assert.ok(source.includes('last_http_status NOT IN (403,429)'));
+ assert.ok(source.includes('last_http_status NOT IN (403,429,503)'));
+ assert.ok(source.includes("WHEN last_http_status=503 THEN interval '24 hours'"));
 });
