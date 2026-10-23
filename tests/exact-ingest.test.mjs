@@ -31,3 +31,13 @@ test('failed or incomplete provider reads cannot masquerade as authoritative', (
   assert.equal(authoritative({ok:true,verification_health:'degraded'}),false);
   assert.equal(authoritative({ok:true,verification_health:'healthy',openings:[{title:'Internship'}]}),true);
 });
+
+test('posting title rather than provider feed decides the vacancy category',async()=>{
+ const {classifyExactVacancy}=await import('../lib/exact-ingest.js');
+ assert.equal(classifyExactVacancy({title:'Vacancy Announcement - Roster (Administrative Associates) - SENEGAL CO'}),'Job');
+ assert.equal(classifyExactVacancy({title:'Special Call: Internship, Youth & Disability Inclusion'}),'Internship');
+ assert.equal(classifyExactVacancy({title:'Programme de Stages du PNUD Djibouti'}),'Internship');
+ assert.equal(classifyExactVacancy({title:'Communications Intern'}),'Internship');
+ assert.equal(classifyExactVacancy({title:'Graduate Fellowship'}),'Fellowship');
+ assert.equal(classifyExactVacancy({title:'Policy Specialist'}),'Job');
+});

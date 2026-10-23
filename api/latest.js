@@ -15,7 +15,8 @@ function group(rows,heading){
  return '<section><h2>'+esc(heading)+'</h2><div class="cards">'+rows.map(x=>
   '<article class="card"><span class="level '+(x.level===2?'open':x.level===1?'source':'')+'">'+esc(x.type)+'</span>'+
   '<h3>'+esc(x.title)+'</h3><p class="provider">'+esc(x.provider)+' · '+esc(cats[x.category]||'Opportunity')+'</p>'+
-  '<p>'+esc(note(x))+'</p>'+
+  '<p>'+esc(note(x))+'</p>'+ 
+  (x.restriction?'<p class="small"><strong>Posting restriction: '+esc(x.restriction)+'</strong></p>':'')+
   (x.location?'<p class="small">Location: '+esc(x.location)+'</p>':'')+
   (x.deadline_at?'<p class="small">Recorded deadline: <strong>'+esc(date(x.deadline_at))+'</strong> (confirm local closing time)</p>':'')+
   '<p class="small">Source checked: '+esc(date(x.checked_at))+

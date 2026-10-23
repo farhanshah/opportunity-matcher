@@ -54,3 +54,11 @@ test('directory is public, rendered server-side, linked and protected against in
  assert.match(read('index.html'),/href="\/latest"/);
  assert.ok(read('api/public-opportunities.js').includes("BASE+'/latest</loc>"));
 });
+
+test('a verified job roster never appears in the internships category',()=>{
+ assert.equal(categoryOf('Vacancy Announcement - Roster (Administrative Associates)','Job'),'other');
+ const administrative={...exact,title:'Vacancy Announcement - Roster (Administrative Associates) - SENEGAL CO',opportunity_type:'Job'};
+ const listings=preparedListings({vacancies:[administrative]},now);
+ assert.equal(listings[0].category,'other');
+ assert.equal(listings[0].restriction,'');
+});

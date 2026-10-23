@@ -38,3 +38,11 @@ test('block unsafe provider links',()=>{
   assert.equal(safePublicSource('http://example.com/'),'');
   assert.equal(safePublicSource('https://example.com/path'),'https://example.com/path');
 });
+
+test('explicit nationality and disability restrictions remain visible verbatim',async()=>{
+ const {restrictionFromTitle}=await import('../lib/public-opportunity-seo.js');
+ assert.equal(restrictionFromTitle('Communications Intern (Open to South Sudanese only, 3 Months)'), 'Open to South Sudanese only');
+ assert.equal(restrictionFromTitle('Internship (Sri Lankan nationals only)'), 'Sri Lankan nationals only');
+ assert.ok(restrictionFromTitle('Internship - only for Indonesians LIVING WITH DISABILITY').toLowerCase().includes('indonesians'));
+ assert.equal(restrictionFromTitle('Communications Intern'), '');
+});

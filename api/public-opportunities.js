@@ -1,6 +1,6 @@
 
 import { db } from '../lib/db.js';
-import { publishedState, categoryType, narrowFacts, publicSlug, safePublicSource } from '../lib/public-opportunity-seo.js';
+import { publishedState, categoryType, narrowFacts, publicSlug, safePublicSource, restrictionFromTitle } from '../lib/public-opportunity-seo.js';
 
 const BASE='https://oppmatcher.tech';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -81,6 +81,7 @@ function directory(rows, category=''){
   const cards=relevant.map(row=>'<article class="card"><p class="tag">'+esc(row.provider)+' · '+esc(row.opportunity_type||'Opportunity')+'</p>'+
     '<h2><a href="'+esc(path(row))+'">'+esc(row.title)+'</a></h2>'+
     '<p>'+esc(row.location||'See provider')+' · Deadline: '+esc(day(row.deadline_at))+'</p>'+
+    (restrictionFromTitle(row.title)?'<p><strong>Eligibility restriction: '+esc(restrictionFromTitle(row.title))+'</strong></p>':'')+
     '<p>Official vacancy last checked: '+esc(day(row.last_verified_at))+'</p>'+
     '<a href="'+esc(path(row))+'">See posting facts and official source →</a></article>').join('');
   const body='<p class="tag">Recently checked individual postings</p><h1>'+esc(name)+'</h1>'+
