@@ -78,6 +78,9 @@
     },
     "api/discover-exact-internships.js": {
       "maxDuration": 60
+    },
+    "api/admit-curated-sources.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
@@ -263,6 +266,10 @@
     {
       "path": "/api/discover-exact-internships",
       "schedule": "50 0,6,12,18 * * *"
+    },
+    {
+      "path": "/api/admit-curated-sources",
+      "schedule": "35 1 * * *"
     }
   ]
 }
