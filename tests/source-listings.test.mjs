@@ -119,3 +119,15 @@ test('partial provider facts are retained as evidence but never grant eligibilit
  assert.equal(result.evidence.declared_facts.matching_approved,false);
  assert.ok(result.evidence.unverified.includes('nationalities'));
 });
+
+test('a search listing and explicitly closed provider awards are not named programmes',()=>{
+ for(const [title,target] of [
+  ['Search results for "internships".','https://uni.example/search?q=internships'],
+  ['Sir Henry Wellcome Postdoctoral Fellowships (Closed)','https://uni.example/grants/closed'],
+  ['Senior Research Fellowships (Archived)','https://uni.example/grants/archive']
+ ]){
+  const html='<main><h1>'+title+'</h1><p>'+('Research opportunities may be announced with application eligibility and funding information on the institutional portal. ').repeat(4)+'</p></main>';
+  assert.equal(sourceListingEvidence({html,url:target,source}).ok,false,title);
+ }
+ assert.equal(sourceListingEvidence({html:good,url,source}).ok,true,'Real named programmes remain eligible');
+});

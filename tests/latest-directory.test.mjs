@@ -62,3 +62,14 @@ test('a verified job roster never appears in the internships category',()=>{
  assert.equal(listings[0].category,'other');
  assert.equal(listings[0].restriction,'');
 });
+
+test('official source-only listings do not surface archived award schemes or search pages',()=>{
+ const rows=preparedListings({sources:[
+  {...source,title:'Sir Henry Wellcome Postdoctoral Fellowships (Closed)',canonical_url:'https://official.example/closed'},
+  {...source,title:'Search results for internships',canonical_url:'https://official.example/search'},
+  {...source,title:'Career Development Fellowship',canonical_url:'https://official.example/fellowship'}
+ ]},now);
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].title,'Career Development Fellowship');
+ assert.equal(rows[0].level,1);
+});
