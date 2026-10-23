@@ -63,7 +63,9 @@ function shell(title,description,url,body,index=true){
   '<meta property="og:title" content="'+esc(title)+'"><meta property="og:description" content="'+esc(description)+'">'+
   '<meta property="og:url" content="'+esc(BASE+url)+'">'+
   '<script type="application/ld+json">'+structured+'</script>'+
-  '<link rel="icon" href="/brand-icon.svg" type="image/svg+xml"><style>'+css+'</style></head><body>'+
+  '<link rel="icon" href="/brand-icon.svg" type="image/svg+xml">'+
+  '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1916126969266611" crossorigin="anonymous"></script>'+
+  '<style>'+css+'</style></head><body>'+
   '<header><a href="/"><strong>OppMatcher</strong></a><nav aria-label="Main navigation"><a href="/">Home</a><a href="/opportunities">Verified opportunities</a><a href="/blog/">Guides</a></nav></header>'+
   '<main>'+body+'</main><footer>© OppMatcher · Always check the latest official provider posting. <a href="/blog/methodology/">How we verify</a></footer></body></html>';
 }
