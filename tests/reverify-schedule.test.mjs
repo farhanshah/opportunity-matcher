@@ -17,6 +17,10 @@ test('two-hour catalogue cron uses provider-aware cooldowns',()=>{
     assert.ok(code.includes("interval '"+retry+"'"),'missing '+retry);
   }
   assert.match(code,/ORDER BY last_recheck_at NULLS FIRST,external_id/);
+  assert.match(code,/monitored_sources blocked/);
+  assert.match(code,/blocked.last_http_status=403/);
+  assert.match(code,/blocked.last_http_status=429/);
+  assert.match(code,/blocked.last_http_status=503/);
   assert.match(code,/last_recheck_at IS NULL/);
   assert.match(code,/WHEN last_recheck_outcome LIKE/);
   assert.match(code,/SELECT count\(\*\)::int AS count FROM opportunity_country_routes/);

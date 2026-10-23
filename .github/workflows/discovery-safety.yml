@@ -12,6 +12,7 @@ on:
       - 'tests/monitor.test.mjs'
       - 'api/discover.js'
       - 'api/reverify.js'
+      - 'tests/provider-host-recovery.test.mjs'
       - 'lib/exact-ingest.js'
       - 'tests/exact-ingest.test.mjs'
       - 'tests/auto-discovery.test.mjs'
@@ -36,4 +37,4 @@ jobs:
           node --check api/reverify.js
           node --check lib/exact-ingest.js
       - name: Automated verifier tests
-        run: node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/exact-ingest.test.mjs tests/monitor.test.mjs tests/discovery-publish.test.mjs tests/reverify-schedule.test.mjs
+        run: node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/exact-ingest.test.mjs tests/monitor.test.mjs tests/discovery-publish.test.mjs tests/reverify-schedule.test.mjs tests/provider-host-recovery.test.mjs

@@ -117,6 +117,17 @@ export default async function handler(req,res){
     const records=await sql`
       SELECT id,external_id,title,provider,opportunity_type,funding_type,destination_country,official_source_url,eligible_nationalities,education_levels,fields_of_study
       FROM opportunities WHERE official_source_url IS NOT NULL AND official_source_url<>''
+        -- A host that is refusing or rate-limiting multiple verified monitors
+        -- must not consume scarce re-verification slots either.
+        AND NOT EXISTS (
+          SELECT 1 FROM monitored_sources blocked
+          WHERE blocked.is_active=true
+            AND lower(split_part(blocked.source_url,'/',3))=lower(split_part(official_source_url,'/',3))
+          GROUP BY lower(split_part(blocked.source_url,'/',3))
+          HAVING count(*) FILTER (WHERE blocked.last_http_status=429 AND blocked.last_checked_at > now()-interval '2 days') >= 1
+             OR count(*) FILTER (WHERE blocked.last_http_status=403 AND blocked.last_checked_at > now()-interval '7 days') >= 2
+             OR count(*) FILTER (WHERE blocked.last_http_status=503 AND blocked.last_checked_at > now()-interval '24 hours') >= 3
+        )
         -- Honour provider rate limits and inaccessible routes. Check eligible
         -- records first rather than retrying a known blocked page every 2h.
         AND (last_recheck_at IS NULL OR last_recheck_at <= now() -

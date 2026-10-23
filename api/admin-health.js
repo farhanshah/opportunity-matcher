@@ -40,7 +40,16 @@ export default async function handler(req, res) {
                WHEN last_http_status=403 THEN interval '7 days'
                WHEN last_http_status=429 THEN interval '2 days'
                WHEN last_http_status=503 THEN interval '24 hours'
-               ELSE interval '24 hours' END)) AS due_monitors,
+               ELSE interval '24 hours' END)
+           AND NOT EXISTS (
+             SELECT 1 FROM monitored_sources blocked
+             WHERE blocked.is_active=true
+               AND lower(split_part(blocked.source_url,'/',3))=lower(split_part(monitored_sources.source_url,'/',3))
+             GROUP BY lower(split_part(blocked.source_url,'/',3))
+             HAVING count(*) FILTER (WHERE blocked.last_http_status=429 AND blocked.last_checked_at > now()-interval '2 days') >= 1
+                OR count(*) FILTER (WHERE blocked.last_http_status=403 AND blocked.last_checked_at > now()-interval '7 days') >= 2
+                OR count(*) FILTER (WHERE blocked.last_http_status=503 AND blocked.last_checked_at > now()-interval '24 hours') >= 3
+           )) AS due_monitors,
          (SELECT count(*)::int FROM monitored_sources WHERE is_active=true
            AND last_error IS NOT NULL AND last_http_status IN(403,429,503)) AS blocked_monitors,
          (SELECT count(*)::int FROM monitored_sources WHERE is_active=true

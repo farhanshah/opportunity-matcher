@@ -8,6 +8,8 @@ on:
       - 'api/monitor.js'
       - 'lib/monitor-batching.js'
       - 'tests/monitor-batching.test.mjs'
+      - 'lib/official-recovery-links.js'
+      - 'tests/provider-host-recovery.test.mjs'
       - 'admin.html'
       - 'admin-v1.js'
       - 'admin-v1.css'
@@ -30,4 +32,4 @@ jobs:
           node --check api/monitor-sources.js
           node --check admin-v1.js
       - name: Cron schedule and security tests
-        run: node --test tests/monitor-cadence.test.mjs tests/monitor-batching.test.mjs
+        run: node --test tests/monitor-cadence.test.mjs tests/monitor-batching.test.mjs tests/provider-host-recovery.test.mjs
