@@ -1,0 +1,25 @@
+name: OppMatcher vetted official provider registry
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/curated-provider-sources.js'
+      - 'api/admit-curated-sources.js'
+      - 'vercel.json'
+      - 'tests/curated-source-admission.test.mjs'
+      - '.github/workflows/curated-source-coverage.yml'
+  workflow_dispatch:
+jobs:
+  approved-provider-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check source admission syntax
+        run: |
+          node --check lib/curated-provider-sources.js
+          node --check api/admit-curated-sources.js
+      - name: Verify static whitelist, admission policy and schedule
+        run: node --test tests/curated-source-admission.test.mjs
