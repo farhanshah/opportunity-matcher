@@ -37,3 +37,18 @@ test('automatic cron follows daily source monitor rather than overriding it',()=
  assert.equal(config.crons.find(c=>c.path==='/api/reconcile-source-successors')?.schedule,'5 2,14 * * *');
  assert.equal(config.crons.find(c=>c.path==='/api/triage-nonmaterial')?.schedule,'25 4 * * *');
 });
+
+test('successor snapshots preserve direct association with the original programme',async()=>{
+ const {SOURCE_OPPORTUNITY_MAP}=await import('../lib/monitor.js');
+ for(const [key,expected] of [
+  ['successor_csp_irex','PRG-001'],
+  ['successor_fulbright_global','PRG-009'],
+  ['successor_yes_official','PRG-005'],
+  ['successor_onebeat_direct','PRG-007']
+ ])assert.equal(SOURCE_OPPORTUNITY_MAP[key],expected);
+ const code=get('api/reconcile-source-successors.js');
+ assert.ok(code.includes("old.source_type='superseded_official_page'"));
+ assert.ok(code.includes('o.official_source_url=ready.old_url'));
+ assert.ok(code.includes('o.external_id=ready.external_id'));
+ assert.ok(!code.includes("SET last_verified_at=now()"));
+});
