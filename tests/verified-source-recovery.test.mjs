@@ -6,7 +6,7 @@ const get=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const config=JSON.parse(get('vercel.json'));
 test('official alternatives are unique, scoped, and not direct database replacements',()=>{
  const rows=safeSuccessors();
- assert.equal(rows.length,8);
+ assert.equal(rows.length,10);
  assert.ok(rows.every(x=>x.source_url.startsWith('https://')&&x.expected_terms.length));
  assert.ok(rows.every(x=>x.original_key!==x.successor_key));
  assert.throws(()=>safeSuccessors([{original_key:'a',successor_key:'successor_bad',provider:'bad',source_url:'http://localhost',expected_terms:['test']}]));
