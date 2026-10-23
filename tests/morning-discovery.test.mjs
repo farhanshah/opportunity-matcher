@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
-test('search executes four mornings before 8am both BST and GMT',()=>{
+test('search executes morning and evening official-source windows, with the 8 AM UK pass independent',()=>{
  const crons=JSON.parse(read('vercel.json')).crons;
  const discovery=crons.filter(c=>c.path==='/api/discover');
  assert.equal(discovery.length,1);
- assert.equal(discovery[0].schedule,'*/15 6 * * *');
+ assert.equal(discovery[0].schedule,'*/15 6,18 * * *');
  assert.ok(!crons.some(c=>c.path==='/api/discover'&&c.schedule==='0 7 * * *'));
 });
 test('daily 4 passes can cover a 61-source registry while deferring blocked providers',()=>{
