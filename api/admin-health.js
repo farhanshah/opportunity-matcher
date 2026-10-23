@@ -32,7 +32,24 @@ export default async function handler(req, res) {
         (SELECT count(*)::int FROM monitored_sources
           WHERE is_active=true AND last_error IS NULL
             AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))) AS due_without_error,
-        (SELECT count(*)::int FROM monitored_sources WHERE is_active=true AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))) AS due_monitors,
+        (SELECT count(*)::int FROM monitored_sources WHERE is_active=true
+           AND (last_checked_at IS NULL OR last_checked_at <= now() - (check_interval_minutes * interval '1 minute'))
+           AND (last_http_status IS NULL OR last_http_status NOT IN (403,429,503)
+             OR last_checked_at < now() - CASE
+               WHEN last_http_status=403 THEN interval '7 days'
+               WHEN last_http_status=429 THEN interval '2 days'
+               WHEN last_http_status=503 THEN interval '24 hours'
+               ELSE interval '24 hours' END)) AS due_monitors,
+         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true
+           AND last_error IS NOT NULL AND last_http_status IN(403,429,503)) AS blocked_monitors,
+         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true
+           AND last_error IS NOT NULL AND (last_http_status IS NULL OR last_http_status NOT IN(403,429,503))) AS other_monitor_errors,
+         (SELECT count(*)::int FROM monitored_sources WHERE is_active=true
+           AND last_http_status IN (403,429,503) AND last_checked_at >= now() - CASE
+             WHEN last_http_status=403 THEN interval '7 days'
+             WHEN last_http_status=429 THEN interval '2 days'
+             WHEN last_http_status=503 THEN interval '24 hours'
+             ELSE interval '24 hours' END) AS cooling_down_monitors,
         (SELECT count(*)::int FROM source_snapshots) AS total_snapshots,
         (SELECT count(*)::int FROM detected_changes) AS detected_changes,
         (SELECT count(*)::int FROM detected_changes WHERE status='pending_review') AS pending_review,
@@ -99,6 +116,11 @@ export default async function handler(req, res) {
         m.id, m.source_key, m.provider, m.source_url, m.source_type,
         m.check_interval_minutes, m.is_active, m.last_checked_at, m.last_success_at,
         m.last_http_status, m.last_error,
+        CASE
+          WHEN m.last_http_status=403 THEN m.last_checked_at+interval '7 days'
+          WHEN m.last_http_status=429 THEN m.last_checked_at+interval '2 days'
+          WHEN m.last_http_status=503 THEN m.last_checked_at+interval '24 hours'
+          ELSE null END AS next_retry_at,
         count(s.id)::int AS snapshot_count,
         max(s.fetched_at) AS latest_snapshot_at,
         CASE

@@ -5,7 +5,7 @@ import { runDueSourceChecks } from './monitor.js';
 // The 03:00 primary pass also checks due programme sources.
 // This job deliberately does not run exact-vacancy ingestion a second time.
 const MAX_SOURCES_PER_RUN = 26;
-const FETCH_CONCURRENCY = 16;
+const FETCH_CONCURRENCY = 14;
 
 function authorised(req) {
   const secret = process.env.CRON_SECRET;

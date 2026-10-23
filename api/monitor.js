@@ -2,6 +2,7 @@ import { db } from '../lib/db.js';
 import { SOURCE_OPPORTUNITY_MAP, normalizeHtml, sha256, meaningfulChange, expectedContentPresent } from '../lib/monitor.js';
 import { comparableSourceSignals } from '../lib/source-content.js';
 import { ingestExactVacancies } from '../lib/exact-ingest.js';
+import { hostBatches } from '../lib/monitor-batching.js';
 
 // Primary daily batch: 20 programme sources plus exact-vacancy ingestion.
 // A later source-only cron processes the remaining due sources without repeating ingestion.
@@ -24,7 +25,7 @@ async function fetchSource(source) {
   };
   if (source.etag) headers['if-none-match'] = source.etag;
   if (source.last_modified) headers['if-modified-since'] = source.last_modified;
-  const response = await fetch(source.source_url, { headers, redirect: 'follow', signal: AbortSignal.timeout(25000) });
+  const response = await fetch(source.source_url, { headers, redirect: 'follow', signal: AbortSignal.timeout(17000) });
   if (response.status === 304) return { notModified: true, status: 304, response };
   const html = await response.text();
   return { notModified: false, status: response.status, html, response };
@@ -127,10 +128,10 @@ async function processSource(sql, source) {
 
 async function processDueSources(sql, due, concurrency = FETCH_CONCURRENCY) {
   const results = [];
-  for (let i = 0; i < due.length; i += concurrency) {
-    const batch = due.slice(i, i + concurrency);
-    const batchResults = await Promise.all(batch.map(source => processSource(sql, source)));
-    results.push(...batchResults);
+  // 403/429/503 cooldowns still apply. Scheduling never hammers one
+  // institution with several simultaneous requests within a cron.
+  for(const batch of hostBatches(due,concurrency)){
+    results.push(...await Promise.all(batch.map(source=>processSource(sql,source))));
   }
   return results;
 }
@@ -158,7 +159,7 @@ export async function runDueSourceChecks(sql, maxSources = MAX_SOURCES_PER_RUN, 
     SELECT id,source_key,provider,source_url,expected_terms,etag,last_modified,
            check_interval_minutes,last_checked_at
     FROM ready_sources
-    WHERE host_rank<=3
+    WHERE host_rank<=2
     ORDER BY last_checked_at NULLS FIRST, check_interval_minutes ASC, source_key
     LIMIT ${maxSources}
   `;

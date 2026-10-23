@@ -14,7 +14,7 @@ test('primary ingest remains daily and source-only cron provides four UTC checks
 test('source-only monitor keeps bounded batches, request auth, and no second vacancy ingestion',()=>{
   const source=get('api/monitor-sources.js');
   assert.ok(source.includes('const MAX_SOURCES_PER_RUN = 26;'));
-  assert.ok(source.includes('const FETCH_CONCURRENCY = 16;'));
+  assert.ok(source.includes('const FETCH_CONCURRENCY = 14;'));
   assert.ok(source.includes('runDueSourceChecks(sql, MAX_SOURCES_PER_RUN, FETCH_CONCURRENCY)'));
   assert.ok(source.includes('if (!authorised(req)) return res.status(401)'));
   assert.ok(!source.includes('ingestExactVacancies('));
@@ -27,7 +27,9 @@ test('due check uses provider retry cooldown and host limits',()=>{
   assert.ok(source.includes("WHEN last_http_status=429 THEN interval '2 days'"));
   assert.ok(source.includes("WHEN last_http_status=503 THEN interval '24 hours'"));
   assert.ok(source.includes('ROW_NUMBER() OVER'));
-  assert.ok(source.includes('WHERE host_rank<=3'));
+  assert.ok(source.includes('hostBatches(due,concurrency)'));
+  assert.ok(source.includes('AbortSignal.timeout(17000)'));
+  assert.ok(source.includes('WHERE host_rank<=2'));
   assert.ok(source.includes('WHERE is_active=true'));
 });
 test('high-risk review events are surfaced without erasing pending review history',()=>{
@@ -39,4 +41,18 @@ test('high-risk review events are surfaced without erasing pending review histor
   assert.ok(frontend.includes('s.pending_review_groups'));
   assert.ok(api.includes("status='pending_review'"));
   assert.ok(api.includes('if (!authorised(req)) return res.status(401)'));
+});
+
+test('admin reports provider access blocks separately from due checks and does not hide errors',()=>{
+ const api=get('api/admin-health.js'),admin=get('admin-v1.js'),html=get('admin.html');
+ assert.ok(api.includes('AS blocked_monitors'));
+ assert.ok(api.includes('AS other_monitor_errors'));
+ assert.ok(api.includes('AS cooling_down_monitors'));
+ assert.ok(api.includes('AS due_monitors'));
+ assert.ok(api.includes('last_error IS NOT NULL'));
+ assert.ok(admin.includes('s.blocked_monitors'));
+ assert.ok(admin.includes('s.other_monitor_errors'));
+ assert.ok(admin.includes('s.cooling_down_monitors'));
+ assert.ok(admin.includes('next_retry_at'));
+ assert.ok(html.includes('id="discoveryWindowNote"'));
 });

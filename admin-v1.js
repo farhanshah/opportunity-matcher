@@ -31,13 +31,16 @@
     const s=state.data.summary||{};const pct=s.total_opportunities?Math.round((s.normalized_opportunities/s.total_opportunities)*100):0;
     $('coveragePct').textContent=pct+'%';$('coverageRing').style.setProperty('--p',pct);
     $('normalizedCount').textContent=s.normalized_opportunities??'—';$('totalOppCount').textContent=s.total_opportunities??'—';
-    $('monitorSuccess').textContent=`${s.successful_monitors_7d??0}/${s.active_monitors??0}`;$('monitorTotal').textContent=`successful official fetches in 7 days`;$('monitorFailPill').textContent=`${s.failing_monitors??0} issues`;
+    $('monitorSuccess').textContent=`${s.successful_monitors_7d??0}/${s.active_monitors??0}`;$('monitorTotal').textContent=`successful official fetches in 7 days`;$('monitorFailPill').textContent=`${s.blocked_monitors??0} access blocks · ${s.other_monitor_errors??0} other errors`;
     $('ruleCount').textContent=s.total_rules??'—';$('nonCountryRules').textContent=`${s.non_country_rules??0} non-country`;$('uncertainRules').textContent=`${s.uncertain_rules??0} uncertain`;
     $('pendingCount').textContent=s.pending_review??0;$('snapshotCount').textContent=`${s.total_snapshots??0} snapshots`;
     $('priorityReviewCount').textContent=String(s.high_risk_pending??0)+' high-risk events · '+String(s.pending_review_groups??0)+' review groups';
     $('navSourceCount').textContent=s.active_monitors??'—';$('navReviewCount').textContent=s.pending_review??0;$('navPartialCount').textContent=s.partial_opportunities??'—';
     $('lastRefresh').textContent=fmtTime(state.data.generated_at);
     $('discoveryTodaySources').textContent=String(s.discovery_scanned_today??'—')+' / '+String(s.active_monitors??'—');
+    $('discoveryWindowNote').textContent=!Number(s.discovery_scanned_today||0)
+      ?'No scheduled official-source discovery completed today yet. UTC runs at 06:00–06:45 and 18:00–18:45; this is not an error.'
+      :'Scheduled source discovery has recorded activity today. Verification and publication are separate checks.';
     $('discoveryTodayHeld').textContent=s.discovery_new_held_today??'—';
     $('discoveryTodayPublished').textContent=s.discovery_new_published_today??'—';
     $('discoveryCandidateTotals').textContent=(Number(s.discovered_published||0)+Number(s.discovered_withheld||0)+Number(s.discovered_existing||0));
@@ -82,14 +85,14 @@
     $('freshRoutesCount').textContent=ratio(s.verified_routes_30d,s.active_country_routes);
     $('freshRulesCount').textContent=ratio(s.verified_rules_30d,s.total_rules);
     const issues=Number(s.failing_monitors||0),due=Number(s.due_monitors||0);
-    $('sideStatusText').textContent=issues||due?`${issues} issues · ${due} due (including errors)`:'Freshness checks are current';
+    $('sideStatusText').textContent=issues||due?`${s.blocked_monitors??0} provider access blocks · ${s.other_monitor_errors??0} other errors · ${due} due`:'All scheduled source checks current';
     const dot=document.querySelector('.statusDot');if(dot)dot.style.background=issues?'var(--amber)':'var(--green)';
 
     const total=Number(s.active_monitors||0)||1,healthy=Number(s.successful_monitors_7d||0),issue=issues,awaiting=Number(s.due_without_error||0);
     $('healthBars').innerHTML=[['Fetched · 7d',healthy,'healthy'],['Current issues',issue,'issue'],['Due · no error',awaiting,'due']].map(([label,n,cls])=>`<div class="healthRow"><span>${label}</span><div class="healthTrack"><i class="${cls}" style="width:${Math.min(100,(n/total)*100)}%"></i></div><b>${n}</b></div>`).join('');
-    $('sourceIntervalNote').textContent=String(s.healthy_monitors??0)+' currently within their scheduled check interval; '+String(due)+' due now (including failures). These counts overlap: a recent successful fetch can also be due for another check. Primary source monitoring runs at 03:00 UTC, with source-only checks scheduled for 05:00, 11:00, 17:00 and 23:00 UTC. Due-source and 24-hour access-block cooldowns still apply.';
+    $('sourceIntervalNote').textContent=String(s.healthy_monitors??0)+' within their scheduled check interval; '+String(due)+' eligible for retry now; '+String(s.cooling_down_monitors??0)+' access-blocked sources in provider cooldown. A 403 means access refused, 429 means rate limited, and 503 means upstream unavailable. They cannot be declared verified without new source evidence. Source monitors run at 03:00, 05:00, 11:00, 17:00 and 23:00 UTC.';
     const failing=(state.data.sources||[]).filter(x=>x.health==='error').slice(0,4);
-    $('sourceIssuePreview').innerHTML=failing.length?failing.map(x=>`<div class="issueLine"><i></i><div><b>${esc(x.provider)}</b><span>${esc(x.last_error||'Fetch issue')}</span></div><span>${ago(x.last_checked_at)}</span></div>`).join(''):`<div class="issueLine"><i style="background:var(--green)"></i><div><b>All direct monitors healthy</b><span>No active fetch errors</span></div><span>current</span></div>`;
+    $('sourceIssuePreview').innerHTML=failing.length?failing.map(x=>`<div class="issueLine"><i></i><div><b>${esc(x.provider)}</b><span>${esc(x.last_error||'Fetch issue')}${x.next_retry_at?' · next attempt '+fmtTime(x.next_retry_at):''}</span></div><span>${ago(x.last_checked_at)}</span></div>`).join(''):`<div class="issueLine"><i style="background:var(--green)"></i><div><b>All direct monitors healthy</b><span>No active fetch errors</span></div><span>current</span></div>`;
     const preview=(state.data.partials||[]).slice(0,5);
     $('partialPreview').innerHTML=preview.map(x=>`<div class="partialMini"><div><b>${esc(x.title)}</b><small>${esc(x.external_id)} · ${esc(x.provider)}</small></div><strong>${Number(x.uncertain_rules||0)?`${x.uncertain_rules} uncertain`:Number(x.route_blockers||0)?'route-specific':'confirmed rules'}</strong></div>`).join('');
   }
@@ -101,7 +104,7 @@
     let rows=[...(state.data.sources||[])];const q=String($('sourceSearch')?.value||'').trim().toLowerCase();
     if(state.sourceFilter!=='all')rows=rows.filter(x=>x.health===state.sourceFilter);
     if(q)rows=rows.filter(x=>`${x.provider} ${x.source_key} ${x.source_url}`.toLowerCase().includes(q));
-    $('sourceRows').innerHTML=rows.length?rows.map(x=>`<div class="tableRow sourcesGrid"><div class="sourceIdentity"><b>${esc(x.provider)}</b><span>${esc(x.source_key)}${x.last_error?` · ${esc(x.last_error)}`:''}</span></div><div>${healthBadge(x.health)}</div><div class="tableMeta">${Number(x.snapshot_count||0)}</div><div class="tableMeta">${ago(x.last_success_at)}<span class="tableSub">checked ${ago(x.last_checked_at)}</span></div><div class="tableMeta">${interval(x.check_interval_minutes)}</div><a class="rowLink" href="${esc(x.source_url)}" target="_blank" rel="noopener" title="Open official source">↗</a></div>`).join(''):`<div class="emptyState"><strong>No sources match this view.</strong><p>Try a different health filter or search term.</p></div>`;
+    $('sourceRows').innerHTML=rows.length?rows.map(x=>`<div class="tableRow sourcesGrid"><div class="sourceIdentity"><b>${esc(x.provider)}</b><span>${esc(x.source_key)}${x.last_error?` · ${esc(x.last_error)}`:''}${x.next_retry_at?` · retry eligible ${esc(fmtTime(x.next_retry_at))}`:''}</span></div><div>${healthBadge(x.health)}</div><div class="tableMeta">${Number(x.snapshot_count||0)}</div><div class="tableMeta">${ago(x.last_success_at)}<span class="tableSub">checked ${ago(x.last_checked_at)}</span></div><div class="tableMeta">${interval(x.check_interval_minutes)}</div><a class="rowLink" href="${esc(x.source_url)}" target="_blank" rel="noopener" title="Open official source">↗</a></div>`).join(''):`<div class="emptyState"><strong>No sources match this view.</strong><p>Try a different health filter or search term.</p></div>`;
   }
 
   function renderPartials(){
