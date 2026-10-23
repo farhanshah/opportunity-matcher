@@ -1,0 +1,27 @@
+name: OppMatcher verified source recovery
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/official-source-successors.js'
+      - 'api/reconcile-source-successors.js'
+      - 'api/triage-nonmaterial.js'
+      - 'tests/verified-source-recovery.test.mjs'
+      - 'vercel.json'
+      - '.github/workflows/verified-source-recovery.yml'
+  workflow_dispatch:
+jobs:
+  safe-source-recovery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax verification
+        run: |
+          node --check lib/official-source-successors.js
+          node --check api/reconcile-source-successors.js
+          node --check api/triage-nonmaterial.js
+      - name: Recovery and evidence safety tests
+        run: node --test tests/verified-source-recovery.test.mjs tests/monitor-cadence.test.mjs tests/source-content.test.mjs

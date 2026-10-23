@@ -81,6 +81,12 @@
     },
     "api/admit-curated-sources.js": {
       "maxDuration": 30
+    },
+    "api/reconcile-source-successors.js": {
+      "maxDuration": 30
+    },
+    "api/triage-nonmaterial.js": {
+      "maxDuration": 30
     }
   },
   "headers": [
@@ -270,6 +276,14 @@
     {
       "path": "/api/admit-curated-sources",
       "schedule": "35 1 * * *"
+    },
+    {
+      "path": "/api/reconcile-source-successors",
+      "schedule": "5 2,14 * * *"
+    },
+    {
+      "path": "/api/triage-nonmaterial",
+      "schedule": "25 4 * * *"
     }
   ]
 }
