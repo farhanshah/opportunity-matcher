@@ -87,7 +87,14 @@ export default async function handler(req, res) {
         (SELECT count(*)::int FROM opportunity_discovery_candidates
           WHERE status='needs_evidence' AND detected_at>=CURRENT_DATE) AS discovery_new_held_today,
         (SELECT count(*)::int FROM opportunity_discovery_candidates
-          WHERE status='published' AND detected_at>=CURRENT_DATE) AS discovery_new_published_today,
+          WHERE status='published' AND (detected_at AT TIME ZONE 'Europe/London')::date=(now() AT TIME ZONE 'Europe/London')::date) AS discovery_new_published_today,
+        (SELECT count(*)::int FROM worldwide_source_listings
+          WHERE source_status='source_confirmed'
+            AND (created_at AT TIME ZONE 'Europe/London')::date=(now() AT TIME ZONE 'Europe/London')::date) AS source_confirmed_published_today,
+        (SELECT count(*)::int FROM exact_vacancies
+          WHERE status='open' AND status_verified=true AND verification_level='exact'
+            AND deadline_at>now()
+            AND (first_seen_at AT TIME ZONE 'Europe/London')::date=(now() AT TIME ZONE 'Europe/London')::date) AS exact_open_published_today,
         (SELECT count(*)::int FROM exact_vacancies WHERE status='open' AND status_verified=true) AS verified_live_vacancies,
         (SELECT count(*)::int FROM opportunities WHERE last_verified_at >= now()-INTERVAL '30 days') AS verified_records_30d,
         (SELECT count(*)::int FROM opportunity_country_routes WHERE is_active) AS active_country_routes,

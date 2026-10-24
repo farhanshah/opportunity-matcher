@@ -17,7 +17,7 @@ export default async function handler(req,res){
   // Rotate official sources twice daily, so one large institution cannot
   // starve other regions and providers of inspection slots.
   const pages=await sql`
-   SELECT m.id,m.provider,m.source_url,s.raw_html,s.fetched_at
+   SELECT m.id,m.provider,m.source_url,s.raw_html,m.last_success_at AS checked_at
    FROM monitored_sources m
    JOIN LATERAL(
      SELECT raw_html,fetched_at,http_status
@@ -25,7 +25,8 @@ export default async function handler(req,res){
      ORDER BY fetched_at DESC LIMIT 1
    ) s ON true
    WHERE m.is_active=true AND s.http_status=200
-     AND s.fetched_at>=now()-interval '7 days'
+     AND m.last_error IS NULL AND m.last_http_status IN (200,304)
+     AND m.last_success_at>=now()-interval '7 days'
      AND s.raw_html IS NOT NULL
    ORDER BY md5(m.source_key || to_char(now() AT TIME ZONE 'UTC','YYYYMMDDHH24'))
    LIMIT 40

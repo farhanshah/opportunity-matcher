@@ -69,10 +69,12 @@ test('public listing API cannot represent source-only data as verified or open',
 test('daily official snapshot promoter is secret protected and evidence-bound',()=>{
  const api=readFileSync(new URL('../api/promote-source-snapshots.js',import.meta.url),'utf8');
  const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
- assert.equal(config.crons.find(x=>x.path==='/api/promote-source-snapshots').schedule,'40 6,18 * * *');
+ assert.equal(config.crons.find(x=>x.path==='/api/promote-source-snapshots').schedule,'40 5,6,12,18 * * *');
  assert.match(api,/req.headers.authorization/);
  assert.match(api,/s.http_status=200/);
- assert.match(api,/s.fetched_at>=now\(\)-interval '72 hours'/);
+ assert.match(api,/m.last_success_at>=now\(\)-interval '72 hours'/);
+ assert.match(api,/m.last_error IS NULL/);
+ assert.match(api,/checkedAt:s.checked_at/);
  assert.match(api,/storeSourceListing\(sql/);
  assert.doesNotMatch(api,/INSERT INTO opportunities|UPDATE opportunities/);
 });

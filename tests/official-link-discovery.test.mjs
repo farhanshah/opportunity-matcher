@@ -36,7 +36,7 @@ test('new provider source miner is secret protected, rotated, bounded and enqueu
  assert.match(s,/review_status,verification_status/);
  assert.match(s,/FOR UPDATE|ON CONFLICT\(canonical_url\)/);
  assert.doesNotMatch(s,/INSERT INTO opportunities|UPDATE opportunities SET/);
- assert.equal(v.crons.find(c=>c.path==='/api/discover-official-links').schedule,'10 1,13 * * *');
+ assert.equal(v.crons.find(c=>c.path==='/api/discover-official-links').schedule,'10 1,5,13,17 * * *');
 });
 test('eight 16-candidate verifier passes are scheduled daily',()=>{
  const v=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));

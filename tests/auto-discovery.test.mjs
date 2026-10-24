@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId } from '../lib/auto-discovery.js';
+import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId, isProviderConsentOrBlockPage } from '../lib/auto-discovery.js';
 
 const official = 'https://university.example/awards/2027-global-scholarship';
 function fixture(overrides = {}) {
@@ -88,4 +88,10 @@ test('nomination requirements require route-level proof, not a general programme
   const result=verifyCandidate(fixture({qualifications:"Bachelor's degree completed. Open to all nationalities and all fields of study. University nomination required."}),official,'University',new Date('2026-10-15T12:00:00Z'));
   assert.equal(result.verified,false);
   assert.ok(result.reasons.includes('nomination prerequisite requires route-specific verification'));
+});
+
+test('cookie consent and access challenge pages never count as programme evidence',()=>{
+ assert.equal(isProviderConsentOrBlockPage('<html><main><h1>Cookie Consent</h1><p>Scholarships for everybody</p></main></html>'),true);
+ assert.equal(isProviderConsentOrBlockPage('<html><title>Just a moment...</title><p>Cloud challenge</p></html>'),true);
+ assert.equal(isProviderConsentOrBlockPage(fixture()),false);
 });

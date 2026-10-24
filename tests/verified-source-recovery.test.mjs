@@ -18,6 +18,9 @@ test('successor cannot retire an original without new successful checked evidenc
   assert.ok(code.includes(guard),guard);
  }
  assert.ok(code.includes("source_type='superseded_official_page'"));
+ assert.ok(code.includes("old.last_http_status IS NULL"));
+ assert.ok(code.includes("Fetched page was unexpectedly short"));
+ assert.ok(code.includes("Expected-content guard failed"));
  assert.ok(!code.includes('SET last_verified_at=now()'));
  assert.ok(!code.includes("status='Open'"));
  assert.ok(code.includes('if(!authorized(req))'));

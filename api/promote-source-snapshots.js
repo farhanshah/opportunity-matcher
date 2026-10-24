@@ -11,7 +11,7 @@ export default async function handler(req,res){
  try{
    const sql=db();
    const sources=await sql`
-     SELECT m.id,m.provider,m.source_url,s.fetched_at,
+     SELECT m.id,m.provider,m.source_url,m.last_success_at AS checked_at,
        left(s.raw_html,400000) AS html
      FROM monitored_sources m
      JOIN LATERAL (
@@ -21,7 +21,8 @@ export default async function handler(req,res){
        ORDER BY fetched_at DESC LIMIT 1
      ) s ON true
      WHERE m.is_active=true AND s.http_status=200
-       AND s.fetched_at>=now()-interval '72 hours'
+       AND m.last_error IS NULL AND m.last_http_status IN (200,304)
+       AND m.last_success_at>=now()-interval '72 hours'
        AND s.raw_html IS NOT NULL
      ORDER BY md5(m.source_key || to_char(now() AT TIME ZONE 'UTC','YYYYMMDDHH12')) LIMIT 28
    `;
@@ -29,7 +30,7 @@ export default async function handler(req,res){
    for(const s of sources){
      try{
        const result=await storeSourceListing(sql,null,s,{
-         url:s.source_url,html:s.html,checkedAt:s.fetched_at
+         url:s.source_url,html:s.html,checkedAt:s.checked_at
        });
        if(result.isNew)recorded++;
        else if(result.stored)refreshed++;

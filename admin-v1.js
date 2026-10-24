@@ -39,10 +39,12 @@
     $('lastRefresh').textContent=fmtTime(state.data.generated_at);
     $('discoveryTodaySources').textContent=String(s.discovery_scanned_today??'—')+' / '+String(s.active_monitors??'—');
     $('discoveryWindowNote').textContent=!Number(s.discovery_scanned_today||0)
-      ?'No scheduled official-source discovery completed today yet. UTC runs at 06:00–06:45 and 18:00–18:45; this is not an error.'
-      :'Scheduled source discovery has recorded activity today. Verification and publication are separate checks.';
+      ?'No main discovery scan has finished today yet. Scheduled UTC windows are 06:00–06:45 and 18:00–18:45, plus a separate 8 AM UK run. Other official feeds may already have published source-confirmed pages.'
+      :'Scheduled discovery is running. Fully verified open calls, exact vacancies, and source-confirmed programme pages are reported separately.';
     $('discoveryTodayHeld').textContent=s.discovery_new_held_today??'—';
     $('discoveryTodayPublished').textContent=s.discovery_new_published_today??'—';
+    $('sourceConfirmedToday').textContent=s.source_confirmed_published_today??'—';
+    $('exactOpenToday').textContent=s.exact_open_published_today??'—';
     $('discoveryCandidateTotals').textContent=(Number(s.discovered_published||0)+Number(s.discovered_withheld||0)+Number(s.discovered_existing||0));
     $('discoveryLastPass').textContent=ago(s.last_discovery_run);
     const latestWebRun=(state.data.worldwide_runs||[])[0];
@@ -97,7 +99,7 @@
     $('partialPreview').innerHTML=preview.map(x=>`<div class="partialMini"><div><b>${esc(x.title)}</b><small>${esc(x.external_id)} · ${esc(x.provider)}</small></div><strong>${Number(x.uncertain_rules||0)?`${x.uncertain_rules} uncertain`:Number(x.route_blockers||0)?'route-specific':'confirmed rules'}</strong></div>`).join('');
   }
 
-  function renderPulse(){const s=state.data.summary||{};$('pulseTimeline').innerHTML=[['Latest source success',ago(s.latest_monitor_success)],['Latest snapshot',ago(s.latest_snapshot_at)],['Latest opportunity update',ago(s.latest_opportunity_update)],['Source alerts',String(s.detected_changes??0)],['Auto-published',String(s.discovered_published??0)],['Held for evidence',String(s.discovered_withheld??0)],['Verified records (30d)',String(s.verified_records_30d??0)],['Rechecked (7d)',String(s.rechecked_records_7d??0)],['Exact open vacancies',String(s.verified_live_vacancies??0)],['Last discovery pass',ago(s.last_discovery_run)]].map(([k,v])=>`<div class="pulseItem"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}
+  function renderPulse(){const s=state.data.summary||{};$('pulseTimeline').innerHTML=[['Latest source success',ago(s.latest_monitor_success)],['Latest snapshot',ago(s.latest_snapshot_at)],['Latest opportunity update',ago(s.latest_opportunity_update)],['Source alerts',String(s.detected_changes??0)],['Fully verified programmes published',String(s.discovered_published??0)],['New source-confirmed pages today',String(s.source_confirmed_published_today??0)],['Held for evidence',String(s.discovered_withheld??0)],['Verified records (30d)',String(s.verified_records_30d??0)],['Rechecked (7d)',String(s.rechecked_records_7d??0)],['Exact open vacancies',String(s.verified_live_vacancies??0)],['Last discovery pass',ago(s.last_discovery_run)]].map(([k,v])=>`<div class="pulseItem"><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}
 
   function healthBadge(h){const label={healthy:'Healthy',error:'Issue',due:'Due',waiting:'Waiting',paused:'Paused'}[h]||h;return`<span class="healthBadge ${esc(h)}"><i></i>${esc(label)}</span>`}
   function renderSources(){

@@ -1,5 +1,5 @@
 import { db } from '../lib/db.js';
-import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId } from '../lib/auto-discovery.js';
+import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, discoveryId, isProviderConsentOrBlockPage } from '../lib/auto-discovery.js';
 import { resolveOfficialRedirect } from '../lib/verification-redirects.js';
 import {storeSourceListing} from '../lib/source-listings.js';
 import {eligibilityRecheckCompatible} from '../lib/verification-eligibility.js';
@@ -259,6 +259,10 @@ async function scanSource(sql,source) {
            Date.now()-new Date(previous.last_checked_at).getTime()<7*24*60*60*1000)continue;
         result.detail_checked++;
         const page=await fetchOfficial(link.url,source.source_url);
+        if(isProviderConsentOrBlockPage(page.html)){
+          result.errors.push('Provider consent or access page, not programme evidence');
+          continue;
+        }
         const verified=verifyCandidate(page.html,page.url,source.provider);
         const published=await publish(sql,source,page.url,verified);
         if(!verified.verified){

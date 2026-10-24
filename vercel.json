@@ -255,7 +255,7 @@
     },
     {
       "path": "/api/promote-source-snapshots",
-      "schedule": "40 6,18 * * *"
+      "schedule": "40 5,6,12,18 * * *"
     },
     {
       "path": "/api/discover-grantsgov",
@@ -267,7 +267,7 @@
     },
     {
       "path": "/api/discover-official-links",
-      "schedule": "10 1,13 * * *"
+      "schedule": "10 1,5,13,17 * * *"
     },
     {
       "path": "/api/discover-exact-internships",

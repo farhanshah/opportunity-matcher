@@ -48,7 +48,9 @@ export default async function handler(req,res){
    )
    UPDATE monitored_sources old SET is_active=false,source_type='superseded_official_page',updated_at=now()
    FROM healthy h WHERE old.source_key=h.original_key AND old.is_active=true
-   AND old.last_error IS NOT NULL AND old.last_http_status IN (403,429,503)
+   AND old.last_error IS NOT NULL
+   AND (old.last_http_status IN (403,429,503)
+      OR (old.last_http_status IS NULL AND old.last_error IN ('Fetched page was unexpectedly short','fetch failed','Expected-content guard failed')))
    RETURNING old.source_key,h.source_url,h.external_id
   `;
   // Idempotent: if a prior run retired the old monitor but crashed before
