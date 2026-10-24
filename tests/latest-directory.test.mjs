@@ -82,3 +82,8 @@ test('discovery counts and directory exclude old generic provider guides while r
  }
  assert.equal(isProgrammePage('The Rhodes Scholarship','https://rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship'),true);
 });
+
+test('federal grant descriptions are not mislabelled as individual internships',()=>{
+ assert.equal(categoryOf('National Parks Business Plan Internship','US federal grant'),'grants');
+ assert.equal(categoryOf('Software Developer Internship','Internship'),'internships');
+});
