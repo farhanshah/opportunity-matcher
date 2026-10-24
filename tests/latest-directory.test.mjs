@@ -73,3 +73,12 @@ test('official source-only listings do not surface archived award schemes or sea
  assert.equal(rows[0].title,'Career Development Fellowship');
  assert.equal(rows[0].level,1);
 });
+
+test('discovery counts and directory exclude old generic provider guides while retaining named schemes',async()=>{
+ const {isProgrammePage}=await import('../lib/source-listings.js');
+ for(const heading of ['Grants at the Royal Society','DAAD Scholarships - An Overview',
+ 'Applying for jobs and internships at IREX: Frequently asked questions']){
+  assert.equal(isProgrammePage(heading,'https://uni.example/grants'),false,heading);
+ }
+ assert.equal(isProgrammePage('The Rhodes Scholarship','https://rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship'),true);
+});

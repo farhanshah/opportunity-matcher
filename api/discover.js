@@ -227,7 +227,7 @@ async function noteExistingLink(sql,source,link,known){
   `;
 }
 async function scanSource(sql,source) {
-  const result={source:source.source_key,links:0,detail_checked:0,published:0,held:0,existing:0,source_confirmed:0,used_monitor_snapshot:false,errors:[]};
+  const result={source:source.source_key,links:0,detail_checked:0,published:0,held:0,existing:0,previously_incomplete:0,source_confirmed:0,used_monitor_snapshot:false,errors:[]};
   try{
     // Reuse the last accepted official monitor snapshot when a recent
     // successful recheck attests that the page has not changed.
@@ -249,14 +249,18 @@ async function scanSource(sql,source) {
           continue;
         }
         if(result.detail_checked>=DETAIL_CHECKS_PER_SOURCE)break;
-        // Do not re-fetch an incomplete candidate every day. Once the
-        // provider changes its page or the retry window passes, retry safely.
+        // Revisit incomplete candidates on a bounded cadence. A seven-day
+        // retry delay hid later programme updates throughout an intake week.
+        // Rechecks still require fresh official evidence before publication.
         const [previous]=await sql`
           SELECT status,last_checked_at FROM opportunity_discovery_candidates
           WHERE canonical_url=${link.url} LIMIT 1
         `;
         if(previous?.status==='needs_evidence' &&
-           Date.now()-new Date(previous.last_checked_at).getTime()<7*24*60*60*1000)continue;
+           Date.now()-new Date(previous.last_checked_at).getTime()<36*60*60*1000){
+          result.previously_incomplete++;
+          continue;
+        }
         result.detail_checked++;
         const page=await fetchOfficial(link.url,source.source_url);
         if(isProviderConsentOrBlockPage(page.html)){
@@ -345,6 +349,7 @@ export default async function handler(req,res){
       source_confirmed:results.reduce((n,x)=>n+x.source_confirmed,0),
       withheld:results.reduce((n,x)=>n+x.held,0),
       existing_programme_links:results.reduce((n,x)=>n+x.existing,0),
+      already_incomplete_links:results.reduce((n,x)=>n+x.previously_incomplete,0),
       sources_with_errors:results.filter(x=>x.errors.length).length
     };
     const endedAt=new Date().toISOString();
@@ -356,7 +361,7 @@ export default async function handler(req,res){
         already_existing=${totals.existing_programme_links},source_errors=${totals.sources_with_errors},
         results=${JSON.stringify(results.map(r=>({
           source:r.source,links:r.links,detail_checked:r.detail_checked,
-          published:r.published,source_confirmed:r.source_confirmed,held:r.held,existing:r.existing,errors:r.errors
+          published:r.published,source_confirmed:r.source_confirmed,held:r.held,existing:r.existing,previously_incomplete:r.previously_incomplete,errors:r.errors
         })))}::jsonb
       WHERE id=${runId}
     `;

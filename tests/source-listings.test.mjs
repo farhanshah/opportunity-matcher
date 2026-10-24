@@ -133,3 +133,18 @@ test('a search listing and explicitly closed provider awards are not named progr
  }
  assert.equal(sourceListingEvidence({html:good,url,source}).ok,true,'Real named programmes remain eligible');
 });
+
+test('provider directories, help pages and promotional articles cannot inflate public opportunity totals',()=>{
+ for(const [title,slug] of [
+  ['Grants at the Royal Society','https://uni.example/grants'],
+  ['DAAD Scholarships - An Overview','https://uni.example/scholarships/daad-scholarships'],
+  ['Applying for jobs and internships at IREX: Frequently asked questions','https://uni.example/applying-jobs-and-internships-irex-frequently-asked-questions'],
+  ['Discover Türkiye: A Hub for Fully Funded International Scholarships','https://uni.example/page/discover-turkiye'],
+  ['Advantages of Türkiye Scholarships for International Students','https://uni.example/page/student-story7-44']
+ ]){
+  const html='<main><h1>'+title+'</h1><p>'+('Details on student programmes and official scholarship applications. ').repeat(6)+'</p></main>';
+  const evidence=sourceListingEvidence({html,url:slug,source});
+  assert.equal(evidence.ok,false,title);
+ }
+ assert.equal(sourceListingEvidence({html:good,url,source}).ok,true);
+});

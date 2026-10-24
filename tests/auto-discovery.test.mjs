@@ -95,3 +95,13 @@ test('cookie consent and access challenge pages never count as programme evidenc
  assert.equal(isProviderConsentOrBlockPage('<html><title>Just a moment...</title><p>Cloud challenge</p></html>'),true);
  assert.equal(isProviderConsentOrBlockPage(fixture()),false);
 });
+
+test('official PDF links and consent links do not consume HTML programme verification slots',()=>{
+ const html='<main>'+
+  '<a href="/award/2027-funded-scholarship.pdf">2027 Funded Scholarship Application</a>'+
+  '<a href="/awards/cookie">Scholarships Cookie Consent Information</a>'+
+  '<a href="/awards/2027-global-scholarship">2027 Global Scholarship Applications</a>'+
+  '</main>';
+ const links=findOfficialLinks(html,'https://university.example/awards',8,new Date('2026-10-24T00:00:00Z'));
+ assert.deepEqual(links.map(x=>x.url),['https://university.example/awards/2027-global-scholarship']);
+});

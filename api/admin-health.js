@@ -1,4 +1,5 @@
 import { db } from '../lib/db.js';
+import {isProgrammePage} from '../lib/source-listings.js';
 import { getRecoveryLink } from '../lib/official-recovery-links.js';
 
 function authorised(req) {
@@ -107,6 +108,17 @@ export default async function handler(req, res) {
         (SELECT max(fetched_at) FROM source_snapshots) AS latest_snapshot_at,
         (SELECT max(updated_at) FROM opportunities) AS latest_opportunity_update
     `;
+
+    // The raw database also retains FAQs and historical discovery evidence.
+    // Count only actual discoverable named programme pages in the dashboard.
+    const sourcePagesToday=await sql`
+      SELECT title,canonical_url,evidence->>'opportunity_kind' AS opportunity_kind
+      FROM worldwide_source_listings
+      WHERE source_status='source_confirmed'
+        AND (created_at AT TIME ZONE 'Europe/London')::date=(now() AT TIME ZONE 'Europe/London')::date
+    `;
+    summary.source_confirmed_published_today=sourcePagesToday.filter(page=>
+      page.opportunity_kind==='US federal grant'||isProgrammePage(page.title,page.canonical_url)).length;
 
     const worldwideVerificationRuns=await sql`
       SELECT id,started_at,completed_at,status,inspected,published_new,verified_existing,

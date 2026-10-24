@@ -122,3 +122,11 @@ test('verified rechecks with changed nationality or subject cannot silently stam
   assert.equal(db.statements.some(x=>x.statement.includes('UPDATE opportunities SET')),false);
  }
 });
+
+test('discovery rechecks incomplete official candidates after 36 hours, while retaining evidence gate',()=>{
+ const code=readFileSync(new URL('../api/discover.js',import.meta.url),'utf8');
+ assert.match(code,/36\*60\*60\*1000/);
+ assert.match(code,/previously_incomplete/);
+ assert.match(code,/result\.detail_checked\+\+/);
+ assert.match(code,/if\(!result\.verified\)/);
+});
