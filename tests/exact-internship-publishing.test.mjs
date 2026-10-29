@@ -6,9 +6,10 @@ const dt=new Date('2026-10-22T16:00:00Z');
 const examples=[
  {provider:'UNDP',url:'https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/12345',title:'Communications Internship for Regional Office'},
  {provider:'WFP',url:'https://wd3.myworkdaysite.com/en-US/recruiting/wfp/job_openings/Communications-Internship_456',title:'Communications Internship for Youth Teams'},
- {provider:'UNOPS',url:'https://careers.unops.org/careersmarketplace/JobDetail/Project-Intern/5200',title:'Project Management Internship Programme'}
+ {provider:'UNOPS',url:'https://careers.unops.org/careersmarketplace/JobDetail/Project-Intern/5200',title:'Project Management Internship Programme'},
+ {provider:'UNICEF',url:'https://jobs.unicef.org/en-us/job/596567/communications-intern-in-algeria',title:'Communication and Advocacy Intern, UNICEF Algeria'}
 ];
-test('three exact official vacancy feeds may create source-only active internship records',()=>{
+test('four exact official vacancy feeds may create source-only active internship records',()=>{
  for(const sample of examples){
   const row={title:sample.title,url:sample.url,deadline:'2026-11-25',
     status_verified:true,verification_level:'exact',source:sample.provider,location:'London',job_id:'123'};
@@ -50,4 +51,16 @@ test('official live internship ingestion is private, bounded, audited and never 
  assert.match(listing,/application_deadline/);
  assert.match(listing,/interval '36 hours'/);
  assert.match(listing,/personal_match:'not_assessed'/);
+});
+
+test('UNICEF exact URL is verified by job ID and never accepts general board URLs',()=>{
+ const row={title:'Education and Advocacy Internship in Manila',
+ url:'https://jobs.unicef.org/en-us/job/596777/education-internship-philippines',deadline:'2026-11-25',
+ status_verified:true,verification_level:'exact',source:'UNICEF',location:'Philippines',
+ status_source:'unicef-exact-job-page'};
+ const record=verifiedInternship(row,'UNICEF',dt);
+ assert.equal(record?.evidence.official_job_id,'596777');
+ assert.equal(record.evidence.matching_approved,false);
+ assert.equal(verifiedInternship({...row,url:'https://jobs.unicef.org/en-us/search/?q=intern'},'UNICEF',dt),null);
+ assert.equal(verifiedInternship({...row,title:'Vacancy Announcement - Roster (Administrative Associates)'},'UNICEF',dt),null);
 });

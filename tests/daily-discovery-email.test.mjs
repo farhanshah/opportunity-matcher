@@ -162,3 +162,10 @@ test('daily digest announces new exact vacancies separately from source-only pro
  assert.match(digest.text,/New exact vacancies: 1/);
  assert.match(digest.text,/New fully verified opportunities: 1/);
 });
+
+test('daily report includes the added UNICEF exact-vacancy source',()=>{
+ const report=discoveryDigest({day:'2026-10-29',exactProviderDetails:{providers:{
+ UNICEF:{status:'completed',accepted:3,provider_candidates:7}
+ }}});
+ assert.match(report.text,/UNICEF: 3 exact vacancy records/);
+});
