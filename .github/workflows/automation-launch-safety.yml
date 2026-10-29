@@ -8,6 +8,11 @@ on:
       - 'app-cloud-v13.js'
       - 'index.html'
       - 'tests/account-first-passport.test.mjs'
+      - 'api/home-openings.js'
+      - 'home-openings-v1.js'
+      - 'lib/country-opportunities.js'
+      - 'tests/home-openings.test.mjs'
+      - 'tests/country-opportunities.test.mjs'
       - 'api/verify-worldwide.js'
       - 'api/discover-official-links.js'
       - 'api/discover-exact-internships.js'
@@ -84,6 +89,10 @@ jobs:
           node --check app-v08-match.js
           node --check app-v08-boot.js
           node --check app-v08-tracker.js
+          node --check app-account-gate-v1.js
+          node --check api/home-openings.js
+          node --check home-openings-v1.js
+          node --check lib/country-opportunities.js
           node --check api/verify-worldwide.js
           node --check api/discover-official-links.js
           node --check api/discover-exact-internships.js
@@ -111,4 +120,4 @@ jobs:
           node --check api/opportunities.js
       - name: Automation, publication, verification and security tests
         run: |
-          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/verification-eligibility.test.mjs tests/grantsgov-feed.test.mjs tests/stale-catalogue-ui.test.mjs tests/official-open-calls.test.mjs tests/complete-publication-cycle.test.mjs tests/worldwide-search.test.mjs tests/official-link-discovery.test.mjs tests/exact-internship-publishing.test.mjs tests/wfp-provider-diagnostics.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs tests/daily-source-publication.test.mjs tests/account-first-passport.test.mjs
+          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/verification-eligibility.test.mjs tests/grantsgov-feed.test.mjs tests/stale-catalogue-ui.test.mjs tests/official-open-calls.test.mjs tests/complete-publication-cycle.test.mjs tests/worldwide-search.test.mjs tests/official-link-discovery.test.mjs tests/exact-internship-publishing.test.mjs tests/wfp-provider-diagnostics.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs tests/daily-source-publication.test.mjs tests/account-first-passport.test.mjs tests/home-openings.test.mjs tests/country-opportunities.test.mjs
