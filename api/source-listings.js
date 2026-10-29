@@ -13,6 +13,7 @@ export default async function handler(req,res){
     SELECT l.title,l.provider,l.canonical_url,l.verified_page_at,
       l.evidence->>'opportunity_kind' AS opportunity_kind,
       l.evidence->>'application_deadline' AS application_deadline,
+      l.evidence#>>'{declared_facts,closing_date}' AS declared_closing_date,
       l.evidence->>'location' AS location
     FROM worldwide_source_listings l
     WHERE l.source_status='source_confirmed'
@@ -53,7 +54,16 @@ export default async function handler(req,res){
       publication_level:'source_confirmed',
       opportunity_kind:row.opportunity_kind||'official programme page',
       application_status:row.opportunity_kind==='official internship vacancy'?'open_from_exact_provider_record':'unknown',
-      deadline:row.opportunity_kind==='official internship vacancy'?row.application_deadline:null,
+      deadline:row.opportunity_kind==='official internship vacancy'
+        ?row.application_deadline
+        :(typeof row.declared_closing_date==='string' && /^\d{4}-\d{2}-\d{2}$/.test(row.declared_closing_date)
+          && new Date(row.declared_closing_date+'T12:00:00Z').toISOString().slice(0,10)===row.declared_closing_date
+          && row.declared_closing_date>new Date().toISOString().slice(0,10)
+          &&new Date(row.verified_page_at).getTime()>=Date.now()-7*86400000
+          ?row.declared_closing_date:null),
+      deadline_proof:row.opportunity_kind==='official internship vacancy'
+        ?'exact_vacancy_record'
+        :'only_when_explicitly_labelled_on_official_page',
       location:row.location||null,
       eligibility:'not_verified',personal_match:'not_assessed'
     })),

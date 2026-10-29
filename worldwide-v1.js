@@ -28,6 +28,7 @@
    el.append(text('div','provider',item.provider||'Official provider'));
    el.append(text('p','unknown',exactInternship?'The official vacancy record had a future application deadline at the last check. Citizenship, education, visa and work eligibility must still be confirmed.':federalGrant?'A U.S. federal funding notice. Many are for organisations, not individual students. Applicant type, deadline and eligibility must be checked on Grants.gov.':'Opening status, deadline, funding and eligibility are not yet verified. Check this cycle’s official instructions.'));
    if(exactInternship&&item.deadline){const d=new Date(String(item.deadline)+'T12:00:00Z');if(!Number.isNaN(d.getTime()))el.append(text('p','time','Official deadline: '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})+' · confirm local closing time'));}
+   if(!exactInternship&&item.deadline){const d=new Date(String(item.deadline)+'T12:00:00Z');if(!Number.isNaN(d.getTime()))el.append(text('p','time','Closing date stated on official page: '+d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})+' · opening status and eligibility not confirmed'));}
    if(exactInternship&&item.location)el.append(text('div','provider','Location: '+item.location));
 
    try{const url=new URL(item.official_url);if(url.protocol==='https:'){

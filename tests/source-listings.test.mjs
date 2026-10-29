@@ -148,3 +148,14 @@ test('provider directories, help pages and promotional articles cannot inflate p
  }
  assert.equal(sourceListingEvidence({html:good,url,source}).ok,true);
 });
+
+test('public source-only listings show labelled closing dates without claiming open',()=>{
+ const api=readFileSync(new URL('../api/source-listings.js',import.meta.url),'utf8');
+ const client=readFileSync(new URL('../worldwide-v1.js',import.meta.url),'utf8');
+ assert.match(api,/declared_facts,closing_date/);
+ assert.match(api,/row.declared_closing_date>/);
+ assert.match(api,/interval '30 days'/);
+ assert.match(api,/only_when_explicitly_labelled_on_official_page/);
+ assert.match(client,/Closing date stated on official page/);
+ assert.match(client,/opening status and eligibility not confirmed/);
+});
