@@ -60,7 +60,7 @@ async function searchWorkday(){
     empty_hosts:results.filter(x=>!x.rows.length).map(x=>new URL(x.root).hostname),
     host_errors:errors};
 }
-function publicRoot(searchRoot){const host=new URL(searchRoot).origin;return `${host}/en-US/recruiting/wfp/job_openings`}
+function publicRoot(searchRoot){const host=new URL(searchRoot).origin;return `${host}/recruiting/wfp/job_openings`}
 function detailRoot(searchRoot){return searchRoot.replace(/\/jobs\/?$/,'')}
 function externalPath(row){return String(row?.externalPath||row?.externalUrl||row?.path||'').trim()}
 async function verifyRow(row,searchRoot){const path=externalPath(row);if(!path||!path.startsWith('/'))return null;const detailUrl=`${detailRoot(searchRoot)}${path}`;let d;try{d=(await fetchJson(detailUrl,{method:'GET'},8500)).json}catch{return null}const info=d?.jobPostingInfo||d?.jobPosting||d?.data?.jobPostingInfo||d||{};const title=String(info?.title||row?.title||'').trim();const description=info?.jobDescription||info?.description||info?.jobDescriptionText||'';if(!/\bintern(?:ship|ships)?\b|\btrainee\b|\bstagiaire\b/i.test(title))return null;const structuredDeadline=isoDate(info?.endDate||info?.jobPostingEndDate||info?.externalEndDate);

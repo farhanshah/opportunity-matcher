@@ -5,7 +5,7 @@ import {verifiedInternship} from '../lib/exact-internship-publishing.js';
 const dt=new Date('2026-10-22T16:00:00Z');
 const examples=[
  {provider:'UNDP',url:'https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/12345',title:'Communications Internship for Regional Office'},
- {provider:'WFP',url:'https://wd3.myworkdaysite.com/en-US/recruiting/wfp/job_openings/Communications-Internship_456',title:'Communications Internship for Youth Teams'},
+ {provider:'WFP',url:'https://wd3.myworkdaysite.com/recruiting/wfp/job_openings/job/London-United-Kingdom/Communications-Internship_JR127797',title:'Communications Internship for Youth Teams'},
  {provider:'UNOPS',url:'https://careers.unops.org/careersmarketplace/JobDetail/Project-Intern/5200',title:'Project Management Internship Programme'},
  {provider:'UNICEF',url:'https://jobs.unicef.org/en-us/job/596567/communications-intern-in-algeria',title:'Communication and Advocacy Intern, UNICEF Algeria'}
 ];

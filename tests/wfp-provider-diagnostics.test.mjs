@@ -74,3 +74,11 @@ test('multiple readable Workday hosts contribute unique internship vacancy paths
  assert.equal(new Set(result.entries.map(e=>e.row.externalPath)).size,2);
  assert.equal(result.host_errors.length,0);
 });
+
+test('WFP canonical official vacancy URLs retain the provider Workday recruiting job route',()=>{
+ const workday=readFileSync(new URL('../api/wfp-openings.js',import.meta.url),'utf8');
+ const filter=readFileSync(new URL('../lib/exact-internship-publishing.js',import.meta.url),'utf8');
+ assert.match(workday,/recruiting\/wfp\/job_openings/);
+ assert.doesNotMatch(workday,/host}\/en-US\/recruiting/);
+ assert.match(filter,/provider==='WFP'/);
+});
