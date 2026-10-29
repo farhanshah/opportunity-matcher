@@ -41,7 +41,8 @@ for(const [name,width,height] of [['desktop',1365,850],['mobile',390,844]]){
       if(typeof window.openOnboard==='function')window.openOnboard(false);
     });
     if(await page.locator('#onboard').count()){
-      check(await page.locator('#onboard').isVisible(),name+' Passport form opens');
+      check(!(await page.locator('#onboard').isVisible()),name+' guest Passport is locked');
+      check(await page.locator('#cloudAuthModal').isVisible(),name+' account form appears first');
       check(await page.locator('#obNat').count()===1,name+' nationality form retained');
       check(await page.locator('#obEdu').count()===1,name+' education form retained');
       check(await page.locator('#obField').count()===1,name+' field of study retained');

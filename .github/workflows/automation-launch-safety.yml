@@ -3,6 +3,11 @@ on:
   push:
     branches: [main]
     paths:
+      - 'app-v07.js'
+      - 'app-account-gate-v1.js'
+      - 'app-cloud-v13.js'
+      - 'index.html'
+      - 'tests/account-first-passport.test.mjs'
       - 'api/verify-worldwide.js'
       - 'api/discover-official-links.js'
       - 'api/discover-exact-internships.js'
@@ -106,4 +111,4 @@ jobs:
           node --check api/opportunities.js
       - name: Automation, publication, verification and security tests
         run: |
-          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/verification-eligibility.test.mjs tests/grantsgov-feed.test.mjs tests/stale-catalogue-ui.test.mjs tests/official-open-calls.test.mjs tests/complete-publication-cycle.test.mjs tests/worldwide-search.test.mjs tests/official-link-discovery.test.mjs tests/exact-internship-publishing.test.mjs tests/wfp-provider-diagnostics.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs tests/daily-source-publication.test.mjs
+          node --test tests/auto-discovery.test.mjs tests/official-facts.test.mjs tests/discovery-publish.test.mjs tests/verification-eligibility.test.mjs tests/grantsgov-feed.test.mjs tests/stale-catalogue-ui.test.mjs tests/official-open-calls.test.mjs tests/complete-publication-cycle.test.mjs tests/worldwide-search.test.mjs tests/official-link-discovery.test.mjs tests/exact-internship-publishing.test.mjs tests/wfp-provider-diagnostics.test.mjs tests/world-verification.test.mjs tests/reverify-schedule.test.mjs tests/provider-expansion.test.mjs tests/automation-health.test.mjs tests/daily-discovery-email.test.mjs tests/security-hardening.test.mjs tests/source-listings.test.mjs tests/daily-source-publication.test.mjs tests/account-first-passport.test.mjs
