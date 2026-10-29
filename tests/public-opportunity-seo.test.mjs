@@ -46,3 +46,14 @@ test('explicit nationality and disability restrictions remain visible verbatim',
  assert.ok(restrictionFromTitle('Internship - only for Indonesians LIVING WITH DISABILITY').toLowerCase().includes('indonesians'));
  assert.equal(restrictionFromTitle('Communications Intern'), '');
 });
+
+test('country-level SEO pages are indexed only when exact current vacancies exist',()=>{
+ const cfg=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
+ const source=readFileSync(new URL('../api/public-opportunities.js',import.meta.url),'utf8');
+ assert.ok(cfg.rewrites.some(x=>x.source==='/opportunities/country/:country'));
+ assert.ok(cfg.rewrites.some(x=>x.source==='/opportunities/countries'));
+ assert.ok(source.includes("locationDirectory(rows,country)"));
+ assert.ok(source.includes("countries.map(c=>"));
+ assert.ok(source.includes("X-Robots-Tag','noindex"));
+ assert.ok(source.includes('Location is not citizenship eligibility'));
+});

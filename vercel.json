@@ -172,6 +172,14 @@
       "destination": "/api/public-opportunities?category=internships"
     },
     {
+      "source": "/opportunities/countries",
+      "destination": "/api/public-opportunities?countryIndex=1"
+    },
+    {
+      "source": "/opportunities/country/:country",
+      "destination": "/api/public-opportunities?country=:country"
+    },
+    {
       "source": "/opportunities/:id",
       "destination": "/api/public-opportunities?id=:id"
     },

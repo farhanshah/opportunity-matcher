@@ -1,6 +1,7 @@
 
 import { db } from '../lib/db.js';
 import { publishedState, categoryType, narrowFacts, publicSlug, safePublicSource, restrictionFromTitle } from '../lib/public-opportunity-seo.js';
+import {liveCountries,countrySlug,COUNTRY_NAMES} from '../lib/country-opportunities.js';
 
 const BASE='https://oppmatcher.tech';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -90,7 +91,7 @@ function directory(rows, category=''){
     nav+
     (relevant.length?'<p>'+relevant.length+' current listing(s).</p><div class="grid">'+cards+'</div>':
       '<div class="panel"><h2>No currently verified '+esc(name.toLowerCase())+'</h2><p>We do not publish unverified, expired, or stale postings as open. Newly verified records will appear here automatically.</p></div>')+
-    '<div class="related"><h2>Application guidance</h2><p><a href="/blog/scholarship-eligibility-checklist/">Scholarship eligibility</a><a href="/blog/scholarship-application-documents/">Required documents</a><a href="/blog/international-internships-graduate-placements/">Internship applications</a></p></div>';
+    '<div class="related"><h2>Explore by location</h2><p><a href="/opportunities/countries">Countries with exact verified vacancies</a></p><h2>Application guidance</h2><p><a href="/blog/scholarship-eligibility-checklist/">Scholarship eligibility</a><a href="/blog/scholarship-application-documents/">Required documents</a><a href="/blog/international-internships-graduate-placements/">Internship applications</a></p></div>';
   return shell((category?name+' | ':'Verified Internships and Opportunities | ')+'OppMatcher',
     'Current source-verified '+(category||'internships and other opportunities')+' with locations, published deadlines and official application links.',
     category?'/opportunities/'+category:'/opportunities',body,!category||relevant.length>0);
@@ -139,18 +140,53 @@ function detail(row){
     (closed?'Archived listing: ':open?'Current verified posting: ':'Verification needed: ')+row.title+' at '+row.provider+', with dated provider evidence, recorded eligibility facts and application guidance.',
     path(row),body,open);
 }
+function locationDirectory(rows,selected=''){
+ const countries=liveCountries(rows);
+ const match=countries.find(c=>c.slug===selected);
+ const requested=COUNTRY_NAMES.find(name=>countrySlug(name)===selected);
+ const isIndex=!selected;
+ const title=isIndex?'Verified opportunities by location': 'Verified opportunities in '+(requested||selected);
+ const result=isIndex?countries:match?[match]:[];
+ const countryLinks=countries.map(c=>
+  '<a href="/opportunities/country/'+esc(c.slug)+'">'+esc(c.name)+' ('+c.records.length+')</a>').join('');
+ const cards=(!isIndex&&match?match.records:[]).map(row=>
+  '<article class="card"><p class="tag">'+esc(row.provider)+' · '+esc(row.opportunity_type||'Opportunity')+'</p>'+
+  '<h2><a href="'+esc(path(row))+'">'+esc(row.title)+'</a></h2>'+
+  '<p>Official recorded location: '+esc(row.location)+'<br>Advertised deadline: '+esc(day(row.deadline_at))+'</p>'+
+  (restrictionFromTitle(row.title)?'<p><strong>Restriction in title: '+esc(restrictionFromTitle(row.title))+'</strong></p>':'')+
+  '<p>Last verified: '+esc(day(row.last_verified_at))+'</p>'+
+  '<a href="'+esc(path(row))+'">Official vacancy record ↗</a></article>').join('');
+ const intro='<p class="tag">Current official vacancies · country locations</p><h1>'+esc(title)+'</h1>'+
+  '<p class="lead">These are individual recently verified vacancies whose official posting gives a specific work or study location. Location is not citizenship eligibility. Always check nationality, work authorisation, qualification and residence requirements at the provider.</p>';
+ const body=intro+(isIndex?
+  '<h2>Countries with verified live postings</h2>'+
+  (countryLinks?'<nav class="filters" aria-label="Locations">'+countryLinks+'</nav>':
+   '<div class="panel">No country-specific vacancies are currently verified. We do not manufacture results.</div>'):
+  '<p><a href="/opportunities/countries">All current countries</a> · <a href="/opportunities">All current verified openings</a></p>'+
+  (cards?'<div class="grid">'+cards+'</div>':
+   '<div class="panel"><h2>No currently verified vacancy in this country</h2><p>Other official programme pages may exist, but their current deadlines and eligibility are not fully verified. Try the worldwide official source directory.</p></div>'))+
+  '<div class="related"><h2>Search beyond this location</h2><p><a href="/latest">Worldwide verified and source-confirmed programmes</a><a href="/worldwide">Official programmes under review</a><a href="/blog/scholarship-eligibility-nationality-rules/">Nationality eligibility guide</a></p></div>';
+ return shell(title+' | OppMatcher',
+  'Verified individual vacancies, current provider deadlines and location information. Citizenship and visa rules must be checked at official sources.',
+  isIndex?'/opportunities/countries':'/opportunities/country/'+selected,body,
+  isIndex?countries.length>0:Boolean(match?.records.length));
+}
 function sitemap(rows){
   const categories=[...new Set(rows.map(categoryType))];
   const prefix='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+
     '<url><loc>'+BASE+'/opportunities</loc></url>\n'+
     '<url><loc>'+BASE+'/latest</loc></url>\n';
+  const countries=liveCountries(rows);
   return prefix+categories.map(category=>'<url><loc>'+BASE+'/opportunities/'+category+'</loc></url>\n').join('')+
+    (countries.length?'<url><loc>'+BASE+'/opportunities/countries</loc></url>\n':'')+
+    countries.map(c=>'<url><loc>'+BASE+'/opportunities/country/'+esc(c.slug)+'</loc></url>\n').join('')+
     rows.map(row=>'<url><loc>'+esc(BASE+path(row))+'</loc><lastmod>'+esc(day(row.last_verified_at))+'</lastmod></url>\n').join('')+
     '</urlset>\n';
 }
 export default async function handler(req,res){
   if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).end('Method not allowed')}
-  const format=String(req.query?.format||''),id=String(req.query?.id||''),category=String(req.query?.category||'');
+  const format=String(req.query?.format||''),id=String(req.query?.id||''),category=String(req.query?.category||''),
+    country=String(req.query?.country||''),countryIndex=req.query?.countryIndex==='1';
   try{
     if(id){
       res.setHeader('Content-Type','text/html; charset=utf-8');
@@ -174,6 +210,16 @@ export default async function handler(req,res){
     }
     res.setHeader('Content-Type','text/html; charset=utf-8');
     res.setHeader('Cache-Control','public, s-maxage=120, stale-while-revalidate=180');
+    if(country||countryIndex){
+      if(country&&(!/^[a-z]+(?:-[a-z]+)*$/.test(country)||
+        !COUNTRY_NAMES.some(name=>countrySlug(name)===country))){
+        res.setHeader('X-Robots-Tag','noindex');return res.status(404).send('Location not found');
+      }
+      const countryMatches=liveCountries(rows);
+      if(!countryMatches.length || (country&&!countryMatches.some(c=>c.slug===country)))
+        res.setHeader('X-Robots-Tag','noindex');
+      return res.status(200).send(locationDirectory(rows,country));
+    }
     if(category&&!rows.some(row=>categoryType(row)===category))res.setHeader('X-Robots-Tag','noindex');
     return res.status(200).send(directory(rows,category));
   }catch(e){
