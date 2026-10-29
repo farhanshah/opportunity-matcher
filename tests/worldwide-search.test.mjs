@@ -107,11 +107,21 @@ test('country-specific search rotates fairly without changing official evidence 
    const day=new Date(start.getTime()+d*86400000);
    for(const q of worldwideQueries(day,['ox.ac.uk','studyinkorea.go.kr'])){
      if(q.countryTarget)names.add(q.region.slice(9));
-     if(q.countryTarget)assert.match(q.query,/20\d\d.+official university government application/);
+     if(q.countryTarget)assert.match(q.query,/20\d\d.+official university government/);
    }
  }
  for(const country of ['China','South Korea','Lithuania','Canada','United States',
     'United Kingdom','Pakistan','India','Indonesia','Japan'])
   assert.ok(COUNTRY_MARKETS.includes(country)&&names.has(country),country+' must be covered');
  assert.equal(worldwideQueries(start,['ox.ac.uk']).length,20);
+});
+
+test('country rotation finds current-year vacancy deadlines as well as next-year schemes',()=>{
+ const queries=worldwideQueries(new Date('2026-10-29T12:00:00Z'),['studyin.lt']);
+ assert.equal(queries.length,20);
+ const countries=queries.filter(x=>x.countryTarget);
+ assert.equal(countries.length,8);
+ assert.ok(countries.some(x=>x.query.includes('2026')&&x.query.includes('applications open deadline')));
+ assert.ok(countries.some(x=>x.query.includes('2027')&&x.query.includes('application intake deadline')));
+ assert.ok(countries.every(x=>x.officialTarget===false));
 });
