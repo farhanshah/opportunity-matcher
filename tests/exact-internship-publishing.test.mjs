@@ -7,9 +7,10 @@ const examples=[
  {provider:'UNDP',url:'https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/12345',title:'Communications Internship for Regional Office'},
  {provider:'WFP',url:'https://wd3.myworkdaysite.com/recruiting/wfp/job_openings/job/London-United-Kingdom/Communications-Internship_JR127797',title:'Communications Internship for Youth Teams'},
  {provider:'UNOPS',url:'https://careers.unops.org/careersmarketplace/JobDetail/Project-Intern/5200',title:'Project Management Internship Programme'},
- {provider:'UNICEF',url:'https://jobs.unicef.org/en-us/job/596567/communications-intern-in-algeria',title:'Communication and Advocacy Intern, UNICEF Algeria'}
+ {provider:'UNICEF',url:'https://jobs.unicef.org/en-us/job/596567/communications-intern-in-algeria',title:'Communication and Advocacy Intern, UNICEF Algeria'},
+ {provider:'FAO',url:'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2602160&lang=en',title:'Internship Programme at FAO Rome Headquarters'}
 ];
-test('four exact official vacancy feeds may create source-only active internship records',()=>{
+test('five exact official vacancy feeds may create source-only active internship records',()=>{
  for(const sample of examples){
   const row={title:sample.title,url:sample.url,deadline:'2026-11-25',
     status_verified:true,verification_level:'exact',source:sample.provider,location:'London',job_id:'123'};
@@ -63,4 +64,18 @@ test('UNICEF exact URL is verified by job ID and never accepts general board URL
  assert.equal(record.evidence.matching_approved,false);
  assert.equal(verifiedInternship({...row,url:'https://jobs.unicef.org/en-us/search/?q=intern'},'UNICEF',dt),null);
  assert.equal(verifiedInternship({...row,title:'Vacancy Announcement - Roster (Administrative Associates)'},'UNICEF',dt),null);
+});
+
+test('FAO exact Taleo job IDs cannot be replaced by generic search or job boards',()=>{
+ const basic={title:'FAO International Internship Call',source:'FAO',deadline:'2026-11-25',
+ status_verified:true,verification_level:'exact',
+ url:'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2602160&lang=en'};
+ const accepted=verifiedInternship(basic,'FAO',dt);
+ assert.equal(accepted?.evidence.official_job_id,'2602160');
+ assert.equal(accepted?.evidence.matching_approved,false);
+ for(const wrong of ['https://jobs.fao.org/careersection/fao_external/moresearch.ftl?lang=en',
+ 'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=none',
+ 'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2602160.evil']){
+  assert.equal(verifiedInternship({...basic,url:wrong},'FAO',dt),null);
+ }
 });

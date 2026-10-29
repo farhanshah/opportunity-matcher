@@ -1,7 +1,7 @@
 import {db} from '../lib/db.js';
 import {verifiedInternship} from '../lib/exact-internship-publishing.js';
 const authorised=req=>Boolean(process.env.CRON_SECRET)&&req.headers.authorization==='Bearer '+process.env.CRON_SECRET;
-const FEEDS=[['UNDP','/api/undp-openings'],['WFP','/api/wfp-openings'],['UNOPS','/api/unops-openings'],['UNICEF','/api/unicef-openings']];
+const FEEDS=[['UNDP','/api/undp-openings'],['WFP','/api/wfp-openings'],['UNOPS','/api/unops-openings'],['UNICEF','/api/unicef-openings'],['FAO','/api/specific-openings?opportunity_id=INT-012']];
 async function fetchConfirmed(provider,path){
  const response=await fetch('https://oppmatcher.tech'+path,{
    signal:AbortSignal.timeout(42000),headers:{Accept:'application/json','Cache-Control':'no-cache'}

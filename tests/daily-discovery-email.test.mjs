@@ -169,3 +169,10 @@ test('daily report includes the added UNICEF exact-vacancy source',()=>{
  }}});
  assert.match(report.text,/UNICEF: 3 exact vacancy records/);
 });
+
+test('daily report includes the added FAO exact internship source',()=>{
+ const report=discoveryDigest({day:'2026-10-29',exactProviderDetails:{providers:{
+ FAO:{status:'completed',accepted:2,provider_candidates:5}
+ }}});
+ assert.match(report.text,/FAO: 2 exact vacancy records/);
+});
