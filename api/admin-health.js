@@ -19,6 +19,15 @@ export default async function handler(req, res) {
     const [summary] = await sql`
       SELECT
         (SELECT count(*)::int FROM opportunities) AS total_opportunities,
+        (SELECT count(*)::int FROM exact_vacancies
+         WHERE status='open' AND status_verified=true AND verification_level='exact'
+           AND deadline_at>now() AND last_verified_at BETWEEN now()-interval '7 days' AND now()+interval '5 minutes') AS current_exact_openings,
+        (SELECT count(*)::int FROM official_open_calls
+         WHERE status='open' AND closing_at>now() AND last_checked_at>=now()-interval '48 hours') AS current_official_open_calls,
+        (SELECT count(*)::int FROM worldwide_source_listings
+         WHERE source_status='source_confirmed' AND verified_page_at>=now()-interval '30 days') AS current_source_pages,
+        (SELECT max(sent_at) FROM opportunity_daily_digest_delivery
+         WHERE status='sent') AS latest_daily_digest_sent_at,
         (SELECT count(*)::int FROM neon_auth."user" WHERE banned IS DISTINCT FROM TRUE) AS registered_accounts,
         (SELECT count(*)::int FROM neon_auth."user" WHERE "createdAt">=now()-interval '7 days' AND banned IS DISTINCT FROM TRUE) AS accounts_7d,
         (SELECT count(*)::int FROM user_passports WHERE auth_user_id IS NOT NULL) AS linked_passports,

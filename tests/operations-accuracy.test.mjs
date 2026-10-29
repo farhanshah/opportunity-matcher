@@ -40,3 +40,16 @@ test('only registered Neon Auth users and cloud Passports count as members',()=>
  assert.ok(api.includes('onboarding_completed_at IS NOT NULL'));
  assert.ok(api.includes('if (!authorised(req)) return res.status(401)'));
 });
+
+test('admin separates verified live vacancies and official source-only pages from old catalogue freshness',()=>{
+ const api=load('api/admin-health.js'),html=load('admin.html'),js=load('admin-v1.js');
+ for(const field of ['current_exact_openings','current_official_open_calls','current_source_pages','latest_daily_digest_sent_at'])
+  assert.ok(api.includes('AS '+field),field);
+ for(const id of ['liveExactOpenings','liveOfficialCalls','liveSourcePages','lastDigestSent']){
+  assert.ok(html.includes('id="'+id+'"'));
+  assert.ok(js.includes("'"+id+"'"));
+ }
+ assert.ok(html.includes('separate from historical catalogue freshness'));
+ assert.ok(api.includes("verification_level='exact'"));
+ assert.ok(api.includes("source_status='source_confirmed'"));
+});

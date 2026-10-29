@@ -30,6 +30,10 @@
   function renderSummary(){
     const s=state.data.summary||{};const pct=s.total_opportunities?Math.round((s.normalized_opportunities/s.total_opportunities)*100):0;
     $('coveragePct').textContent=pct+'%';$('coverageRing').style.setProperty('--p',pct);
+    $('liveExactOpenings').textContent=s.current_exact_openings??'—';
+    $('liveOfficialCalls').textContent=s.current_official_open_calls??'—';
+    $('liveSourcePages').textContent=s.current_source_pages??'—';
+    $('lastDigestSent').textContent=ago(s.latest_daily_digest_sent_at);
     $('memberRegistered').textContent=s.registered_accounts??'—';
     $('memberNew7d').textContent=s.accounts_7d??'—';
     $('memberPassports').textContent=s.linked_passports??'—';
