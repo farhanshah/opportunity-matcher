@@ -35,21 +35,22 @@ for(const entry of cases){
   check(!metadata.noindex.includes('noindex'),label+' publicly indexable',JSON.stringify(metadata));
   check(metadata.canonical==='https://oppmatcher.tech/',label+' canonical intact',metadata.canonical);
   check(metadata.banners===0,label+' no staging warnings',metadata.banners);
-  await page.waitForFunction(()=>typeof window.showApp==='function'&&typeof window.setView==='function',{timeout:45000});
+  await page.waitForFunction(()=>Boolean(window.OpportunityAccountGate&&window.OpportunityCloud?.openAuth),{timeout:45000});
   await page.evaluate(view=>{window.showApp();window.setView(view)},entry.view);
-  await page.locator('.omBridgeHero').waitFor({state:'visible',timeout:12000});
-  const hero=await page.locator('.omBridgeEyebrow').innerText();
-  check(hero.includes(entry.view.toUpperCase())||(entry.view==='dashboard'&&hero.includes('DASHBOARD')),
-    label+' correct visual route',hero);
+  await page.locator('#cloudAuthModal').waitFor({state:'visible',timeout:14000});
+  check(!(await page.locator('#app').isVisible()),label+' anonymous workspace blocked');
+  check(await page.locator('#landing').isVisible(),label+' public homepage stays open');
+  check(!(await page.locator('#onboard').isVisible()),label+' anonymous Passport form blocked');
+  check(await page.locator('#cloudName').count()===1,label+' free sign-up shown first');
   const theme=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--om-v2-aqua').trim());
   check(theme==='#51e7d6',label+' approved teal theme',theme);
   if(entry.device==='mobile'){
-   const menu=page.locator('.omMobileMenu');
-   check(await menu.isVisible(),label+' mobile navigation');
+   const menu=page.locator('.omLandingMenu');
+   check(await menu.isVisible(),label+' public mobile navigation');
    await menu.click();
-   check(await page.locator('.app .side').evaluate(el=>el.classList.contains('omMobileOpen')),label+' sidebar opens');
+   check(await menu.getAttribute('aria-expanded')==='true',label+' menu opens');
    await page.keyboard.press('Escape');
-   check(!(await page.locator('.app .side').evaluate(el=>el.classList.contains('omMobileOpen'))),label+' sidebar closes');
+   check(await menu.getAttribute('aria-expanded')==='false',label+' menu closes');
   }
   const horizontal=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
   check(horizontal.scroll<=horizontal.width+6,label+' no viewport overflow',JSON.stringify(horizontal));

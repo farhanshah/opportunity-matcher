@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import { publishedState, categoryType, narrowFacts, publicSlug, safePublicSource } from '../lib/public-opportunity-seo.js';
 
 const now=Date.parse('2026-10-22T15:00:00Z');
