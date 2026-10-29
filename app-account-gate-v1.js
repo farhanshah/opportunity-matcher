@@ -10,7 +10,7 @@
  const ready=()=>cloud()?.isAccountReady?.()===true;
  const signedIn=()=>cloud()?.isSignedIn?.()===true;
  const WORKSPACE_ROUTES=new Set(['discover','saved','tracker','dashboard']);
- const route=()=>String(location.pathname||'').replace(/^\\/+|\\/+$/g,'').toLowerCase();
+ const route=()=>String(location.pathname||'').replace(/^\/+|\/+$/g,'').toLowerCase();
  function hideGuestWorkspace(){
   // Early legacy route hydration can show the app before Neon Auth is ready.
   // Never expose browser-only saved/tracker state to unsigned visitors.
