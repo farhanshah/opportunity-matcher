@@ -8,8 +8,13 @@ function simulate({route='/'}={}){
  const counts={auth:0,open:0,save:0,workspace:0,view:0,preview:0,mode:''};
  let hasAccount=false,hasCloudForm=false,interval=null;
  const saved=new Map(),listeners=new Map();
- const hidden=new Set();
- const modal={classList:{add(name){hidden.add(name)},remove(name){hidden.delete(name)},contains(name){return hidden.has(name)}}};
+ const flags=new Map();
+ const element=id=>({classList:{
+  add:name=>{if(!flags.has(id))flags.set(id,new Set());flags.get(id).add(name)},
+  remove:name=>flags.get(id)?.delete(name),
+  contains:name=>flags.get(id)?.has(name)||false
+ }});
+ const nodes=Object.fromEntries(['cloudAuthModal','onboard','app','landing'].map(id=>[id,element(id)]));
  const cloud={
   isAccountReady:()=>hasAccount,
   isSignedIn:()=>hasAccount,
@@ -34,7 +39,7 @@ function simulate({route='/'}={}){
   addEventListener(){},
   getElementById:id=>{
    if(id==='cloudCompleteForm')return hasCloudForm?{}:null;
-   if(['cloudAuthModal','onboard','app','landing'].includes(id))return modal;
+   if(nodes[id])return nodes[id];
    return null;
   }
  };
@@ -47,7 +52,7 @@ function simulate({route='/'}={}){
  vm.runInNewContext(read('app-account-gate-v1.js'),sandbox);
  return {window,counts,interval:()=>interval?.(),setAccount:v=>{hasAccount=v},
   setCloudForm:v=>{hasCloudForm=v},listeners,intent:()=>saved.get('oppAccountPassportIntentV1'),
-  hidden:()=>hidden.has('hide')};
+  hidden:()=>nodes.app.classList.contains('hide')};
 }
 test('public site is discoverable, with a sign-up-first Passport CTA',()=>{
  const page=read('index.html'),loader=read('app-v07.js');
