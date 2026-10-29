@@ -6,17 +6,18 @@ const PROVIDERS={
     host:'jobs.fao.org',
     kind:'internship',
     terms:['intern','internship'],
+    // Current-cycle exact requisitions; all require a live official job-page check.
     seeds:[
-      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2600026&lang=en',
-      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2600030&lang=en',
-      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2600032&lang=en',
-      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2600034&lang=en'
+      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2602160&lang=en',
+      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2601979&lang=en',
+      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2601980&lang=en',
+      'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2601981&lang=en'
     ],
     verified_jobs:{
-      '2600026':{title:'Call for Expression of Interest – Internship Programme for FAO headquarters (HQ)',deadline:'2026-08-25',location:'Italy-Rome'},
-      '2600030':{title:'Call for Expression of Interest – Internship Programme for Africa (RAF)',deadline:'2026-08-25',location:'Various Locations'},
-      '2600032':{title:'Call for Expression of Interest – Internship Programme for Europe and Central Asia (REU)',deadline:'2026-08-25',location:'Various Locations'},
-      '2600034':{title:'Call for Expression of Interest – Internship Programme for Latin America and the Caribbean (RLC)',deadline:'2026-08-26',location:'Various Locations'}
+      '2602160':{title:'Call for Expression of Interest – Internship Programme for the World Food Forum (WFF)',deadline:'2026-11-03',location:'Italy-Rome'},
+      '2601979':{title:'Call for Expression of Interest – Internship Programme for FAO headquarters (HQ)',deadline:'2026-12-31',location:'Italy-Rome'},
+      '2601980':{title:'Call for Expression of Interest – Internship Programme for Africa (RAF)',deadline:'2026-12-31',location:'Various Locations'},
+      '2601981':{title:'Call for Expression of Interest – Internship Programme for Asia and the Pacific (RAP)',deadline:'2026-12-31',location:'Various Locations'}
     }
   },
   'INT-016':{name:'ADB',board:'https://adb.taleo.net/careersection/2/moresearch.ftl',host:'adb.taleo.net',kind:'internship',terms:['intern','internship']},

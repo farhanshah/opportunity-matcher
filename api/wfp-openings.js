@@ -1,7 +1,7 @@
 const SEARCH_ROOTS=[
   'https://wd3.myworkdaysite.com/wday/cxs/wfp/job_openings/jobs',
-  'https://wd5.myworkdaysite.com/wday/cxs/wfp/job_openings/jobs',
-  'https://wd1.myworkdaysite.com/wday/cxs/wfp/job_openings/jobs'
+  // WFP's tenant-prefixed public board is another legitimate Workday entry.
+  'https://wfp.wd3.myworkdayjobs.com/wday/cxs/wfp/job_openings/jobs'
 ];
 const POLICY='WFP internships are for students or recent graduates. Applicants should normally be enrolled in a recognised undergraduate or graduate programme and have attended classes in the past 12 months, or be a recent graduate within six months; have completed at least two years of undergraduate studies; be fluent in English; and meet the requirements of the individual assignment. Internships are offered across headquarters, regional bureaux and country offices.';
 const clean=s=>String(s||'').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;|&apos;/gi,"'").replace(/\s+/g,' ').trim();
@@ -28,7 +28,7 @@ async function searchWorkday(){
   // Workday exposes multiple deployment hosts. An empty result from one
   // host is not proof the other host has no vacancies.
   const request={method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({appliedFacets:{},limit:30,offset:0,searchText:'intern'})};
+    body:JSON.stringify({appliedFacets:{},limit:20,offset:0,searchText:'intern'})};
   const checks=await Promise.allSettled(SEARCH_ROOTS.map(root=>fetchJson(root,request,10500)));
   const results=[];const errors=[];
   for(let i=0;i<checks.length;i++){
@@ -60,7 +60,7 @@ async function searchWorkday(){
     empty_hosts:results.filter(x=>!x.rows.length).map(x=>new URL(x.root).hostname),
     host_errors:errors};
 }
-function publicRoot(searchRoot){const host=new URL(searchRoot).origin;return `${host}/recruiting/wfp/job_openings`}
+function publicRoot(searchRoot){const host=new URL(searchRoot);return host.hostname==='wfp.wd3.myworkdayjobs.com'?`${host.origin}/en-US/job_openings`:`${host.origin}/recruiting/wfp/job_openings`}
 function detailRoot(searchRoot){return searchRoot.replace(/\/jobs\/?$/,'')}
 function externalPath(row){return String(row?.externalPath||row?.externalUrl||row?.path||'').trim()}
 async function verifyRow(row,searchRoot){const path=externalPath(row);if(!path||!path.startsWith('/'))return null;const detailUrl=`${detailRoot(searchRoot)}${path}`;let d;try{d=(await fetchJson(detailUrl,{method:'GET'},8500)).json}catch{return null}const info=d?.jobPostingInfo||d?.jobPosting||d?.data?.jobPostingInfo||d||{};const title=String(info?.title||row?.title||'').trim();const description=info?.jobDescription||info?.description||info?.jobDescriptionText||'';if(!/\bintern(?:ship|ships)?\b|\btrainee\b|\bstagiaire\b/i.test(title))return null;const structuredDeadline=isoDate(info?.endDate||info?.jobPostingEndDate||info?.externalEndDate);
