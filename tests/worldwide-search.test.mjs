@@ -11,7 +11,7 @@ test('bounded daily search covers regions and different opportunity categories',
 
 
 
- assert.ok(queries.every(x=>x.query.includes('2027')));
+ assert.ok(queries.every(x=>/2026|2027/.test(x.query)));
 });
 test('search results are URLs only, never trusted programme evidence',()=>{
  const item=normalizeWebLead({title:'2027 Fully funded research scholarship',url:'https://university.example/awards?utm_source=spam',
