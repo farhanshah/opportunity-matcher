@@ -40,27 +40,19 @@ async function checkView(width,height,label){
   check(cssInfo.loaded&&cssInfo.aqua==='#51e7d6',label+' approved turquoise token',JSON.stringify(cssInfo));
   await page.screenshot({path:join(OUT,label+'-landing.png'),fullPage:true,animations:'disabled'});
   await page.waitForFunction(()=>typeof window.showApp==='function'&&typeof window.setView==='function',{timeout:40000});
-  // Read-only navigation. No account editing, saves, checklist changes or real submissions.
+  // Guest Passport and private routes are account-gated on both desktop and mobile.
+  // Inspect real login presentation without submitting or saving user data.
+  await page.waitForFunction(()=>Boolean(window.OpportunityAccountGate && window.OpportunityCloud?.openAuth),{timeout:45000});
   await page.evaluate(()=>{window.showApp();window.setView('tracker');});
-  const hero=page.locator('.omBridgeHero');
-  await hero.waitFor({state:'visible',timeout:10000});
-  const heading=await hero.locator('.omBridgeTitle').innerText();
-  check(/Every step|Forward/i.test(heading),label+' tracker editorial hero',heading);
-  const v2Computed=await page.evaluate(()=>{
-    const hero=document.querySelector('.omBridgeHero'),side=document.querySelector('.app .side');
-    return {hero:hero?getComputedStyle(hero).backgroundImage:'',side:side?getComputedStyle(side).backgroundImage:''};
-  });
-  check(v2Computed.hero.includes('linear-gradient'),label+' real layout hero gradient');
-  check(await page.locator('#tracker').count()===1,label+' actual tracker DOM retained');
-  if(width<900){
-    const menu=page.locator('.app .omMobileMenu');
-    check(await menu.isVisible(),label+' responsive workspace menu visible');
-    await menu.click();
-    const sidebar=page.locator('.app .side');
-    check(await sidebar.evaluate(el=>el.classList.contains('omMobileOpen')),label+' sidebar opens');
-    await page.keyboard.press('Escape');
-    check(!(await sidebar.evaluate(el=>el.classList.contains('omMobileOpen'))),label+' sidebar keyboard dismissal');
-  }
+  await page.locator('#cloudAuthModal').waitFor({state:'visible',timeout:12000});
+  check(!(await page.locator('#app').isVisible()),label+' guest workspace stays hidden');
+  check(await page.locator('#landing').isVisible(),label+' public landing stays available');
+  check(!(await page.locator('#onboard').isVisible()),label+' guest Passport form remains hidden');
+  check(await page.locator('#cloudAuthCard .cloudTabs').isVisible(),label+' secure sign-in/sign-up tabs visible');
+  check(await page.locator('#cloudName').count()===1,label+' create-account form is available');
+  check(await page.locator('#landing a[href="/blog/"]').count()>=1,label+' public articles remain linked');
+  await page.screenshot({path:join(OUT,label+'-account-gate.png'),fullPage:false,animations:'disabled'});
+  await page.evaluate(()=>window.OpportunityCloud?.closeAuth());
   const overflow=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
   check(overflow.scroll<=overflow.inner+5,label+' no viewport-level horizontal overflow',JSON.stringify(overflow));
   await page.screenshot({path:join(OUT,label+'-tracker.png'),fullPage:true,animations:'disabled'});
