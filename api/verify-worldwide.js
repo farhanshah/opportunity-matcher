@@ -31,6 +31,16 @@ export default async function handler(req,res){
             OR (l.verification_status='needs_evidence'
                AND l.matched_official_host=true
                AND l.verification_checked_at<now()-interval '14 days')
+            -- Named current-cycle calls deserve earlier evidence rechecks.
+            -- Non-specific pages retain the slower fourteen-day interval.
+            OR (l.verification_status='needs_evidence'
+               AND l.matched_official_host=true
+               AND l.verification_checked_at<now()-interval '5 days'
+               AND l.title ~* '(open call|call for applications?|applications? open|extended application deadline|deadline extension)'
+               AND (l.title LIKE '%'||(extract(year from now())::int)::text||'%'
+                 OR l.title LIKE '%'||(extract(year from now())::int+1)::text||'%'
+                 OR l.canonical_url LIKE '%'||(extract(year from now())::int)::text||'%'
+                 OR l.canonical_url LIKE '%'||(extract(year from now())::int+1)::text||'%'))
             -- A current, named official news call may have been checked
             -- before the enhanced call-page classifier was deployed.
             -- Retry it a few times promptly, but do not publish without a
@@ -70,9 +80,21 @@ export default async function handler(req,res){
         -- Give real, registered provider pages and programme-shaped URLs
         -- first consideration. This only controls queue order, never trust.
         ORDER BY l.matched_official_host DESC,
-          CASE WHEN l.canonical_url ~*
-            '/(scholarships?|fellowships?|internships?|studentships?|opportunities|grants?|awards?|funding|careers?|applications?|programmes?)'
-            THEN 0 ELSE 1 END,
+          CASE
+            -- Closed and archival links remain stored but are deprioritized.
+            WHEN l.title ~* '[(][[:space:]]*(closed|archived|expired|discontinued)[[:space:]]*[)]'
+              OR l.canonical_url ~* '([/-](closed|archived|expired|discontinued)([/-]|$))' THEN 4
+            WHEN l.title ~* '(open call|call for applications?|applications? open|extended application deadline|deadline extension)'
+              AND (l.title LIKE '%'||(extract(year from now())::int)::text||'%'
+                OR l.title LIKE '%'||(extract(year from now())::int+1)::text||'%'
+                OR l.canonical_url LIKE '%'||(extract(year from now())::int)::text||'%'
+                OR l.canonical_url LIKE '%'||(extract(year from now())::int+1)::text||'%') THEN 0
+            WHEN l.canonical_url ~*
+              '/(scholarships?|fellowships?|internships?|studentships?|opportunities|grants?|awards?|funding|careers?|applications?|programmes?)'
+              THEN 1
+            WHEN l.title ~* '(scholarship|fellowship|internship|intern|studentship)' THEN 2
+            ELSE 3
+          END,
           l.first_seen_at ASC
         LIMIT ${WORLD_VERIFICATION_BATCH_SIZE} FOR UPDATE SKIP LOCKED
       )

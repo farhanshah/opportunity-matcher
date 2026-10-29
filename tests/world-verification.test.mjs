@@ -101,3 +101,25 @@ test('official evidence and provider registration can be rechecked past the old 
  assert.match(api,/l\.verification_status='source_review'[\s\S]*?Provider hostname is not in the official-source registry[\s\S]*?FROM monitored_sources/);
  assert.doesNotMatch(api,/review_status='unverified' AND l\.verification_attempts<4/);
 });
+
+test('current-cycle verified-host calls are queued ahead of closed and archival pages',()=>{
+ const api=readFileSync(new URL('../api/verify-worldwide.js',import.meta.url),'utf8');
+ const ranked=api.slice(api.indexOf('ORDER BY l.matched_official_host DESC'),api.indexOf('FOR UPDATE SKIP LOCKED'));
+ assert.match(ranked,/THEN 4/);
+ assert.match(ranked,/THEN 0/);
+ assert.match(ranked,/l.first_seen_at ASC/);
+ assert.ok(api.includes("interval '5 days'"));
+ assert.ok(api.includes("interval '14 days'"));
+ assert.ok(api.includes("interval '7 days'"));
+ assert.match(api,/FOR UPDATE SKIP LOCKED/);
+});
+test('officially linked UNOPS career board only qualifies exact job-detail URLs for evidence checks',async()=>{
+ const {validatedCuratedProviders}=await import('../lib/curated-provider-sources.js');
+ const selected=validatedCuratedProviders().find(x=>x.source_key==='new_unops_official_careers');
+ assert.equal(selected.provider,'UNOPS');
+ const registry=[{id:'verified-unops',provider:'UNOPS',source_url:selected.source_url,is_active:true}];
+ const valid='https://careers.unops.org/careersmarketplace/JobDetail/Project-Management-Intern/4382';
+ assert.equal(trustedSourceForLead({canonical_url:valid,title:'Project Management Intern'},registry).status,'trusted');
+ assert.equal(trustedSourceForLead({canonical_url:'https://careers.unops.org.evil.org/careersmarketplace/JobDetail/Project-Management-Intern/4382',title:'Project Management Intern'},registry).status,'source_review');
+ assert.equal(trustedSourceForLead({canonical_url:'https://careers.unops.org/careersmarketplace/Home',title:'Jobs portal'},registry).status,'source_review');
+});
