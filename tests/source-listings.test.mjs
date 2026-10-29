@@ -159,3 +159,12 @@ test('public source-only listings show labelled closing dates without claiming o
  assert.match(client,/Closing date stated on official page/);
  assert.match(client,/opening status and eligibility not confirmed/);
 });
+
+test('closed programme slugs are retained for historical URLs but excluded from source-only discovery',()=>{
+ const html='<main><h1>Doctoral Studentships at Wellcome</h1><p>'+('Research funding, opportunities and programme requirements may vary. ').repeat(7)+'</p></main>';
+ const source={id:'w',provider:'Wellcome',source_url:'https://wellcome.org/research-funding/schemes'};
+ assert.equal(sourceListingEvidence({html,source,url:'https://wellcome.org/research-funding/schemes/doctoral-studentships-closed'}).ok,false);
+ const api=readFileSync(new URL('../api/source-listings.js',import.meta.url),'utf8');
+ assert.equal((api.match(/l\.canonical_url !~\*/g)||[]).length,2);
+ assert.equal((api.match(/l\.title !~\*/g)||[]).length,2);
+});
