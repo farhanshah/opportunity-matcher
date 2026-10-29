@@ -36,12 +36,31 @@ export default async function handler(req,res){
      reason=status==='open'?'Official page confirms open status and deadline':'Official page no longer explicitly confirms open status';
     }catch(err){reason=String(err?.message||err).slice(0,160);}
    }
-   await sql`
-     UPDATE official_open_calls SET status=${status},
-      last_checked_at=now(),
-      evidence=evidence||${JSON.stringify({last_check_reason:reason,checked_by:'official_open_calls_cron'})}::jsonb,
-      updated_at=now() WHERE slug=${call.slug}
-   `;
+   const evidence=JSON.stringify({last_check_reason:reason,
+     checked_by:'official_open_calls_cron',deadline_time_confirmed:false,
+     personal_eligibility:'not_assessed'});
+   if(status==='open'){
+     // Newly identified, specifically reviewed official calls are inserted
+     // only after a fresh HTTP 200 provider page confirms status and deadline.
+     // No search snippet, archived notice or unreviewed source is published.
+     const provider=call.url.includes('chevening.org')?'Chevening':'Royal Society';
+     await sql`
+       INSERT INTO official_open_calls(slug,title,provider,source_url,status,closing_at,
+         eligible_countries,requirements_note,last_checked_at,evidence)
+       VALUES(${call.slug},${call.title},${provider},${call.url},'open',
+         ${call.deadline}::timestamptz,${JSON.stringify(call.countries)}::jsonb,
+         ${call.requirement},now(),${evidence}::jsonb)
+       ON CONFLICT(slug) DO UPDATE SET status='open',last_checked_at=now(),
+         evidence=official_open_calls.evidence||EXCLUDED.evidence,
+         updated_at=now()
+     `;
+   }else{
+     await sql`
+       UPDATE official_open_calls SET status=${status},last_checked_at=now(),
+         evidence=evidence||${evidence}::jsonb,updated_at=now()
+       WHERE slug=${call.slug}
+     `;
+   }
    if(status==='open')open++;else if(status==='closed')closed++;else needsRecheck++;
    results.push({slug:call.slug,status});
   }
