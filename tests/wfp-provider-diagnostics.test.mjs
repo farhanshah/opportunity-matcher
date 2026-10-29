@@ -35,7 +35,7 @@ test('exact Workday description deadline can validate an internship without stru
  const job=await api.verifyRow({title:'Intern - Knowledge Management',externalPath:'/job/Rome/Intern-Knowledge_2099'},
    'https://wd5.myworkdaysite.com/wday/cxs/wfp/job_openings/jobs');
  assert.ok(job);assert.equal(job.deadline,'2099-11-28');assert.equal(job.status_verified,true);
- assert.match(job.url,/wd5\.myworkdaysite\.com\/en-US\/recruiting\/wfp\/job_openings\/job\//);
+ assert.match(job.url,/wd5\.myworkdaysite\.com\/recruiting\/wfp\/job_openings\/job\//);
 });
 test('conflicting official closing dates and non-intern titles are rejected',async()=>{
  const fake=async(url)=>response({jobPostingInfo:{

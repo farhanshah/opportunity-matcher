@@ -57,7 +57,8 @@ export default async function handler(req,res){
       deadline:row.opportunity_kind==='official internship vacancy'
         ?row.application_deadline
         :(typeof row.declared_closing_date==='string' && /^\d{4}-\d{2}-\d{2}$/.test(row.declared_closing_date)
-          && new Date(row.declared_closing_date+'T12:00:00Z').toISOString().slice(0,10)===row.declared_closing_date
+          &&Number.isFinite(Date.parse(row.declared_closing_date+'T12:00:00Z'))
+          &&new Date(row.declared_closing_date+'T12:00:00Z').toISOString().slice(0,10)===row.declared_closing_date
           && row.declared_closing_date>new Date().toISOString().slice(0,10)
           &&new Date(row.verified_page_at).getTime()>=Date.now()-7*86400000
           ?row.declared_closing_date:null),
