@@ -1,15 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {worldwideQueries,normalizeWebLead,uniqueLeads,WORLDWIDE_DAILY_QUERY_LIMIT} from '../lib/worldwide-search.js';
+import {worldwideQueries,normalizeWebLead,uniqueLeads,WORLDWIDE_DAILY_QUERY_LIMIT,COUNTRY_MARKETS} from '../lib/worldwide-search.js';
 const load=x=>readFileSync(new URL('../'+x,import.meta.url),'utf8');
 test('bounded daily search covers regions and different opportunity categories',()=>{
  const queries=worldwideQueries(new Date('2026-10-17T00:00:00Z'));
- assert.equal(queries.length,12); // 12 regional categories; targeted queries require trusted hosts.
- assert.ok(queries.some(x=>x.region==='Africa'));
- assert.ok(queries.some(x=>x.region==='Europe'));
- assert.ok(queries.some(x=>x.region==='Oceania'));
- assert.ok(queries.some(x=>x.region==='Global internships'));
+ assert.equal(queries.length,WORLDWIDE_DAILY_QUERY_LIMIT); // country searches work without registered hosts.
+ assert.ok(queries.some(x=>x.region.startsWith('Country: ')));
+ assert.ok(queries.some(x=>x.region==='Africa') || queries.some(x=>x.region==='Europe'));
+
+
+
  assert.ok(queries.every(x=>x.query.includes('2027')));
 });
 test('search results are URLs only, never trusted programme evidence',()=>{
@@ -50,16 +51,17 @@ test('registered official sources receive rotating search slots without being au
  const dayOne=worldwideQueries(new Date('2026-10-22T00:00:00Z'),hosts);
  const dayTwo=worldwideQueries(new Date('2026-10-23T00:00:00Z'),hosts);
  assert.equal(dayOne.length,WORLDWIDE_DAILY_QUERY_LIMIT);
- assert.equal(dayOne.filter(x=>x.officialTarget).length,12);
- assert.equal(dayOne.filter(x=>!x.officialTarget).length,8);
+ assert.equal(dayOne.filter(x=>x.officialTarget).length,8);
+ assert.equal(dayOne.filter(x=>x.countryTarget).length,8);
+ assert.equal(dayOne.filter(x=>!x.officialTarget&&!x.countryTarget).length,4);
  assert.ok(dayOne.every(x=>/2026|2027/.test(x.query)));
  assert.ok(dayOne.filter(x=>x.officialTarget).every(x=>x.query.startsWith('site:')));
  assert.notDeepEqual(dayOne.filter(x=>x.officialTarget).map(x=>x.query),
    dayTwo.filter(x=>x.officialTarget).map(x=>x.query));
- assert.equal(worldwideQueries(new Date('2026-10-22T00:00:00Z'),[]).length,12);
+ assert.equal(worldwideQueries(new Date('2026-10-22T00:00:00Z'),[]).length,WORLDWIDE_DAILY_QUERY_LIMIT);
  const source=load('api/worldwide-discover.js');
  assert.ok(source.includes('worldwideQueries(new Date(),officialHosts)'));
- assert.ok(source.includes('if(!officialTarget)url.searchParams.set'));
+ assert.ok(source.includes('if(!officialTarget&&!countryTarget)url.searchParams.set'));
  assert.ok(source.includes("review_status"));
 });
 
@@ -96,4 +98,20 @@ test('unregistered search leads are held before official verification, then elig
  assert.match(verifier,/l\.verification_reason='Provider hostname is not in the official-source registry'/);
  assert.match(verifier,/l\.verification_checked_at IS NULL OR l\.verification_checked_at/);
  assert.doesNotMatch(discovery,/INSERT INTO opportunities\s*\(/);
+});
+
+test('country-specific search rotates fairly without changing official evidence rules',()=>{
+ const start=new Date('2026-10-23T00:00:00Z');
+ const names=new Set();
+ for(let d=0;d<12;d++){
+   const day=new Date(start.getTime()+d*86400000);
+   for(const q of worldwideQueries(day,['ox.ac.uk','studyinkorea.go.kr'])){
+     if(q.countryTarget)names.add(q.region.slice(9));
+     if(q.countryTarget)assert.match(q.query,/20\d\d.+official university government application/);
+   }
+ }
+ for(const country of ['China','South Korea','Lithuania','Canada','United States',
+    'United Kingdom','Pakistan','India','Indonesia','Japan'])
+  assert.ok(COUNTRY_MARKETS.includes(country)&&names.has(country),country+' must be covered');
+ assert.equal(worldwideQueries(start,['ox.ac.uk']).length,20);
 });
