@@ -17,7 +17,7 @@ test('report does not invent zero outcomes for missing searches',()=>{
   const message=discoveryDigest({day:'2026-10-18'});
   assert.match(message.text,/No successfully completed official-source discovery run/);
   assert.match(message.text,/No successfully completed worldwide search run/);
-  assert.match(message.text,/New opportunities published: Not recorded/);
+  assert.match(message.text,/New fully verified opportunities: Not recorded/);
   assert.match(message.html,/Not recorded/);
   assert.equal(message.statistics.missingCount,3);
 });
