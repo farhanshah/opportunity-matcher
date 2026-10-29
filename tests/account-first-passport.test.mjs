@@ -8,7 +8,8 @@ function simulate({route='/'}={}){
  const counts={auth:0,open:0,save:0,workspace:0,view:0,preview:0,mode:''};
  let hasAccount=false,hasCloudForm=false,interval=null;
  const saved=new Map(),listeners=new Map();
- const modal={classList:{remove(){},add(){}}};
+ const hidden=new Set();
+ const modal={classList:{add(name){hidden.add(name)},remove(name){hidden.delete(name)},contains(name){return hidden.has(name)}}};
  const cloud={
   isAccountReady:()=>hasAccount,
   isSignedIn:()=>hasAccount,
@@ -45,7 +46,8 @@ function simulate({route='/'}={}){
  };
  vm.runInNewContext(read('app-account-gate-v1.js'),sandbox);
  return {window,counts,interval:()=>interval?.(),setAccount:v=>{hasAccount=v},
-  setCloudForm:v=>{hasCloudForm=v},listeners,intent:()=>saved.get('oppAccountPassportIntentV1')};
+  setCloudForm:v=>{hasCloudForm=v},listeners,intent:()=>saved.get('oppAccountPassportIntentV1'),
+  hidden:()=>hidden.has('hide')};
 }
 test('public site is discoverable, with a sign-up-first Passport CTA',()=>{
  const page=read('index.html'),loader=read('app-v07.js');
@@ -113,4 +115,15 @@ test('account truth comes from Neon Auth client, not local profile storage',()=>
  assert.match(gate,/cloud\(\)\?\.isAccountReady\?\.\(\)===true/);
  assert.doesNotMatch(gate,/localStorage\.setItem/);
  assert.match(gate,/cloudCompleteForm/);
+});
+
+test('a direct private route hides early-rendered workspace and requests sign-in',()=>{
+ const s=simulate({route:'/tracker'});
+ assert.equal(s.hidden(),true);
+ assert.equal(s.intent(),'workspace');
+ s.interval();
+ assert.ok(s.counts.auth>=1);
+ s.setAccount(true);
+ s.interval();
+ assert.equal(s.intent(),undefined);
 });

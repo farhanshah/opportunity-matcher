@@ -9,6 +9,16 @@
  const cloud=()=>window.OpportunityCloud;
  const ready=()=>cloud()?.isAccountReady?.()===true;
  const signedIn=()=>cloud()?.isSignedIn?.()===true;
+ const WORKSPACE_ROUTES=new Set(['discover','saved','tracker','dashboard']);
+ const route=()=>String(location.pathname||'').replace(/^\\/+|\\/+$/g,'').toLowerCase();
+ function hideGuestWorkspace(){
+  // Early legacy route hydration can show the app before Neon Auth is ready.
+  // Never expose browser-only saved/tracker state to unsigned visitors.
+  if(ready())return;
+  document.getElementById('app')?.classList.add('hide');
+  document.getElementById('onboard')?.classList.add('hide');
+  document.getElementById('landing')?.classList.remove('hide');
+ }
  const originals=Object.fromEntries([
   'openOnboard','finishOnboard','showApp','setView','toggleSave',
   'addTrack','trackStage','checklistToggle'
@@ -29,6 +39,7 @@
   return true;
  }
  function request(value){
+  hideGuestWorkspace();
   remember(value);
   loginOpened=false;
   if(ready())void resume();
@@ -104,9 +115,13 @@
    }
   }finally{resuming=false;loginOpened=false}
  }
+ // Direct private deep links also require account access after a refresh.
+ if(WORKSPACE_ROUTES.has(route())&&!ready())remember('workspace');
+ hideGuestWorkspace();
  // Intent survives social OAuth returning to the original tab.
  setInterval(()=>{
   if(ready()){if(intent)void resume();return}
+  hideGuestWorkspace();
   if(intent&&!signedIn()&&!loginOpened)showAuth();
  },200);
  window.addEventListener('opportunity:signedout',()=>{
