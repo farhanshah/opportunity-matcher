@@ -15,6 +15,11 @@ for(const width of [360,390,768,1280,1440]){
   check(r?.status()===200,width+' public homepage 200',r?.status());
   await page.locator('.omLandingMenu').waitFor({state:'visible',timeout:45000});
   await page.waitForFunction(()=>typeof window.setView==='function',{timeout:45000});
+  // Do not compare dark-mode colors against an operating-system-dependent
+  // Auto theme. Explicitly set dark before this fixed-color snapshot test.
+  await page.waitForFunction(()=>typeof window.OpportunityTheme?.setMode==='function',{timeout:30000});
+  await page.evaluate(()=>window.OpportunityTheme.setMode('dark'));
+  await page.waitForTimeout(100);
   const state=await page.evaluate(()=>{
    const n=document.querySelector('#landing .heroWrap>.nav');
    const box=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height}};

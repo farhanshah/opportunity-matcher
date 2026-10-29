@@ -42,6 +42,9 @@ for(const entry of cases){
   check(await page.locator('#landing').isVisible(),label+' public homepage stays open');
   check(!(await page.locator('#onboard').isVisible()),label+' anonymous Passport form blocked');
   check(await page.locator('#cloudName').count()===1,label+' free sign-up shown first');
+  // The login overlay intentionally intercepts background clicks until closed.
+  // Dismiss it before checking the still-public mobile navigation.
+  await page.evaluate(()=>window.OpportunityCloud?.closeAuth?.());
   const theme=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--om-v2-aqua').trim());
   check(theme==='#51e7d6',label+' approved teal theme',theme);
   if(entry.device==='mobile'){
