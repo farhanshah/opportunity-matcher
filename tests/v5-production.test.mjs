@@ -35,7 +35,10 @@ test('Production navbar uses accessible Explore dropdown without changing SPA co
  const html=get('index.html'),old=get('nav-contrast-preview-v5.html');
  assert.deepEqual(ids(html).filter(id=>id!=='heroOpenCallsLabel'),ids(old));
  assert.ok(ids(html).includes('heroOpenCallsLabel'));
- assert.deepEqual(actions(html),actions(old));
+ // Guest-only sample CTA is intentionally replaced by a public, non-saving link.
+ assert.deepEqual(actions(html),actions(old).filter(a=>a!=='sample()'));
+ assert.ok((html.match(/href="\/latest"/g)||[]).length>=2);
+ assert.ok(html.includes('Free account required to save your Passport'));
  assert.match(html,/site-nav-contrast-v5\.css\?v=\d+/);
  assert.match(html,/integration-shell-v5\.js/);
  assert.match(html,/src="\/app-v07\.js" defer/);

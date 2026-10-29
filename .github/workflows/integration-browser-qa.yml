@@ -7,6 +7,10 @@ on:
       - 'tests/integration-browser-qa.mjs'
       - '.github/workflows/integration-browser-qa.yml'
       - 'tests/integration-account-qa.mjs'
+      - 'app-v07.js'
+      - 'app-account-gate-v1.js'
+      - 'app-cloud-v13.js'
+      - 'index.html'
 jobs:
   browser-smoke:
     runs-on: ubuntu-latest
