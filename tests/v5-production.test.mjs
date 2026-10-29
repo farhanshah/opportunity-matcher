@@ -33,7 +33,10 @@ test('Sensitive private admin and application-preparation views have no ad netwo
 });
 test('Production navbar uses accessible Explore dropdown without changing SPA controls',()=>{
  const html=get('index.html'),old=get('nav-contrast-preview-v5.html');
- assert.deepEqual(ids(html).filter(id=>id!=='heroOpenCallsLabel'),ids(old));
+ assert.deepEqual(ids(html).filter(id=>!['heroOpenCallsLabel','verified-openings','verifiedOpenTitle','verifiedOpenGrid'].includes(id)),ids(old));
+ assert.ok(ids(html).includes('verifiedOpenGrid'));
+ assert.ok(html.includes('home-openings-v1.js'));
+ assert.ok(html.includes('home-openings-v1.css'));
  assert.ok(ids(html).includes('heroOpenCallsLabel'));
  // Guest-only sample CTA is intentionally replaced by a public, non-saving link.
  assert.deepEqual(actions(html),actions(old).filter(a=>a!=='sample()'));
