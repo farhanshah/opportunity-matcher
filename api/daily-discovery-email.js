@@ -74,7 +74,28 @@ export default async function handler(req,res){
         FROM opportunity_web_leads
         WHERE (verification_checked_at AT TIME ZONE 'Europe/London')::date=${day}::date
           AND verification_status='published'
+        UNION ALL
+        SELECT title,provider,first_seen_at AS published_at
+        FROM exact_vacancies
+        WHERE (first_seen_at AT TIME ZONE 'Europe/London')::date=${day}::date
+          AND status='open' AND status_verified=true AND verification_level='exact'
+          AND deadline_at>now() AND last_verified_at>now()-interval '7 days'
       ) candidates ORDER BY published_at DESC LIMIT 6
+    `;
+    const newExact=await sql`
+      SELECT title,provider,first_seen_at
+      FROM exact_vacancies
+      WHERE (first_seen_at AT TIME ZONE 'Europe/London')::date=${day}::date
+        AND status='open' AND status_verified=true AND verification_level='exact'
+        AND deadline_at>now() AND last_verified_at>now()-interval '7 days'
+      ORDER BY first_seen_at DESC LIMIT 30
+    `;
+    const newSourcePages=await sql`
+      SELECT title,provider FROM worldwide_source_listings
+      WHERE source_status='source_confirmed'
+        AND (created_at AT TIME ZONE 'Europe/London')::date=${day}::date
+        AND verified_page_at>now()-interval '30 days'
+      ORDER BY created_at DESC LIMIT 6
     `;
     const worldLeads=await sql`
       SELECT title,search_region FROM opportunity_web_leads
@@ -129,7 +150,7 @@ export default async function handler(req,res){
       ORDER BY started_at DESC LIMIT 1
     `;
     const message=discoveryDigest({day,officialRuns,worldRuns,verificationRuns,
-      officialCandidates,publishedOpportunities,worldLeads,catalogueHealth,
+      officialCandidates,publishedOpportunities,worldLeads,newExact,newSourcePages,catalogueHealth,
       sourceListingStats,governmentFeedStats,supplementalFeedStats,
       exactProviderDetails:latestExactInternshipRun?.details||null});
     const response=await fetch('https://api.resend.com/emails',{

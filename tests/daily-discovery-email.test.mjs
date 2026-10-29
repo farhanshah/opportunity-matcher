@@ -147,3 +147,18 @@ test('daily report identifies which official internship provider returned result
  assert.match(endpoint,/latestExactInternshipRun/);
  assert.match(endpoint,/exactProviderDetails:/);
 });
+
+test('daily digest announces new exact vacancies separately from source-only programme pages',()=>{
+ const digest=discoveryDigest({
+   day:'2026-10-29',newExact:[{title:'Fresh UNICEF Intern',provider:'UNICEF'}],
+   newSourcePages:[{title:'Official Scholarship Page',provider:'University'}],
+   publishedOpportunities:[{title:'Fresh UNICEF Intern',provider:'UNICEF'}],
+   catalogueHealth:{total_records:100,rechecked_24h:97,verified_30d:0,never_checked:0,needs_evidence:70,retry_needed:30}
+ });
+ assert.equal(digest.statistics.exactNewPublished,1);
+ assert.match(digest.html,/Fresh UNICEF Intern/);
+ assert.match(digest.html,/Official Scholarship Page/);
+ assert.match(digest.html,/status and eligibility unverified/i);
+ assert.match(digest.text,/New exact vacancies: 1/);
+ assert.match(digest.text,/New fully verified opportunities: 1/);
+});
