@@ -19,6 +19,10 @@ export default async function handler(req, res) {
     const [summary] = await sql`
       SELECT
         (SELECT count(*)::int FROM opportunities) AS total_opportunities,
+        (SELECT count(*)::int FROM neon_auth."user" WHERE banned IS DISTINCT FROM TRUE) AS registered_accounts,
+        (SELECT count(*)::int FROM neon_auth."user" WHERE "createdAt">=now()-interval '7 days' AND banned IS DISTINCT FROM TRUE) AS accounts_7d,
+        (SELECT count(*)::int FROM user_passports WHERE auth_user_id IS NOT NULL) AS linked_passports,
+        (SELECT count(*)::int FROM user_passports WHERE auth_user_id IS NOT NULL AND onboarding_completed_at IS NOT NULL) AS completed_passports,
         (SELECT count(*)::int FROM opportunities WHERE rule_normalization_status='normalized') AS normalized_opportunities,
         (SELECT count(*)::int FROM opportunities WHERE rule_normalization_status='partially_normalized') AS partial_opportunities,
         (SELECT count(*)::int FROM opportunity_eligibility_rules) AS total_rules,

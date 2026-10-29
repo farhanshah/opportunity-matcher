@@ -28,3 +28,15 @@ test('historical profile fits do not unfairly blame Passport filters',()=>{
  assert.ok(js.includes('No currently verified strong matches yet.'));
  assert.ok(js.includes('current provider eligibility and deadlines still need verification'));
 });
+test('only registered Neon Auth users and cloud Passports count as members',()=>{
+ const api=load('api/admin-health.js'),html=load('admin.html'),js=load('admin-v1.js');
+ for(const field of ['registered_accounts','accounts_7d','linked_passports','completed_passports'])
+  assert.ok(api.includes('AS '+field),'Missing protected server member metric '+field);
+ for(const id of ['memberRegistered','memberNew7d','memberPassports','memberCompleted']){
+  assert.ok(html.includes('id="'+id+'"'));
+  assert.ok(js.includes("'"+id+"'"));
+ }
+ assert.ok(api.includes('FROM neon_auth."user"'));
+ assert.ok(api.includes('onboarding_completed_at IS NOT NULL'));
+ assert.ok(api.includes('if (!authorised(req)) return res.status(401)'));
+});

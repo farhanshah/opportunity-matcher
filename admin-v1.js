@@ -30,6 +30,10 @@
   function renderSummary(){
     const s=state.data.summary||{};const pct=s.total_opportunities?Math.round((s.normalized_opportunities/s.total_opportunities)*100):0;
     $('coveragePct').textContent=pct+'%';$('coverageRing').style.setProperty('--p',pct);
+    $('memberRegistered').textContent=s.registered_accounts??'—';
+    $('memberNew7d').textContent=s.accounts_7d??'—';
+    $('memberPassports').textContent=s.linked_passports??'—';
+    $('memberCompleted').textContent=s.completed_passports??'—';
     $('normalizedCount').textContent=s.normalized_opportunities??'—';$('totalOppCount').textContent=s.total_opportunities??'—';
     $('monitorSuccess').textContent=`${s.successful_monitors_7d??0}/${s.active_monitors??0}`;$('monitorTotal').textContent=`successful official fetches in 7 days`;$('monitorFailPill').textContent=`${s.blocked_monitors??0} access blocks · ${s.other_monitor_errors??0} other errors`;
     $('ruleCount').textContent=s.total_rules??'—';$('nonCountryRules').textContent=`${s.non_country_rules??0} non-country`;$('uncertainRules').textContent=`${s.uncertain_rules??0} uncertain`;
