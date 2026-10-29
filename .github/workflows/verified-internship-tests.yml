@@ -1,0 +1,28 @@
+name: Verified internship feed checks
+on:
+  pull_request:
+    paths:
+      - 'api/wfp-openings.js'
+      - 'api/specific-openings.js'
+      - 'lib/exact-internship-publishing.js'
+      - 'tests/**'
+      - '.github/workflows/verified-internship-tests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'api/wfp-openings.js'
+      - 'api/specific-openings.js'
+      - 'lib/exact-internship-publishing.js'
+      - 'tests/**'
+      - '.github/workflows/verified-internship-tests.yml'
+jobs:
+  verify-official-feeds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run WFP and FAO verification regression tests
+        run: node --test tests/wfp-provider-diagnostics.test.mjs tests/exact-internship-publishing.test.mjs tests/fao-current-cycle.test.mjs
