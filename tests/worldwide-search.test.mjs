@@ -125,3 +125,14 @@ test('country rotation finds current-year vacancy deadlines as well as next-year
  assert.ok(countries.some(x=>x.query.includes('2027')&&x.query.includes('application intake deadline')));
  assert.ok(countries.every(x=>x.officialTarget===false));
 });
+
+test('search leads skip closed or generic pages but retain official exact job candidates',()=>{
+ for(const [title,url] of [
+  ['Doctoral Studentships (Closed)','https://wellcome.org/research-funding/schemes/doctoral-studentships-closed'],
+  ["Master's Studentships in Humanities and Social Science",'https://wellcome.org/research-funding/schemes/masters-studentships-humanities-and-social-science-closed'],
+  ['Apply for scholarships','https://www.educanada.ca/scholarships-bourses/app/apply-scholarships-postuler-bourses.aspx'],
+  ['Archived Research Fellowship','https://university.example/fellowships/archived']
+ ])assert.equal(normalizeWebLead({title,url},'Global','q',['wellcome.org','university.example','educanada.ca']),null,title);
+ assert.ok(normalizeWebLead({title:'Project Management Intern - 4382 - UNOPS',
+  url:'https://careers.unops.org/careersmarketplace/JobDetail/Project-Management-Intern/4382'},'Global','q',['careers.unops.org']));
+});
