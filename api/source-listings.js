@@ -17,6 +17,8 @@ export default async function handler(req,res){
       l.evidence->>'location' AS location
     FROM worldwide_source_listings l
     WHERE l.source_status='source_confirmed'
+      AND l.canonical_url !~* '([/-](closed|archived|expired|discontinued)([/-]|$))'
+      AND l.title !~* '[(][[:space:]]*(closed|archived|expired|discontinued)[[:space:]]*[)]'
       AND l.verified_page_at>=now()-interval '30 days'
       AND (coalesce(l.evidence->>'opportunity_kind','')<>'official internship vacancy'
         OR (l.evidence->>'application_deadline'>=to_char(now() AT TIME ZONE 'UTC','YYYY-MM-DD')
@@ -35,6 +37,8 @@ export default async function handler(req,res){
   const [totals]=await sql`
     SELECT count(*)::int AS total FROM worldwide_source_listings l
     WHERE l.source_status='source_confirmed'
+      AND l.canonical_url !~* '([/-](closed|archived|expired|discontinued)([/-]|$))'
+      AND l.title !~* '[(][[:space:]]*(closed|archived|expired|discontinued)[[:space:]]*[)]'
       AND l.verified_page_at>=now()-interval '30 days'
       AND (coalesce(l.evidence->>'opportunity_kind','')<>'official internship vacancy'
         OR (l.evidence->>'application_deadline'>=to_char(now() AT TIME ZONE 'UTC','YYYY-MM-DD')
