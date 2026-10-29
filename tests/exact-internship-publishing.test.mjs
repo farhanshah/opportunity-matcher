@@ -79,3 +79,15 @@ test('FAO exact Taleo job IDs cannot be replaced by generic search or job boards
   assert.equal(verifiedInternship({...basic,url:wrong},'FAO',dt),null);
  }
 });
+
+test('WFP accepts its official tenant-prefixed job URLs without accepting another Workday tenant',()=>{
+ const row={title:'Monitoring and Evaluation Internship in Bridgetown',source:'WFP',deadline:'2026-11-02',
+  status_verified:true,verification_level:'exact',
+  url:'https://wfp.wd3.myworkdayjobs.com/en-US/job_openings/job/Bridgetown-Barbados/Monitoring-and-Evaluation-Internship_JR126957'};
+ assert.ok(verifiedInternship(row,'WFP',dt));
+ for(const url of [
+  'https://other.wd3.myworkdayjobs.com/en-US/job_openings/job/Bridgetown/Intern_JR126957',
+  'https://wfp.wd3.myworkdayjobs.com/en-US/job_openings',
+  'https://wfp.wd3.myworkdayjobs.com/recruiting/wfp/job_openings/job/Bridgetown/Intern_JR126957'
+ ])assert.equal(verifiedInternship({...row,url},'WFP',dt),null);
+});
