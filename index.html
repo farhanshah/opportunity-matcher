@@ -59,7 +59,7 @@
         <span class="kicker"><i class="pulse"></i><span id="heroKicker">Official source matching · live database</span></span>
         <h1>Your next move shouldn't depend on <em>luck.</em></h1>
         <p class="heroCopy">Create one Opportunity Passport. We turn your profile into a smarter way to discover scholarships, internships, fellowships and funded international programmes, with the official source always one click away.</p>
-        <div class="heroActions"><button class="btn btnPrimary" onclick="openOnboard()">Create my Opportunity Passport <span>↗</span></button><a class="btn btnGhost" href="/latest">Browse opportunities</a></div><p class="accountFirstHint" style="font-size:13px;margin:12px 0 0;opacity:.83">Free account required to save your Passport. Browse guides and opportunities without signing in.</p>
+        <div class="heroActions"><button class="btn btnPrimary" onclick="openOnboard()">Create my Opportunity Passport <span>↗</span></button><a class="btn btnGhost" href="/latest">Browse opportunities</a></div><p class="accountFirstHint">Free account required to save your Passport. Browse guides and opportunities without signing in.</p>
         <div style="margin:14px 0 0;font-size:13px"><a href="/worldwide#official-open-calls" style="color:#91f4e5;text-decoration:underline;text-underline-offset:4px;font-weight:750"><span id="heroOpenCallsLabel">Browse open official calls and check your eligibility ↗</span></a></div>
         <div class="microTrust"><div class="stat"><strong id="statOpps">…</strong>opportunities in database</div><div class="stat"><strong id="statSources">…</strong>active sources tracked</div><div class="stat"><strong id="statOpen">…</strong><a href="/worldwide" style="color:inherit;text-decoration:none;border-bottom:1px solid currentColor">official pages to explore ↗</a></div></div>
       </div>
@@ -71,7 +71,19 @@
         </div>
       </div>
     </div>
-    <div class="sourceMarquee"><div class="sourceTrack"><b>Monitoring sources from</b><span>CHEVENING</span><span>WORLD BANK</span><span>ERASMUS+</span><span>OXFORD</span><span>RHODES TRUST</span><span>ROTARY</span><span>SWEDISH INSTITUTE</span><span>DAAD</span></div></div>
+    <div class="sourceMarquee" aria-label="Official providers monitored by OppMatcher">
+      <div class="sourceTrack">
+        <b>Official sources monitored <span aria-hidden="true">→</span></b>
+        <button type="button" class="omSourceChip" data-source="chevening">Chevening <span aria-hidden="true">ⓘ</span></button>
+        <button type="button" class="omSourceChip" data-source="worldbank">World Bank <span aria-hidden="true">ⓘ</span></button>
+        <button type="button" class="omSourceChip" data-source="erasmus">Erasmus+ <span aria-hidden="true">ⓘ</span></button>
+        <button type="button" class="omSourceChip" data-source="oxford">Oxford <span aria-hidden="true">ⓘ</span></button>
+        <button type="button" class="omSourceChip" data-source="rhodes">Rhodes Trust <span aria-hidden="true">ⓘ</span></button>
+        <button type="button" class="omSourceChip" data-source="rotary">Rotary <span aria-hidden="true">ⓘ</span></button>
+        <button type="button" class="omSourceChip" data-source="swedish">Swedish Institute <span aria-hidden="true">ⓘ</span></button>
+        <button type="button" class="omSourceChip" data-source="daad">DAAD <span aria-hidden="true">ⓘ</span></button>
+      </div>
+    </div>
   </section>
 
   <section class="section reveal" id="difference">
@@ -127,5 +139,6 @@
 <script src="/home-openings-v1.js?v=1" defer></script>
 <script src="/app-v07.js" defer></script>
 <script src="/integration-shell-v5.js?v=7" defer></script>
+<script src="/source-chips-v1.js?v=1" defer></script>
 </body>
 </html>
