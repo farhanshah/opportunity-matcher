@@ -53,9 +53,36 @@
   closeButton.className='omSourceClose';
   closeButton.setAttribute('aria-label','Close source details');
   closeButton.textContent='×';
-  pop.append(heading,kind,description,note,link,closeButton);
+  const monitoring=document.createElement('p');
+  monitoring.className='omSourceMonitoring';
+  monitoring.textContent='Loading official-page monitoring details…';
+  pop.append(heading,kind,description,note,link,monitoring,closeButton);
   document.body.appendChild(pop);
 
+  let summaries=null;
+  function sourceSummary(key){
+    const item=summaries?.[key];
+    if(!item)return 'Monitoring details currently unavailable.';
+    const description=item.status==='attention_needed'?'Some source checks need attention':
+      item.status==='monitored'?'Recent provider-page checks succeeded':
+      item.status==='not_registered'?'Source not currently registered':
+      'Awaiting a successful recent check';
+    const quantity=Number(item.monitored_pages)||0,ok=Number(item.successful_pages_7d)||0;
+    const last=item.last_success_at&&Number.isFinite(new Date(item.last_success_at).getTime())
+      ?new Date(item.last_success_at).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})
+      :'not available';
+    return description+' · '+ok+'/'+quantity+' pages successful in 7 days. Last successful check: '+last+'.';
+  }
+  function loadMonitoring(){
+    if(typeof window.fetch!=='function')return;
+    window.fetch('/api/source-highlights',{headers:{Accept:'application/json'}})
+      .then(r=>r.ok?r.json():null).then(data=>{
+        if(data?.ok===true&&data.sources&&typeof data.sources==='object'){
+          summaries=data.sources;
+          if(active)monitoring.textContent=sourceSummary(active.dataset.source);
+        }
+      }).catch(()=>{if(active)monitoring.textContent='Monitoring details currently unavailable.';});
+  }
   const chips=[...strip.querySelectorAll('.omSourceChip')];
   let active=null,hideTimer=0;
   const fineHover=()=>window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -94,6 +121,7 @@
     heading.textContent=info.name;
     kind.textContent=info.type;
     description.textContent=info.detail;
+    monitoring.textContent=sourceSummary(chip.dataset.source);
     link.href=info.url;
     pop.hidden=false;
     chip.setAttribute('aria-expanded','true');
@@ -127,4 +155,5 @@
   });
   window.addEventListener('scroll',close,{passive:true,capture:true});
   window.addEventListener('resize',close,{passive:true});
+  loadMonitoring();
 })();
