@@ -40,7 +40,7 @@
     if(!data.ok||!Number.isSafeInteger(total)||!Number.isSafeInteger(stale)||stale<0||stale>total)return;
     const message=stale>0
       ?`<strong>${stale} of ${total} programme records need source re-verification.</strong>
-         <p>Opportunity suggestions and saved deadlines are leads, not confirmed current eligibility.
+         <p>These historical programme records are separate from the individually verified vacancy postings above. Opportunity suggestions and saved deadlines are leads, not confirmed current eligibility.
          Open each official provider page before applying.${Number.isSafeInteger(sources)&&Number.isSafeInteger(success)
             ?` Source monitoring fetched ${success} of ${sources} official pages successfully in the past 7 days, but that does not re-verify every programme rule.`:''}</p>`
       :`<strong>Catalogue source checks are current.</strong>

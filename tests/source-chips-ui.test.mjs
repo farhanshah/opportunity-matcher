@@ -7,14 +7,16 @@ test('public source chips use eight distinct accessible controls and load their 
  const html=load('index.html'),js=load('source-chips-v1.js');
  const names=[...html.matchAll(/<button type="button" class="omSourceChip" data-source="([^"]+)"/g)].map(m=>m[1]);
  assert.deepEqual(names,['chevening','worldbank','erasmus','oxford','rhodes','rotary','swedish','daad']);
- assert.match(html,/source-chips-v1\.js\?v=1/);
+ assert.match(html,/source-chips-v1\.js\?v=2/);
  for(const key of names)assert.match(js,new RegExp("  "+key+":\\{name:"));
  assert.match(js,/aria-controls/);assert.match(js,/aria-expanded/);
  assert.match(js,/aria-haspopup/);assert.match(js,/pointerenter/);
  assert.match(js,/pointerdown/);assert.match(js,/focusin/);
  assert.match(js,/Escape/);
  assert.match(js,/noopener noreferrer/);
- assert.doesNotMatch(js,/fetch\(|last.checked|last_checked|currently open|guaranteed/i);
+ assert.match(js,/api\/source-highlights/);
+ assert.match(js,/omSourceClose/);
+ assert.doesNotMatch(js,/applications? are open|guaranteed/i);
 });
 test('source detail popover opens on tap, follows source identity, closes outside and on Escape',()=>{
  const src=load('source-chips-v1.js');

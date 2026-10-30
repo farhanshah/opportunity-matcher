@@ -13,6 +13,9 @@ on:
       - 'lib/exact-internship-publishing.js'
       - 'index.html'
       - 'source-chips-v1.js'
+      - 'public-ux-v1.js'
+      - 'app-v155-freshness-truth-v286.js'
+      - 'api/source-highlights.js'
       - 'site-nav-contrast-v5.css'
       - 'tests/**'
       - '.github/workflows/verified-internship-tests.yml'
@@ -30,6 +33,9 @@ on:
       - 'lib/exact-internship-publishing.js'
       - 'index.html'
       - 'source-chips-v1.js'
+      - 'public-ux-v1.js'
+      - 'app-v155-freshness-truth-v286.js'
+      - 'api/source-highlights.js'
       - 'site-nav-contrast-v5.css'
       - 'tests/**'
       - '.github/workflows/verified-internship-tests.yml'
@@ -43,4 +49,4 @@ jobs:
         with:
           node-version: '22'
       - name: Run WFP and FAO verification regression tests
-        run: node --test tests/wfp-provider-diagnostics.test.mjs tests/exact-internship-publishing.test.mjs tests/fao-current-cycle.test.mjs tests/world-verification.test.mjs tests/worldwide-search.test.mjs tests/source-listings.test.mjs tests/source-chips-ui.test.mjs
+        run: node --test tests/wfp-provider-diagnostics.test.mjs tests/exact-internship-publishing.test.mjs tests/fao-current-cycle.test.mjs tests/world-verification.test.mjs tests/worldwide-search.test.mjs tests/source-listings.test.mjs tests/source-chips-ui.test.mjs tests/responsive-audit.test.mjs

@@ -48,9 +48,41 @@
   link.target='_blank';
   link.rel='noopener noreferrer';
   link.textContent='Visit official source ↗';
-  pop.append(heading,kind,description,note,link);
+  const closeButton=document.createElement('button');
+  closeButton.type='button';
+  closeButton.className='omSourceClose';
+  closeButton.setAttribute('aria-label','Close source details');
+  closeButton.textContent='×';
+  const monitoring=document.createElement('p');
+  monitoring.className='omSourceMonitoring';
+  monitoring.textContent='Loading official-page monitoring details…';
+  pop.append(heading,kind,description,note,link,monitoring,closeButton);
   document.body.appendChild(pop);
 
+  let summaries=null;
+  function sourceSummary(key){
+    const item=summaries?.[key];
+    if(!item)return 'Monitoring details currently unavailable.';
+    const description=item.status==='attention_needed'?'Some source checks need attention':
+      item.status==='monitored'?'Recent provider-page checks succeeded':
+      item.status==='not_registered'?'Source not currently registered':
+      'Awaiting a successful recent check';
+    const quantity=Number(item.monitored_pages)||0,ok=Number(item.successful_pages_7d)||0;
+    const last=item.last_success_at&&Number.isFinite(new Date(item.last_success_at).getTime())
+      ?new Date(item.last_success_at).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})
+      :'not available';
+    return description+' · '+ok+'/'+quantity+' pages successful in 7 days. Last successful check: '+last+'.';
+  }
+  function loadMonitoring(){
+    if(typeof window.fetch!=='function')return;
+    window.fetch('/api/source-highlights',{headers:{Accept:'application/json'}})
+      .then(r=>r.ok?r.json():null).then(data=>{
+        if(data?.ok===true&&data.sources&&typeof data.sources==='object'){
+          summaries=data.sources;
+          if(active)monitoring.textContent=sourceSummary(active.dataset.source);
+        }
+      }).catch(()=>{if(active)monitoring.textContent='Monitoring details currently unavailable.';});
+  }
   const chips=[...strip.querySelectorAll('.omSourceChip')];
   let active=null,hideTimer=0;
   const fineHover=()=>window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -61,19 +93,23 @@
     active=null;
     pop.hidden=true;
   }
+  closeButton.addEventListener('click',()=>{
+    const previous=active;close();previous?.focus();
+  });
   function scheduleClose(){clearHide();hideTimer=window.setTimeout(()=>{
     if(!pop.matches(':hover')&&!(active&&active.matches(':focus-visible')))close();
   },180)}
   function position(chip){
-    if(!fineHover()){pop.style.left='';pop.style.top='';pop.style.bottom='';return;}
-    const rect=chip.getBoundingClientRect();
-    const width=Math.min(320,window.innerWidth-24);
+    const rect=chip.getBoundingClientRect?.()||{top:120,bottom:160,left:12,width:140};
+    const width=Math.min(320,Math.max(240,window.innerWidth-24));
     const left=Math.max(12,Math.min(window.innerWidth-width-12,rect.left+rect.width/2-width/2));
     pop.style.width=width+'px';
     pop.style.left=left+'px';
     pop.style.bottom='auto';
-    const height=pop.offsetHeight;
+    const height=Math.max(180,Number(pop.offsetHeight)||0);
     const below=rect.bottom+12;
+    // Anchor to its source chip on phones too, instead of a persistent
+    // bottom sheet covering the following programme content.
     pop.style.top=(below+height+12<=window.innerHeight?below:Math.max(12,rect.top-height-12))+'px';
   }
   function open(chip){
@@ -85,6 +121,7 @@
     heading.textContent=info.name;
     kind.textContent=info.type;
     description.textContent=info.detail;
+    monitoring.textContent=sourceSummary(chip.dataset.source);
     link.href=info.url;
     pop.hidden=false;
     chip.setAttribute('aria-expanded','true');
@@ -118,4 +155,5 @@
   });
   window.addEventListener('scroll',close,{passive:true,capture:true});
   window.addEventListener('resize',close,{passive:true});
+  loadMonitoring();
 })();
