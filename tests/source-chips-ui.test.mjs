@@ -14,7 +14,9 @@ test('public source chips use eight distinct accessible controls and load their 
  assert.match(js,/pointerdown/);assert.match(js,/focusin/);
  assert.match(js,/Escape/);
  assert.match(js,/noopener noreferrer/);
- assert.doesNotMatch(js,/fetch\(|last.checked|last_checked|currently open|guaranteed/i);
+ assert.match(js,/api\/source-highlights/);
+ assert.match(js,/omSourceClose/);
+ assert.doesNotMatch(js,/applications? are open|guaranteed/i);
 });
 test('source detail popover opens on tap, follows source identity, closes outside and on Escape',()=>{
  const src=load('source-chips-v1.js');
