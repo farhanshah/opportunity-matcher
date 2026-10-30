@@ -48,7 +48,12 @@
   link.target='_blank';
   link.rel='noopener noreferrer';
   link.textContent='Visit official source ↗';
-  pop.append(heading,kind,description,note,link);
+  const closeButton=document.createElement('button');
+  closeButton.type='button';
+  closeButton.className='omSourceClose';
+  closeButton.setAttribute('aria-label','Close source details');
+  closeButton.textContent='×';
+  pop.append(heading,kind,description,note,link,closeButton);
   document.body.appendChild(pop);
 
   const chips=[...strip.querySelectorAll('.omSourceChip')];
@@ -61,19 +66,23 @@
     active=null;
     pop.hidden=true;
   }
+  closeButton.addEventListener('click',()=>{
+    const previous=active;close();previous?.focus();
+  });
   function scheduleClose(){clearHide();hideTimer=window.setTimeout(()=>{
     if(!pop.matches(':hover')&&!(active&&active.matches(':focus-visible')))close();
   },180)}
   function position(chip){
-    if(!fineHover()){pop.style.left='';pop.style.top='';pop.style.bottom='';return;}
-    const rect=chip.getBoundingClientRect();
-    const width=Math.min(320,window.innerWidth-24);
+    const rect=chip.getBoundingClientRect?.()||{top:120,bottom:160,left:12,width:140};
+    const width=Math.min(320,Math.max(240,window.innerWidth-24));
     const left=Math.max(12,Math.min(window.innerWidth-width-12,rect.left+rect.width/2-width/2));
     pop.style.width=width+'px';
     pop.style.left=left+'px';
     pop.style.bottom='auto';
-    const height=pop.offsetHeight;
+    const height=Math.max(180,Number(pop.offsetHeight)||0);
     const below=rect.bottom+12;
+    // Anchor to its source chip on phones too, instead of a persistent
+    // bottom sheet covering the following programme content.
     pop.style.top=(below+height+12<=window.innerHeight?below:Math.max(12,rect.top-height-12))+'px';
   }
   function open(chip){
