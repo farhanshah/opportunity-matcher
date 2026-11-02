@@ -1,5 +1,14 @@
 name: OppMatcher v5 staging navbar and companion page QA
 on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'nav-contrast-preview-v5.html'
+      - 'integration-shell-v5.js'
+      - 'site-nav-contrast-v5.css'
+      - 'tests/v5-staging.test.mjs'
+      - 'tests/v5-staging-browser.mjs'
+      - '.github/workflows/v5-staging.yml'
   push:
     branches: [main]
     paths:
