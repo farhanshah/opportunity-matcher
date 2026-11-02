@@ -16,7 +16,10 @@ test('new navbar preserves actual application controls and routes',()=>{
  assert.match(preview,/site-nav-contrast-v5\.css/);
  assert.match(preview,/integration-shell-v5\.js/);
  assert.match(preview,/noindex,nofollow/);
- assert.match(index,/src="\/app-v07\.js" defer/);
+ // A dated query-string is intentional cache busting, not a changed SPA entrypoint.
+ // Require exactly one deferred app loader and limit its query to a YYYYMMDD version.
+ const appLoaderTags=[...index.matchAll(/<script\\s+src="(\\/app-v07\\.js(?:\\?v=\\d{8})?)"\\s+defer><\\/script>/g)];
+ assert.equal(appLoaderTags.length,1,'Expected one deferred /app-v07.js loader (optional dated cache key)');
  assert.doesNotMatch(read('integration-shell-v5.js'),/history\[method\]|\/api\/|fetch\(/);
 });
 test('dropdown supports desktop and phone with accessible interactions',()=>{
