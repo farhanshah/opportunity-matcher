@@ -44,7 +44,10 @@ test('Production navbar uses accessible Explore dropdown without changing SPA co
  assert.ok(html.includes('Free account required to save your Passport'));
  assert.match(html,/site-nav-contrast-v5\.css\?v=\d+/);
  assert.match(html,/integration-shell-v5\.js/);
- assert.match(html,/src="\/app-v07\.js" defer/);
+ // A dated query-string is intentional cache busting, not a changed SPA entrypoint.
+ // Require exactly one deferred app loader and limit its query to a YYYYMMDD version.
+ const appLoaderTags=[...html.matchAll(/<script\\s+src="(\\/app-v07\\.js(?:\\?v=\\d{8})?)"\\s+defer><\\/script>/g)];
+ assert.equal(appLoaderTags.length,1,'Expected one deferred /app-v07.js loader (optional dated cache key)');
  assert.match(html,/rel="canonical" href="https:\/\/oppmatcher.tech\/"/);
  assert.doesNotMatch(html,/name="robots" content="noindex/);
  const shell=get('integration-shell-v5.js');
