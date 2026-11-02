@@ -10,7 +10,10 @@
     .oppFreshnessTruthV286 strong{font-size:13px;font-weight:800}
     .oppFreshnessTruthV286 p{margin:3px 0 0;line-height:1.5}
     .oppFreshnessTruthV286 .oppFreshnessIcon{font-weight:900;font-size:16px;line-height:1.3}
-    .landing .oppFreshnessTruthV286{margin:0 0 24px}
+    .landing .oppFreshnessTruthV286{margin:12px 0 24px}
+    .landing .oppFreshnessTruthV286 summary{cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-weight:750;color:#664b22}
+    .landing .oppFreshnessTruthV286 details{margin-top:7px}
+    .landing .oppFreshnessTruthV286 details[open] p{margin:8px 0 0}
     #app .oppFreshnessTruthV286{background:#292414;color:#f7ead0;border-color:#846b35}
     #app .oppFreshnessTruthV286{padding:10px 14px;margin-bottom:14px;gap:10px}
     #app .oppFreshnessTruthV286 strong{font-size:12px;line-height:1.45}
@@ -39,12 +42,15 @@
     const sources=Number(data.monitored_sources),success=Number(data.sources_successful_7d);
     if(!data.ok||!Number.isSafeInteger(total)||!Number.isSafeInteger(stale)||stale<0||stale>total)return;
     const message=stale>0
-      ?`<strong>${stale} of ${total} programme records need source re-verification.</strong>
-         <p>These historical programme records are separate from the individually verified vacancy postings above. Opportunity suggestions and saved deadlines are leads, not confirmed current eligibility.
-         Open each official provider page before applying.${Number.isSafeInteger(sources)&&Number.isSafeInteger(success)
-            ?` Source monitoring fetched ${success} of ${sources} official pages successfully in the past 7 days, but that does not re-verify every programme rule.`:''}</p>`
-      :`<strong>Catalogue source checks are current.</strong>
-         <p>Always confirm your country's application requirements and deadline on the official provider page.</p>`;
+      ?`<strong>${stale} of ${total} historical programme records need re-verification.</strong>
+         <p>These are research leads, not individually verified open vacancies. Check the provider for current funding, eligibility and application dates.</p>
+         <details class="oppFreshnessMore"><summary>What does source monitoring check?</summary>
+         <p>${Number.isSafeInteger(sources)&&Number.isSafeInteger(success)
+           ?`${success} of ${sources} monitored official pages were fetched successfully in the past seven days. `:''}
+         A successful page fetch does not verify each programme’s rules or application status.</p>
+         </details>`
+      :`<strong>Catalogue programme source checks are current.</strong>
+         <p>Check nationality, funding and the final deadline on the official provider page before applying.</p>`;
     const workspaceMessage=stale>0
       ?`<strong>${stale} of ${total} records need source re-verification. Check official details before applying.</strong>
        <details class="oppFreshnessMore"><summary>Why this matters</summary>
