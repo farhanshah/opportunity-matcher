@@ -58,11 +58,16 @@ function renderFeatured(){
     const label=o.Verification_Stale!==false?'Needs source recheck':gate&&gate.passed?'Nominees only':(o.Status||'Explore');
     const url=String(o.Official_Source_URL||'').trim();
     const safeUrl=/^https?:\/\//i.test(url);
-    return '<article class="liveCard">'
-      +'<div class="liveTop"><div class="providerMark">'+esc(logoLetter(o))+'</div><span class="statusPill'+(o.Verification_Stale!==false||gate&&gate.passed?' needsCheck':'')+'">'+esc(label)+'</span></div>'
+    const stale=o.Verification_Stale!==false;
+    // Historical catalogue records are useful leads, but their older funding
+    // claims and application conditions are not confirmed for this cycle.
+    // The section-wide freshness notice covers this once, not once per card.
+    const fundingLabel=stale?'Funding unverified':(o.Funding||'Funding varies');
+    return '<article class="liveCard'+(stale?' liveCardHistorical':'')+'">'
+      +'<div class="liveTop"><div class="providerMark">'+esc(logoLetter(o))+'</div><span class="statusPill'+(stale||gate&&gate.passed?' needsCheck':'')+'">'+esc(label)+'</span></div>'
       +'<h3>'+esc(o.Opportunity_Name)+'</h3><div class="provider">'+esc(o.Provider)+'</div>'
-      +'<div class="tagRow"><span class="tag">'+esc(o.Type)+'</span><span class="tag">'+esc(o.Destination||'Global')+'</span><span class="tag">'+esc(o.Funding||'Funding varies')+'</span></div>'
-      +'<div class="liveReason"><b>Worth knowing</b><br>'+esc(featuredReason(o))+'</div>'
+      +'<div class="tagRow"><span class="tag">'+esc(o.Type)+'</span><span class="tag">'+esc(o.Destination||'Global')+'</span><span class="tag">'+esc(fundingLabel)+'</span></div>'
+      +(stale?'':'<div class="liveReason"><b>Worth knowing</b><br>'+esc(featuredReason(o))+'</div>')
       +'<div class="liveBottom"><span>'+esc(featuredDeadline(o))+'</span>'
       +(safeUrl?'<a class="textBtn" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Open official source ↗</a>':'<span>Official link unavailable</span>')
       +'</div></article>';
@@ -76,7 +81,7 @@ async function loadData(){
     let j=await r.json();opps=j.opportunities||[];
     $('apiStatus').textContent='Live database';
     const active=opps.filter(o=>o.Verification_Stale===false&&publicActive(o)).length;
-    $('liveCopy').textContent=`${active} recently verified active/upcoming routes · ${opps.length} monitored records · official source links`;
+    $('liveCopy').textContent=`${active} of ${opps.length} catalogue records freshly verified`;
     updateStats();renderFeatured();renderAll()
   }catch(err){
     $('apiStatus').textContent='Database unavailable';
@@ -114,7 +119,7 @@ async function updateOfficialOpenCallCount(){
     if(!Array.isArray(data.calls)||!Number.isSafeInteger(Number(data.count)))throw Error('Invalid official open call response');
     const count=data.calls.filter(call=>Date.parse(call.closes_at)>Date.now()).length;
     el.textContent=count>0
-      ?count+' calls advertised open on official sites · Check eligibility ↗'
+      ?(count===1?'1 call':' '+count+' calls').trim()+' advertised open on official sites · Check eligibility ↗'
       :'Browse official programmes and upcoming calls ↗';
   }catch{el.textContent='Explore official provider opportunities ↗'}
 }

@@ -8,24 +8,26 @@ test('verified vacancies and light-background guide headings remain readable in 
  assert.match(css,/\.guideSection \.guideHeader h2\{\s*color:#123b3b!important/);
  assert.match(css,/\.guideSection \.guideHeader p\{\s*color:#37645d!important/);
  assert.match(css,/\.guideSection\{\s*background:#f7fcfa!important/);
- assert.match(html,/site-nav-contrast-v5\.css\?v=11/);
+ assert.match(html,/site-nav-contrast-v5\.css\?v=12/);
  assert.match(css,/@media\(max-width:620px\)/);
  assert.match(css,/\.omThemeMode\{\s*display:none!important/);
  assert.match(css,/\.verifiedOpenCard \.verifiedOpenLink\{/);
 });
-test('historical catalogue cannot be confused with verified exact openings',()=>{
+test('historical catalogue remains distinct from exact current vacancies',()=>{
  const html=read('index.html');
- const js=read('public-ux-v1.js');
+ const boot=read('app-v08-boot.js');
  const freshness=read('app-v155-freshness-truth-v286.js');
  assert.match(html,/Programme catalogue · historical leads/);
- assert.match(html,/separate from the individually verified vacancies above/);
+ assert.doesNotMatch(html,/class="omCatalogueDisclosure"/);
  assert.match(html,/DEMO · NOT LIVE/);
  assert.doesNotMatch(html,/Deadline in 22 days/);
- assert.match(js,/1 call/);
- assert.match(js,/omHistoricalNotice/);
- assert.match(js,/historical programme information/i);
- assert.match(freshness,/separate from the individually verified vacancy postings above/);
- assert.doesNotMatch(js,/INSERT INTO opportunities|UPDATE opportunities/);
+ assert.doesNotMatch(html,/public-ux-v1\.js/);
+ assert.match(boot,/count===1\?'1 call'/);
+ assert.match(boot,/Funding unverified/);
+ assert.match(boot,/catalogue records freshly verified/);
+ assert.match(freshness,/These are research leads/);
+ assert.match(freshness,/What does source monitoring check/);
+ assert.doesNotMatch(boot,/INSERT INTO opportunities|UPDATE opportunities/);
 });
 test('official source popovers open near selected chip, close explicitly and handle live page-monitor data safely',()=>{
  const js=read('source-chips-v1.js'),css=read('site-nav-contrast-v5.css');

@@ -1037,3 +1037,114 @@ html.omTurquoisePreview #landing .sourceTrack>.omSourceSwipeHint{
   text-shadow:none!important;
  }
 }
+
+
+/* v12: resolve public-source warning repetition and laptop theme contrast.
+   Fixed pale catalogue sections never inherit workspace dark-mode colours. */
+html.omTurquoisePreview #landing #live-opportunities.liveSection{
+ background:#f3faf8!important;color:#153e3a!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .liveHeader :is(h2,.eyebrow),
+html.omTurquoisePreview #landing #live-opportunities .liveCard h3{
+ color:#123b37!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .liveBadge{
+ color:#17665b!important;background:#e6f5ef!important;
+ border:1px solid #afd8cd!important;
+ border-radius:999px!important;
+ font-size:12px!important;
+ max-width:100%!important;
+ width:max-content!important;
+ padding:11px 15px!important;
+ text-transform:none!important;letter-spacing:0!important;
+ line-height:1.45!important;overflow-wrap:anywhere!important;
+}
+html.omTurquoisePreview #landing #live-opportunities #liveCopy{
+ font-size:12px!important;color:#125b50!important;
+ line-height:1.5!important;letter-spacing:0!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .liveCardHistorical{
+ background:#fff!important;min-height:0!important;
+ display:flex!important;flex-direction:column!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .liveCardHistorical .tagRow{
+ margin-bottom:19px!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .liveCardHistorical .liveBottom{
+ margin-top:auto!important;padding-top:17px!important;
+ border-top:1px solid #d1e2db!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .liveCardHistorical .tag{
+ color:#355d54!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .omCatalogueLinks{
+ display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+ gap:12px 18px!important;
+ max-width:1120px!important;
+ margin:0 auto!important;
+ padding:17px 24px 36px!important;
+ color:#16453e!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .omCatalogueLinks a{
+ color:#075c50!important;
+ font-size:14px!important;font-weight:800!important;
+ line-height:1.5!important;text-decoration:underline!important;
+ text-underline-offset:4px!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .omCatalogueLinks a:hover,
+html.omTurquoisePreview #landing #live-opportunities .omCatalogueLinks a:focus-visible{
+ color:#003e37!important;text-decoration-thickness:2px!important;
+}
+html.omTurquoisePreview #landing #live-opportunities .omCatalogueLinks a:focus-visible{
+ outline:3px solid #23c2ab!important;outline-offset:5px!important;
+}
+html.omTurquoisePreview #landing .oppFreshnessTruthV286{
+ max-width:100%!important;
+}
+html.omTurquoisePreview #landing .liveSection .oppFreshnessTruthV286{
+ background:#fff7e5!important;color:#43331e!important;
+ border-color:#b99854!important;
+}
+html.omTurquoisePreview #landing .liveSection .oppFreshnessTruthV286 :is(p,strong,summary){
+ color:#49351d!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing .footer{
+ background:#061d1d!important;color:#d8f1e9!important;
+ border-top:1px solid #3a6861!important;
+}
+html.omTurquoisePreview #landing .footer .footerLinks{
+ color:#c6e6de!important;opacity:1!important;
+}
+html.omTurquoisePreview #landing .footer .footerLinks a{
+ color:#dbf8ef!important;opacity:1!important;
+ font-size:13px!important;line-height:1.5!important;
+ text-decoration:underline!important;text-underline-offset:4px!important;
+}
+html.omTurquoisePreview #landing .footer .footerLinks a:is(:hover,:focus-visible){
+ color:#70f0d9!important;
+}
+html.omTurquoisePreview #landing .footer .footerLinks span{
+ color:#c9e7df!important;opacity:1!important;
+ line-height:1.55!important;
+}
+@media(max-width:700px){
+ html.omTurquoisePreview #landing #live-opportunities .liveBadge{
+  width:100%!important;border-radius:17px!important;
+  padding:10px 12px!important;
+ }
+ html.omTurquoisePreview #landing #live-opportunities .omCatalogueLinks{
+  padding:15px 18px 30px!important;
+  gap:10px 14px!important;
+ }
+ html.omTurquoisePreview #landing #live-opportunities .omCatalogueLinks>a{
+  flex:0 1 auto!important;min-height:42px!important;
+  display:inline-flex!important;align-items:center!important;
+  font-size:13px!important;
+ }
+ html.omTurquoisePreview #landing #live-opportunities .omCatalogueLinks>span{
+  display:none!important;
+ }
+ html.omTurquoisePreview #landing .footer .footerLinks{
+  gap:10px 15px!important;
+ }
+}
