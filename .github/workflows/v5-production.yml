@@ -1,5 +1,14 @@
 name: OppMatcher v5 consolidated public release QA
 on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'app-v07.js'
+      - 'integration-shell-v5.js'
+      - 'site-nav-contrast-v5.css'
+      - 'tests/v5-production.test.mjs'
+      - 'tests/v5-production-browser.mjs'
+      - '.github/workflows/v5-production.yml'
   push:
     branches: [main]
     paths:
