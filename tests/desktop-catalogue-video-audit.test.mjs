@@ -23,7 +23,7 @@ function renderCard({stale,funding='Fully Funded'}){
  'featuredReason','featuredDeadline','$',source+';return renderFeatured');
  context([opportunity],()=>true,()=>90,()=>null,esc,()=> 'RU',
  ()=> 'A named scholarship condition requires confirmation.',()=> 'Deadline unverified',
- id=>{assert.equal(id,'featuredGrid');return target})().call(null);
+ id=>{assert.equal(id,'featuredGrid');return target})();
  return target.innerHTML;
 }
 test('stale featured programmes have one caution, no unverified historical funding promise',()=>{
