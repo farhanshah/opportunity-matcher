@@ -6,8 +6,13 @@ const index=read('index.html'),preview=read('nav-contrast-preview-v5.html');
 const id=s=>[...s.matchAll(/\bid="([^"]+)"/g)].map(x=>x[1]).sort();
 const onclick=s=>[...s.matchAll(/\bonclick="([^"]+)"/g)].map(x=>x[1]).sort();
 test('new navbar preserves actual application controls and routes',()=>{
- assert.deepEqual(id(index),id(preview));
- assert.deepEqual(onclick(index),onclick(preview));
+ // The production homepage gained official calls and verified vacancies after
+ // the staging preview. Keep all original controls and only allow these additions.
+ const addedIds=['heroOpenCallsLabel','verified-openings','verifiedOpenTitle','verifiedOpenGrid'];
+ assert.deepEqual(id(index).filter(value=>!addedIds.includes(value)),id(preview));
+ for(const value of addedIds)assert.ok(id(index).includes(value),value+' missing from production');
+ // The sample() preview action was replaced by a public browsing link.
+ assert.deepEqual(onclick(index),onclick(preview).filter(value=>value!=='sample()'));
  assert.match(preview,/site-nav-contrast-v5\.css/);
  assert.match(preview,/integration-shell-v5\.js/);
  assert.match(preview,/noindex,nofollow/);

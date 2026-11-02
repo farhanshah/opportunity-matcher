@@ -8,7 +8,7 @@ test('verified vacancies and light-background guide headings remain readable in 
  assert.match(css,/\.guideSection \.guideHeader h2\{\s*color:#123b3b!important/);
  assert.match(css,/\.guideSection \.guideHeader p\{\s*color:#37645d!important/);
  assert.match(css,/\.guideSection\{\s*background:#f7fcfa!important/);
- assert.match(html,/site-nav-contrast-v5\.css\?v=10/);
+ assert.match(html,/site-nav-contrast-v5\.css\?v=11/);
  assert.match(css,/@media\(max-width:620px\)/);
  assert.match(css,/\.omThemeMode\{\s*display:none!important/);
  assert.match(css,/\.verifiedOpenCard \.verifiedOpenLink\{/);

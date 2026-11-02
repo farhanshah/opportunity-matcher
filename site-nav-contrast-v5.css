@@ -1025,3 +1025,15 @@ html.omTurquoisePreview #landing .sourceTrack>.omSourceSwipeHint{
   font-weight:850!important;white-space:nowrap!important;
  }
 }
+
+/* Mobile badge text must remain dark on its pale pill in every theme.
+   This narrow-width rule wins over legacy responsive styles. */
+@media(max-width:620px){
+ html.omTurquoisePreview body #landing .heroWrap .hero span.kicker,
+ html.omTurquoisePreview body #landing .heroWrap .hero span.kicker > span{
+  background-color:#d5f9f1!important;
+  color:#104441!important;
+  opacity:1!important;
+  text-shadow:none!important;
+ }
+}

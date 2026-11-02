@@ -42,13 +42,24 @@ for(const width of [360,390,768,1280,1440]){
    const rect=s=>{const n=document.querySelector(s);if(!n)return null;const r=n.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
    const rgb=s=>getComputedStyle(document.querySelector(s)).color;
    return {kicker:rgb('#landing .heroWrap .hero .kicker'),
+    kickerBackground:getComputedStyle(document.querySelector('#landing .heroWrap .hero .kicker')).backgroundColor,
     cards:['passportFeature','matchFeature','workspaceFeature'].map(cls=>({
       cls,header:rect('#difference .'+cls+' h3'),
       demo:rect('#difference .'+cls+' .'+({passportFeature:'passportMock',matchFeature:'matchMock',workspaceFeature:'trackerMock'}[cls]))
     }))
    };
   });
-  check(visual.kicker==='rgb(16, 68, 65)',width+' homepage badge readable',visual.kicker);
+  // Measure actual foreground/background contrast at each viewport and theme.
+  const luminance=value=>{
+   const parts=(value.match(/[0-9.]+/g)||[]).slice(0,3).map(Number);
+   if(parts.length!==3)return NaN;
+   const channels=parts.map(c=>{c/=255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4});
+   return channels[0]*.2126+channels[1]*.7152+channels[2]*.0722;
+  };
+  const fg=luminance(visual.kicker),bg=luminance(visual.kickerBackground);
+  const badgeContrast=(Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05);
+  check(badgeContrast>=4.5,width+' homepage badge readable',
+   {foreground:visual.kicker,background:visual.kickerBackground,contrast:badgeContrast});
   for(const card of visual.cards)
    check(card.header&&card.demo&&card.demo.top>=card.header.bottom+4,
      width+' '+card.cls+' demo does not overlap heading',card);
