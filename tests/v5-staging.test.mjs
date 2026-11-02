@@ -18,7 +18,7 @@ test('new navbar preserves actual application controls and routes',()=>{
  assert.match(preview,/noindex,nofollow/);
  // A dated query-string is intentional cache busting, not a changed SPA entrypoint.
  // Require exactly one deferred app loader and limit its query to a YYYYMMDD version.
- const appLoaderTags=[...index.matchAll(/<script\\s+src="(\\/app-v07\\.js(?:\\?v=\\d{8})?)"\\s+defer><\\/script>/g)];
+ const appLoaderTags=[...index.matchAll(/<script\s+src="(\/app-v07\.js(?:\?v=\d{8})?)"\s+defer><\/script>/g)];
  assert.equal(appLoaderTags.length,1,'Expected one deferred /app-v07.js loader (optional dated cache key)');
  assert.doesNotMatch(read('integration-shell-v5.js'),/history\[method\]|\/api\/|fetch\(/);
 });
