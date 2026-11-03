@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/api/brand-image?kind=apple&amp;v=2">
 <link rel="manifest" href="/manifest.webmanifest">
 <title>OppMatcher | Scholarships, Internships &amp; Fellowships</title>
-<meta name="description" content="Find scholarships, internships, fellowships and funded international programmes. Check profile fit, deadlines and official sources in one Opportunity workspace.">
+<meta name="description" content="Explore verified scholarships, internships and fellowships, check official-source rules, and prepare applications with OppMatcher’s free checklist and matching workspace.">
 <link rel="canonical" href="https://oppmatcher.tech/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="OppMatcher — Find Scholarships, Internships &amp; Fellowships">
@@ -40,8 +40,14 @@
 <link rel="stylesheet" href="/integration-turquoise.css?v=1">
 <link rel="stylesheet" href="/integration-turquoise-v4.css?v=4">
 <link rel="stylesheet" href="/site-nav-contrast-v5.css?v=12">
+<link rel="stylesheet" href="/homepage-trust-v1.css?v=1">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1916126969266611"
      crossorigin="anonymous"></script>
+<noscript><style>
+html:not(.omBootReady) body{overflow:auto!important;background:#f4f7f3!important}
+html:not(.omBootReady) body>#landing{visibility:visible!important;opacity:1!important}
+html:not(.omBootReady) body:before,html:not(.omBootReady) body:after{display:none!important}
+</style></noscript>
 </head>
 <body>
 <div id="landing" class="landing">
@@ -51,7 +57,7 @@
         <img class="brandmark" src="/brand-icon.svg?v=2" alt="" width="48" height="48" decoding="async">
         <span class="brandword">OppMatcher<small>global matcher</small></span>
       </a>
-      <div class="navlinks"><a href="/latest">Latest opportunities</a><a href="/worldwide">Worldwide sources</a><a href="#difference">Why us</a><a href="#live-opportunities">Live opportunities</a><a href="/blog/">Blog</a><a href="/about">About</a><a href="/contact">Contact</a><a href="#engine">Freshness engine</a><a href="#how">How it works</a></div>
+      <div class="navlinks"><a href="/latest">Latest opportunities</a><a href="/worldwide">Worldwide sources</a><a href="#difference">Why us</a><a href="#live-opportunities">Live opportunities</a><a href="/blog/">Guides</a><a href="/tools/application-readiness">Free checklist</a><a href="/blog/methodology/">How we verify</a><a href="/about">About</a><a href="/contact">Contact</a><a href="#engine">Freshness engine</a><a href="#how">How it works</a></div>
       <button class="btn btnPrimary" onclick="openOnboard()">Build Passport <span>↗</span></button>
     </nav>
     <div class="hero">
@@ -59,7 +65,7 @@
         <span class="kicker"><i class="pulse"></i><span id="heroKicker">Official source matching · live database</span></span>
         <h1>Your next move shouldn't depend on <em>luck.</em></h1>
         <p class="heroCopy">Create one Opportunity Passport. We turn your profile into a smarter way to discover scholarships, internships, fellowships and funded international programmes, with the official source always one click away.</p>
-        <div class="heroActions"><button class="btn btnPrimary" onclick="openOnboard()">Create my Opportunity Passport <span>↗</span></button><a class="btn btnGhost" href="/latest">Browse opportunities</a></div><p class="accountFirstHint">Free account required to save your Passport. Browse guides and opportunities without signing in.</p>
+        <div class="heroActions"><button class="btn btnPrimary" onclick="openOnboard()">Create my Opportunity Passport <span>↗</span></button><a class="btn btnGhost" href="/latest">Browse opportunities</a><a class="btn btnGhost" href="/tools/application-readiness">Free application checklist</a></div><p class="accountFirstHint">Free account required to save your Passport. Browse guides and opportunities without signing in.</p>
         <div style="margin:14px 0 0;font-size:13px"><a href="/worldwide#official-open-calls" style="color:#91f4e5;text-decoration:underline;text-underline-offset:4px;font-weight:750"><span id="heroOpenCallsLabel">Browse open official calls and check your eligibility ↗</span></a></div>
         <div class="microTrust"><div class="stat"><strong id="statOpps">…</strong>opportunities in database</div><div class="stat"><strong id="statSources">…</strong>active sources tracked</div><div class="stat"><strong id="statOpen">…</strong><a href="/worldwide" style="color:inherit;text-decoration:none;border-bottom:1px solid currentColor">official pages to explore ↗</a></div></div>
       </div>
@@ -83,6 +89,24 @@
         <button type="button" class="omSourceChip" data-source="swedish">Swedish Institute <span aria-hidden="true">ⓘ</span></button>
         <button type="button" class="omSourceChip" data-source="daad">DAAD <span aria-hidden="true">ⓘ</span></button>
       </div>
+    </div>
+  </section>
+
+  <section class="omTrustHub" aria-labelledby="omTrustTitle">
+    <div class="omTrustInner">
+      <p class="omTrustEyebrow">Explore OppMatcher without an account</p>
+      <h2 id="omTrustTitle">Find an opportunity. Check the facts. Prepare your application.</h2>
+      <p class="omTrustIntro">Start with a real provider, check the current deadline and eligibility rules, then use a free worksheet to keep track of what you still need. Public guides, source information and corrections are available without signing in.</p>
+      <div class="omTrustGrid">
+        <a class="omTrustCard" href="/opportunities"><strong>Recently verified openings</strong><span>See individual vacancies with a specific provider, recorded deadline and official application link. Only recent exact-source checks are shown as open.</span><em>Browse verified vacancies ↗</em></a>
+        <a class="omTrustCard" href="/tools/application-readiness"><strong>Free application readiness checklist</strong><span>Check nationality, degree rules, funding, documents and deadlines. Copy your outstanding questions without creating an account.</span><em>Open the checklist ↗</em></a>
+        <a class="omTrustCard" href="/blog/"><strong>Scholarship and internship guides</strong><span>Read source-backed examples for Chevening, Erasmus Mundus, UNDP internships and general application preparation.</span><em>Explore the guides ↗</em></a>
+        <a class="omTrustCard" href="/blog/methodology/"><strong>How we verify information</strong><span>Understand official-source checks, uncertainty labels and why a programme existing does not mean its application is open.</span><em>See our methods ↗</em></a>
+        <a class="omTrustCard" href="/about"><strong>About OppMatcher</strong><span>Learn what the service does, how matching works and the difference between a recorded vacancy and a confirmed personal match.</span><em>About us ↗</em></a>
+        <a class="omTrustCard" href="/contact"><strong>Contact and corrections</strong><span>Report an outdated deadline, broken official source, missing nationality restriction or website issue.</span><em>Get in touch ↗</em></a>
+      </div>
+      <p class="omTrustNote"><strong>Always confirm on the provider's site:</strong> OppMatcher does not issue scholarship awards, employment offers or visas. Its labels are dated evidence, not a promise of eligibility or admission.</p>
+      <noscript><p class="omTrustNote">JavaScript is needed for the live matching workspace. You can still read these public guides, the application worksheet guidance and server-rendered verified opportunity pages.</p></noscript>
     </div>
   </section>
 
@@ -124,7 +148,7 @@
   <section class="section reveal" id="how"><div class="sectionHead"><div><div class="eyebrow">How it works</div><h2>Find it. Check it.<br>Make your move.</h2></div><p class="sectionLead">A cleaner loop from discovery to action without losing the official source, your shortlist or your application progress along the way.</p></div><div class="steps"><article class="step"><div class="stepIcon">01</div><span class="stepNo">BUILD</span><h3>Create your Passport.</h3><p>Tell us the essentials once: nationality, education, field, opportunity type and funding preference.</p><span class="stepArrow">→</span></article><article class="step"><div class="stepIcon">02</div><span class="stepNo">QUALIFY</span><h3>See what deserves attention.</h3><p>Compare live opportunities with source links, deadline context and eligibility notes kept visible.</p><span class="stepArrow">→</span></article><article class="step"><div class="stepIcon">03</div><span class="stepNo">ACT</span><h3>Save, prepare, apply.</h3><p>Move the opportunities that matter into one application tracker and keep the next action obvious.</p></article></div></section>
 
   <section class="cta reveal"><div class="ctaBg"></div><div class="ctaContent"><div class="eyebrow" style="color:var(--lime)">Your next application starts here</div><h2>One profile.<br>A world of better options.</h2><p>Start with the live database today. The product is early, but the infrastructure underneath it is already being built for freshness and trust.</p><div class="heroActions"><button class="btn btnPrimary" onclick="openOnboard()">Create my Opportunity Passport <span>↗</span></button><a class="btn btnGhost" href="/latest">Browse opportunities</a></div></div></section>
-  <footer class="footer"><div class="brand"><img class="brandmark" src="/brand-icon.svg?v=2" alt="" width="48" height="48" decoding="async"><span class="brandword">OppMatcher<small>global matcher</small></span></div><div class="footerLinks"><a href="/blog/">Blog</a><a href="#live-opportunities">Live opportunities</a><a href="#engine">Freshness engine</a><a href="/about">About us</a><a href="/contact">Contact</a><a href="/blog/methodology/">Research process</a><a href="/privacy">Privacy policy</a><a href="mailto:privacy@oppmatcher.tech">Privacy contact</a><span>Official source links remain the source of truth for applications and eligibility.<br>© 2026 OppMatcher.</span></div></footer>
+  <footer class="footer"><div class="brand"><img class="brandmark" src="/brand-icon.svg?v=2" alt="" width="48" height="48" decoding="async"><span class="brandword">OppMatcher<small>global matcher</small></span></div><div class="footerLinks"><a href="/blog/">Guides</a><a href="/opportunities">Verified vacancies</a><a href="/tools/application-readiness">Free checklist</a><a href="#live-opportunities">Live opportunities</a><a href="#engine">Freshness engine</a><a href="/about">About us</a><a href="/contact">Contact</a><a href="/blog/methodology/">Research process</a><a href="/privacy">Privacy policy</a><a href="mailto:privacy@oppmatcher.tech">Privacy contact</a><span>Official source links remain the source of truth for applications and eligibility.<br>© 2026 OppMatcher.</span></div></footer>
 </div>
 
 <div id="app" class="app hide">
