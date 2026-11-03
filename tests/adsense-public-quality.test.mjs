@@ -48,11 +48,11 @@ test('sitemap lists valuable public destinations and avoids temporarily excluded
    assert.ok(sitemap.includes('https://oppmatcher.tech'+url+'</loc>'),url);
  }
  const excluded=[
- 'australia-awards-scholarships-guide','commonwealth-masters-scholarship-guide',
- 'daad-scholarships-germany-guide','gates-cambridge-scholarship-application',
- 'global-korea-scholarship-application','knight-hennessy-scholars-application',
- 'marie-curie-postdoctoral-fellowships-guide','mext-japan-scholarships-embassy-route',
- 'oecd-internship-programme-guide','research-fellowships-uk-funding-guide',
+ 
+ 'gates-cambridge-scholarship-application',
+ 'knight-hennessy-scholars-application',
+ 'marie-curie-postdoctoral-fellowships-guide',
+ 'research-fellowships-uk-funding-guide',
  'scholarship-interview-preparation-questions','scholarship-statement-of-purpose-examples',
  'schwarzman-scholars-eligibility-application',
  'unhcr-internships-guide','who-internships-guide'];
@@ -90,7 +90,7 @@ test('AdSense uses one shared root ads.txt and matching publisher snippets on pu
 });
 
 test('expanded high-value guides retain indexability and official source references',()=>{
- for(const name of ['chevening-scholarship-application-guide','erasmus-mundus-joint-masters-application','undp-internships-application-guide','unicef-internships-application-guide','unesco-internship-programme-guide']){
+ for(const name of ['chevening-scholarship-application-guide','erasmus-mundus-joint-masters-application','undp-internships-application-guide','unicef-internships-application-guide','unesco-internship-programme-guide','oecd-internship-programme-guide','daad-scholarships-germany-guide','mext-japan-scholarships-embassy-route','australia-awards-scholarships-guide','commonwealth-masters-scholarship-guide','global-korea-scholarship-application']){
   const html=get('blog/'+name+'/index.html');
   const text=html.match(/<article class="article">([\s\S]*?)<\/article>/)?.[1]||'';
   assert.ok(text.replace(/<[^>]+>/g,' ').trim().split(/\s+/).length>=650,name+' too short');
