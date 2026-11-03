@@ -1,0 +1,30 @@
+name: OppMatcher public content quality
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'about.html'
+      - 'contact.html'
+      - 'tools/application-readiness.html'
+      - 'index.html'
+      - 'blog/index.html'
+      - 'blog/**/index.html'
+      - 'sitemap.xml'
+      - 'vercel.json'
+      - 'tests/adsense-public-quality.test.mjs'
+      - '.github/workflows/adsense-public-quality.yml'
+  workflow_dispatch:
+concurrency:
+  group: oppmatcher-content-quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  content-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check configured public routes and quality guards
+        run: node --test tests/adsense-public-quality.test.mjs
