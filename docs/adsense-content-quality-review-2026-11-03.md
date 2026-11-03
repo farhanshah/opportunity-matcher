@@ -38,6 +38,17 @@
 - unicef-internships-application-guide
 - who-internships-guide
 
+## Follow-up on 3 November: homepage, navigation and further guides
+
+- Added a static, responsive **Explore OppMatcher** section directly to the homepage, with six cards linking to Verified Opportunities, a free Application Readiness Checklist, Guides, Methodology, About and Contact.
+- Added **Free checklist** and **How we verify** to the homepage Explore dropdown, and the checklist to the main footer and homepage call to action.
+- Expanded public navigation across the blog, privacy, worldwide and server-rendered opportunity directories. Existing internal login/workspace code remains unchanged.
+- Added direct homepage links to the five researched programme guides.
+- Rewrote and reinstated the UNICEF and UNESCO internship guides using current, direct official programme and internship vacancy sources. Both returned to `index,follow` and the main sitemap.
+- **15** guides are still deliberately `noindex,follow` while their source-backed content is improved. Their URLs remain readable and are excluded from the main sitemap.
+- The Ads.txt publisher authorization remains at one root-domain file `/ads.txt`; the matching AdSense JavaScript is in public page HTML. The private Application Studio and admin console are **not** intended as ad inventory.
+- Added regression checks for the homepage links, correct sitemap behaviour and AdSense script integration.
+
 ## Open work before another AdSense submission
 
 - **Do not re-request review yet.** Verify all newly published URLs work on production and that mobile navigation is usable without a login.
