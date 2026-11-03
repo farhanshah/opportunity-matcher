@@ -140,6 +140,14 @@
   ],
   "rewrites": [
     {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
       "source": "/latest",
       "destination": "/api/latest"
     },
