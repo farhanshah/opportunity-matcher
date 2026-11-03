@@ -48,14 +48,12 @@ test('sitemap lists valuable public destinations and avoids temporarily excluded
    assert.ok(sitemap.includes('https://oppmatcher.tech'+url+'</loc>'),url);
  }
  const excluded=[
- 
  'gates-cambridge-scholarship-application',
  'knight-hennessy-scholars-application',
- ,
  'research-fellowships-uk-funding-guide',
- 'scholarship-interview-preparation-questions','scholarship-statement-of-purpose-examples',
- ,
- ,];
+ 'scholarship-interview-preparation-questions',
+ 'scholarship-statement-of-purpose-examples'
+];
  for(const slug of excluded){
   const html=get('blog/'+slug+'/index.html');
   assert.match(html,/name="robots" content="noindex,follow"/,slug+' missing noindex');
