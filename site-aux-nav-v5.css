@@ -52,3 +52,6 @@ header.blogNav .blogNavCta{min-height:41px!important}
  }
  html.omSecondary[data-page="privacy"] header.nav .navlinks{right:6px!important}
 }
+
+/* More destinations, kept usable on small screens rather than overflowing the viewport. */
+header.blogNav .blogNavLinks,html.omSecondary[data-page="privacy"] header.nav .navlinks{max-height:min(72vh,530px)!important;overflow-y:auto!important;overscroll-behavior:contain!important}
