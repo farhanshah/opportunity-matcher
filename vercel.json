@@ -140,6 +140,10 @@
   ],
   "rewrites": [
     {
+      "source": "/tools/application-readiness",
+      "destination": "/tools/application-readiness.html"
+    },
+    {
       "source": "/about",
       "destination": "/about.html"
     },
