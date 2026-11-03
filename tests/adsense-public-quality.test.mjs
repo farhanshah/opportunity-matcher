@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 const get=path=>readFileSync(new URL('../'+path, import.meta.url),'utf8');
 
 test('public About, Contact and worksheet routes are configured',()=>{
@@ -100,3 +100,20 @@ test('expanded high-value guides retain indexability and official source referen
   assert.match(html,/"dateModified":"2026-11-03"/);
  }
 });
+
+
+test('every public blog article has correct publisher script and sitemap matches its indexability',()=>{
+ const sitemap=get('sitemap.xml');
+ const blog=new URL('../blog/',import.meta.url);
+ const dirs=readdirSync(blog,{withFileTypes:true}).filter(entry=>entry.isDirectory());
+ assert.ok(dirs.length>=50,'expected published guide directories');
+ for(const dir of dirs){
+  const path='blog/'+dir.name+'/index.html';
+  const html=get(path);
+  const url='https://oppmatcher.tech/blog/'+dir.name+'/';
+  assert.ok(html.includes('ca-pub-1916126969266611'),path+' missing public AdSense script');
+  const excluded=/name="robots"\s+content="noindex(?:,follow)?"/i.test(html);
+  assert.equal(sitemap.includes('<loc>'+url+'</loc>'),!excluded,path+' sitemap should reflect robots status');
+ }
+});
+
