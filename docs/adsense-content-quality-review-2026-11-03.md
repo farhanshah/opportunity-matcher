@@ -58,6 +58,18 @@
 - Verified through the connected Gmail account that a message addressed to `privacy@oppmatcher.tech` was present in the inbox on **16 October 2026**. This confirms historical delivery to the connected Gmail inbox, not present-day end-to-end deliverability.
 - Google Search's fetch of the homepage showed the new public navigation, About and Contact, methodology, free checklist and trust-section links. Other page fetches were not reliably available through that external tool, so full per-URL HTTP and mobile checks remain necessary.
 
+## Final pass on 3 November: eleven source-backed programmes, sitewide consistency
+
+- Restored **WHO Internships**, **UNHCR Internships**, **Schwarzman Scholars** and **Marie Skłodowska-Curie Postdoctoral Fellowships** after substantive source-backed rewrites.
+- WHO guide explicitly distinguishes the long-standing general programme description from the **December 2025 WHO HR report** documenting that the global internship programme had been paused since January 2025. No new WHO posting is labelled open solely from the general programme page.
+- Schwarzman guide uses the programme's published 2028-2029 cohort application dates and age/degree thresholds; MSCA guide distinguishes the now-closed 2026 call from the next scheduled 2027 opening.
+- Added all four to the main sitemap and retained unchanged article canonical URLs.
+- Added eight of the newly updated programme guides to the homepage's static link section.
+- Corrected the GitHub content-quality test's temporarily excluded slug array to avoid empty entries.
+- The main sitemap now contains **59 URL entries**. An independent GitHub-file cross-check of **all 55 blog guides** found **50 indexable guides, five temporarily noindexed**, correct AdSense publisher ID on **55/55**, and **zero sitemap-versus-indexability conflicts**.
+- The five pages still requiring substantive source-based editorial work are Gates Cambridge, Knight-Hennessy, UK research fellowships, scholarship interviews, and scholarship statement-of-purpose examples.
+- GitHub commits and Vercel production build status are separate from definitive live-device behaviour; perform browser and mobile checks before requesting another AdSense review.
+
 ## Open work before another AdSense submission
 
 - **Do not re-request review yet.** Verify all newly published URLs work on production and that mobile navigation is usable without a login.
