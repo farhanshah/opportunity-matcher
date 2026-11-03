@@ -51,8 +51,8 @@ function render(rows,category,q){
   '<link rel="icon" type="image/svg+xml" href="/brand-icon.svg">'+
   '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1916126969266611" crossorigin="anonymous"></script>'+
   '<style>'+css+'</style></head><body>'+
-  '<header><a href="/"><strong>OppMatcher</strong></a><nav><a href="/">Home</a><a href="/worldwide">Worldwide</a><a href="/opportunities">Verified postings</a><a href="/blog/">Guides</a></nav></header>'+
-  '<main>'+body+'</main><footer>OppMatcher · <a href="/blog/methodology/">Verification policy</a> · <a href="/privacy">Privacy</a></footer></body></html>';
+  '<header><a href="/"><strong>OppMatcher</strong></a><nav><a href="/">Home</a><a href="/worldwide">Worldwide</a><a href="/opportunities">Verified postings</a><a href="/blog/">Guides</a><a href="/tools/application-readiness">Free checklist</a><a href="/about">About</a><a href="/contact">Contact</a></nav></header>'+
+  '<main>'+body+'</main><footer>OppMatcher · <a href="/blog/methodology/">Verification policy</a> · <a href="/tools/application-readiness">Free checklist</a> · <a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a></footer></body></html>';
 }
 export default async function handler(req,res){
  if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).send('Method not allowed')}
