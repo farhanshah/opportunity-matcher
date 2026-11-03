@@ -1,0 +1,18 @@
+/* Accessible public homepage entry points, scoped to the marketing landing page. */
+#landing .omTrustHub{background:#eff8f4;color:#173c3e;border-top:1px solid #d7e9e3;border-bottom:1px solid #d7e9e3}
+#landing .omTrustHub .omTrustInner{max-width:1230px;margin:0 auto;padding:54px 26px 60px}
+#landing .omTrustHub .omTrustEyebrow{font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.14em;color:#05796f;margin:0 0 7px}
+#landing .omTrustHub h2{font:800 clamp(28px,3.5vw,43px)/1.17 'Manrope','DM Sans',system-ui,sans-serif;letter-spacing:-.045em;color:#153a3c;margin:0 0 13px}
+#landing .omTrustHub .omTrustIntro{font:400 15px/1.7 'DM Sans',system-ui,sans-serif;color:#486963;max-width:780px;margin:0 0 28px}
+#landing .omTrustHub .omTrustGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#landing .omTrustHub .omTrustCard{display:block;min-width:0;padding:22px 23px;border:1px solid #cfe5dd;border-radius:16px;background:#fff;color:#173a3d;text-decoration:none;box-shadow:0 6px 25px rgba(5,62,55,.04);transition:border-color .18s,transform .18s}
+#landing .omTrustHub .omTrustCard:hover{border-color:#008d7c;transform:translateY(-2px)}
+#landing .omTrustHub .omTrustCard:focus-visible{outline:3px solid #00a996;outline-offset:3px}
+#landing .omTrustHub .omTrustCard strong{display:block;font-size:16px;line-height:1.4;font-weight:800;color:#153d3c;margin:0 0 8px}
+#landing .omTrustHub .omTrustCard span{display:block;font-size:13px;line-height:1.65;color:#4c6f69}
+#landing .omTrustHub .omTrustCard em{display:inline-block;font-style:normal;color:#047e72;font-size:12px;font-weight:800;margin-top:13px}
+#landing .omTrustHub .omTrustNote{font-size:13px;line-height:1.7;color:#54716c;margin:25px 0 0}
+#landing .omTrustHub .omTrustNote a{color:#047c71;font-weight:750;text-decoration:underline;text-underline-offset:4px}
+#landing .omTrustHub .omTrustNote strong{color:#244d48}
+@media(max-width:900px){#landing .omTrustHub .omTrustGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){#landing .omTrustHub .omTrustInner{padding:39px 17px 44px}#landing .omTrustHub .omTrustGrid{grid-template-columns:1fr;gap:12px}#landing .omTrustHub .omTrustCard{padding:20px 18px}#landing .omTrustHub h2{font-size:30px}}
