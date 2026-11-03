@@ -54,8 +54,8 @@ test('sitemap lists valuable public destinations and avoids temporarily excluded
  'marie-curie-postdoctoral-fellowships-guide','mext-japan-scholarships-embassy-route',
  'oecd-internship-programme-guide','research-fellowships-uk-funding-guide',
  'scholarship-interview-preparation-questions','scholarship-statement-of-purpose-examples',
- 'schwarzman-scholars-eligibility-application','unesco-internship-programme-guide',
- 'unhcr-internships-guide','unicef-internships-application-guide','who-internships-guide'];
+ 'schwarzman-scholars-eligibility-application',
+ 'unhcr-internships-guide','who-internships-guide'];
  for(const slug of excluded){
   const html=get('blog/'+slug+'/index.html');
   assert.match(html,/name="robots" content="noindex,follow"/,slug+' missing noindex');
@@ -63,8 +63,34 @@ test('sitemap lists valuable public destinations and avoids temporarily excluded
  }
 });
 
+test('homepage offers visible paths to useful pages without login or reliance on dynamic cards',()=>{
+ const home=get('index.html');
+ for(const url of ['/tools/application-readiness','/about','/contact','/blog/methodology/','/opportunities',
+ '/blog/chevening-scholarship-application-guide/','/blog/unicef-internships-application-guide/',
+ '/blog/unesco-internship-programme-guide/']){
+   assert.ok(home.includes('href="'+url+'"'), 'Missing home link: '+url);
+ }
+ assert.ok((home.match(/class="omTrustCard"/g)||[]).length>=6);
+ assert.ok(home.includes('<noscript><style>'), 'No non-JavaScript fallback on homepage');
+ assert.ok(get('site-aux-nav-v5.js').includes('Free checklist'));
+});
+test('AdSense uses one shared root ads.txt and matching publisher snippets on public destinations',()=>{
+ const ads=get('ads.txt').trim();
+ assert.equal(ads,'google.com, pub-1916126969266611, DIRECT, f08c47fec0942fa0');
+ for(const file of ['index.html','about.html','contact.html','privacy.html','worldwide.html','blog/index.html','tools/application-readiness.html',
+ 'blog/chevening-scholarship-application-guide/index.html',
+ 'blog/unicef-internships-application-guide/index.html',
+ 'blog/unesco-internship-programme-guide/index.html']){
+   assert.ok(get(file).includes('ca-pub-1916126969266611'),file+' missing publisher script');
+ }
+ for(const file of ['api/public-opportunities.js','api/latest.js']){
+   assert.ok(get(file).includes('ca-pub-1916126969266611'),file+' missing dynamic page script');
+ }
+ // Private tracker preparation and admin pages are not general ad inventory.
+});
+
 test('expanded high-value guides retain indexability and official source references',()=>{
- for(const name of ['chevening-scholarship-application-guide','erasmus-mundus-joint-masters-application','undp-internships-application-guide']){
+ for(const name of ['chevening-scholarship-application-guide','erasmus-mundus-joint-masters-application','undp-internships-application-guide','unicef-internships-application-guide','unesco-internship-programme-guide']){
   const html=get('blog/'+name+'/index.html');
   const text=html.match(/<article class="article">([\s\S]*?)<\/article>/)?.[1]||'';
   assert.ok(text.replace(/<[^>]+>/g,' ').trim().split(/\s+/).length>=650,name+' too short');
