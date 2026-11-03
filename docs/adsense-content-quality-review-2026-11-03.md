@@ -49,6 +49,15 @@
 - The Ads.txt publisher authorization remains at one root-domain file `/ads.txt`; the matching AdSense JavaScript is in public page HTML. The private Application Studio and admin console are **not** intended as ad inventory.
 - Added regression checks for the homepage links, correct sitemap behaviour and AdSense script integration.
 
+## Follow-up on 3 November: six more researched guides
+
+- Expanded and restored **OECD internships**, **DAAD scholarships**, **MEXT Japan**, **Australia Awards**, **Commonwealth Master's**, and **Global Korea Scholarship (GKS)** guides using official provider requirements and current-cycle caveats.
+- These articles now contain comparisons, programme-specific eligibility or application-route checks, examples, and direct official-source links. Their original canonical URLs were kept and modification dates updated.
+- Added all six to the main sitemap. Total main sitemap entries: **55**.
+- **Nine** still-short programme guides remain `noindex,follow`. Their URLs remain available while they await substantial editorial updates.
+- Verified through the connected Gmail account that a message addressed to `privacy@oppmatcher.tech` was present in the inbox on **16 October 2026**. This confirms historical delivery to the connected Gmail inbox, not present-day end-to-end deliverability.
+- Google Search's fetch of the homepage showed the new public navigation, About and Contact, methodology, free checklist and trust-section links. Other page fetches were not reliably available through that external tool, so full per-URL HTTP and mobile checks remain necessary.
+
 ## Open work before another AdSense submission
 
 - **Do not re-request review yet.** Verify all newly published URLs work on production and that mobile navigation is usable without a login.
