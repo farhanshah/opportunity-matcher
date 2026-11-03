@@ -6,6 +6,22 @@
  if(!nav)return;
  const links=nav.querySelector('.blogNavLinks,.navlinks');
  if(!links||nav.querySelector('.omAuxMenu'))return;
+ // Keep helpful public destinations discoverable throughout the blog and privacy pages.
+ // No duplicates if a page already defines the link in its HTML.
+ const helpful=[
+   ['/tools/application-readiness','Free checklist'],
+   ['/blog/methodology/','How we verify'],
+   ['/about','About'],
+   ['/contact','Contact']
+ ];
+ helpful.forEach(([href,label])=>{
+   if(!links.querySelector('a[href="'+href+'"]')){
+     const a=document.createElement('a');
+     a.href=href;
+     a.textContent=label;
+     links.append(a);
+   }
+ });
  const menu=document.createElement('button');
  menu.type='button';menu.className='omAuxMenu';menu.textContent='Explore ▾';
  menu.setAttribute('aria-label','Explore site pages');
