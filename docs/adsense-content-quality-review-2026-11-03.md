@@ -82,10 +82,36 @@
 - Vercel reported `READY` for production at commit `f117e6ef06fd7fa538986fc33756bb3a9df799b5` after homepage link cleanup. GitHub Actions test conclusions and full mobile/browser HTTP checks are not independently confirmed.
 - **Do not resubmit AdSense automatically.** Review residual short articles, public opportunity content, actual user experience on mobile, and site-review instructions before confirming policy remediation.
 
+## 4 November 2026: Sitewide editorial follow-up and database safeguards
+
+**Public-facing outcome**
+
+- Audited all **55** article directories in the current repository. Rewrote six further practical guides: IELTS alternatives, UNICEF versus UNDP eligibility, internships after graduation, scholarship deadline planning, fake internship recruitment and UK international-graduate work rights.
+- Expanded the public <a href="/blog/methodology/">methodology</a> with the actual exact-vacancy publication criteria, last-check window, date handling, source hierarchy, explicit nationality restrictions, dated UNICEF examples, and correction process.
+- Temporarily marked **24** shorter, closely templated guides `noindex,follow`, placed a transparent editorial notice on each and linked readers to stronger topic guidance. None was deleted; canonical URLs were preserved.
+- Removed those 24 from the main public sitemap and from the blog directory. Removed the AdSense script from those low-value pages until reviewed. This follows Google's guidance against placing ads on pages with insufficient original content.
+- The blog now promotes **31 reviewed destinations**, including methodology. The main sitemap has **40 URL entries**. The separate automatically generated opportunity sitemap remains in place for current listings.
+- Verified all 55 article HTML files through repository checks in four batches: the 31 indexed pages have AdSense publisher code and public blog links; the 24 excluded pages have an editorial notice and no ad code; no page has a sitemap-versus-robots mismatch.
+- Dynamic historical or unverified vacancy pages now omit the AdSense publisher script when marked noindex.
+
+**Vacancy accuracy**
+
+- Read-only audit of live exact-vacancy records found 18 total on 4 November, with four blank FAO titles, one database record labelled open despite an expired deadline, and approximately eight records satisfying basic recent-verified, future-deadline, nonblank-title checks. These counts may change after subsequent discovery.
+- The existing public directory already filters out expired deadlines, stale verification and blank titles. Hardened the direct vacancy-detail page indexability rule to reject blank titles and invalid numeric provider IDs too.
+- Updated exact-vacancy ingestion to reject unusable source records (blank title, missing/past deadline, non-HTTPS source), record rejected-candidate counts, avoid treating malformed full inventories as definitive closures, and run deterministic deadline expiry even after a complete provider scan. This is deployed code, not a manual database cleanup; historical records may remain unchanged until another ingestion run.
+- Extended the existing ingestion and public SEO regression tests and included ingestion tests in the corresponding GitHub workflow.
+
+**Verification limits before AdSense resubmission**
+
+- Vercel reports `READY` for the latest production build. That confirms successful deployment but does not independently establish every page's HTTP response, a mobile browser's visual layout or GitHub Actions test conclusions.
+- External live fetch attempts for multiple `oppmatcher.tech` pages were inconclusive because this environment's web fetch could not retrieve them. The website must be reviewed on a real browser and preferably Search Console's live URL test before submitting a new AdSense review.
+- Google has not specified a minimum article count or guaranteed approval criteria. The user must assess any remaining account-level review prompts, mobile navigation and real page quality before checking “fixed” and requesting reconsideration.
+- No AdSense re-review has been submitted.
+
 ## Open work before another AdSense submission
 
 - **Do not re-request review yet.** Verify all newly published URLs work on production and that mobile navigation is usable without a login.
-- Review the remaining shorter articles (beyond the twenty expanded guides), prioritising meaningful examples and official evidence rather than word count or SEO keywords.
+- Keep the 24 temporarily excluded guides out of indexing and public ad inventory until they gain enough original, source-backed detail to be useful. Reintroduce them individually, with sitemap and blog links, after verification.
 - Check that the public contact mailbox works and that messages arrive at an inbox the site owner controls.
 - Confirm no unsupported "Open" statuses, old deadlines, or false funding/eligibility claims remain on public homepage, featured pages or directory pages.
 - Verify source-freshness automation continues to operate reliably and capture genuine user engagement after the content work.
