@@ -47,7 +47,32 @@ test('sitemap lists valuable public destinations and avoids temporarily excluded
  '/blog/undp-internships-application-guide/']){
    assert.ok(sitemap.includes('https://oppmatcher.tech'+url+'</loc>'),url);
  }
- const excluded=[];
+ const excluded=[
+ "chevening-work-experience-calculation",
+ "commonwealth-scholarship-nominating-agency",
+ "daad-vs-university-scholarship-germany",
+ "erasmus-mundus-course-catalogue-guide",
+ "fully-funded-vs-partially-funded-scholarships",
+ "international-internship-work-visa-requirements",
+ "internships-without-experience-portfolio",
+ "masters-scholarships-international-students-guide",
+ "msca-postdoctoral-mobility-rules",
+ "paid-vs-unpaid-internships-abroad",
+ "phd-fellowship-vs-research-grant",
+ "remote-internships-international-students",
+ "research-proposal-for-scholarship-guide",
+ "scholarship-country-eligibility-matching",
+ "scholarship-cv-format-for-students",
+ "scholarship-eligibility-nationality-rules",
+ "scholarship-essay-common-mistakes",
+ "scholarship-recommendation-letter-request",
+ "scholarships-students-with-disabilities",
+ "statement-of-purpose-vs-personal-statement",
+ "un-internship-application-checklist",
+ "undergraduate-scholarships-abroad-checklist",
+ "university-placement-year-internship-credit",
+ "us-graduate-assistantship-vs-fellowship"
+];
  for(const slug of excluded){
   const html=get('blog/'+slug+'/index.html');
   assert.match(html,/name="robots" content="noindex,follow"/,slug+' missing noindex');
@@ -111,6 +136,20 @@ test('all five formerly excluded guides now provide real source-backed content',
  }
 });
 
+test('public blog and sitemap promote only reviewed, indexable article destinations',()=>{
+ const blog=get('blog/index.html');
+ const sitemap=get('sitemap.xml');
+ assert.equal((blog.match(/class="blogCard"/g)||[]).length,31);
+ assert.equal((sitemap.match(/<loc>/g)||[]).length,40);
+ const methodology=get('blog/methodology/index.html');
+ assert.match(methodology,/name="robots" content="index,follow"/);
+ assert.match(methodology,/"dateModified":"2026-11-04"/);
+ assert.ok(methodology.includes('href="#method-current"'));
+ assert.ok(methodology.includes('last successful check must also be within'));
+ const listing=get('api/public-opportunities.js');
+ assert.ok(listing.includes("(index ? '<script async"),'Adsense code should be conditional on indexable vacancy status');
+});
+
 test('every public blog article has correct publisher script and sitemap matches its indexability',()=>{
  const sitemap=get('sitemap.xml');
  const blog=new URL('../blog/',import.meta.url);
@@ -120,9 +159,14 @@ test('every public blog article has correct publisher script and sitemap matches
   const path='blog/'+dir.name+'/index.html';
   const html=get(path);
   const url='https://oppmatcher.tech/blog/'+dir.name+'/';
-  assert.ok(html.includes('ca-pub-1916126969266611'),path+' missing public AdSense script');
   const excluded=/name="robots"\s+content="noindex(?:,follow)?"/i.test(html);
+  const hasAd=html.includes('ca-pub-1916126969266611');
+  assert.equal(hasAd,!excluded,path+' should only serve AdSense on reviewed/indexable guides');
   assert.equal(sitemap.includes('<loc>'+url+'</loc>'),!excluded,path+' sitemap should reflect robots status');
+  if(excluded){
+    assert.ok(html.includes('<b>Editorial review</b>'),path+' missing editorial notice');
+    assert.ok(!get('blog/index.html').includes('href="/blog/'+dir.name+'/"'),path+' promoted in blog index');
+  }
  }
 });
 
