@@ -156,11 +156,11 @@ test('six additional applicant guides have substantial examples and dated source
   'uk-internships-international-graduates','scholarship-application-deadline-tracker'];
  for(const name of names){
   const html=get('blog/'+name+'/index.html');
-  const article=html.match(/<article class="article">([\\s\\S]*?)<\\/article>/)?.[1]||'';
-  const words=article.replace(/<[^>]+>/g,' ').trim().split(/\\s+/).length;
+  const article=html.match(/<article class="article">([\s\S]*?)<\/article>/)?.[1]||'';
+  const words=article.replace(/<[^>]+>/g,' ').trim().split(/\s+/).length;
   assert.ok(words>=650,name+' needs more complete practical detail');
   assert.ok((article.match(/<table/g)||[]).length>=1,name+' must contain an application comparison');
-  assert.ok((article.match(/href="https:\\/\\//g)||[]).length>=1,name+' must refer to an official source');
+  assert.ok((article.match(/href="https:\/\//g)||[]).length>=1,name+' must refer to an official source');
   assert.match(html,/name="robots" content="index,follow"/);
   assert.match(html,/"dateModified":"2026-11-04"/);
  }
