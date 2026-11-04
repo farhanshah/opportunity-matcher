@@ -47,13 +47,7 @@ test('sitemap lists valuable public destinations and avoids temporarily excluded
  '/blog/undp-internships-application-guide/']){
    assert.ok(sitemap.includes('https://oppmatcher.tech'+url+'</loc>'),url);
  }
- const excluded=[
- 'gates-cambridge-scholarship-application',
- 'knight-hennessy-scholars-application',
- 'research-fellowships-uk-funding-guide',
- 'scholarship-interview-preparation-questions',
- 'scholarship-statement-of-purpose-examples'
-];
+ const excluded=[];
  for(const slug of excluded){
   const html=get('blog/'+slug+'/index.html');
   assert.match(html,/name="robots" content="noindex,follow"/,slug+' missing noindex');
@@ -99,6 +93,23 @@ test('expanded high-value guides retain indexability and official source referen
  }
 });
 
+
+test('all five formerly excluded guides now provide real source-backed content',()=>{
+ const names=['gates-cambridge-scholarship-application','knight-hennessy-scholars-application',
+ 'research-fellowships-uk-funding-guide','scholarship-interview-preparation-questions',
+ 'scholarship-statement-of-purpose-examples'];
+ const sitemap=get('sitemap.xml');
+ for(const name of names){
+   const html=get('blog/'+name+'/index.html');
+   const article=html.match(/<article class="article">([\s\S]*?)<\/article>/)?.[1]||'';
+   assert.match(html,/name="robots" content="index,follow"/,name);
+   assert.match(html,/"dateModified":"2026-11-04"/,name);
+   assert.ok(article.replace(/<[^>]+>/g,' ').trim().split(/\s+/).length>=650,name+' still thin');
+   assert.ok((article.match(/<table/g)||[]).length>=1,name+' missing comparison');
+   assert.ok((article.match(/href="https:\/\//g)||[]).length>=2,name+' lacks official citations');
+   assert.ok(sitemap.includes('<loc>https://oppmatcher.tech/blog/'+name+'/</loc>'),name+' not in sitemap');
+ }
+});
 
 test('every public blog article has correct publisher script and sitemap matches its indexability',()=>{
  const sitemap=get('sitemap.xml');
