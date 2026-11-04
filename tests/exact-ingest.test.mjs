@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { originFromRequest, authoritative } from '../lib/exact-ingest.js';
+import { originFromRequest, authoritative, usableExactOpening } from '../lib/exact-ingest.js';
 
 test('cron ingestion uses the public production domain, not protected deployment hostname', () => {
   const original=process.env.OPPMATCHER_PUBLIC_ORIGIN;
@@ -40,4 +40,19 @@ test('posting title rather than provider feed decides the vacancy category',asyn
  assert.equal(classifyExactVacancy({title:'Communications Intern'}),'Internship');
  assert.equal(classifyExactVacancy({title:'Graduate Fellowship'}),'Fellowship');
  assert.equal(classifyExactVacancy({title:'Policy Specialist'}),'Job');
+});
+
+test('only evidence-backed open postings with meaningful title and future deadline are ingestible',()=>{
+ const at=Date.parse('2026-11-04T12:00:00Z');
+ const valid={title:'Communications Intern',deadline:'2026-11-29T23:59:59Z',
+  url:'https://jobs.unicef.org/en-us/job/596670',status_verified:true,verification_level:'exact'};
+ assert.equal(usableExactOpening(valid,at),true);
+ assert.equal(usableExactOpening({...valid,title:'   '},at),false);
+ assert.equal(usableExactOpening({...valid,title:'Intern'},at),false);
+ assert.equal(usableExactOpening({...valid,deadline:'2026-11-03T23:59:59Z'},at),false);
+ assert.equal(usableExactOpening({...valid,deadline:null},at),false);
+ assert.equal(usableExactOpening({...valid,url:'http://jobs.unicef.org/job/596670'},at),false);
+ assert.equal(usableExactOpening({...valid,url:'javascript:alert(1)'},at),false);
+ assert.equal(usableExactOpening({...valid,status_verified:false},at),false);
+ assert.equal(usableExactOpening({...valid,verification_level:'board'},at),false);
 });
