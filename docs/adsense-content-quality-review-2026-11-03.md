@@ -70,10 +70,22 @@
 - The five pages still requiring substantive source-based editorial work are Gates Cambridge, Knight-Hennessy, UK research fellowships, scholarship interviews, and scholarship statement-of-purpose examples.
 - GitHub commits and Vercel production build status are separate from definitive live-device behaviour; perform browser and mobile checks before requesting another AdSense review.
 
+## 4 November 2026: Five-guide backlog completed
+
+- Expanded **Gates Cambridge**, **Knight-Hennessy Scholars**, **UK research fellowships**, **scholarship interview preparation**, and **statement of purpose examples** with programme-specific rules, evidence-based comparisons and direct references.
+- Preserved existing article URLs and enabled `index,follow` on the five updated pages. Added them to the main XML sitemap using 2026-11-04 as the actual modification date.
+- Updated the main blog listing and homepage links so those pages can be discovered through ordinary public navigation without a login.
+- The main sitemap now contains **64 URL entries**, including the restored articles. Across the **55 published guide directories**, none is deliberately marked `noindex` for the earlier short-template review.
+- Rechecked the five newly restored pages against repository HTML: all have AdSense publisher ID `ca-pub-1916126969266611`, at least two direct official-source links, at least one evidence comparison table, `index,follow`, a homepage link, current modification metadata, and a sitemap entry.
+- The previous complete cross-check found 55/55 article publisher scripts and no robots/sitemap contradictions; the final five were separately rechecked after changes.
+- **Caution:** Twenty of the 55 guides have received a substantive programme-specific expansion in this repair project. The others remain as previously written, and shorter articles may still need editorial improvement. Indexable does not guarantee quality or Google's decision to index.
+- Vercel reported `READY` for production at commit `f117e6ef06fd7fa538986fc33756bb3a9df799b5` after homepage link cleanup. GitHub Actions test conclusions and full mobile/browser HTTP checks are not independently confirmed.
+- **Do not resubmit AdSense automatically.** Review residual short articles, public opportunity content, actual user experience on mobile, and site-review instructions before confirming policy remediation.
+
 ## Open work before another AdSense submission
 
 - **Do not re-request review yet.** Verify all newly published URLs work on production and that mobile navigation is usable without a login.
-- Complete a second editorial pass on the other short articles, prioritising meaningful examples and official evidence rather than length or SEO keywords.
+- Review the remaining shorter articles (beyond the twenty expanded guides), prioritising meaningful examples and official evidence rather than word count or SEO keywords.
 - Check that the public contact mailbox works and that messages arrive at an inbox the site owner controls.
 - Confirm no unsupported "Open" statuses, old deadlines, or false funding/eligibility claims remain on public homepage, featured pages or directory pages.
 - Verify source-freshness automation continues to operate reliably and capture genuine user engagement after the content work.
