@@ -150,6 +150,22 @@ test('public blog and sitemap promote only reviewed, indexable article destinati
  assert.ok(listing.includes("(index ? '<script async"),'Adsense code should be conditional on indexable vacancy status');
 });
 
+test('six additional applicant guides have substantial examples and dated source evidence',()=>{
+ const names=['unicef-vs-undp-internships-comparison','internships-after-graduation-eligibility',
+  'scholarships-without-ielts-what-counts','fake-internship-offers-red-flags',
+  'uk-internships-international-graduates','scholarship-application-deadline-tracker'];
+ for(const name of names){
+  const html=get('blog/'+name+'/index.html');
+  const article=html.match(/<article class="article">([\\s\\S]*?)<\\/article>/)?.[1]||'';
+  const words=article.replace(/<[^>]+>/g,' ').trim().split(/\\s+/).length;
+  assert.ok(words>=650,name+' needs more complete practical detail');
+  assert.ok((article.match(/<table/g)||[]).length>=1,name+' must contain an application comparison');
+  assert.ok((article.match(/href="https:\\/\\//g)||[]).length>=1,name+' must refer to an official source');
+  assert.match(html,/name="robots" content="index,follow"/);
+  assert.match(html,/"dateModified":"2026-11-04"/);
+ }
+});
+
 test('every public blog article has correct publisher script and sitemap matches its indexability',()=>{
  const sitemap=get('sitemap.xml');
  const blog=new URL('../blog/',import.meta.url);
