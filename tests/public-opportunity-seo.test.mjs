@@ -16,6 +16,9 @@ test('only verified recent and unexpired postings are open',()=>{
   assert.equal(publishedState({...original,verification_level:'board'},now),'needs-recheck');
   assert.equal(publishedState({...original,last_verified_at:'2026-09-10T03:00:00Z'},now),'needs-recheck');
   assert.equal(publishedState({...original,deadline_at:null},now),'needs-recheck');
+  assert.equal(publishedState({...original,title:'  '},now),'needs-recheck');
+  assert.equal(publishedState({...original,provider_job_id:'invalid'},now),'needs-recheck');
+  assert.equal(publishedState({...original,provider:''},now),'needs-recheck');
 });
 test('expired postings keep a clear closed state even if database status remains open',()=>{
   assert.equal(publishedState({...original,deadline_at:'2026-10-21T23:59:59Z'},now),'closed');
