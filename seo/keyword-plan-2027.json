@@ -1,0 +1,2025 @@
+{
+  "source": "User's OppMatcher 360-keyword internal linking plan, dated 11 Nov 2026",
+  "audited_at": "2026-11-11",
+  "rows": 124,
+  "extracted_keyword_phrases": 366,
+  "unique_target_urls": 113,
+  "status_counts": {
+    "implemented": 90,
+    "requires-individual-source-verification": 22,
+    "unbuilt-evidence-gated": 12
+  },
+  "editorial_noindex_guide_count": 22,
+  "note": "Existing guide/page content was optimized by search intent. Not all secondary phrases should be repeated literally. No ranking, current opening, or eligibility is inferred.",
+  "mapping": [
+    {
+      "section": "1, 9",
+      "primary": "Scholarships for international students 2027",
+      "keywords": [
+        "Scholarships for international students 2027",
+        "Scholarships 2026–2027",
+        "International scholarships",
+        "Study abroad scholarships",
+        "University scholarships for international students",
+        "Free scholarships to study abroad",
+        "Government scholarships 2027",
+        "Scholarships without application fees",
+        "Verified scholarships for international students",
+        "OppMatcher scholarships"
+      ],
+      "targets": [
+        "/scholarships/"
+      ],
+      "target_text": "/scholarships/",
+      "plan_note": "New pillar",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "1",
+      "primary": "Fully funded scholarships 2027",
+      "keywords": [
+        "Fully funded scholarships 2027",
+        "Fully funded scholarships for international students",
+        "Scholarships covering tuition and living expenses",
+        "Scholarships covering airfare and accommodation",
+        "Scholarships with monthly stipends"
+      ],
+      "targets": [
+        "/blog/fully-funded-scholarships-international-students/"
+      ],
+      "target_text": "/blog/fully-funded-scholarships-international-students/",
+      "plan_note": "Existing guide; add a 2027 list section",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "1",
+      "primary": "Masters scholarships 2027",
+      "keywords": [
+        "Masters scholarships 2027",
+        "Fully funded Masters scholarships"
+      ],
+      "targets": [
+        "/scholarships/masters/"
+      ],
+      "target_text": "/scholarships/masters/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "1",
+      "primary": "PhD scholarships 2027",
+      "keywords": [
+        "PhD scholarships 2027",
+        "Fully funded PhD scholarships"
+      ],
+      "targets": [
+        "/scholarships/phd/"
+      ],
+      "target_text": "/scholarships/phd/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "1",
+      "primary": "Undergraduate scholarships 2027",
+      "keywords": [
+        "Undergraduate scholarships 2027",
+        "Bachelor degree scholarships abroad"
+      ],
+      "targets": [
+        "/scholarships/undergraduate/"
+      ],
+      "target_text": "/scholarships/undergraduate/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "1, 7",
+      "primary": "Scholarships without IELTS 2027",
+      "keywords": [
+        "Scholarships without IELTS 2027",
+        "Fully funded scholarships without IELTS",
+        "How to get a scholarship without IELTS",
+        "Alternatives to IELTS for scholarships",
+        "English proficiency certificate for scholarships",
+        "Scholarships accepting medium of instruction certificate"
+      ],
+      "targets": [
+        "/blog/scholarships-without-ielts-what-counts/"
+      ],
+      "target_text": "/blog/scholarships-without-ielts-what-counts/",
+      "plan_note": "Existing guide; one H2 per variant",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "1, 8",
+      "primary": "Scholarships for developing countries",
+      "keywords": [
+        "Scholarships for developing countries",
+        "Scholarships for low-income countries",
+        "Scholarships open to all nationalities",
+        "Scholarships with no age limit",
+        "Scholarships without work experience",
+        "Scholarships for recent graduates",
+        "Scholarships for international students with low GPA"
+      ],
+      "targets": [
+        "/scholarships/for/"
+      ],
+      "target_text": "/scholarships/for/",
+      "plan_note": "New hub (one page per audience later)",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "1, 9",
+      "primary": "Latest scholarships 2027",
+      "keywords": [
+        "Latest scholarships 2027",
+        "International scholarships open now",
+        "Scholarships currently accepting applications",
+        "Open scholarships today",
+        "Open fellowships today",
+        "New scholarships published today",
+        "Daily scholarship updates"
+      ],
+      "targets": [
+        "/latest",
+        "/latest/scholarships/",
+        "/latest/fellowships/"
+      ],
+      "target_text": "/latest, plus /latest/scholarships/ and /latest/fellowships/",
+      "plan_note": "Existing; clean URLs replace ?category= links",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "1, 7, 9",
+      "primary": "Scholarships with upcoming deadlines",
+      "keywords": [
+        "Scholarships with upcoming deadlines",
+        "Scholarship application deadlines 2027",
+        "Scholarships closing soon",
+        "International opportunities closing soon",
+        "Scholarship deadlines calendar 2027",
+        "Scholarships with verified application deadlines",
+        "Scholarship deadline reminder"
+      ],
+      "targets": [
+        "/deadlines/"
+      ],
+      "target_text": "/deadlines/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Scholarship application tracker",
+      "keywords": [
+        "Scholarship application tracker"
+      ],
+      "targets": [
+        "/blog/scholarship-application-deadline-tracker/"
+      ],
+      "target_text": "/blog/scholarship-application-deadline-tracker/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "1, 7, 9",
+      "primary": "Scholarship eligibility checker",
+      "keywords": [
+        "Scholarship eligibility checker",
+        "Free scholarship eligibility checker",
+        "University scholarship eligibility checker",
+        "Scholarship application readiness checker",
+        "Free internship application checklist",
+        "Free scholarship application tracker"
+      ],
+      "targets": [
+        "/tools/application-readiness"
+      ],
+      "target_text": "/tools/application-readiness",
+      "plan_note": "Existing tool",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "9",
+      "primary": "OppMatcher",
+      "keywords": [
+        "OppMatcher",
+        "OppMatcher opportunity finder",
+        "Scholarship and internship finder",
+        "International opportunity matcher",
+        "Fully funded scholarship finder",
+        "Scholarship search engine"
+      ],
+      "targets": [
+        "/"
+      ],
+      "target_text": "/ (homepage)",
+      "plan_note": "Existing",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "1, 9",
+      "primary": "Scholarship matching platform",
+      "keywords": [
+        "Scholarship matching platform",
+        "Scholarship matching website",
+        "Scholarship eligibility matching",
+        "Find scholarships based on eligibility",
+        "Find internships based on qualifications"
+      ],
+      "targets": [
+        "/how-it-works/"
+      ],
+      "target_text": "/how-it-works/",
+      "plan_note": "New; replaces the #how anchor",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "9",
+      "primary": "Official source scholarship database",
+      "keywords": [
+        "Official source scholarship database",
+        "Global scholarship database",
+        "Worldwide fellowship opportunities",
+        "Find global opportunities with official links"
+      ],
+      "targets": [
+        "/worldwide"
+      ],
+      "target_text": "/worldwide",
+      "plan_note": "Existing; server-render its lists",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "9",
+      "primary": "Scholarships by nationality",
+      "keywords": [
+        "Scholarships by nationality",
+        "Scholarships by country and degree level"
+      ],
+      "targets": [
+        "/scholarships/for/",
+        "/scholarships/countries/"
+      ],
+      "target_text": "/scholarships/for/ and /scholarships/countries/",
+      "plan_note": "New hubs",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Scholarships in UK for international students",
+      "keywords": [
+        "Scholarships in UK for international students",
+        "UK Masters scholarships 2027"
+      ],
+      "targets": [
+        "/scholarships/uk/"
+      ],
+      "target_text": "/scholarships/uk/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Scholarships in USA for international students 2027",
+      "keywords": [
+        "Scholarships in USA for international students 2027",
+        "Fully funded scholarships in USA"
+      ],
+      "targets": [
+        "/scholarships/usa/"
+      ],
+      "target_text": "/scholarships/usa/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Germany scholarships for international students",
+      "keywords": [
+        "Germany scholarships for international students",
+        "Scholarships in Germany without IELTS"
+      ],
+      "targets": [
+        "/scholarships/germany/"
+      ],
+      "target_text": "/scholarships/germany/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Scholarships in Japan 2027",
+      "keywords": [
+        "Scholarships in Japan 2027"
+      ],
+      "targets": [
+        "/scholarships/japan/"
+      ],
+      "target_text": "/scholarships/japan/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Japanese government scholarships",
+      "keywords": [
+        "Japanese government scholarships"
+      ],
+      "targets": [
+        "/blog/mext-japan-scholarships-embassy-route/"
+      ],
+      "target_text": "/blog/mext-japan-scholarships-embassy-route/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Scholarships in South Korea 2027",
+      "keywords": [
+        "Scholarships in South Korea 2027"
+      ],
+      "targets": [
+        "/scholarships/south-korea/"
+      ],
+      "target_text": "/scholarships/south-korea/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Australia scholarships for international students 2027",
+      "keywords": [
+        "Australia scholarships for international students 2027"
+      ],
+      "targets": [
+        "/scholarships/australia/"
+      ],
+      "target_text": "/scholarships/australia/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Fully funded scholarships in Canada",
+      "keywords": [
+        "Fully funded scholarships in Canada",
+        "Canada scholarships for international students 2027"
+      ],
+      "targets": [
+        "/scholarships/canada/"
+      ],
+      "target_text": "/scholarships/canada/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Scholarships in Italy for international students",
+      "keywords": [
+        "Scholarships in Italy for international students",
+        "Italy regional scholarships 2027",
+        "Scholarships in France",
+        "Scholarships in  Switzerland",
+        "Scholarships in  Sweden",
+        "Scholarships in  Finland",
+        "Scholarships in  Ireland",
+        "Scholarships in  Belgium",
+        "Scholarships in  Hungary",
+        "Scholarships in  Poland",
+        "Scholarships in  Lithuania",
+        "Netherlands scholarships for international students",
+        "Scholarships in Norway for international students"
+      ],
+      "targets": [
+        "/scholarships/europe/"
+      ],
+      "target_text": "/scholarships/europe/",
+      "plan_note": "New hub; split into country pages once a country has 3 or more spokes",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Fully funded scholarships in China",
+      "keywords": [
+        "Fully funded scholarships in China",
+        "Scholarships in New Zealand",
+        "Scholarships in  Singapore",
+        "Scholarships in  Malaysia",
+        "Scholarships in  Brunei",
+        "Scholarships in  Taiwan",
+        "Scholarships in  Hong Kong"
+      ],
+      "targets": [
+        "/scholarships/asia-pacific/"
+      ],
+      "target_text": "/scholarships/asia-pacific/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "2",
+      "primary": "Scholarships in Saudi Arabia",
+      "keywords": [
+        "Scholarships in Saudi Arabia",
+        "Scholarships in  Qatar",
+        "Scholarships in  UAE",
+        "Scholarships in  Türkiye"
+      ],
+      "targets": [
+        "/scholarships/middle-east/"
+      ],
+      "target_text": "/scholarships/middle-east/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Chevening Scholarship 2027",
+      "keywords": [
+        "Chevening Scholarship 2027",
+        "Chevening Scholarship requirements",
+        "Chevening Scholarship application process"
+      ],
+      "targets": [
+        "/blog/chevening-scholarship-application-guide/"
+      ],
+      "target_text": "/blog/chevening-scholarship-application-guide/",
+      "plan_note": "Existing guide; one H2 per variant",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Commonwealth Scholarship 2027/28",
+      "keywords": [
+        "Commonwealth Scholarship 2027/28"
+      ],
+      "targets": [
+        "/blog/commonwealth-masters-scholarship-guide/"
+      ],
+      "target_text": "/blog/commonwealth-masters-scholarship-guide/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Commonwealth Shared Scholarship 2027",
+      "keywords": [
+        "Commonwealth Shared Scholarship 2027"
+      ],
+      "targets": [
+        "/programmes/commonwealth-shared-scholarship/"
+      ],
+      "target_text": "/programmes/commonwealth-shared-scholarship/",
+      "plan_note": "New programme page (3 records in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Gates Cambridge Scholarship 2027",
+      "keywords": [
+        "Gates Cambridge Scholarship 2027"
+      ],
+      "targets": [
+        "/blog/gates-cambridge-scholarship-application/"
+      ],
+      "target_text": "/blog/gates-cambridge-scholarship-application/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Rhodes Scholarship 2027",
+      "keywords": [
+        "Rhodes Scholarship 2027"
+      ],
+      "targets": [
+        "/programmes/rhodes-scholarship/"
+      ],
+      "target_text": "/programmes/rhodes-scholarship/",
+      "plan_note": "New programme page (3 records in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Clarendon Scholarship Oxford 2027",
+      "keywords": [
+        "Clarendon Scholarship Oxford 2027",
+        "Reach Oxford Scholarship 2027",
+        "UCL Global Masters Scholarship",
+        "Warwick Chancellor's International Scholarship 2027",
+        "Mastercard Foundation University of Edinburgh Scholarship"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "3, 5",
+      "primary": "Erasmus Mundus Scholarship 2027",
+      "keywords": [
+        "Erasmus Mundus Scholarship 2027",
+        "Erasmus Mundus Joint Masters scholarships",
+        "Erasmus Mundus scholarship catalogue",
+        "Erasmus Mundus Fellowships"
+      ],
+      "targets": [
+        "/blog/erasmus-mundus-joint-masters-application/"
+      ],
+      "target_text": "/blog/erasmus-mundus-joint-masters-application/",
+      "plan_note": "Existing guide; add a catalogue H2",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "DAAD Scholarship 2027",
+      "keywords": [
+        "DAAD Scholarship 2027",
+        "DAAD scholarships for international students"
+      ],
+      "targets": [
+        "/blog/daad-scholarships-germany-guide/"
+      ],
+      "target_text": "/blog/daad-scholarships-germany-guide/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "DAAD EPOS Scholarship 2027",
+      "keywords": [
+        "DAAD EPOS Scholarship 2027"
+      ],
+      "targets": [
+        "/programmes/daad-epos-scholarship/"
+      ],
+      "target_text": "/programmes/daad-epos-scholarship/",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Fulbright Scholarship 2027",
+      "keywords": [
+        "Fulbright Scholarship 2027",
+        "Fulbright Foreign Student Program"
+      ],
+      "targets": [
+        "/programmes/fulbright-foreign-student-program/"
+      ],
+      "target_text": "/programmes/fulbright-foreign-student-program/",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Knight-Hennessy Scholarship 2027",
+      "keywords": [
+        "Knight-Hennessy Scholarship 2027",
+        "Stanford University scholarships 2027"
+      ],
+      "targets": [
+        "/blog/knight-hennessy-scholars-application/"
+      ],
+      "target_text": "/blog/knight-hennessy-scholars-application/",
+      "plan_note": "Existing guide; your guide notes the 2027 round is closed",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Schwarzman Scholars 2027",
+      "keywords": [
+        "Schwarzman Scholars 2027"
+      ],
+      "targets": [
+        "/blog/schwarzman-scholars-eligibility-application/"
+      ],
+      "target_text": "/blog/schwarzman-scholars-eligibility-application/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Swiss Government Excellence Scholarships 2027",
+      "keywords": [
+        "Swiss Government Excellence Scholarships 2027"
+      ],
+      "targets": [
+        "/programmes/swiss-government-excellence-scholarships/"
+      ],
+      "target_text": "/programmes/swiss-government-excellence-scholarships/",
+      "plan_note": "New programme page (in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "ETH Zurich ESOP Scholarship 2027",
+      "keywords": [
+        "ETH Zurich ESOP Scholarship 2027"
+      ],
+      "targets": [
+        "/programmes/eth-zurich-esop-scholarship/"
+      ],
+      "target_text": "/programmes/eth-zurich-esop-scholarship/",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Stipendium Hungaricum 2027",
+      "keywords": [
+        "Stipendium Hungaricum 2027"
+      ],
+      "targets": [
+        "/programmes/stipendium-hungaricum/"
+      ],
+      "target_text": "/programmes/stipendium-hungaricum/",
+      "plan_note": "New programme page (2 records in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Eiffel Excellence Scholarship 2027",
+      "keywords": [
+        "Eiffel Excellence Scholarship 2027"
+      ],
+      "targets": [
+        "/programmes/eiffel-excellence-scholarship/"
+      ],
+      "target_text": "/programmes/eiffel-excellence-scholarship/",
+      "plan_note": "New programme page (2 records in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Swedish Institute Scholarship 2027",
+      "keywords": [
+        "Swedish Institute Scholarship 2027",
+        "Maastricht University High Potential Scholarship 2027",
+        "Radboud Scholarship 2027",
+        "ARES Scholarship Belgium 2027",
+        "VLIR-UOS Scholarship 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "MEXT Scholarship 2027",
+      "keywords": [
+        "MEXT Scholarship 2027",
+        "MEXT Embassy Track Scholarship"
+      ],
+      "targets": [
+        "/blog/mext-japan-scholarships-embassy-route/"
+      ],
+      "target_text": "/blog/mext-japan-scholarships-embassy-route/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Global Korea Scholarship 2027",
+      "keywords": [
+        "Global Korea Scholarship 2027",
+        "GKS Scholarship 2027",
+        "GKS undergraduate scholarship",
+        "GKS graduate scholarship"
+      ],
+      "targets": [
+        "/blog/global-korea-scholarship-application/"
+      ],
+      "target_text": "/blog/global-korea-scholarship-application/",
+      "plan_note": "Existing guide; undergraduate and graduate H2s",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "KAIST Scholarship 2027",
+      "keywords": [
+        "KAIST Scholarship 2027",
+        "GIST Scholarship 2027",
+        "KAUST Scholarship 2027",
+        "SINGA Scholarship 2027",
+        "Doha Institute Scholarship 2027",
+        "Hamad Bin Khalifa University Scholarship 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Australia Awards Scholarship 2027",
+      "keywords": [
+        "Australia Awards Scholarship 2027"
+      ],
+      "targets": [
+        "/blog/australia-awards-scholarships-guide/"
+      ],
+      "target_text": "/blog/australia-awards-scholarships-guide/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "Joint Japan World Bank Scholarship 2027",
+      "keywords": [
+        "Joint Japan World Bank Scholarship 2027"
+      ],
+      "targets": [
+        "/programmes/joint-japan-world-bank-scholarship/"
+      ],
+      "target_text": "/programmes/joint-japan-world-bank-scholarship/",
+      "plan_note": "New programme page (in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "ADB Japan Scholarship 2027",
+      "keywords": [
+        "ADB Japan Scholarship 2027",
+        "Mastercard Foundation Scholars Program 2027",
+        "Lester B Pearson Scholarship 2027",
+        "UBC International Scholars Program 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "3, 5",
+      "primary": "Rotary Peace Fellowship 2027 (also \"Rotary Peace Fellowship\" in S5)",
+      "keywords": [
+        "Rotary Peace Fellowship 2027 (also \"Rotary Peace Fellowship\" in S5)"
+      ],
+      "targets": [
+        "/programmes/rotary-peace-fellowship/"
+      ],
+      "target_text": "/programmes/rotary-peace-fellowship/",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "3",
+      "primary": "University of Miami Stamps Scholarship 2027",
+      "keywords": [
+        "University of Miami Stamps Scholarship 2027",
+        "Coca-Cola Scholars Program 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; check international eligibility first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "4, 9",
+      "primary": "International internships 2027",
+      "keywords": [
+        "International internships 2027",
+        "Summer internships 2027",
+        "Winter internships 2027",
+        "Internships open to all nationalities",
+        "Internships without experience",
+        "Internships without IELTS",
+        "OppMatcher internships"
+      ],
+      "targets": [
+        "/internships/"
+      ],
+      "target_text": "/internships/",
+      "plan_note": "New pillar",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "Internships abroad for students",
+      "keywords": [
+        "Internships abroad for students",
+        "Internships abroad with visa sponsorship"
+      ],
+      "targets": [
+        "/blog/international-internships-graduate-placements/"
+      ],
+      "target_text": "/blog/international-internships-graduate-placements/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "Internship opportunities for fresh graduates",
+      "keywords": [
+        "Internship opportunities for fresh graduates"
+      ],
+      "targets": [
+        "/blog/internships-after-graduation-eligibility/"
+      ],
+      "target_text": "/blog/internships-after-graduation-eligibility/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4, 9",
+      "primary": "Verified international internship opportunities",
+      "keywords": [
+        "Verified international internship opportunities",
+        "Latest official internship vacancies",
+        "Open internships today"
+      ],
+      "targets": [
+        "/opportunities/internships"
+      ],
+      "target_text": "/opportunities/internships",
+      "plan_note": "Existing; link it from the pillar",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "Fully funded internships 2027",
+      "keywords": [
+        "Fully funded internships 2027",
+        "Paid internships for international students",
+        "Internships with accommodation",
+        "Internships with travel allowance",
+        "Internships with monthly stipend"
+      ],
+      "targets": [
+        "/internships/paid/"
+      ],
+      "target_text": "/internships/paid/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "Remote internships 2027",
+      "keywords": [
+        "Remote internships 2027",
+        "Remote paid internships"
+      ],
+      "targets": [
+        "/internships/remote/"
+      ],
+      "target_text": "/internships/remote/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "Summer research internships 2027",
+      "keywords": [
+        "Summer research internships 2027",
+        "Fully funded research internships",
+        "ESA Student Internship Programme"
+      ],
+      "targets": [
+        "/internships/research-summer/"
+      ],
+      "target_text": "/internships/research-summer/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4, 6",
+      "primary": "CERN Summer Student Program 2027",
+      "keywords": [
+        "CERN Summer Student Program 2027",
+        "CERN Openlab Summer Student Program 2027 (also \"CERN Summer Student Programme 2027\" in S6)"
+      ],
+      "targets": [
+        "/programmes/cern-summer-student-programme/"
+      ],
+      "target_text": "/programmes/cern-summer-student-programme/",
+      "plan_note": "New programme page (CERN records in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "EPFL Summer Internship 2027",
+      "keywords": [
+        "EPFL Summer Internship 2027",
+        "Max Planck Internship 2027",
+        "RIKEN CBS Summer Program 2027",
+        "Kyoto University Amgen Scholars 2027",
+        "NUS Amgen Scholars Program 2027",
+        "UTokyo Amgen Scholars Program 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "Google Summer of Code 2027",
+      "keywords": [
+        "Google Summer of Code 2027",
+        "Google internships for students",
+        "Microsoft internships for international students",
+        "Amazon internships 2027",
+        "Tesla internships 2027",
+        "HENNGE Global Internship 2027"
+      ],
+      "targets": [
+        "/internships/tech/",
+        "/programmes/"
+      ],
+      "target_text": "/internships/tech/ hub, one /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "United Nations internships 2027",
+      "keywords": [
+        "United Nations internships 2027",
+        "UN paid internships"
+      ],
+      "targets": [
+        "/internships/united-nations/"
+      ],
+      "target_text": "/internships/united-nations/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4, 7",
+      "primary": "UNICEF Internship Programme 2027",
+      "keywords": [
+        "UNICEF Internship Programme 2027",
+        "UNICEF paid internship",
+        "UNICEF remote internship",
+        "UNICEF internship application process"
+      ],
+      "targets": [
+        "/blog/unicef-internships-application-guide/"
+      ],
+      "target_text": "/blog/unicef-internships-application-guide/",
+      "plan_note": "Existing guide; one H2 per variant",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "UNDP Internship 2027",
+      "keywords": [
+        "UNDP Internship 2027",
+        "UNDP paid internships"
+      ],
+      "targets": [
+        "/blog/undp-internships-application-guide/"
+      ],
+      "target_text": "/blog/undp-internships-application-guide/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "UNHCR Internship 2027",
+      "keywords": [
+        "UNHCR Internship 2027"
+      ],
+      "targets": [
+        "/blog/unhcr-internships-guide/"
+      ],
+      "target_text": "/blog/unhcr-internships-guide/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "UNESCO Internship Programme 2027",
+      "keywords": [
+        "UNESCO Internship Programme 2027"
+      ],
+      "targets": [
+        "/blog/unesco-internship-programme-guide/"
+      ],
+      "target_text": "/blog/unesco-internship-programme-guide/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "WHO Internship Programme",
+      "keywords": [
+        "WHO Internship Programme"
+      ],
+      "targets": [
+        "/blog/who-internships-guide/"
+      ],
+      "target_text": "/blog/who-internships-guide/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "WFP Internship Programme 2027",
+      "keywords": [
+        "WFP Internship Programme 2027",
+        "FAO Internship Programme 2027",
+        "UNOPS internships",
+        "UNFPA internships",
+        "UN Women internships"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "OECD Internship Programme 2027",
+      "keywords": [
+        "OECD Internship Programme 2027"
+      ],
+      "targets": [
+        "/blog/oecd-internship-programme-guide/"
+      ],
+      "target_text": "/blog/oecd-internship-programme-guide/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "World Bank Internship 2027",
+      "keywords": [
+        "World Bank Internship 2027",
+        "World Bank Summer Internship",
+        "Asian Development Bank Internship Program",
+        "IMF Internship Program 2027"
+      ],
+      "targets": [
+        "/internships/international-organisations/",
+        "/programmes/"
+      ],
+      "target_text": "/internships/international-organisations/ hub, one /programmes/<name>/ page each",
+      "plan_note": "New (ADB and World Bank records in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "World Bank Treasury Summer Internship",
+      "keywords": [
+        "World Bank Treasury Summer Internship"
+      ],
+      "targets": [
+        "/programmes/world-bank-treasury-summer-internship/"
+      ],
+      "target_text": "/programmes/world-bank-treasury-summer-internship/",
+      "plan_note": "New programme page (in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "Summer internships in Europe 2027",
+      "keywords": [
+        "Summer internships in Europe 2027",
+        "Paid internships in Switzerland",
+        "Research internships in Germany"
+      ],
+      "targets": [
+        "/internships/europe/"
+      ],
+      "target_text": "/internships/europe/",
+      "plan_note": "New hub (phase 3)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "4",
+      "primary": "Internships in Japan for foreigners",
+      "keywords": [
+        "Internships in Japan for foreigners"
+      ],
+      "targets": [
+        "/internships/japan/"
+      ],
+      "target_text": "/internships/japan/",
+      "plan_note": "New hub (phase 3)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "5, 9",
+      "primary": "Fully funded fellowships 2027",
+      "keywords": [
+        "Fully funded fellowships 2027",
+        "International fellowships 2027",
+        "Fellowships for international students",
+        "Fellowships for young professionals",
+        "Fellowships without IELTS",
+        "Fellowships without work experience",
+        "Fellowships with visa sponsorship",
+        "Fellowships open to all nationalities",
+        "OppMatcher fellowships"
+      ],
+      "targets": [
+        "/fellowships/"
+      ],
+      "target_text": "/fellowships/",
+      "plan_note": "New pillar",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "Paid research fellowships",
+      "keywords": [
+        "Paid research fellowships",
+        "Research fellowships abroad",
+        "Postdoctoral fellowships 2027"
+      ],
+      "targets": [
+        "/fellowships/research/"
+      ],
+      "target_text": "/fellowships/research/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "MSCA Postdoctoral Fellowships 2027",
+      "keywords": [
+        "MSCA Postdoctoral Fellowships 2027",
+        "Marie Skłodowska-Curie Fellowships"
+      ],
+      "targets": [
+        "/blog/marie-curie-postdoctoral-fellowships-guide/"
+      ],
+      "target_text": "/blog/marie-curie-postdoctoral-fellowships-guide/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "Newton International Fellowship",
+      "keywords": [
+        "Newton International Fellowship"
+      ],
+      "targets": [
+        "/programmes/newton-international-fellowship/"
+      ],
+      "target_text": "/programmes/newton-international-fellowship/",
+      "plan_note": "New programme page (in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "Humboldt Research Fellowship",
+      "keywords": [
+        "Humboldt Research Fellowship",
+        "Humboldt Fellowship Germany"
+      ],
+      "targets": [
+        "/programmes/humboldt-research-fellowship/"
+      ],
+      "target_text": "/programmes/humboldt-research-fellowship/",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "Rockefeller University Summer Fellowship 2027",
+      "keywords": [
+        "Rockefeller University Summer Fellowship 2027",
+        "Global Burden of Disease Fellowship 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "Leadership fellowships 2027",
+      "keywords": [
+        "Leadership fellowships 2027",
+        "Global leadership fellowships",
+        "Women leadership fellowships"
+      ],
+      "targets": [
+        "/fellowships/leadership/"
+      ],
+      "target_text": "/fellowships/leadership/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "Yale World Fellows 2027",
+      "keywords": [
+        "Yale World Fellows 2027",
+        "Harvard Radcliffe Fellowship 2027",
+        "Harvard LEAD Fellowship 2027",
+        "Asia Foundation Development Fellows 2027",
+        "MCW Young Leaders Fellowship 2027",
+        "Maurice R Greenberg World Fellows Program",
+        "Commonwealth Startup Fellowship",
+        "Anzisha Fellowship 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "Public policy fellowships 2027",
+      "keywords": [
+        "Public policy fellowships 2027",
+        "AI research fellowships 2027",
+        "AI governance fellowships",
+        "Climate change fellowships",
+        "Environmental fellowships 2027",
+        "Journalism fellowships 2027",
+        "Human rights fellowships"
+      ],
+      "targets": [
+        "/fellowships/policy-and-ai/"
+      ],
+      "target_text": "/fellowships/policy-and-ai/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "GovAI Summer Fellowship 2027",
+      "keywords": [
+        "GovAI Summer Fellowship 2027",
+        "GovAI Winter Fellowship 2027"
+      ],
+      "targets": [
+        "/programmes/govai-fellowship/"
+      ],
+      "target_text": "/programmes/govai-fellowship/",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "FASPE Fellowship 2027",
+      "keywords": [
+        "FASPE Fellowship 2027",
+        "World Bank Government Analytics Fellowship 2027",
+        "IWA Grundfos SDG 6 Fellowship 2027",
+        "UN Journalism Fellowship 2027",
+        "Impact AI Fellowship 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "5",
+      "primary": "Rotary Peace Fellowship",
+      "keywords": [
+        "Rotary Peace Fellowship",
+        "Erasmus Mundus Fellowships"
+      ],
+      "targets": [],
+      "target_text": "See the S3 rows for Rotary Peace and Erasmus Mundus",
+      "plan_note": "One page each, no duplicates",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "6",
+      "primary": "Fully funded exchange programs 2027",
+      "keywords": [
+        "Fully funded exchange programs 2027",
+        "Student exchange programs abroad",
+        "Cultural exchange programs 2027",
+        "International youth exchange programs"
+      ],
+      "targets": [
+        "/exchange-programs/"
+      ],
+      "target_text": "/exchange-programs/",
+      "plan_note": "New pillar",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "6",
+      "primary": "Global UGRAD Program",
+      "keywords": [
+        "Global UGRAD Program",
+        "SUSI Exchange Program 2027",
+        "YSEALI Professional Fellows Program",
+        "Community Solutions Program 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New (UGRAD and Community Solutions records in /latest)",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "6",
+      "primary": "Erasmus Plus youth exchange",
+      "keywords": [
+        "Erasmus Plus youth exchange",
+        "Erasmus Plus funded training"
+      ],
+      "targets": [
+        "/programmes/erasmus-plus/"
+      ],
+      "target_text": "/programmes/erasmus-plus/",
+      "plan_note": "New; separate from the Erasmus Mundus guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "6",
+      "primary": "Fully funded summer schools 2027",
+      "keywords": [
+        "Fully funded summer schools 2027",
+        "Summer schools in Europe 2027",
+        "Summer research programs 2027",
+        "Fully funded winter schools 2027"
+      ],
+      "targets": [
+        "/exchange-programs/summer-schools/"
+      ],
+      "target_text": "/exchange-programs/summer-schools/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "6",
+      "primary": "Stanford Summer Research Program 2027",
+      "keywords": [
+        "Stanford Summer Research Program 2027",
+        "MIT Summer Research Program 2027",
+        "Caltech Summer Research Program 2027",
+        "UNIL Summer Research Program 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "6",
+      "primary": "CERN Summer Student Programme 2027",
+      "keywords": [
+        "CERN Summer Student Programme 2027"
+      ],
+      "targets": [
+        "/programmes/cern-summer-student-programme/"
+      ],
+      "target_text": "/programmes/cern-summer-student-programme/ (see S4)",
+      "plan_note": "One page for S4 and S6",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "6",
+      "primary": "International youth summits 2027",
+      "keywords": [
+        "International youth summits 2027",
+        "Fully funded youth conferences",
+        "International leadership conferences 2027",
+        "Youth leadership programs abroad",
+        "Fully funded conferences with airfare",
+        "Global youth forums 2027",
+        "International youth conferences with no application fee"
+      ],
+      "targets": [
+        "/exchange-programs/youth-conferences/"
+      ],
+      "target_text": "/exchange-programs/youth-conferences/",
+      "plan_note": "New hub",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "6",
+      "primary": "One Young World Scholarships",
+      "keywords": [
+        "One Young World Scholarships",
+        "One Young World Summit 2027",
+        "Korean Winter Culture Camp 2027",
+        "APFSD Youth Forum 2027",
+        "IRENA Youth Forum 2027"
+      ],
+      "targets": [
+        "/programmes/"
+      ],
+      "target_text": "One /programmes/<name>/ page each (One Young World shares one page)",
+      "plan_note": "New; verify first",
+      "status": "requires-individual-source-verification",
+      "missing": []
+    },
+    {
+      "section": "6",
+      "primary": "International volunteering opportunities",
+      "keywords": [
+        "International volunteering opportunities",
+        "United Nations volunteer opportunities",
+        "UN Volunteers online volunteering"
+      ],
+      "targets": [
+        "/exchange-programs/volunteering/",
+        "/programmes/un-volunteers/"
+      ],
+      "target_text": "/exchange-programs/volunteering/ hub, with /programmes/un-volunteers/",
+      "plan_note": "New",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "How to apply for fully funded scholarships",
+      "keywords": [
+        "How to apply for fully funded scholarships",
+        "How to find scholarships for international students"
+      ],
+      "targets": [
+        "/blog/fully-funded-scholarships-international-students/"
+      ],
+      "target_text": "/blog/fully-funded-scholarships-international-students/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "How to win a scholarship abroad",
+      "keywords": [
+        "How to win a scholarship abroad",
+        "Scholarship application process step by step"
+      ],
+      "targets": [
+        "/blog/scholarship-application-process-step-by-step/"
+      ],
+      "target_text": "/blog/scholarship-application-process-step-by-step/",
+      "plan_note": "New guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Scholarship eligibility requirements",
+      "keywords": [
+        "Scholarship eligibility requirements"
+      ],
+      "targets": [
+        "/blog/scholarship-eligibility-checklist/"
+      ],
+      "target_text": "/blog/scholarship-eligibility-checklist/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Scholarship application documents",
+      "keywords": [
+        "Scholarship application documents",
+        "Scholarship application checklist"
+      ],
+      "targets": [
+        "/blog/scholarship-application-documents/"
+      ],
+      "target_text": "/blog/scholarship-application-documents/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Scholarship CV template",
+      "keywords": [
+        "Scholarship CV template"
+      ],
+      "targets": [
+        "/blog/scholarship-cv-template/"
+      ],
+      "target_text": "/blog/scholarship-cv-template/",
+      "plan_note": "New guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Scholarship recommendation letter",
+      "keywords": [
+        "Scholarship recommendation letter",
+        "Scholarship reference letter sample"
+      ],
+      "targets": [
+        "/blog/scholarship-recommendation-letter-sample/"
+      ],
+      "target_text": "/blog/scholarship-recommendation-letter-sample/",
+      "plan_note": "New guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Statement of purpose for scholarship",
+      "keywords": [
+        "Statement of purpose for scholarship",
+        "Scholarship personal statement examples"
+      ],
+      "targets": [
+        "/blog/scholarship-statement-of-purpose-examples/"
+      ],
+      "target_text": "/blog/scholarship-statement-of-purpose-examples/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Scholarship motivation letter",
+      "keywords": [
+        "Scholarship motivation letter",
+        "Motivation letter for scholarship sample"
+      ],
+      "targets": [
+        "/blog/scholarship-motivation-letter-sample/"
+      ],
+      "target_text": "/blog/scholarship-motivation-letter-sample/",
+      "plan_note": "New guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Scholarship essay examples",
+      "keywords": [
+        "Scholarship essay examples"
+      ],
+      "targets": [
+        "/blog/scholarship-essay-examples/"
+      ],
+      "target_text": "/blog/scholarship-essay-examples/",
+      "plan_note": "New guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "How to write a research proposal for scholarship",
+      "keywords": [
+        "How to write a research proposal for scholarship"
+      ],
+      "targets": [
+        "/blog/scholarship-research-proposal/"
+      ],
+      "target_text": "/blog/scholarship-research-proposal/",
+      "plan_note": "New guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Scholarship interview questions",
+      "keywords": [
+        "Scholarship interview questions",
+        "Scholarship interview preparation"
+      ],
+      "targets": [
+        "/blog/scholarship-interview-preparation-questions/"
+      ],
+      "target_text": "/blog/scholarship-interview-preparation-questions/",
+      "plan_note": "Existing guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "How to apply for Erasmus Mundus Scholarship",
+      "keywords": [
+        "How to apply for Erasmus Mundus Scholarship",
+        "How to apply for DAAD Scholarship",
+        "How to apply for Chevening Scholarship"
+      ],
+      "targets": [],
+      "target_text": "The Erasmus Mundus, DAAD and Chevening guides from the S3 table",
+      "plan_note": "Existing guides; put \"How to apply\" in an H2",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "How to write a Chevening leadership essay",
+      "keywords": [
+        "How to write a Chevening leadership essay",
+        "How to write a Chevening networking essay"
+      ],
+      "targets": [
+        "/blog/chevening-leadership-essay/",
+        "/blog/chevening-networking-essay/"
+      ],
+      "target_text": "/blog/chevening-leadership-essay/ and /blog/chevening-networking-essay/",
+      "plan_note": "New guides",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Chevening Scholarship interview questions",
+      "keywords": [
+        "Chevening Scholarship interview questions"
+      ],
+      "targets": [
+        "/blog/chevening-interview-questions/"
+      ],
+      "target_text": "/blog/chevening-interview-questions/",
+      "plan_note": "New guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "How to verify a scholarship is genuine",
+      "keywords": [
+        "How to verify a scholarship is genuine",
+        "Scholarship scams to avoid"
+      ],
+      "targets": [
+        "/blog/scholarship-scams-how-to-verify/"
+      ],
+      "target_text": "/blog/scholarship-scams-how-to-verify/",
+      "plan_note": "New guide; link to your fake-internship guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "How to apply for UN internships",
+      "keywords": [
+        "How to apply for UN internships",
+        "UN internship application requirements"
+      ],
+      "targets": [
+        "/blog/un-internship-application-checklist/"
+      ],
+      "target_text": "/blog/un-internship-application-checklist/",
+      "plan_note": "Existing guide; add it to the blog index",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "Internship cover letter examples",
+      "keywords": [
+        "Internship cover letter examples",
+        "Internship CV for students"
+      ],
+      "targets": [
+        "/blog/internship-cover-letter-examples/",
+        "/blog/internship-cv-for-students/"
+      ],
+      "target_text": "/blog/internship-cover-letter-examples/ and /blog/internship-cv-for-students/",
+      "plan_note": "New guides",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "7",
+      "primary": "How to get an internship abroad without experience",
+      "keywords": [
+        "How to get an internship abroad without experience"
+      ],
+      "targets": [
+        "/blog/internship-abroad-without-experience/"
+      ],
+      "target_text": "/blog/internship-abroad-without-experience/",
+      "plan_note": "New guide",
+      "status": "implemented",
+      "missing": []
+    },
+    {
+      "section": "8",
+      "primary": "Scholarships for Pakistani students 2027",
+      "keywords": [
+        "Scholarships for Pakistani students 2027",
+        "Scholarships for Nigerian students 2027",
+        "Scholarships for Indian students 2027",
+        "Scholarships for Bangladeshi students",
+        "Scholarships for Nepali students",
+        "Fully funded scholarships for African students"
+      ],
+      "targets": [
+        "/scholarships/for/",
+        "/scholarships/for/pakistani-students/"
+      ],
+      "target_text": "One page each under /scholarships/for/, for example /scholarships/for/pakistani-students/",
+      "plan_note": "New; link your nationality guide /blog/scholarship-eligibility-nationality-rules/ from each",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/for/pakistani-students/"
+      ]
+    },
+    {
+      "section": "1, 8",
+      "primary": "Scholarships for international students from developing countries (and the S1 developing-countries and low-income keywords)",
+      "keywords": [
+        "Scholarships for international students from developing countries (and the S1 developing-countries and low-income keywords)"
+      ],
+      "targets": [
+        "/scholarships/for/developing-countries/"
+      ],
+      "target_text": "/scholarships/for/developing-countries/",
+      "plan_note": "New",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/for/developing-countries/"
+      ]
+    },
+    {
+      "section": "1",
+      "primary": "Scholarships open to all nationalities",
+      "keywords": [
+        "Scholarships open to all nationalities",
+        "Scholarships with no age limit",
+        "Scholarships without work experience",
+        "Scholarships for recent graduates",
+        "Scholarships for international students with low GPA"
+      ],
+      "targets": [
+        "/scholarships/for/all-nationalities/"
+      ],
+      "target_text": "/scholarships/for/all-nationalities/, no-age-limit/, no-work-experience/, recent-graduates/, low-gpa/",
+      "plan_note": "New, one page each when it has 5 or more programmes",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/for/all-nationalities/"
+      ]
+    },
+    {
+      "section": "8",
+      "primary": "Scholarships for women in STEM",
+      "keywords": [
+        "Scholarships for women in STEM",
+        "Scholarships for female students"
+      ],
+      "targets": [
+        "/scholarships/for/women/"
+      ],
+      "target_text": "/scholarships/for/women/",
+      "plan_note": "New",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/for/women/"
+      ]
+    },
+    {
+      "section": "8",
+      "primary": "Scholarships for students with disabilities",
+      "keywords": [
+        "Scholarships for students with disabilities"
+      ],
+      "targets": [
+        "/scholarships/for/students-with-disabilities/"
+      ],
+      "target_text": "/scholarships/for/students-with-disabilities/",
+      "plan_note": "New",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/for/students-with-disabilities/"
+      ]
+    },
+    {
+      "section": "8",
+      "primary": "Scholarships for teachers",
+      "keywords": [
+        "Scholarships for teachers",
+        "Scholarships for working professionals"
+      ],
+      "targets": [
+        "/scholarships/for/teachers/",
+        "/scholarships/for/working-professionals/"
+      ],
+      "target_text": "/scholarships/for/teachers/ and /scholarships/for/working-professionals/",
+      "plan_note": "New",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/for/teachers/",
+        "/scholarships/for/working-professionals/"
+      ]
+    },
+    {
+      "section": "8",
+      "primary": "Scholarships for engineering students",
+      "keywords": [
+        "Scholarships for engineering students"
+      ],
+      "targets": [
+        "/scholarships/subject/engineering/"
+      ],
+      "target_text": "/scholarships/subject/engineering/",
+      "plan_note": "New",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/subject/engineering/"
+      ]
+    },
+    {
+      "section": "8",
+      "primary": "Computer science scholarships 2027",
+      "keywords": [
+        "Computer science scholarships 2027",
+        "IT scholarships for international students",
+        "Artificial intelligence scholarships",
+        "Data science scholarships 2027"
+      ],
+      "targets": [
+        "/scholarships/subject/technology/"
+      ],
+      "target_text": "/scholarships/subject/technology/",
+      "plan_note": "New; one page until each topic has 5 programmes",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/subject/technology/"
+      ]
+    },
+    {
+      "section": "8",
+      "primary": "Public health scholarships 2027",
+      "keywords": [
+        "Public health scholarships 2027",
+        "Medicine scholarships abroad",
+        "Nursing scholarships for international students"
+      ],
+      "targets": [
+        "/scholarships/subject/health/"
+      ],
+      "target_text": "/scholarships/subject/health/",
+      "plan_note": "New",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/subject/health/"
+      ]
+    },
+    {
+      "section": "8",
+      "primary": "Business management scholarships",
+      "keywords": [
+        "Business management scholarships",
+        "MBA scholarships 2027"
+      ],
+      "targets": [
+        "/scholarships/subject/business/"
+      ],
+      "target_text": "/scholarships/subject/business/",
+      "plan_note": "New",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/subject/business/"
+      ]
+    },
+    {
+      "section": "8",
+      "primary": "Agriculture scholarships 2027",
+      "keywords": [
+        "Agriculture scholarships 2027",
+        "Environmental science scholarships"
+      ],
+      "targets": [
+        "/scholarships/subject/environment-agriculture/"
+      ],
+      "target_text": "/scholarships/subject/environment-agriculture/",
+      "plan_note": "New",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/subject/environment-agriculture/"
+      ]
+    },
+    {
+      "section": "8",
+      "primary": "Law scholarships for international students",
+      "keywords": [
+        "Law scholarships for international students"
+      ],
+      "targets": [
+        "/scholarships/subject/law/"
+      ],
+      "target_text": "/scholarships/subject/law/",
+      "plan_note": "New",
+      "status": "unbuilt-evidence-gated",
+      "missing": [
+        "/scholarships/subject/law/"
+      ]
+    }
+  ]
+}

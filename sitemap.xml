@@ -1,112 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://oppmatcher.tech/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/latest</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/opportunities</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/worldwide</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/tools/application-readiness</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/about</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/contact</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/privacy</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/how-it-works/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/deadlines/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/internships/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/fellowships/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/exchange-programs/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/uk/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/germany/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/japan/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/south-korea/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/australia/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/masters/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/phd/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/undergraduate/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/for/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/scholarships/countries/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/internships/united-nations/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/internships/paid/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/internships/remote/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/internships/international-organisations/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/internships/research-summer/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/fellowships/research/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/fellowships/leadership/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/exchange-programs/summer-schools/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/exchange-programs/youth-conferences/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/rhodes-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/eiffel-excellence-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/stipendium-hungaricum/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/swiss-government-excellence-scholarships/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/commonwealth-shared-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/joint-japan-world-bank-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/cern-summer-student-programme/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/adb-internship-programme/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/world-bank-treasury-summer-internship/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/programmes/newton-international-fellowship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/australia-awards-scholarships-guide/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/chevening-interview-questions/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/chevening-leadership-essay/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/chevening-networking-essay/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/chevening-scholarship-application-guide/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/chevening-work-experience-calculation/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/commonwealth-masters-scholarship-guide/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/commonwealth-scholarship-nominating-agency/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/daad-scholarships-germany-guide/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/daad-vs-university-scholarship-germany/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/erasmus-mundus-course-catalogue-guide/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/erasmus-mundus-joint-masters-application/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/fake-internship-offers-red-flags/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/fully-funded-scholarships-international-students/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/fully-funded-vs-partially-funded-scholarships/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/gates-cambridge-scholarship-application/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/global-korea-scholarship-application/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/international-internship-work-visa-requirements/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/international-internships-graduate-placements/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/internship-abroad-without-experience/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/internship-cover-letter-examples/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/internship-cv-for-students/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/internships-after-graduation-eligibility/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/internships-without-experience-portfolio/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/knight-hennessy-scholars-application/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/marie-curie-postdoctoral-fellowships-guide/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/masters-scholarships-international-students-guide/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/methodology/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/mext-japan-scholarships-embassy-route/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/msca-postdoctoral-mobility-rules/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/oecd-internship-programme-guide/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/paid-vs-unpaid-internships-abroad/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/phd-fellowship-vs-research-grant/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/remote-internships-international-students/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/research-fellowships-uk-funding-guide/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/research-proposal-for-scholarship-guide/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/scholarship-application-deadline-tracker/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/scholarship-application-documents/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/scholarship-country-eligibility-matching/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/scholarship-cv-format-for-students/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/scholarship-application-process-step-by-step/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/scholarship-cv-template/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/scholarship-eligibility-checklist/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/scholarship-eligibility-nationality-rules/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/scholarship-essay-common-mistakes/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/scholarship-essay-examples/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/scholarship-interview-preparation-questions/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/scholarship-recommendation-letter-request/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/scholarship-motivation-letter-sample/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/scholarship-recommendation-letter-sample/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/scholarship-research-proposal/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/blog/scholarship-scams-how-to-verify/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/scholarship-statement-of-purpose-examples/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/scholarships-students-with-disabilities/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/scholarships-without-ielts-what-counts/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/schwarzman-scholars-eligibility-application/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/statement-of-purpose-vs-personal-statement/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/uk-internships-international-graduates/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/un-internship-application-checklist/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/undergraduate-scholarships-abroad-checklist/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/undp-internships-application-guide/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/unesco-internship-programme-guide/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/unhcr-internships-guide/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/unicef-internships-application-guide/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/unicef-vs-undp-internships-comparison/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/university-placement-year-internship-credit/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/us-graduate-assistantship-vs-fellowship/</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/blog/who-internships-guide/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/scholarship-scams-how-to-verify/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/scholarship-application-process-step-by-step/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/scholarship-motivation-letter-sample/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/scholarship-recommendation-letter-sample/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/chevening-leadership-essay/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/chevening-networking-essay/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/blog/internship-cover-letter-examples/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/latest/scholarships/</loc><lastmod>2026-11-11</lastmod></url>
-  <url><loc>https://oppmatcher.tech/latest/internships/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/contact</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/deadlines/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/exchange-programs/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/exchange-programs/summer-schools/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/exchange-programs/volunteering/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/exchange-programs/youth-conferences/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/fellowships/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/fellowships/leadership/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/fellowships/policy-and-ai/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/fellowships/research/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/how-it-works/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/internships/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/internships/europe/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/internships/international-organisations/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/internships/japan/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/internships/paid/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/internships/remote/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/internships/research-summer/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/internships/tech/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/internships/united-nations/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/latest</loc><lastmod>2026-11-11</lastmod></url>
   <url><loc>https://oppmatcher.tech/latest/fellowships/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/latest/internships/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/latest/scholarships/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/opportunities</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/privacy</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/adb-internship-programme/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/cern-summer-student-programme/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/commonwealth-shared-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/daad-epos-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/eiffel-excellence-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/erasmus-plus/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/eth-zurich-esop-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/fulbright-foreign-student-program/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/govai-fellowship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/humboldt-research-fellowship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/joint-japan-world-bank-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/newton-international-fellowship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/rhodes-scholarship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/rotary-peace-fellowship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/stipendium-hungaricum/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/swiss-government-excellence-scholarships/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/un-volunteers/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/programmes/world-bank-treasury-summer-internship/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/asia-pacific/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/australia/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/canada/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/countries/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/europe/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/for/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/germany/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/japan/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/masters/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/middle-east/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/phd/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/south-korea/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/uk/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/undergraduate/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/scholarships/usa/</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/tools/application-readiness</loc><lastmod>2026-11-11</lastmod></url>
+  <url><loc>https://oppmatcher.tech/worldwide</loc><lastmod>2026-11-11</lastmod></url>
 </urlset>

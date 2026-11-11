@@ -140,6 +140,14 @@
   ],
   "rewrites": [
     {
+      "source": "/latest/grants",
+      "destination": "/api/latest?category=grants"
+    },
+    {
+      "source": "/latest/grants/",
+      "destination": "/api/latest?category=grants"
+    },
+    {
       "source": "/latest/fellowships/",
       "destination": "/api/latest?category=fellowships"
     },

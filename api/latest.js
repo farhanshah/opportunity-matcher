@@ -10,6 +10,25 @@ const note=x=>x.level===3?'Individual vacancy and deadline recently confirmed by
  x.level===2?'The provider advertised applications as open at its last check. Check nationality and further requirements.':
  'This named official programme page exists. Opening status, deadline and eligibility for this cycle are not confirmed.';
 const css='*{box-sizing:border-box}body{margin:0;background:#f4faf8;color:#163b3b;font:15px/1.6 system-ui,Arial,sans-serif}a{color:#047b70}header{background:#0b3036;color:white;padding:20px max(18px,calc((100vw - 1150px)/2));display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}header a{color:#dbfff8;text-decoration:none}header nav{display:flex;flex-wrap:wrap;gap:17px;font-size:13px}main{max-width:1180px;margin:auto;padding:26px 20px 75px}.hero{padding:35px clamp(20px,5vw,55px);border-radius:20px;color:#ecfff9;background:linear-gradient(125deg,#12484a,#0a2735)}h1{font-size:clamp(32px,5vw,55px);line-height:1.12;letter-spacing:-.05em;margin:8px 0 14px}h2{font-size:26px;letter-spacing:-.03em;margin:25px 0 15px}h3{font-size:18px;line-height:1.3;margin:14px 0 6px}.hero p{max-width:74ch;color:#c5e6e0}.hero small{color:#87e9dc;text-transform:uppercase;letter-spacing:.12em;font-weight:800}.counters{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.counters span{border:1px solid #377d76;border-radius:12px;padding:8px 13px;background:#1e5050;color:#d7fff6;font-size:12px}.filters{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 10px}.filters a{border:1px solid #c5ded8;background:white;border-radius:99px;padding:9px 14px;text-decoration:none;font-size:12px;font-weight:750}.filters a.selected{background:#087d70;border-color:#087d70;color:white}.search{display:flex;gap:8px;margin:10px 0 25px}.search input{width:min(500px,100%);padding:12px 15px;border:1px solid #bed9d2;border-radius:10px;font:inherit}.search button{background:#0c716b;color:white;padding:0 18px;border:0;border-radius:10px;font-weight:700;cursor:pointer}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.card{background:white;border:1px solid #d1e5df;border-radius:15px;padding:20px;display:flex;flex-direction:column;min-width:0}.card h3{overflow-wrap:anywhere}.card p{color:#526e69;font-size:13px;line-height:1.65}.card .small{font-size:11px;color:#59736c}.card .provider{font-weight:750;color:#376761}.level{align-self:flex-start;border-radius:999px;padding:6px 10px;font-size:10px;font-weight:800;background:#e7f4ed;color:#075f57}.level.open{background:#e0f1fb;color:#125b79}.level.source{background:#f0eee3;color:#64551c}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:15px}.actions a{font-size:12px;font-weight:800}.empty{background:white;padding:24px;border:1px solid #d1e5df;border-radius:13px}.disclosure{margin-top:30px;background:#e7f4ef;padding:17px 20px;border-radius:14px;color:#3a6960;font-size:13px}footer{background:#0d3036;color:#d5f1ec;padding:21px;text-align:center;font-size:12px}footer a{color:inherit}@media(max-width:900px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.cards{grid-template-columns:1fr}main{padding:15px 13px 45px}.hero{padding:28px 20px}.search{flex-wrap:wrap}.search input{flex:1 1 210px}.search button{min-height:45px}}';
+const programmeResearchLinks=[
+  [/\brhodes\b/i,'/programmes/rhodes-scholarship/'],
+  [/\beiffel\b/i,'/programmes/eiffel-excellence-scholarship/'],
+  [/stipendium\s+hungaricum/i,'/programmes/stipendium-hungaricum/'],
+  [/swiss government excellence/i,'/programmes/swiss-government-excellence-scholarships/'],
+  [/commonwealth shared/i,'/programmes/commonwealth-shared-scholarship/'],
+  [/joint japan.{0,20}world bank/i,'/programmes/joint-japan-world-bank-scholarship/'],
+  [/cern.{0,35}summer/i,'/programmes/cern-summer-student-programme/'],
+  [/(?:asian development bank|ADB).{0,30}internship/i,'/programmes/adb-internship-programme/'],
+  [/world bank treasury.{0,35}internship/i,'/programmes/world-bank-treasury-summer-internship/'],
+  [/newton international fellowship/i,'/programmes/newton-international-fellowship/'],
+  [/rotary peace fellowship/i,'/programmes/rotary-peace-fellowship/'],
+  [/daad.{0,12}epos|development.related postgraduate courses/i,'/programmes/daad-epos-scholarship/'],
+  [/humboldt research fellowship/i,'/programmes/humboldt-research-fellowship/'],
+  [/erasmus\+/i,'/programmes/erasmus-plus/'],
+  [/united nations volunteers|UN volunteers/i,'/programmes/un-volunteers/']
+];
+const programmeResearchPath=item=>programmeResearchLinks.find(([pattern])=>pattern.test(item.title||''))?.[1]||'';
+
 function group(rows,heading){
  if(!rows.length)return '';
  return '<section><h2>'+esc(heading)+'</h2><div class="cards">'+rows.map(x=>
@@ -21,17 +40,17 @@ function group(rows,heading){
   (x.deadline_at?'<p class="small">Recorded deadline: <strong>'+esc(date(x.deadline_at))+'</strong> (confirm local closing time)</p>':'')+
   '<p class="small">Source checked: '+esc(date(x.checked_at))+
     (x.first_seen_at?' · First recorded: '+esc(date(x.first_seen_at)):'')+'</p>'+
-  '<div class="actions">'+(x.detail_url?'<a href="'+esc(x.detail_url)+'">Verified posting details</a>':'')+
+  '<div class="actions">'+(programmeResearchPath(x)?'<a href="'+programmeResearchPath(x)+'">OppMatcher programme research</a>':'')+(x.detail_url?'<a href="'+esc(x.detail_url)+'">Verified posting details</a>':'')+
   '<a href="'+esc(x.url)+'" rel="noopener noreferrer" target="_blank">Official provider ↗</a></div></article>').join('')+'</div></section>';
 }
 function render(rows,category,q){
  const selected=rows.filter(x=>(category==='all'||x.category===category)&&
    (!q||(x.title+' '+x.provider+' '+x.category+' '+(x.location||'')).toLowerCase().includes(q)));
  const counters=[selected.filter(x=>x.level===3).length,selected.filter(x=>x.level===2).length,selected.filter(x=>x.level===1).length];
- const cleanCategory=['scholarships','internships','fellowships'].includes(category);
- const filtered=Boolean(q)||(category!=='all'&&!cleanCategory);
+ const cleanCategory=['scholarships','internships','fellowships','grants'].includes(category);
+ const filtered=Boolean(q)||(category!=='all'&&!cleanCategory)||(category==='grants'&&selected.length===0);
  const canonical=cleanCategory?BASE+'/latest/'+category+'/':BASE+'/latest';
- const tabs=Object.entries(cats).map(([key,label])=>'<a href="/latest'+(key==='all'?'':(['scholarships','internships','fellowships'].includes(key)?'/'+key+'/':'?category='+key))+'" class="'+(key===category?'selected':'')+'">'+esc(label)+'</a>').join('');
+ const tabs=Object.entries(cats).map(([key,label])=>'<a href="/latest'+(key==='all'?'':(['scholarships','internships','fellowships','grants'].includes(key)?'/'+key+'/':'?category='+key))+'" class="'+(key===category?'selected':'')+'">'+esc(label)+'</a>').join('');
  const search='<form class="search" action="/latest" method="get">'+
   (category!=='all'?'<input type="hidden" name="category" value="'+esc(category)+'">':'')+
   '<input name="q" maxlength="80" aria-label="Search opportunities" placeholder="Search by programme, provider or location" value="'+esc(q)+'"><button type="submit">Search</button></form>';
