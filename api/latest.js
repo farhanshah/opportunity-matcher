@@ -28,12 +28,14 @@ function render(rows,category,q){
  const selected=rows.filter(x=>(category==='all'||x.category===category)&&
    (!q||(x.title+' '+x.provider+' '+x.category+' '+(x.location||'')).toLowerCase().includes(q)));
  const counters=[selected.filter(x=>x.level===3).length,selected.filter(x=>x.level===2).length,selected.filter(x=>x.level===1).length];
- const filtered=category!=='all'||Boolean(q);
- const tabs=Object.entries(cats).map(([key,label])=>'<a href="/latest'+(key==='all'?'':'?category='+key)+'" class="'+(key===category?'selected':'')+'">'+esc(label)+'</a>').join('');
+ const cleanCategory=['scholarships','internships','fellowships'].includes(category);
+ const filtered=Boolean(q)||(category!=='all'&&!cleanCategory);
+ const canonical=cleanCategory?BASE+'/latest/'+category+'/':BASE+'/latest';
+ const tabs=Object.entries(cats).map(([key,label])=>'<a href="/latest'+(key==='all'?'':(['scholarships','internships','fellowships'].includes(key)?'/'+key+'/':'?category='+key))+'" class="'+(key===category?'selected':'')+'">'+esc(label)+'</a>').join('');
  const search='<form class="search" action="/latest" method="get">'+
   (category!=='all'?'<input type="hidden" name="category" value="'+esc(category)+'">':'')+
   '<input name="q" maxlength="80" aria-label="Search opportunities" placeholder="Search by programme, provider or location" value="'+esc(q)+'"><button type="submit">Search</button></form>';
- const body='<div class="hero"><small>Automatically updated official opportunities</small><h1>Latest opportunities to explore.</h1>'+
+ const body='<div class="hero"><small>Automatically updated official opportunities</small><h1>'+esc(category==='all'?'Latest opportunities to explore.':cats[category]+' to explore.')+'</h1>'+
   '<p>Find recently verified vacancies, explicitly open calls and named official programmes. Each listing shows what has been verified, so you can decide what to investigate without relying on outdated deadlines.</p>'+
   '<div class="counters"><span>'+counters[0]+' verified live vacancies</span><span>'+counters[1]+' official open calls</span><span>'+counters[2]+' named programme pages</span></div></div>'+
   '<nav class="filters" aria-label="Opportunity categories">'+tabs+'</nav>'+search+
@@ -43,16 +45,16 @@ function render(rows,category,q){
     group(selected.filter(x=>x.level===1),'Official programmes to investigate'):
     '<div class="empty">No qualifying listings match this search. Try another category or search.</div>')+
   '<div class="disclosure"><strong>How to read this directory:</strong> “Official programme page” does not mean that applications are currently open. Only exact-verified live vacancies have a recently checked individual posting and recorded future deadline. Each provider remains responsible for their application instructions. Rechecking an old listing is not counted as discovering a new one.</div>';
- const title=filtered?'Filtered opportunities':'Latest verified and official opportunities';
+ const title=q?'Filtered search results':cleanCategory?cats[category]+' with official sources':'Latest verified and official opportunities';
  const meta='Official scholarships, internships, fellowships and open calls. Each record shows whether applications are confirmed open or need further verification.';
  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
   '<title>'+title+' | OppMatcher</title><meta name="robots" content="'+(filtered?'noindex,follow':'index,follow')+'">'+
-  '<meta name="description" content="'+esc(meta)+'"><link rel="canonical" href="'+BASE+'/latest">'+
+  '<meta name="description" content="'+esc(meta)+'"><link rel="canonical" href="'+canonical+'">'+
   '<link rel="icon" type="image/svg+xml" href="/brand-icon.svg">'+
   '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1916126969266611" crossorigin="anonymous"></script>'+
   '<style>'+css+'</style></head><body>'+
-  '<header><a href="/"><strong>OppMatcher</strong></a><nav><a href="/">Home</a><a href="/worldwide">Worldwide</a><a href="/opportunities">Verified postings</a><a href="/blog/">Guides</a><a href="/tools/application-readiness">Free checklist</a><a href="/about">About</a><a href="/contact">Contact</a></nav></header>'+
-  '<main>'+body+'</main><footer>OppMatcher · <a href="/blog/methodology/">Verification policy</a> · <a href="/tools/application-readiness">Free checklist</a> · <a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a></footer></body></html>';
+  '<header><a href="/"><strong>OppMatcher</strong></a><nav><a href="/scholarships/">Scholarships</a><a href="/internships/">Internships</a><a href="/fellowships/">Fellowships</a><a href="/exchange-programs/">Exchange</a><a href="/">Home</a><a href="/worldwide">Worldwide</a><a href="/opportunities">Verified postings</a><a href="/blog/">Guides</a><a href="/tools/application-readiness">Free checklist</a><a href="/about">About</a><a href="/contact">Contact</a></nav></header>'+
+  '<main><nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/latest">Latest</a> › '+esc(cats[category])+'</nav>'+body+'</main><footer>OppMatcher · <a href="/blog/methodology/">Verification policy</a> · <a href="/tools/application-readiness">Free checklist</a> · <a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a></footer></body></html>';
 }
 export default async function handler(req,res){
  if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).send('Method not allowed')}

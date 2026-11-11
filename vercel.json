@@ -140,6 +140,30 @@
   ],
   "rewrites": [
     {
+      "source": "/latest/fellowships/",
+      "destination": "/api/latest?category=fellowships"
+    },
+    {
+      "source": "/latest/fellowships",
+      "destination": "/api/latest?category=fellowships"
+    },
+    {
+      "source": "/latest/internships/",
+      "destination": "/api/latest?category=internships"
+    },
+    {
+      "source": "/latest/internships",
+      "destination": "/api/latest?category=internships"
+    },
+    {
+      "source": "/latest/scholarships/",
+      "destination": "/api/latest?category=scholarships"
+    },
+    {
+      "source": "/latest/scholarships",
+      "destination": "/api/latest?category=scholarships"
+    },
+    {
       "source": "/tools/application-readiness",
       "destination": "/tools/application-readiness.html"
     },
