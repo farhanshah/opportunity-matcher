@@ -37,7 +37,7 @@ html.omTurquoisePreview .app .side .sideFoot{padding:16px!important;background:r
 html.omTurquoisePreview .app .side .sideFoot b{color:#d4fff4!important}
 html.omTurquoisePreview .app .workspace{background:#f7fbfa!important;color:#173439!important}
 html.omTurquoisePreview .app .appTop{min-height:77px!important;height:auto!important;padding:13px clamp(18px,3.1vw,50px)!important;background:#fff!important;border-bottom:1px solid #dcece7!important;box-shadow:0 5px 24px rgba(15,76,64,.04)!important}
-html.omTurquoisePreview .app .appTop h1{font:800 19px 'Manrope',sans-serif!important;letter-spacing:-.05em!important;color:#153237!important}
+html.omTurquoisePreview .app .appTop :is(h1,h2#appTitle){font:800 19px 'Manrope',sans-serif!important;letter-spacing:-.05em!important;color:#153237!important}
 html.omTurquoisePreview .app .appTop p{color:#69827f!important;font-size:12px!important}
 html.omTurquoisePreview .app .appTop .topRight{flex-wrap:wrap!important;justify-content:flex-end!important}
 html.omTurquoisePreview .app .appTop .avatar,
@@ -284,7 +284,7 @@ html.omTurquoisePreview .cloudModal .cloudMessage{background:#e8f8f1!important;c
 @media(max-width:620px){
  html.omTurquoisePreview .integrationPreviewNotice{font-size:9px}
  html.omTurquoisePreview .app .appTop{padding:10px 14px!important;gap:9px!important}
- html.omTurquoisePreview .app .appTop h1{font-size:16px!important}
+ html.omTurquoisePreview .app .appTop :is(h1,h2#appTitle){font-size:16px!important}
  html.omTurquoisePreview .app .appTop p{font-size:10px!important}
  html.omTurquoisePreview .app .omBridgeHero{
   min-height:225px;padding:26px 22px;margin:14px 11px 0;
