@@ -49,4 +49,4 @@ jobs:
         with:
           node-version: '22'
       - name: Run WFP and FAO verification regression tests
-        run: node --test tests/wfp-provider-diagnostics.test.mjs tests/exact-internship-publishing.test.mjs tests/fao-current-cycle.test.mjs tests/world-verification.test.mjs tests/worldwide-search.test.mjs tests/source-listings.test.mjs tests/source-chips-ui.test.mjs tests/responsive-audit.test.mjs tests/desktop-catalogue-video-audit.test.mjs
+        run: node --test tests/wfp-provider-diagnostics.test.mjs tests/exact-internship-publishing.test.mjs tests/fao-current-cycle.test.mjs tests/world-verification.test.mjs tests/worldwide-search.test.mjs tests/source-listings.test.mjs tests/source-chips-ui.test.mjs tests/responsive-audit.test.mjs tests/desktop-catalogue-video-audit.test.mjs tests/seo-sitemap-integrity.test.mjs
