@@ -59,3 +59,11 @@ Google Search Console URL inspection, sitemap submission and ranking measurement
 - Rebuilt the MSCA mobility guide, correcting malformed FAQ content and adding the 12-in-36-month test, European/Global differences and current call caution.
 - Both updated guides changed from noindex,follow to index,follow after review and were added to the sitemap. Google indexing has not been confirmed.
 - OpenSEO's page cap required additional section-scoped crawl runs.
+
+## 12 November 2026: review-stage FAQ integrity
+
+Audited all 20 remaining review-stage guide pages for two-character FAQ fragments. Eleven had malformed one-letter questions and one-letter answers. Replaced those fragments with complete topic-specific eligibility, application, or preparation answers. These eleven pages **remain noindex**: correcting malformed FAQs does not by itself establish that the whole guide is ready for indexing.
+
+Related dynamic SEO audit: country-directory pages had repeated meta descriptions and short explanations; exact-vacancy pages had long metadata despite legitimate full job titles. These are now handled centrally in the public opportunity renderer, with applicant restrictions retained in the page body and relevant metadata.
+
+The OpenSEO account caps each crawl at 50 pages. Four section-entry crawls covered 64 unique URLs in total, rather than all 114 sitemap URLs. The remaining URLs require a different audit method or increased crawl allowance before a complete-site claim is justified.
