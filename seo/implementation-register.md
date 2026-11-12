@@ -6,7 +6,7 @@
 - Keyword intent rows: **124**
 - Implemented intent groups: **90**
 - Further provider and eligibility checks: **34**
-- Editorial review-stage guide pages deliberately excluded from indexable sitemap: **22**
+- Editorial review-stage guide pages deliberately excluded from indexable sitemap: **20**
 
 ## Remaining work that cannot be truthfully published without evidence
 
@@ -50,3 +50,12 @@
 These remaining items are not automatically-open opportunities. Provider research pages require official programme evidence. Audience and subject pages need at least five sufficiently checked relevant programmes before being indexed. The verified-vacancy feed and source monitoring should supply that evidence, not arbitrary SEO text.
 
 Google Search Console URL inspection, sitemap submission and ranking measurement require property access and have not been confirmed. The sitemap and links can be delivered without spending GitHub Actions minutes.
+
+## 12 November 2026: Search Console-led editorial review
+
+- Improved the scholarship eligibility requirements page with an eligibility worksheet and FAQ.
+- Clarified the documents guide: hard eligibility rules are distinct from evidence to upload.
+- Rebuilt the Erasmus Mundus catalogue guide, correcting malformed FAQ content and adding the official catalogue application route and programme-specific funding checks.
+- Rebuilt the MSCA mobility guide, correcting malformed FAQ content and adding the 12-in-36-month test, European/Global differences and current call caution.
+- Both updated guides changed from noindex,follow to index,follow after review and were added to the sitemap. Google indexing has not been confirmed.
+- OpenSEO's page cap required additional section-scoped crawl runs.

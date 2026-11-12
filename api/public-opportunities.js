@@ -54,6 +54,27 @@ async function getHistoricalRow(id){
   return rows.find(row=>slug(row)===id && safePublicSource(row.source_url))||null;
 }
 const css='*{box-sizing:border-box}body{margin:0;background:#f5faf8;color:#13343a;font:16px/1.6 system-ui,Arial,sans-serif}a{color:#08767c}header,footer{background:#10353b;color:white;padding:18px max(18px,calc((100vw - 1100px)/2))}header{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between}header a,footer a{color:white}nav{display:flex;flex-wrap:wrap;gap:15px}main{max-width:1050px;padding:40px 20px 80px;margin:auto}h1{font-size:clamp(2rem,4vw,3.1rem);line-height:1.12;margin:12px 0}h2{line-height:1.3}p{max-width:78ch}.lead{font-size:1.12rem;color:#46666a}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,295px),1fr));gap:18px;margin:28px 0}.card,.panel{background:#fff;border:1px solid #daeae7;border-radius:14px;padding:23px}.card h2{font-size:1.23rem}.tag{letter-spacing:.11em;text-transform:uppercase;font-size:.78rem;font-weight:bold;color:#08767c}.notice{padding:15px 19px;background:#e7f5f0;border-left:4px solid #08767c;margin:25px 0}.button{display:inline-block;background:#08767c;color:white;padding:10px 18px;text-decoration:none;border-radius:8px;font-weight:700} .state{display:inline-block;border-radius:99px;padding:6px 12px;font-size:.85rem;font-weight:750;background:#daf2e9;color:#00624a}.state.closed{background:#fff0dc;color:#855017}.state.unconfirmed{background:#eaf0f5;color:#3a5469}.related{margin-top:28px;padding:22px;border-radius:14px;background:#edf6f4}.related a{margin-right:18px}dt{font-weight:bold;margin-top:12px}dd{margin:0 0 14px}@media(max-width:600px){main{padding:25px 16px 50px}header,footer{padding:16px}}';
+function trimSearchText(value,max=60){
+ const text=String(value||'').replace(/\s+/g,' ').trim();
+ if(text.length<=max)return text;
+ const candidate=text.slice(0,Math.max(1,max-1));
+ const breakAt=candidate.lastIndexOf(' ');
+ return (breakAt>max*.55?candidate.slice(0,breakAt):candidate).trimEnd()+'…';
+}
+function detailMetaTitle(row,state){
+ const id=String(row.provider_job_id||'').replace(/[^a-z0-9-]/gi,'').slice(0,12);
+ const suffix=(id?' #'+id:'')+' | OppMatcher';
+ const statePrefix=state==='closed'?'Closed: ':state==='open'?'':'Unconfirmed: ';
+ return statePrefix+trimSearchText(row.title,Math.max(20,60-statePrefix.length-suffix.length))+suffix;
+}
+function detailMetaDescription(row,state){
+ const restriction=restrictionFromTitle(row.title);
+ const job=trimSearchText(row.title,restriction?39:62),provider=String(row.provider||'the provider').trim();
+ const intro=state==='open'?'Verified posting':state==='closed'?'Archived posting':'Posting needing verification';
+ const limit=restriction?trimSearchText(' Restriction: '+restriction+'.',52):'';
+ return trimSearchText(intro+': '+job+' at '+provider+'.'+limit+' Check official eligibility and deadline.',155);
+}
+
 function shell(title,description,url,body,index=true){
   const structured=JSON.stringify({'@context':'https://schema.org','@type':'WebPage',name:title,url:BASE+url,description,
       isPartOf:{'@type':'WebSite',name:'OppMatcher',url:BASE}}).replace(/</g,'\\u003c');
@@ -136,8 +157,8 @@ function detail(row){
     '<li>Prepare the documents and complete the application on the provider website before its exact local deadline.</li></ol>'+
     '<p>'+(!open?'This archived or unconfirmed listing is retained for reference; do not treat it as currently accepting applications.':'OppMatcher does not accept applications on behalf of the provider.')+'</p>'+
     '<div class="related"><h2>Continue researching</h2><p><a href="/opportunities/'+esc(category)+'">More '+esc(category)+'</a><a href="/blog/scholarship-eligibility-checklist/">Eligibility checklist</a><a href="/blog/scholarship-application-documents/">Application documents</a><a href="/blog/international-internships-graduate-placements/">Internship guide</a></p></div>';
-  return shell((closed?'Closed: ':open?'':'Unconfirmed: ')+row.title+' | '+row.provider+' | OppMatcher',
-    (closed?'Archived listing: ':open?'Current verified posting: ':'Verification needed: ')+row.title+' at '+row.provider+', with dated provider evidence, recorded eligibility facts and application guidance.',
+  return shell(detailMetaTitle(row,state),
+    detailMetaDescription(row,state),
     path(row),body,open);
 }
 function locationDirectory(rows,selected=''){
@@ -158,7 +179,12 @@ function locationDirectory(rows,selected=''){
   '<a href="'+esc(path(row))+'">Official vacancy record ↗</a></article>').join('');
  const intro='<p class="tag">Current official vacancies · country locations</p><h1>'+esc(title)+'</h1>'+
   '<p class="lead">These are individual recently verified vacancies whose official posting gives a specific work or study location. Location is not citizenship eligibility. Always check nationality, work authorisation, qualification and residence requirements at the provider.</p>';
- const body=intro+(isIndex?
+ const placeName=requested||selected;
+ const localityHelp='<section class="panel"><h2>'+esc(isIndex?'How country pages are selected':'How to assess a vacancy in '+placeName)+'</h2>'+
+  '<p>Only individual postings with recent, official provider evidence and an identifiable location appear here. The count is not a forecast of all scholarships, programmes or internships available in the country. Some advertised programmes have no specific location and therefore do not appear in this country directory.</p>'+
+  '<p>Before applying, open the official posting and check the location, country-of-citizenship restriction, permission to work or study, academic stage and any required language evidence. An internship based in a country is not necessarily open to that country’s citizens or to international applicants. Confirm the local closing time directly with the provider.</p>'+
+  '<p>For broader research, explore the <a href="/scholarships/countries/">scholarships by destination hub</a>, the <a href="/internships/">internship topic hub</a>, and the <a href="/blog/scholarship-eligibility-checklist/">eligibility requirements guide</a>. These pages help with preparation but do not override official vacancy rules.</p></section>';
+ const body=intro+localityHelp+(isIndex?
   '<h2>Countries with verified live postings</h2>'+
   (countryLinks?'<nav class="filters" aria-label="Locations">'+countryLinks+'</nav>':
    '<div class="panel">No country-specific vacancies are currently verified. We do not manufacture results.</div>'):
@@ -167,7 +193,7 @@ function locationDirectory(rows,selected=''){
    '<div class="panel"><h2>No currently verified vacancy in this country</h2><p>Other official programme pages may exist, but their current deadlines and eligibility are not fully verified. Try the worldwide official source directory.</p></div>'))+
   '<div class="related"><h2>Search beyond this location</h2><p><a href="/latest">Worldwide verified and source-confirmed programmes</a><a href="/worldwide">Official programmes under review</a><a href="/blog/scholarship-eligibility-nationality-rules/">Nationality eligibility guide</a></p></div>';
  return shell(title+' | OppMatcher',
-  'Verified individual vacancies, current provider deadlines and location information. Citizenship and visa rules must be checked at official sources.',
+  isIndex?'Explore countries with recently verified official vacancies. Compare locations, provider requirements and current deadlines.':'Check recently verified postings in '+placeName+'. Compare location, nationality restrictions and official application deadlines.',
   isIndex?'/opportunities/countries':'/opportunities/country/'+selected,body,
   isIndex?countries.length>0:Boolean(match?.records.length));
 }
