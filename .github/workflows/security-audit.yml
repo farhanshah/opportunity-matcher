@@ -24,5 +24,7 @@ jobs:
           node --check api/admin-review.js
           node --check api/monitor.js
           node --check admin-v1.js
+          node --check app-cloud-v13.js
+          node --check app-v71-password-recovery-v2.js
       - name: Security regression tests
         run: node --test tests/security-audit.test.mjs tests/security-hardening.test.mjs
