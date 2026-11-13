@@ -53,6 +53,9 @@
   function maybeOpenReset(){
     const {token,error,reset}=resetParams();
     if(!token&&reset!=='1')return; // Do not mistake an OAuth error for a password-reset error.
+    // Strip the one-time token from the address bar as soon as it is read.
+    // It remains only in this short-lived JavaScript closure for submission.
+    if(token&&location.search)history.replaceState({},'',location.pathname);
     const c=card();if(!c)return;
     // Never copy a password-reset token into a DOM attribute.
     const key=error?'error':token?'token-present':'reset';
@@ -78,7 +81,7 @@
       if(!getClient()?.auth?.resetPassword)throw new Error('Password recovery is still loading. Please try again.');
       const result=await getClient().auth.resetPassword({newPassword:password,token});
       if(result?.error)throw new Error(result.error.message||String(result.error));
-      history.replaceState({},'',location.pathname);recoveryHandled=false;
+      history.replaceState({},'',location.pathname);recoveryHandled=false;lastRecoveryToken='';
       feedback('Password updated. You can sign in with your new password.');
       if(btn){btn.disabled=false;btn.textContent='Password updated'}
       setTimeout(()=>window.OpportunityCloud?.setMode?.('signin'),1200);
