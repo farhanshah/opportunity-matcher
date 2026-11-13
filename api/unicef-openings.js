@@ -19,7 +19,10 @@ export function boardCandidates(html,base){
   const raw=String(html||''),out=[],seen=new Set();
   const re=/<a\b[^>]*href=["']([^"']*\/job\/\d{5,}(?:\/[^"']*)?)["'][^>]*>([\s\S]{0,1600}?)<\/a>/gi;
   for(const a of raw.matchAll(re)){
-    const url=absolute(base,a[1]),parts=jobParts(url);if(!parts||seen.has(parts.id))continue;
+    const url=absolute(base,a[1]),parts=jobParts(url);
+    // Only UNICEF's own HTTPS job-detail routes can be followed.
+    if(!parts||seen.has(parts.id)||
+      !/^https:\/\/jobs[.]unicef[.]org\/(?:en-us|cw\/en-us|mob\/cw\/en-us)\/job\/\d{5,}(?:\/|[?#]|$)/i.test(url))continue;
     const anchorTitle=text(a[2]);
     // Evidence must belong to this exact job card. The previous +/- HTML
     // window could accidentally take the NEXT job's deadline, or the previous
