@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
@@ -78,4 +78,53 @@ test('HTML internal links resolve to local pages, live directories, or configure
     }
   }
   assert.deepEqual(failures, [], 'Unknown internal-link targets');
+});
+
+
+test('blog discovery links and sitemap agree with editorial indexability for every guide', () => {
+  const hub = read('blog/index.html');
+  const dirs = [...(awaitableDirectories())];
+  const sitemapUrls = new Set(paths);
+  let published = 0, withheld = 0;
+  for (const slug of dirs) {
+    const document = read('blog/' + slug + '/index.html');
+    const canonical = site + '/blog/' + slug + '/';
+    const robots = document.match(/<meta\b[^>]*name=["']robots["'][^>]*>/i)?.[0] || '';
+    const noindex = /noindex/i.test(robots);
+    const isLinked = hub.includes('href="/blog/' + slug + '/"');
+    const isSubmitted = sitemapUrls.has(canonical);
+    assert.equal(isSubmitted, !noindex, slug + ': sitemap contradicts robots metadata');
+    assert.equal(isLinked, !noindex, slug + ': directory promotes excluded editorial draft');
+    assert.ok(document.includes('rel="canonical" href="' + canonical + '"'), slug + ': incorrect canonical');
+    if (noindex) withheld++;
+    else published++;
+  }
+  assert.ok(published >= 45, 'Expected all public reviewed blog guides to remain discoverable');
+  assert.ok(withheld >= 15, 'The deliberate draft exclusions should remain respected');
+});
+
+function awaitableDirectories() {
+  return readdirSync(join(root, 'blog'), { withFileTypes: true })
+    .filter(entry => entry.isDirectory()).map(entry => entry.name);
+}
+
+test('Google-critical entry pages remain indexable, self-canonical and linked', () => {
+  const homepage = read('index.html');
+  for (const [url, file] of [
+    ['/', 'index.html'], ['/about', 'about.html'],
+    ['/blog/', 'blog/index.html'], ['/scholarships/', 'scholarships/index.html'],
+    ['/internships/', 'internships/index.html'],
+    ['/fellowships/', 'fellowships/index.html'],
+    ['/programmes/', 'programmes/index.html'],
+    ['/exchange-programs/', 'exchange-programs/index.html']
+  ]) {
+    const html = read(file);
+    const canonical = site + url;
+    assert.ok(paths.includes(canonical), 'Entry page missing from canonical sitemap: ' + url);
+    assert.ok(html.includes('rel="canonical" href="' + canonical + '"'), 'Bad canonical: ' + url);
+    assert.match(html, /name=["']robots["']\s+content=["']index,follow["']/i, 'Indexing blocked: ' + url);
+    assert.ok(homepage.includes('href="' + url + '"'), 'Homepage must link directly to crawl entry: ' + url);
+  }
+  assert.match(read('robots.txt'), /Sitemap: https:\/\/oppmatcher\.tech\/sitemap\.xml/);
+  assert.match(read('robots.txt'), /Sitemap: https:\/\/oppmatcher\.tech\/opportunities-sitemap\.xml/);
 });
