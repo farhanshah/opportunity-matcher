@@ -19,7 +19,7 @@ test('AdSense exact publisher snippet is once inside head of every public page',
  for(const page of publicHtml){
   const s=get(page),head=s.split('</head>')[0];
   assert.ok(head.includes(adTag),page+' missing exact snippet');
-  assert.equal((head.match(/adsbygoogle\\.js\\?client=ca-pub-1916126969266611/g)||[]).length,1,page+' duplicate AdSense loader');
+  assert.equal((head.match(/adsbygoogle\.js\?client=ca-pub-1916126969266611/g)||[]).length,1,page+' duplicate AdSense loader');
   assert.ok(head.includes('<meta charset'),page+' invalid head');
  }
 });
