@@ -91,3 +91,22 @@ test('WFP accepts its official tenant-prefixed job URLs without accepting anothe
   'https://wfp.wd3.myworkdayjobs.com/recruiting/wfp/job_openings/job/Bridgetown/Intern_JR126957'
  ])assert.equal(verifiedInternship({...row,url},'WFP',dt),null);
 });
+
+test('UNICEF official internship fallback keeps deadlines within each individual job card',async()=>{
+ const {boardCandidates}=await import('../api/unicef-openings.js');
+ const base='https://jobs.unicef.org/en-us/filter/?work-type=internship';
+ const html='<div><a href="/en-us/job/596881/finance-consultant">Finance Consultant, Paris</a><p>Deadline: 31 December 2027</p></div>'+
+  '<div><a href="/en-us/job/596882/education-internship">Education Internship, Manila</a><p>Deadline: 30 December 2027</p></div>'+
+  '<div><a href="/en-us/job/596883/operations-intern">Operations Intern, Manila</a><p>No closing date published.</p></div>'+
+  '<div><a href="/en-us/job/596884/legal-internship">Legal Internship, Nairobi</a><p>Deadline: 29 December 2027</p></div>'+
+  '<div><a href="https://jobs.unicef.org.evil.com/en-us/job/596885/bogus-internship">Bogus Internship</a><p>Deadline: 30 December 2027</p></div>';
+ const rows=boardCandidates(html,base);
+ assert.deepEqual(rows.map(x=>x.id),['596882','596883','596884']);
+ assert.equal(rows[0].deadline,'2027-12-30');
+ assert.equal(rows[1].deadline,'','a missing deadline cannot be borrowed from the next job');
+ assert.equal(rows[2].deadline,'2027-12-29');
+ assert.ok(rows.every(x=>new URL(x.url).hostname==='jobs.unicef.org'));
+ const code=readFileSync(new URL('../api/unicef-openings.js',import.meta.url),'utf8');
+ assert.ok(code.includes('https://jobs.unicef.org/en-us/filter/?work-type=internship'));
+ assert.ok(code.includes('All UNICEF internship boards were unreadable'));
+});
