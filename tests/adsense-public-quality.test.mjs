@@ -186,3 +186,44 @@ test('every public blog article has correct publisher script and sitemap matches
  }
 });
 
+
+
+test('every indexable static public HTML page carries exactly one AdSense loader in the head',()=>{
+ const root=new URL('../',import.meta.url);
+ const skippedRoot=/^(?:admin|prepare)\.html$|(?:preview|visual|launch-ready)\.html$/i;
+ let checked=0,excluded=0;
+ function inspect(dir,path=''){
+  for(const entry of readdirSync(dir,{withFileTypes:true})){
+   const name=path+entry.name;
+   if(entry.isDirectory()){
+    if(entry.name==='node_modules'||entry.name==='.git')continue;
+    inspect(new URL(entry.name+'/',dir),name+'/');
+    continue;
+   }
+   if(!entry.name.endsWith('.html')||(path===''&&skippedRoot.test(entry.name)))continue;
+   const html=readFileSync(new URL(entry.name,dir),'utf8');
+   const head=html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i);
+   assert.ok(head,name+' is missing an HTML head');
+   const robots=html.match(/<meta\b[^>]*name=["']robots["'][^>]*>/i)?.[0]||'';
+   const noindex=/noindex/i.test(robots);
+   const snippets=[...head[1].matchAll(/adsbygoogle\.js\?client=ca-pub-1916126969266611/gi)];
+   const allSnippets=[...html.matchAll(/adsbygoogle\.js\?client=/gi)];
+   if(noindex){
+    assert.equal(allSnippets.length,0,name+' is an excluded editorial page and should stay ad-free');
+    excluded++;
+   }else{
+    assert.equal(snippets.length,1,name+' must have one approved AdSense loader inside <head>');
+    assert.equal(allSnippets.length,1,name+' must not load AdSense more than once');
+    assert.match(head[1],/crossorigin=["']anonymous["']/i,name+' missing cross-origin attribute');
+    checked++;
+   }
+  }
+ }
+ inspect(root);
+ assert.ok(checked>=100,'Expected the current public pages to be covered');
+ assert.ok(excluded>=20,'Expected editorial exclusions to stay ad-free');
+ const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ assert.match(home,/<meta name="google-adsense-account" content="ca-pub-1916126969266611">/);
+ assert.equal(readFileSync(new URL('../ads.txt',import.meta.url),'utf8').trim(),
+  'google.com, pub-1916126969266611, DIRECT, f08c47fec0942fa0');
+});
