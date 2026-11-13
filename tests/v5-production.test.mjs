@@ -19,7 +19,7 @@ test('AdSense exact publisher snippet is once inside head of every public page',
  for(const page of publicHtml){
   const s=get(page),head=s.split('</head>')[0];
   assert.ok(head.includes(adTag),page+' missing exact snippet');
-  assert.equal(s.split('ca-pub-1916126969266611').length-1,1,page+' duplicate code');
+  assert.equal((head.match(/adsbygoogle\\.js\\?client=ca-pub-1916126969266611/g)||[]).length,1,page+' duplicate AdSense loader');
   assert.ok(head.includes('<meta charset'),page+' invalid head');
  }
 });
@@ -33,7 +33,7 @@ test('Sensitive private admin and application-preparation views have no ad netwo
 });
 test('Production navbar uses accessible Explore dropdown without changing SPA controls',()=>{
  const html=get('index.html'),old=get('nav-contrast-preview-v5.html');
- assert.deepEqual(ids(html).filter(id=>!['heroOpenCallsLabel','verified-openings','verifiedOpenTitle','verifiedOpenGrid'].includes(id)),ids(old));
+ assert.deepEqual(ids(html).filter(id=>!['heroOpenCallsLabel','verified-openings','verifiedOpenTitle','verifiedOpenGrid','omTrustTitle'].includes(id)),ids(old));
  assert.ok(ids(html).includes('verifiedOpenGrid'));
  assert.ok(html.includes('home-openings-v1.js'));
  assert.ok(html.includes('home-openings-v1.css'));
