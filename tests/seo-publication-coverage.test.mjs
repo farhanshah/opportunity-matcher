@@ -9,28 +9,28 @@ const sitemap=get('sitemap.xml'),index=get('blog/index.html'),robots=get('robots
 const ADS='ca-pub-1916126969266611';
 test('editorial guides have consistent robots, canonical, sitemap, and AdSense configuration',()=>{
  assert.ok(folders.length>=55,'Expected existing scholarship and internship guides');
- const locs=[...sitemap.matchAll(/<loc>([^<]+)<\\/loc>/g)].map(x=>x[1]);
+ const locs=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(x=>x[1]);
  assert.equal(locs.length,new Set(locs).size,'Duplicate sitemap URLs');
  for(const slug of folders){
   const path='blog/'+slug+'/index.html',html=get(path);
   const url='https://oppmatcher.tech/blog/'+slug+'/';
-  const excluded=/name="robots"\\s+content="noindex(?:,follow)?"/i.test(html);
+  const excluded=/name="robots"\s+content="noindex(?:,follow)?"/i.test(html);
   const head=html.slice(0,html.indexOf('</head>'));
-  const adLoaders=[...head.matchAll(/adsbygoogle\\.js\\?client=ca-pub-1916126969266611/g)].length;
+  const adLoaders=[...head.matchAll(/adsbygoogle\.js\?client=ca-pub-1916126969266611/g)].length;
   assert.equal(sitemap.includes('<loc>'+url+'</loc>'),!excluded,path+' sitemap and robots disagree');
   assert.ok(html.includes('rel="canonical" href="'+url+'"'),path+' missing canonical');
   assert.ok(html.includes('name="description"'),path+' missing description');
   assert.equal(adLoaders,excluded?0:1,path+' AdSense loader count');
-  assert.match(html,/<script type="application\\/ld\\+json">/,path+' missing structured data');
+  assert.match(html,/<script type="application\/ld\+json">/,path+' missing structured data');
  }
  for(const slug of ['latest','worldwide','opportunities'])assert.ok(sitemap.includes('<loc>https://oppmatcher.tech/'+slug+'</loc>'),slug+' missing sitemap');
- assert.match(robots,/Sitemap: https:\\/\\/oppmatcher.tech\\/sitemap.xml/);
- assert.match(robots,/Sitemap: https:\\/\\/oppmatcher.tech\\/opportunities-sitemap.xml/);
+ assert.match(robots,/Sitemap: https:\/\/oppmatcher.tech\/sitemap.xml/);
+ assert.match(robots,/Sitemap: https:\/\/oppmatcher.tech\/opportunities-sitemap.xml/);
 });
 test('existing public pages keep required AdSense publisher identification',()=>{
  for(const page of ['index.html','blog/index.html','privacy.html','worldwide.html']){
   const html=get(page),head=html.slice(0,html.indexOf('</head>'));
-  assert.equal((head.match(/adsbygoogle\\.js\\?client=ca-pub-1916126969266611/g)||[]).length,1,page+' AdSense loader missing or duplicated');
+  assert.equal((head.match(/adsbygoogle\.js\?client=ca-pub-1916126969266611/g)||[]).length,1,page+' AdSense loader missing or duplicated');
  }
  assert.ok(get('api/latest.js').includes(ADS));
  assert.ok(get('api/public-opportunities.js').includes('adsbygoogle.js')||get('api/public-opportunities.js').includes(ADS),'SEO opportunity pages must include publisher integration');
@@ -50,7 +50,7 @@ test('scholarship pillar explains funding comparison and links to exact provider
     'australia-awards-scholarships-guide','global-korea-scholarship-application']){
    assert.ok(get('blog/'+slug+'/index.html').includes('href="/blog/fully-funded-scholarships-international-students/"'),slug+' should link to funding comparison');
  }
- assert.match(sitemap,/<loc>https:\\/\\/oppmatcher\\.tech\\/blog\\/fully-funded-scholarships-international-students\\/<\\/loc><lastmod>\\d{4}-\\d{2}-\\d{2}<\\/lastmod>/);
+ assert.match(sitemap,/<loc>https:\/\/oppmatcher\.tech\/blog\/fully-funded-scholarships-international-students\/<\/loc><lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
 });
 
 test('new editorial guide clusters and all 61 sitemap URLs are linked correctly',()=>{
