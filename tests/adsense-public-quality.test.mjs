@@ -50,7 +50,7 @@ test('sitemap includes useful routes and reflects current editorial indexability
  const dirs=readdirSync(new URL('../blog/',import.meta.url),{withFileTypes:true}).filter(e=>e.isDirectory());
  for(const dir of dirs){
   const html=get('blog/'+dir.name+'/index.html');
-  const isExcluded=/name="robots"\\s+content="noindex(?:,follow)?"/i.test(html);
+  const isExcluded=/name="robots"\s+content="noindex(?:,follow)?"/i.test(html);
   const isListed=sitemap.includes('<loc>https://oppmatcher.tech/blog/'+dir.name+'/</loc>');
   assert.equal(isListed,!isExcluded,dir.name+' sitemap/robots mismatch');
  }
