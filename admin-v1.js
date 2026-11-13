@@ -1,7 +1,7 @@
 (()=>{
   const $=id=>document.getElementById(id);
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const state={secret:sessionStorage.getItem('oppAdminSecret')||'',data:null,sourceFilter:'all',partialFilter:'all',reviewFilter:'high'};
+  const state={secret:'',data:null,sourceFilter:'all',partialFilter:'all',reviewFilter:'high'};
   const TITLES={overview:['Freshness overview','Monitor coverage, rule depth and anything that needs a human decision.'],sources:['Official-source monitors','Inspect every monitored source, its latest success and any fetch issue.'],reviews:['Source evidence alerts','Automated source checks hold any change that lacks confirmed provider evidence.'],partials:['Partially normalized records','See exactly which records are waiting on cycle evidence, route logic or provider-specific detail.']};
 
   const fmtTime=v=>{if(!v)return'Never';const d=new Date(v);if(Number.isNaN(d.getTime()))return'—';return d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})};
@@ -17,11 +17,11 @@
       if(r.status===401)throw Object.assign(new Error('That operations key was not accepted.'),{auth:true});
       if(!r.ok)throw new Error(`Admin API returned ${r.status}`);
       state.data=await r.json();
-      sessionStorage.setItem('oppAdminSecret',state.secret);
+      $('adminSecret').value='';
       $('lockScreen').classList.add('hidden');$('console').classList.remove('hidden');
       renderAll();
     }catch(e){
-      if(e.auth){sessionStorage.removeItem('oppAdminSecret');state.secret='';$('lockScreen').classList.remove('hidden');$('console').classList.add('hidden');$('lockError').textContent=e.message}
+      if(e.auth){state.secret='';$('lockScreen').classList.remove('hidden');$('console').classList.add('hidden');$('lockError').textContent=e.message}
       else toast(e.message||'Could not refresh operations data.');
     }finally{$('refreshBtn').disabled=false;$('refreshBtn').textContent='Refresh data'}
   }
@@ -179,7 +179,7 @@
   function bind(){
     $('unlockBtn').onclick=()=>{const v=$('adminSecret').value.trim();if(!v){$('lockError').textContent='Enter the protected operations key.';return}state.secret=v;$('lockError').textContent='';load()};
     $('adminSecret').addEventListener('keydown',e=>{if(e.key==='Enter')$('unlockBtn').click()});
-    $('refreshBtn').onclick=load;$('lockBtn').onclick=()=>{sessionStorage.removeItem('oppAdminSecret');state.secret='';state.data=null;$('adminSecret').value='';$('console').classList.add('hidden');$('lockScreen').classList.remove('hidden')};
+    $('refreshBtn').onclick=load;$('lockBtn').onclick=()=>{state.secret='';state.data=null;$('adminSecret').value='';$('console').classList.add('hidden');$('lockScreen').classList.remove('hidden')};
     document.querySelectorAll('.opsNavBtn').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>setView(b.dataset.jump));
     $('sourceSearch').addEventListener('input',renderSources);$('partialSearch').addEventListener('input',renderPartials);
     document.querySelectorAll('#sourceFilters button').forEach(b=>b.onclick=()=>{state.sourceFilter=b.dataset.filter;document.querySelectorAll('#sourceFilters button').forEach(x=>x.classList.toggle('active',x===b));renderSources()});
@@ -193,5 +193,5 @@
       renderReviews();
     });
   }
-  window.Ops={review};bind();if(state.secret){$('adminSecret').value=state.secret;load()}
+  window.Ops={review};bind();
 })();
