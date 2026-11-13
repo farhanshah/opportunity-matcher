@@ -1,0 +1,28 @@
+name: OppMatcher security checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Scan tracked files for credential patterns
+        run: node tools/security-scan.mjs
+      - name: Validate modified scripts
+        run: |
+          node --check lib/operations-auth.js
+          node --check api/admin-health.js
+          node --check api/admin-review.js
+          node --check api/monitor.js
+          node --check admin-v1.js
+      - name: Security regression tests
+        run: node --test tests/security-audit.test.mjs tests/security-hardening.test.mjs
