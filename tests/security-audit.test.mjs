@@ -48,3 +48,10 @@ test('user data endpoints must keep their authentication and ownership boundarie
   assert.match(linkedin,/getAccountBySession/);
   assert.match(linkedin,/auth_user_id=\$\{account\.id\}/);
 });
+
+test('password reset token is neither copied into the DOM nor left in the address bar',()=>{
+  const code=read('app-v71-password-recovery-v2.js');
+  assert.doesNotMatch(code,/token:\$\{token\}/);
+  assert.match(code,/if\(token&&location\.search\)history\.replaceState/);
+  assert.match(code,/lastRecoveryToken/);
+});
