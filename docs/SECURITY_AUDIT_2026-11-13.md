@@ -16,10 +16,13 @@ Scope: GitHub source (main branch), production Neon Auth configuration, database
 3. Replaced raw error messages in administrator endpoints and the monitor HTTP response with generic messages. Internal monitored-source error details remain in the restricted database for diagnosis.
 4. Expanded .gitignore to cover all .env.* credential files, and added a credential-pattern scan in GitHub Actions. The scan does not print matching values.
 5. Added regression checks for private endpoints and frontend credential storage. Admin review requires a UUID identifier.
-6. On 13 November, the production Neon Auth setting revoke_sessions_on_password_reset was changed from false to true directly in the provider. This provider setting is not altered by the PR.
+6. Reduced exposure from the password recovery UI by removing the reset token from DOM attributes and stripping it from the URL as soon as its handler processes it. The homepage still loads external advertising JavaScript, so a dedicated first-party recovery page remains preferable.
+7. Reduced raw client-side error-object logging in the cloud-workspace module.
+8. On 13 November, the production Neon Auth setting revoke_sessions_on_password_reset was changed from false to true directly in the provider. This provider setting is not altered by the PR.
 
 ## Must complete BEFORE merging or deploying
 
+- Rotate CRON_SECRET after switching the console to ADMIN_SECRET. The previous cron key was entered into browser code and persisted in sessionStorage; treat it as potentially exposed and do not reuse it for administration.
 - In Vercel, add a unique randomly generated ADMIN_SECRET of at least 32 characters to the **production** environment. It must be different from CRON_SECRET, DATABASE_URL and OAuth/Resend keys. Restrict production values to server-only functions; do not use NEXT_PUBLIC_, VITE_ or browser files. Configure the same key in preview environments only if trusted previews need access.
 - Resolve the Vercel integration's team/project access error, inspect existing variable names/scopes (without publishing their values), runtime logs and firewall/rate limit settings, then test the protected /api/admin-health and /api/admin-review routes.
 - Verify a legitimate operations-console sign-in and confirm a wrong/absent key gets 401. Inspect CI results and deploy in a controlled release.
