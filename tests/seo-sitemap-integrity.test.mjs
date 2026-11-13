@@ -128,3 +128,23 @@ test('Google-critical entry pages remain indexable, self-canonical and linked', 
   assert.match(read('robots.txt'), /Sitemap: https:\/\/oppmatcher\.tech\/sitemap\.xml/);
   assert.match(read('robots.txt'), /Sitemap: https:\/\/oppmatcher\.tech\/opportunities-sitemap\.xml/);
 });
+
+
+test('public scholarship and programme hubs do not spend internal links on noindexed drafts', () => {
+  const hubs = [
+    'scholarships/index.html', 'internships/index.html',
+    'fellowships/index.html', 'exchange-programs/index.html',
+    'programmes/index.html'
+  ];
+  for (const path of hubs) {
+    for (const match of read(path).matchAll(/href="\/blog\/([^/]+)\/"/g)) {
+      const slug = match[1];
+      const target = 'blog/' + slug + '/index.html';
+      assert.ok(existsSync(join(root, target)), path + ': invalid guide link ' + slug);
+      const document = read(target);
+      const robots = document.match(/<meta\b[^>]*name=["']robots["'][^>]*>/i)?.[0] || '';
+      assert.ok(!/noindex/i.test(robots), path + ': do not promote excluded guide ' + slug);
+      assert.ok(paths.includes(site + '/blog/' + slug + '/'), path + ': linked guide not in sitemap ' + slug);
+    }
+  }
+});
