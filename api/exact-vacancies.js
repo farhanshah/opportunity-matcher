@@ -1,4 +1,5 @@
 import { db } from '../lib/db.js';
+import { publishedState } from '../lib/public-opportunity-seo.js';
 
 function validSince(value) {
   if (!value) return null;
@@ -17,14 +18,18 @@ export default async function handler(req, res) {
              last_verified_at, closed_at
       FROM exact_vacancies
       WHERE status='open' AND status_verified=true AND verification_level='exact'
-        AND (deadline_at IS NULL OR deadline_at >= now())
-      ORDER BY deadline_at ASC NULLS LAST, first_seen_at DESC
+        AND deadline_at > now()
+        AND last_verified_at BETWEEN now()-INTERVAL '7 days' AND now()+INTERVAL '5 minutes'
+      ORDER BY deadline_at ASC, first_seen_at DESC
       LIMIT 300
     `;
 
     const provider = String(req.query?.provider || '').trim().toUpperCase();
     const since = validSince(req.query?.since);
     const vacancies = rows
+      // Do not expose historical, missing-title, stale or unconfirmed rows as
+      // open via JSON when public pages correctly reject them.
+      .filter(row => publishedState(row) === 'open')
       .filter(row => !provider || String(row.provider || '').toUpperCase() === provider)
       .map(row => ({
         provider: row.provider,

@@ -87,3 +87,19 @@ test('federal grant descriptions are not mislabelled as individual internships',
  assert.equal(categoryOf('National Parks Business Plan Internship','US federal grant'),'grants');
  assert.equal(categoryOf('Software Developer Internship','Internship'),'internships');
 });
+
+test('blank FAO titles are withheld from live directories and JSON even with a future deadline',()=>{
+ const fao={...exact,provider:'FAO',provider_job_id:'2601979',
+   title:'   ',opportunity_type:'Job',
+   source_url:'https://jobs.fao.org/careersection/fao_external/jobdetail.ftl?job=2601979&lang=en',
+   deadline_at:'2026-12-31T23:59:59Z'};
+ assert.equal(preparedListings({vacancies:[fao]},now).length,0);
+ assert.equal(preparedListings({vacancies:[{...fao,title:'Missing'}]},now).length,0);
+ assert.equal(preparedListings({vacancies:[{...exact,provider:'  '}]},now).length,0);
+ assert.equal(preparedListings({vacancies:[exact]},now).length,1);
+ assert.equal(preparedListings({calls:[{...call,title:'  '}]},now).length,0);
+ assert.equal(preparedListings({sources:[{...source,title:'  '}]},now).length,0);
+ const rawApi=readFileSync(new URL('../api/exact-vacancies.js',import.meta.url),'utf8');
+ assert.match(rawApi,/publishedState\(row\) === 'open'/);
+ assert.match(rawApi,/last_verified_at BETWEEN now\(\)-INTERVAL '7 days'/);
+});
