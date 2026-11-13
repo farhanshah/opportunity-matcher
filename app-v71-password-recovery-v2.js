@@ -7,7 +7,7 @@
   const card=()=>document.getElementById('cloudAuthCard');
   const show=()=>modal()?.classList.remove('hide');
   const feedback=(text,error=false)=>{const el=document.getElementById('cloudAuthFeedback');if(el)el.innerHTML=`<div class="${error?'cloudError':'cloudMessage'}">${html(text)}</div>`};
-  let recoveryHandled=false;
+  let recoveryHandled=false,lastRecoveryToken='';
 
   function decorateSignIn(){
     const c=card();
@@ -23,7 +23,7 @@
 
   function clearRecoveryUrl(){
     if(location.search)history.replaceState({},'',location.pathname);
-    recoveryHandled=false;
+    recoveryHandled=false;lastRecoveryToken='';
   }
 
   function renderForgot(){
@@ -54,9 +54,10 @@
     const {token,error,reset}=resetParams();
     if(!token&&reset!=='1')return; // Do not mistake an OAuth error for a password-reset error.
     const c=card();if(!c)return;
-    const key=error?`error:${error}`:token?`token:${token}`:'reset';
-    if(recoveryHandled&&c.dataset.recoveryKey===key)return;
-    recoveryHandled=true;c.dataset.recoveryKey=key;
+    // Never copy a password-reset token into a DOM attribute.
+    const key=error?'error':token?'token-present':'reset';
+    if(recoveryHandled&&c.dataset.recoveryKey===key&&lastRecoveryToken===(token||''))return;
+    recoveryHandled=true;lastRecoveryToken=token||'';c.dataset.recoveryKey=key;
     if(error){
       c.dataset.recoveryView='error';
       c.innerHTML=`<button class="cloudClose" data-recover-close>×</button><div class="cloudEy">Password recovery</div><h2>That reset link can’t be used.</h2><p class="cloudLead">It may have expired or already been used. Request a new password reset email.</p><button id="recoverAgain" class="cloudSubmit">Request a new link</button>`;
