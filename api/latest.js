@@ -8,6 +8,8 @@ const date=v=>{const d=new Date(v);return Number.isFinite(d.getTime())?
 const cats={all:'All opportunities',scholarships:'Scholarships',internships:'Internships',fellowships:'Fellowships',grants:'Grants and awards',other:'Other programmes'};
 const note=x=>x.level===3?'Individual vacancy and deadline recently confirmed by the official provider. Eligibility is not personally assessed.':
  x.level===2?'The provider advertised applications as open at its last check. Check nationality and further requirements.':
+ x.application_scope==='candidate_pool_not_individual_placement'
+  ?'Official internship candidate pool, not an individual placement. Applications and selection depend on the provider. Opening status and personal eligibility are unverified.':
  'This named official programme page exists. Opening status, deadline and eligibility for this cycle are not confirmed.';
 const css='*{box-sizing:border-box}body{margin:0;background:#f4faf8;color:#163b3b;font:15px/1.6 system-ui,Arial,sans-serif}a{color:#047b70}header{background:#0b3036;color:white;padding:20px max(18px,calc((100vw - 1150px)/2));display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}header a{color:#dbfff8;text-decoration:none}header nav{display:flex;flex-wrap:wrap;gap:17px;font-size:13px}main{max-width:1180px;margin:auto;padding:26px 20px 75px}.hero{padding:35px clamp(20px,5vw,55px);border-radius:20px;color:#ecfff9;background:linear-gradient(125deg,#12484a,#0a2735)}h1{font-size:clamp(32px,5vw,55px);line-height:1.12;letter-spacing:-.05em;margin:8px 0 14px}h2{font-size:26px;letter-spacing:-.03em;margin:25px 0 15px}h3{font-size:18px;line-height:1.3;margin:14px 0 6px}.hero p{max-width:74ch;color:#c5e6e0}.hero small{color:#87e9dc;text-transform:uppercase;letter-spacing:.12em;font-weight:800}.counters{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.counters span{border:1px solid #377d76;border-radius:12px;padding:8px 13px;background:#1e5050;color:#d7fff6;font-size:12px}.filters{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 10px}.filters a{border:1px solid #c5ded8;background:white;border-radius:99px;padding:9px 14px;text-decoration:none;font-size:12px;font-weight:750}.filters a.selected{background:#087d70;border-color:#087d70;color:white}.search{display:flex;gap:8px;margin:10px 0 25px}.search input{width:min(500px,100%);padding:12px 15px;border:1px solid #bed9d2;border-radius:10px;font:inherit}.search button{background:#0c716b;color:white;padding:0 18px;border:0;border-radius:10px;font-weight:700;cursor:pointer}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.card{background:white;border:1px solid #d1e5df;border-radius:15px;padding:20px;display:flex;flex-direction:column;min-width:0}.card h3{overflow-wrap:anywhere}.card p{color:#526e69;font-size:13px;line-height:1.65}.card .small{font-size:11px;color:#59736c}.card .provider{font-weight:750;color:#376761}.level{align-self:flex-start;border-radius:999px;padding:6px 10px;font-size:10px;font-weight:800;background:#e7f4ed;color:#075f57}.level.open{background:#e0f1fb;color:#125b79}.level.source{background:#f0eee3;color:#64551c}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:15px}.actions a{font-size:12px;font-weight:800}.empty{background:white;padding:24px;border:1px solid #d1e5df;border-radius:13px}.disclosure{margin-top:30px;background:#e7f4ef;padding:17px 20px;border-radius:14px;color:#3a6960;font-size:13px}footer{background:#0d3036;color:#d5f1ec;padding:21px;text-align:center;font-size:12px}footer a{color:inherit}@media(max-width:900px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.cards{grid-template-columns:1fr}main{padding:15px 13px 45px}.hero{padding:28px 20px}.search{flex-wrap:wrap}.search input{flex:1 1 210px}.search button{min-height:45px}}';
 const programmeResearchLinks=[
@@ -38,6 +40,7 @@ function group(rows,heading){
   (x.restriction?'<p class="small"><strong>Posting restriction: '+esc(x.restriction)+'</strong></p>':'')+
   (x.location?'<p class="small">Location: '+esc(x.location)+'</p>':'')+
   (x.deadline_at?'<p class="small">Recorded deadline: <strong>'+esc(date(x.deadline_at))+'</strong> (confirm local closing time)</p>':'')+
+  (x.level===1&&x.stated_closing_date?'<p class="small">Official page states a closing date: <strong>'+esc(x.stated_closing_date)+'</strong> (opening status not confirmed; check provider timezone)</p>':'')+
   '<p class="small">Source checked: '+esc(date(x.checked_at))+
     (x.first_seen_at?' · First recorded: '+esc(date(x.first_seen_at)):'')+'</p>'+
   '<div class="actions">'+(programmeResearchPath(x)?'<a href="'+programmeResearchPath(x)+'">OppMatcher programme research</a>':'')+(x.detail_url?'<a href="'+esc(x.detail_url)+'">Verified posting details</a>':'')+
@@ -94,7 +97,9 @@ export default async function handler(req,res){
      ORDER BY last_checked_at DESC LIMIT 45`,
    sql`SELECT title,provider,canonical_url,source_status,verified_page_at,created_at,
       evidence->>'opportunity_kind' AS opportunity_kind,
-      evidence->>'application_deadline' AS application_deadline
+      evidence->>'application_deadline' AS application_deadline,
+      evidence->>'application_scope' AS application_scope,
+      evidence#>>'{declared_facts,closing_date}' AS declared_closing_date
      FROM worldwide_source_listings WHERE source_status='source_confirmed'
        AND verified_page_at>=now()-interval '30 days'
      ORDER BY verified_page_at DESC LIMIT 150`

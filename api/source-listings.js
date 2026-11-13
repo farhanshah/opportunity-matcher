@@ -14,7 +14,8 @@ export default async function handler(req,res){
       l.evidence->>'opportunity_kind' AS opportunity_kind,
       l.evidence->>'application_deadline' AS application_deadline,
       l.evidence#>>'{declared_facts,closing_date}' AS declared_closing_date,
-      l.evidence->>'location' AS location
+      l.evidence->>'location' AS location,
+      l.evidence->>'application_scope' AS application_scope
     FROM worldwide_source_listings l
     WHERE l.source_status='source_confirmed'
       AND l.canonical_url !~* '([/-](closed|archived|expired|discontinued)([/-]|$))'
@@ -57,6 +58,8 @@ export default async function handler(req,res){
       source_confirmed_at:row.verified_page_at,
       publication_level:'source_confirmed',
       opportunity_kind:row.opportunity_kind||'official programme page',
+      application_scope:row.application_scope==='candidate_pool_not_individual_placement'
+        ?'candidate_pool_not_individual_placement':null,
       application_status:row.opportunity_kind==='official internship vacancy'?'open_from_exact_provider_record':'unknown',
       deadline:row.opportunity_kind==='official internship vacancy'
         ?row.application_deadline

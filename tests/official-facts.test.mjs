@@ -209,3 +209,13 @@ test('permissive structured scholarship data cannot override partial visible cou
  assert.ok(result.reasons.includes('structured field metadata conflicts with visible provider restriction'));
  assert.ok(result.reasons.includes('visible provider restrictions require explicit rule modelling'));
 });
+
+test('source-only deadline extraction accepts an explicitly labelled midnight annotation without guessing timezone',()=>{
+ const html=body.replace('18 May 2027','18 May 2027 (Midnight)');
+ const parsed=parseOfficialFactSheet(html);
+ assert.equal(parsed.complete,true,parsed.reasons.join('; '));
+ assert.equal(parsed.deadline,'2027-05-18');
+ for(const bad of ['18 May 2027 (14:00)','18 May 2027 (whenever)','18 May 2027 approximately']){
+  assert.equal(parseOfficialFactSheet(body.replace('18 May 2027',bad)).complete,false,bad);
+ }
+});

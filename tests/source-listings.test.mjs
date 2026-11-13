@@ -168,3 +168,25 @@ test('closed programme slugs are retained for historical URLs but excluded from 
  assert.equal((api.match(/l\.canonical_url !~\*/g)||[]).length,2);
  assert.equal((api.match(/l\.title !~\*/g)||[]).length,2);
 });
+
+test('official UNESCO candidate pool keeps stated closing date but cannot become an individual verified placement',async()=>{
+ const source={id:'unesco-catalogue',source_url:'https://careers.unesco.org/content/Internship-Programme',provider:'UNESCO'};
+ const url='https://careers.unesco.org/job/Multiple-INTERNSHIP-Bureau-Of-Human-Resources-Management/1347540857';
+ const html='<html><main><h1>INTERNSHIP: Bureau Of Human Resources Management</h1>'+
+  '<p>Type of contract: Internship</p><p>Application deadline: 31 December 2026 (Midnight)</p>'+
+  '<p>Applicants apply to become part of the pool of intern candidates, not to a specific internship opening.</p>'+
+  '<p>Selected applicants may be contacted by the relevant hiring manager when an internship placement is available. A place is not guaranteed and further details will depend on the particular assignment.</p></main></html>';
+ const result=sourceListingEvidence({html,url,source,checkedAt:new Date('2026-11-13T09:00:00Z')});
+ assert.equal(result.ok,true,result.reason);
+ assert.equal(result.evidence.declared_facts.closing_date,'2026-12-31');
+ assert.equal(result.evidence.application_scope,'candidate_pool_not_individual_placement');
+ assert.equal(result.evidence.declared_facts.matching_approved,false);
+ assert.ok(result.evidence.unverified.includes('individual_placement'));
+ const {verifyCandidate}=await import('../lib/auto-discovery.js');
+ assert.equal(verifyCandidate(html,url,'UNESCO',new Date('2026-11-13T09:00:00Z')).verified,false);
+ const general=sourceListingEvidence({html:good,url:'https://uni.example/awards/global-scholarship-2027',source:{id:'uni',provider:'University',source_url:'https://uni.example/awards'}});
+ assert.equal(general.evidence.application_scope,null);
+ const api=readFileSync(new URL('../api/source-listings.js',import.meta.url),'utf8');
+ assert.match(api,/application_scope:row\.application_scope/);
+ assert.match(api,/application_status:row\.opportunity_kind===/);
+});

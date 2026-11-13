@@ -103,3 +103,21 @@ test('blank FAO titles are withheld from live directories and JSON even with a f
  assert.match(rawApi,/publishedState\(row\) === 'open'/);
  assert.match(rawApi,/last_verified_at BETWEEN now\(\)-INTERVAL '7 days'/);
 });
+
+test('candidate pool and official-only deadline are clearly distinguished from exact verified vacancies',()=>{
+ const pool={...source,title:'INTERNSHIP: Bureau Of Human Resources Management',
+  canonical_url:'https://careers.unesco.org/job/Multiple-INTERNSHIP-Bureau-Of-Human-Resources-Management/1347540857',
+  application_scope:'candidate_pool_not_individual_placement',declared_closing_date:'2026-12-31'};
+ const rows=preparedListings({sources:[pool]},new Date('2026-10-23T09:00:00Z'));
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].type,'Official internship candidate pool');
+ assert.equal(rows[0].deadline_at,null);
+ assert.equal(rows[0].stated_closing_date,'2026-12-31');
+ assert.equal(rows[0].application_scope,'candidate_pool_not_individual_placement');
+ assert.equal(preparedListings({sources:[{...pool,declared_closing_date:'2026-02-30'}]},now)[0].stated_closing_date,null);
+ assert.equal(preparedListings({sources:[{...pool,declared_closing_date:'2026-10-20'}]},now)[0].stated_closing_date,null);
+ const code=readFileSync(new URL('../api/latest.js',import.meta.url),'utf8');
+ assert.match(code,/Official internship candidate pool/);
+ assert.match(code,/opening status not confirmed/);
+ assert.match(code,/declared_closing_date/);
+});
