@@ -123,3 +123,38 @@ test('officially linked UNOPS career board only qualifies exact job-detail URLs 
  assert.equal(trustedSourceForLead({canonical_url:'https://careers.unops.org.evil.org/careersmarketplace/JobDetail/Project-Management-Intern/4382',title:'Project Management Intern'},registry).status,'source_review');
  assert.equal(trustedSourceForLead({canonical_url:'https://careers.unops.org/careersmarketplace/Home',title:'Jobs portal'},registry).status,'source_review');
 });
+
+test('official ATS and scholarship-detail URLs enter evidence verification only for their exact registered providers',()=>{
+ const unido={id:'unido-source',source_url:'https://careers.unido.org/content/Internship/',
+   provider:'UNIDO',is_active:true};
+ const unidoJob='https://careers.unido.org/job/Tokyo-Intern-GLOITPJPN/1363458555';
+ assert.equal(trustedSourceForLead({canonical_url:unidoJob,title:'Intern - GLO/ITP/JPN Job Details | UNIDO'},[unido]).status,'trusted');
+ assert.equal(trustedSourceForLead({canonical_url:unidoJob,title:'Intern - GLO/ITP/JPN Job Details | UNIDO'},[{...unido,provider:'Unrelated Agency'}]).status,'source_review');
+ assert.equal(trustedSourceForLead({canonical_url:'https://careers.unido.org.evil.org/job/Tokyo-Intern/1363458555',title:'Internship'},[unido]).status,'source_review');
+ assert.equal(trustedSourceForLead({canonical_url:'https://careers.unido.org/job/Tokyo-Sales/1363458555',title:'Sales Manager'},[unido]).status,'source_review');
+ assert.equal(trustedSourceForLead({canonical_url:'https://careers.unido.org/job/Tokyo-Intern/invalid',title:'Intern'},[unido]).status,'source_review');
+ const china={id:'csc-source',source_url:'https://www.campuschina.org/index.html',
+   provider:'China Scholarship Council / Campus China',is_active:true};
+ const csc='https://www.campuschina.org/content/details3_74779.html';
+ assert.equal(trustedSourceForLead({canonical_url:csc,title:'Chinese Government Scholarship - University Program'},[china]).status,'trusted');
+ assert.equal(trustedSourceForLead({canonical_url:csc,title:'Chinese Government Scholarship - University Program'},[{...china,provider:'Unknown'}]).status,'source_review');
+ assert.equal(trustedSourceForLead({canonical_url:'https://campuschina.org.evil.org/content/details3_74779.html',title:'Scholarship'},[china]).status,'source_review');
+ assert.equal(trustedSourceForLead({canonical_url:'https://campuschina.org/content/details3_74779.html',title:'News item'},[china]).status,'source_review');
+});
+test('current year official dated UCL call uses a narrowly named call-applications news route',()=>{
+ const ucl={id:'ucl-source',source_url:'https://www.ucl.ac.uk/study/graduate/funding',provider:'University College London',is_active:true};
+ const article='https://www.ucl.ac.uk/grand-challenges/news/2026/jul/call-applications-unesco-doctoral-internships';
+ assert.equal(trustedSourceForLead({canonical_url:article,title:'Call for applications: UNESCO Doctoral Internships'},[ucl]).status,'trusted');
+ assert.equal(trustedSourceForLead({canonical_url:article,title:'University news update'},[ucl]).status,'source_review');
+ assert.equal(trustedSourceForLead({canonical_url:article.replace('/2026/','/2021/'),title:'Call for applications: UNESCO Doctoral Internships'},[ucl]).status,'source_review');
+});
+test('newly accepted exact official detail routes can be requeued without bypassing evidence policy',()=>{
+ const verifier=readFileSync(new URL('../api/verify-worldwide.js',import.meta.url),'utf8');
+ assert.match(verifier,/l\.verification_reason='URL is not clearly a programme-specific official page'/);
+ assert.match(verifier,/l\.verification_attempts<6/);
+ for(const host of ['careers[.]unido[.]org','campuschina[.]org','ucl[.]ac[.]uk'])
+   assert.ok(verifier.includes(host),host);
+ assert.match(verifier,/EXISTS \(\s*SELECT 1 FROM monitored_sources m/);
+ assert.ok(verifier.includes('trustedSourceForLead(lead,sources)'));
+ assert.ok(verifier.includes('verifyCandidate(page.html,page.url,trust.source.provider)'));
+});

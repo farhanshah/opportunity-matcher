@@ -51,9 +51,9 @@ test('registered official sources receive rotating search slots without being au
  const dayOne=worldwideQueries(new Date('2026-10-22T00:00:00Z'),hosts);
  const dayTwo=worldwideQueries(new Date('2026-10-23T00:00:00Z'),hosts);
  assert.equal(dayOne.length,WORLDWIDE_DAILY_QUERY_LIMIT);
- assert.equal(dayOne.filter(x=>x.officialTarget).length,8);
+ assert.equal(dayOne.filter(x=>x.officialTarget).length,10);
  assert.equal(dayOne.filter(x=>x.countryTarget).length,8);
- assert.equal(dayOne.filter(x=>!x.officialTarget&&!x.countryTarget).length,4);
+ assert.equal(dayOne.filter(x=>!x.officialTarget&&!x.countryTarget).length,2);
  assert.ok(dayOne.every(x=>/2026|2027/.test(x.query)));
  assert.ok(dayOne.filter(x=>x.officialTarget).every(x=>x.query.startsWith('site:')));
  assert.notDeepEqual(dayOne.filter(x=>x.officialTarget).map(x=>x.query),
@@ -135,4 +135,14 @@ test('search leads skip closed or generic pages but retain official exact job ca
  ])assert.equal(normalizeWebLead({title,url},'Global','q',['wellcome.org','university.example','educanada.ca']),null,title);
  assert.ok(normalizeWebLead({title:'Project Management Intern - 4382 - UNOPS',
   url:'https://careers.unops.org/careersmarketplace/JobDetail/Project-Management-Intern/4382'},'Global','q',['careers.unops.org']));
+});
+
+test('global search gives more slots to verified official hosts without more API queries',()=>{
+ const hosts=Array.from({length:95},(_,i)=>'official'+i+'.example.org');
+ const tasks=worldwideQueries(new Date('2026-11-13T00:00:00Z'),hosts);
+ assert.equal(tasks.length,20);
+ assert.equal(tasks.filter(x=>x.countryTarget).length,8);
+ assert.equal(tasks.filter(x=>x.officialTarget).length,10);
+ assert.equal(tasks.filter(x=>!x.countryTarget&&!x.officialTarget).length,2);
+ assert.ok(tasks.filter(x=>x.officialTarget).every(x=>x.query.startsWith('site:')));
 });
