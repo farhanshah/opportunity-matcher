@@ -105,7 +105,10 @@ for(const width of [360,390,768,1280,1440]){
      return a[0]*.2126+a[1]*.7152+a[2]*.0722;
     };
     const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
-    const result={source,guide,guideAction};
+    const guideBackground=getComputedStyle(document.querySelector('#landing .guideCard')).backgroundColor;
+    const result={source,guide,guideAction,guideBackground,
+      guideHeadingContrast:contrast(guide,guideBackground),
+      guideLinkContrast:contrast(guideAction,guideBackground)};
     for(const mode of ['light','dark']){
      window.OpportunityTheme.setMode(mode);
      const bg=getComputedStyle(sample).backgroundColor;
@@ -118,8 +121,10 @@ for(const width of [360,390,768,1280,1440]){
     return result;
    });
    check(regression.source==='rgb(243, 255, 252)',width+' source monitor heading visible',regression.source);
-   check(regression.guide==='rgb(244, 255, 252)',width+' guide headings visible',regression.guide);
-   check(regression.guideAction==='rgb(244, 255, 252)',width+' guide links visible',regression.guideAction);
+   // The approved Orbital theme intentionally uses a dark guide panel with light
+   // headings and turquoise links. Test readability, not an obsolete exact RGB.
+   check(regression.guideHeadingContrast>=4.5,width+' guide headings pass 4.5:1 contrast',regression);
+   check(regression.guideLinkContrast>=4.5,width+' guide links pass 4.5:1 contrast',regression);
    check(regression.light.contrast>=4.5&&regression.dark.contrast>=4.5,
      width+' saved titles pass 4.5:1 contrast in both themes',regression);
    check(regression.light.bg!==regression.dark.bg&&regression.light.workspace!==regression.dark.workspace,
