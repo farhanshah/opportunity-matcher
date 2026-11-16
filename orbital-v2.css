@@ -364,3 +364,161 @@ html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .omSourcePo
   html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerTitle span{animation:none!important}
   html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerWindow{overflow-x:auto}
 }
+
+
+/* Theme regression repair, 16 Nov 2026, from Light/Dark recording.
+   Dark showcase sections must retain white text in EVERY resolved theme;
+   the lower public-site sections must also follow the resolved theme. */
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="light"] #landing .ovWorldSection,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .ovWorldSection{
+  background:#061c27!important;color:#ecfffa!important;color-scheme:dark;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection .ovWorldCopy h2,
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection #ovWorldTitle {
+  color:#f3fffb!important;
+  -webkit-text-fill-color:#f3fffb!important;
+  opacity:1!important;
+  visibility:visible!important;
+  text-shadow:0 2px 28px rgba(0,0,0,.18);
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection .ovWorldCopy p{
+  color:#c6e8e2!important;opacity:1!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection .ovEyebrow,
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection .ovGlobeLabel{
+  color:#90ffde!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldLinks a,
+html.omTurquoisePreview.omOrbitalV2 #landing .ovGlobalStat{
+  color:#e0fff6!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing{
+  background:#0d2329!important;color:#e8f9f5!important;color-scheme:dark;
+}
+/* Entire lower homepage follows Dark, instead of suddenly switching back to pale. */
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #how {
+  background:#0d2329!important;color:#e9fbf6!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing :is(#difference,#how) :is(h2,h3,.sectionHead h2){
+  color:#f0fffb!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing :is(#difference,#how) :is(.sectionLead,.eyebrow){
+  color:#b4dfd4!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing :is(#difference,#how) :is(.feature p,.step p){
+  color:#c6e0db!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature{
+  background:#1b3a40!important;border-color:#3e6f6b!important;color:#edfffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature :is(h3,.featureNum){
+  color:#edfffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature .matchMock{
+  background:#edf9f5!important;color:#173f3b!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature .matchMock *{
+  color:inherit;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature .matchMock .mockTitle{
+  color:#1b4d46!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.passportFeature{
+  background:linear-gradient(160deg,#097a76,#0a585f)!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.passportFeature :is(h3,p,.featureNum){
+  color:#f1fffb!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.workspaceFeature{
+  background:linear-gradient(155deg,#101e29,#11262d)!important;border-color:#31545a!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #how .step{
+  background:#18383d!important;border-color:#376e6b!important;color:#e9fbf6!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #how .step .stepNo{
+  color:#82edd8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings{
+  background:#122b30!important;color:#f0fff9!important;
+  border-block:1px solid #3b756e!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings :is(h2,h3){
+  color:#edfffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings :is(.verifiedOpenHead p,.verifiedOpenCard p){
+  color:#c1e0d9!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings :is(.verifiedOpenCard,.verifiedEmpty){
+  background:#1a383e!important;border-color:#47736f!important;color:#eafff8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings .verifiedOpenCard h3 a{
+  color:#f0fffb!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings :is(.verifiedSeeAll,.verifiedOpenLink,.verifiedOpenTag){
+  color:#83f7dc!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings .verifiedDeadline{
+  color:#b2ffe7!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings .verifiedRestriction{
+  color:#ffcf9b!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities{
+  background:#10272c!important;color:#eefdf7!important;border-color:#3b6561!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities :is(h2,h3,.liveHeader .eyebrow){
+  color:#f0fffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities .liveCard{
+  background:linear-gradient(165deg,#183840,#132d35)!important;
+  color:#eafbf5!important;border-color:#3c696a!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities .liveCard h3{
+  color:#f0fffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities :is(.liveCard p,.provider,.liveReason,.liveBottom,.liveBadge,.liveHeader p){
+  color:#c2e3db!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities :is(.textBtn,.liveCard a){
+  color:#9cffea!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides{
+  background:#0b2029!important;color:#eafff7!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides :is(h2,h3){
+  color:#f1fffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides .guideCard{
+  background:#16313a!important;color:#eafff7!important;border-color:#406869!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides .guideCard p{
+  color:#c1e1dc!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides .guideCard b{
+  color:#93fce3!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .footer{
+  background:#0a1c24!important;color:#c5e2de!important;border-color:#37615c!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .footer a{
+  color:#bcfbe8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .footer .brandword{
+  color:#f1fffb!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing a:focus-visible,
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldLinks a:focus-visible{
+  outline:2px solid #80ffe6;outline-offset:3px;
+}
+/* Fixed dark backgrounds are not allowed to inherit a light-theme headline. */
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="light"] #landing #difference,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="light"] #landing #how{
+  color:#163c3c!important;
+}
+@media(prefers-reduced-motion:reduce){
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection *{
+    text-shadow:none;
+  }
+}
