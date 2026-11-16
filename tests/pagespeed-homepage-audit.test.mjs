@@ -61,15 +61,14 @@ test('public homepage is painted before account and tracker modules finish booti
 });
 
 test('non-essential homepage CSS is deferred without losing no-script fallbacks', () => {
-  const html = read('index.html');
+  const html=read('index.html');
   for(const name of ['public-v264.css','homepage-trust-v1.css?v=1','seo-clusters.css']) {
-    const escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    const re=new RegExp('<link rel="stylesheet" href="'+escaped+'" media="print" onload="this.media=\\'all\\'">');
-    assert.match(html,re);
-    assert.match(html,new RegExp('<noscript><link rel="stylesheet" href="'+escaped+'"></noscript>'));
+    const tag=`<link rel="stylesheet" href="/${name}" media="print" onload="this.media='all'">`;
+    const fallback=`<noscript><link rel="stylesheet" href="/${name}"></noscript>`;
+    assert.ok(html.includes(tag), name+' is still render blocking');
+    assert.ok(html.includes(fallback), name+' must work without JavaScript');
   }
 });
-
 test('carousel gives priority only to the hero image and uses smaller source quality', () => {
   const html=read('index.html');
   const images=[...html.matchAll(/<img\b[^>]*src="https:\/\/images\.unsplash\.com\/[^"]+"[^>]*>/g)].map(m=>m[0]);
