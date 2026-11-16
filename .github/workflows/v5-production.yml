@@ -9,6 +9,7 @@ on:
       - 'app-v92-readability.js'
       - 'orbital-v2.css'
       - 'tests/pagespeed-homepage-audit.test.mjs'
+      - 'tests/pagespeed-pr-browser.mjs'
       - 'site-nav-contrast-v5.css'
       - 'tests/v5-production.test.mjs'
       - 'tests/v5-production-browser.mjs'
@@ -31,6 +32,7 @@ on:
       - 'app-v92-readability.js'
       - 'orbital-v2.css'
       - 'tests/pagespeed-homepage-audit.test.mjs'
+      - 'tests/pagespeed-pr-browser.mjs'
       - 'tests/v5-production.test.mjs'
       - 'tests/v5-production-browser.mjs'
       - '.github/workflows/v5-production.yml'
@@ -63,6 +65,8 @@ jobs:
           node-version: '24'
       - run: npm install --no-save playwright@1.56.1
       - run: npx playwright install --with-deps chromium
+      - name: Browser-test the checked-out PR for early public paint and account gate
+        run: node tests/pagespeed-pr-browser.mjs
       - name: Render public pages and verify nav, contrast, ads code and deep links
         run: node tests/v5-production-browser.mjs
       - name: Archive website screenshots
