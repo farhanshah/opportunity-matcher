@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 /* Original Orbital Command 2.0 presentation. No ThreeUI Pro source or assets used. */
 html.omOrbitalV2{--ov-accent:#65f7d9;--ov-ink:#10333b;--ov-paper:#f0f8f5;--ov-border:#c7ddd8;--ov-display:'DM Sans',system-ui,sans-serif;--ov-text:'DM Sans',system-ui,sans-serif}
 html.omOrbitalV2 body{overflow-x:clip}
