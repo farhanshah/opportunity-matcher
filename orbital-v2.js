@@ -17,7 +17,8 @@
       let delta=(i-active+count)%count;
       if(delta>count/2)delta-=count;
       card.dataset.offset=String(delta);
-      const visible=Math.abs(delta)<=1;
+      // Only the front card is a keyboard link. Side cards are visual previews.
+      const visible=delta===0;
       card.setAttribute('aria-hidden',visible?'false':'true');
       card.tabIndex=visible?0:-1;
       card.setAttribute('aria-current',delta===0?'true':'false');
