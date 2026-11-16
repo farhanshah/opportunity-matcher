@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="omTurquoisePreview">
+<html lang="en" class="omTurquoisePreview omOrbitalV2">
 <head>
 <meta name="google-adsense-account" content="ca-pub-1916126969266611">
 <meta charset="utf-8">
@@ -49,7 +49,8 @@ html:not(.omBootReady) body{overflow:auto!important;background:#f4f7f3!important
 html:not(.omBootReady) body>#landing{visibility:visible!important;opacity:1!important}
 html:not(.omBootReady) body:before,html:not(.omBootReady) body:after{display:none!important}
 </style></noscript>
-<link rel="stylesheet" href="/seo-clusters.css"></head>
+<link rel="stylesheet" href="/seo-clusters.css">
+<link rel="stylesheet" href="/orbital-v2.css?v=1"></head>
 <body>
 <div id="landing" class="landing">
   <section class="heroWrap">
@@ -64,17 +65,27 @@ html:not(.omBootReady) body:before,html:not(.omBootReady) body:after{display:non
     <div class="hero">
       <div>
         <span class="kicker"><i class="pulse"></i><span id="heroKicker">Official source matching · live database</span></span>
-        <h1>Your next move shouldn't depend on <em>luck.</em></h1>
-        <p class="heroCopy">Create one Opportunity Passport. We turn your profile into a smarter way to discover scholarships, internships, fellowships and funded international programmes, with the official source always one click away.</p>
+        <h1>Go further.<br>Beyond <em>what’s expected.</em></h1>
+        <p class="heroCopy">One Opportunity Passport. A world of scholarships, internships and fellowships. Explore programmes, check the evidence and make your next move with confidence.</p>
         <div class="heroActions"><button class="btn btnPrimary" onclick="openOnboard()">Create my Opportunity Passport <span>↗</span></button><a class="btn btnGhost" href="/latest">Browse opportunities</a><a class="btn btnGhost" href="/tools/application-readiness">Free application checklist</a></div><p class="accountFirstHint">Free account required to save your Passport. Browse guides and opportunities without signing in.</p>
         <div style="margin:14px 0 0;font-size:13px"><a href="/worldwide#official-open-calls" style="color:#91f4e5;text-decoration:underline;text-underline-offset:4px;font-weight:750"><span id="heroOpenCallsLabel">Browse open official calls and check your eligibility ↗</span></a></div>
         <div class="microTrust"><div class="stat"><strong id="statOpps">…</strong>opportunities in database</div><div class="stat"><strong id="statSources">…</strong>active sources tracked</div><div class="stat"><strong id="statOpen">…</strong><a href="/worldwide" style="color:inherit;text-decoration:none;border-bottom:1px solid currentColor">official pages to explore ↗</a></div></div>
       </div>
-      <div class="heroVisual" aria-label="Student opportunity stories"><h2 class="visuallyHidden" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Featured opportunity themes</h2>
-        <div class="slideShell" id="slideShell">
-          <div class="slide active" style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=86')"><div class="slideInfo"><div><a class="slideTag" href="/scholarships/">Scholarships ↗</a><h3>Study further.<br>Go further.</h3><p>Find funding routes that fit your profile.</p></div><div class="slideCounter"><span class="dot active"><i></i></span><span class="dot"><i></i></span><span class="dot"><i></i></span></div></div></div>
-          <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=86')"><div class="slideInfo"><div><a class="slideTag" href="/fellowships/">Fellowships ↗</a><h3>Build a career<br>with range.</h3><p>Leadership, research and global development programmes.</p></div><div class="slideCounter"><span class="dot"><i></i></span><span class="dot active"><i></i></span><span class="dot"><i></i></span></div></div></div>
-          <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1600&q=86')"><div class="slideInfo"><div><a class="slideTag" href="/exchange-programs/">International programmes ↗</a><h3>Move across<br>borders.</h3><p>Exchange, internship and funded mobility opportunities.</p></div><div class="slideCounter"><span class="dot"><i></i></span><span class="dot"><i></i></span><span class="dot active"><i></i></span></div></div></div>
+      <div class="heroVisual" aria-label="Interactive photo gallery of global opportunity themes">
+        <div class="ovStage" id="ovStage" aria-roledescription="rotating photo gallery" aria-label="Seven global opportunity themes">
+          <div class="ovOrbitRing" aria-hidden="true"></div><div class="ovLightRail" aria-hidden="true"></div>
+          <span class="ovStageLabel" aria-hidden="true">OPPORTUNITY / UNIVERSE</span>
+          <a class="ovCard" href="/scholarships/" data-offset="0" aria-label="Explore Scholarships" aria-current="true"><img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&amp;fit=crop&amp;w=1100&amp;q=80" alt="University students collaborating around a table" loading="eager" decoding="async" fetchpriority="high"><span class="ovCardText"><small>SCHOLARSHIPS · EXPLORE ↗</small><strong>Study without limits</strong><span>Explore funding and study routes</span></span></a>
+          <a class="ovCard" href="/internships/" data-offset="1" aria-label="Explore Internships" aria-current="false"><img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&amp;fit=crop&amp;w=1100&amp;q=80" alt="Professionals gathered for a workshop" loading="lazy" decoding="async" ><span class="ovCardText"><small>INTERNSHIPS · EXPLORE ↗</small><strong>Find your momentum</strong><span>Find early-career and training paths</span></span></a>
+          <a class="ovCard" href="/fellowships/" data-offset="2" aria-label="Explore Fellowships" aria-current="false"><img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&amp;fit=crop&amp;w=1100&amp;q=80" alt="Students sharing ideas in an academic setting" loading="lazy" decoding="async" ><span class="ovCardText"><small>FELLOWSHIPS · EXPLORE ↗</small><strong>Grow into new ideas</strong><span>Discover research and leadership routes</span></span></a>
+          <a class="ovCard" href="/exchange-programs/" data-offset="3" aria-label="Explore Global exchange" aria-current="false"><img src="https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&amp;fit=crop&amp;w=1100&amp;q=80" alt="People together in an education group" loading="lazy" decoding="async" ><span class="ovCardText"><small>GLOBAL EXCHANGE · EXPLORE ↗</small><strong>Go beyond borders</strong><span>Learn about mobility and exchange programmes</span></span></a>
+          <a class="ovCard" href="/scholarships/phd/" data-offset="-3" aria-label="Explore University research" aria-current="false"><img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&amp;fit=crop&amp;w=1100&amp;q=80" alt="University lecture and academic audience" loading="lazy" decoding="async" ><span class="ovCardText"><small>UNIVERSITY RESEARCH · EXPLORE ↗</small><strong>Ask a bigger question</strong><span>Research degrees and doctoral routes</span></span></a>
+          <a class="ovCard" href="/internships/tech/" data-offset="-2" aria-label="Explore Career pathways" aria-current="false"><img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&amp;fit=crop&amp;w=1100&amp;q=80" alt="Team members collaborating at a workplace" loading="lazy" decoding="async" ><span class="ovCardText"><small>CAREER PATHWAYS · EXPLORE ↗</small><strong>Build what's next</strong><span>Practical career-development routes</span></span></a>
+          <a class="ovCard" href="/blog/" data-offset="-1" aria-label="Explore Opportunity guides" aria-current="false"><img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&amp;fit=crop&amp;w=1100&amp;q=80" alt="People working together in a learning group" loading="lazy" decoding="async" ><span class="ovCardText"><small>OPPORTUNITY GUIDES · EXPLORE ↗</small><strong>Start with the facts</strong><span>Prepare before you apply</span></span></a>
+        </div>
+        <div class="ovStageControls" aria-label="Photo gallery controls">
+          <span class="ovNumber" id="ovCounter" aria-live="off">01 / 07</span>
+          <div class="ovControlsGroup"><button id="ovPrev" type="button" aria-label="Previous photo">←</button><button id="ovPause" class="ovPause" type="button" aria-label="Pause rotating photographs" aria-pressed="false">Ⅱ</button><button id="ovNext" type="button" aria-label="Next photo">→</button></div>
         </div>
       </div>
     </div>
@@ -93,6 +104,18 @@ html:not(.omBootReady) body:before,html:not(.omBootReady) body:after{display:non
     </div>
   </section>
 
+  <section class="ovWorldSection" aria-labelledby="ovWorldTitle">
+    <div class="ovWorldInner">
+      <div class="ovWorldCopy">
+        <span class="ovEyebrow">02 / Explore the world</span>
+        <h2 id="ovWorldTitle">There is a world of opportunity out there.</h2>
+        <p>Explore locations through official-source guides. An opportunity is only shown as open when its specific application evidence supports that status.</p>
+        <div class="ovWorldLinks" aria-label="Explore opportunities by region"><a href="/scholarships/uk/">United Kingdom ↗</a><a href="/scholarships/usa/">United States ↗</a><a href="/scholarships/germany/">Germany ↗</a><a href="/scholarships/japan/">Japan ↗</a><a href="/scholarships/canada/">Canada ↗</a><a href="/scholarships/europe/">Europe ↗</a><a href="/worldwide">All regions ↗</a></div>
+        <div class="ovGlobalStat"><span>Official-source first</span><span>Personal eligibility matters</span></div>
+      </div>
+      <div class="ovGlobeWrap"><canvas id="ovGlobe" role="img" aria-label="Animated illustration of a globe with network meridians. Use the regional links beside it to explore opportunities."></canvas><div class="ovGlobeLabel">DRAG TO ROTATE · VISUAL EXPLORER</div></div>
+    </div>
+  </section>
   <section class="omTrustHub" aria-labelledby="omTrustTitle">
     <div class="omTrustInner">
       <p class="omTrustEyebrow">Explore OppMatcher without an account</p>
@@ -183,5 +206,6 @@ html:not(.omBootReady) body:before,html:not(.omBootReady) body:after{display:non
 <script src="/integration-shell-v5.js?v=7" defer></script>
 <script src="/source-chips-v1.js?v=2" defer></script>
 
+<script src="/orbital-v2.js?v=1" defer></script>
 </body>
 </html>
