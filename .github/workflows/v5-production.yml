@@ -4,6 +4,8 @@ on:
     paths:
       - 'index.html'
       - 'app-v07.js'
+      - 'app-cloud-v13.js'
+      - 'public-home-lite.js'
       - 'integration-shell-v5.js'
       - 'source-chips-v1.js'
       - 'app-v92-readability.js'
@@ -48,6 +50,8 @@ jobs:
           node-version: '24'
       - run: node --check integration-shell-v5.js
       - run: node --check app-v07.js
+      - run: node --check public-home-lite.js
+      - run: node --check app-cloud-v13.js
       - run: node --check source-chips-v1.js
       - run: node --check app-v92-readability.js
       - run: node --test tests/pagespeed-homepage-audit.test.mjs
