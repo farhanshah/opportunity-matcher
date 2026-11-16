@@ -453,9 +453,10 @@ async function refreshSession(bootstrap=false){
 window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,social,linkedinAccount,refreshLinkedIn,signOut,syncNow,completePassport:openProfileSettings,verifyEmail:requestEmailVerification,retrySession:()=>refreshSession(true),isSignedIn:()=>Boolean(session?.user),isAccountReady:()=>Boolean(session?.user&&ready)};
 window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
-window.dispatchEvent(new Event('opportunity:cloudready'));
 void refreshSocialProviders();
 await refreshSession(true);
+// Public-page sign in waits until session restoration has finished.
+window.dispatchEvent(new Event('opportunity:cloudready'));
 let linkedResult=new URLSearchParams(window.location.search).get('linkedin_connect');
 try{
   if(!linkedResult)linkedResult=sessionStorage.getItem('oppLinkedInCallbackOutcomeV1');
