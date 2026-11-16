@@ -274,3 +274,52 @@ test('expanded source-backed programme and planning pages retain actual decision
  assert.match(get('programmes/newton-international-fellowship/index.html'),
    /https:\/\/www\.royalsociety\.org\/grants\/newton-international\//);
 });
+
+
+test('ten category hubs provide distinct evidence-based comparisons and avoid excluded editorial drafts',()=>{
+ const updated=[
+  ['exchange-programs/youth-conferences/index.html','Is the event selective, funded or simply paid admission?'],
+  ['fellowships/leadership/index.html','What does a leadership fellowship actually assess?'],
+  ['internships/paid/index.html','Paid internship, expense allowance or reimbursement?'],
+  ['scholarships/undergraduate/index.html','First-degree funding follows different routes'],
+  ['scholarships/masters/index.html',"Three different ways master's scholarships are awarded"],
+  ['scholarships/phd/index.html','Separate doctoral studentships from postdoctoral research awards'],
+  ['internships/research-summer/index.html','Research placements, summer courses and lab internships are different'],
+  ['scholarships/for/index.html','Nationality is not the same as residence or study location'],
+  ['internships/tech/index.html','What evidence fits a technology internship?'],
+  ['fellowships/policy-and-ai/index.html','Choose the project, not just the fellowship title']
+ ];
+ const excludedSlugs=new Set([
+  'chevening-work-experience-calculation','commonwealth-scholarship-nominating-agency',
+  'daad-vs-university-scholarship-germany','fully-funded-vs-partially-funded-scholarships',
+  'international-internship-work-visa-requirements','internships-without-experience-portfolio',
+  'masters-scholarships-international-students-guide','paid-vs-unpaid-internships-abroad',
+  'phd-fellowship-vs-research-grant','remote-internships-international-students',
+  'research-proposal-for-scholarship-guide','scholarship-country-eligibility-matching',
+  'scholarship-cv-format-for-students','scholarship-essay-common-mistakes',
+  'scholarship-recommendation-letter-request','scholarships-students-with-disabilities',
+  'statement-of-purpose-vs-personal-statement','undergraduate-scholarships-abroad-checklist',
+  'university-placement-year-internship-credit','us-graduate-assistantship-vs-fellowship'
+ ]);
+ const sitemap=get('sitemap.xml');
+ for(const [path,heading] of updated){
+  const html=get(path);
+  const main=html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1]||'';
+  const words=main.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/\s+/).length;
+  assert.ok(words>=400,path+' has reverted to a thin directory');
+  assert.ok(main.includes(heading),path+' missing its original comparison');
+  assert.ok(main.includes('<table'),path+' missing its structured decision table');
+  assert.doesNotMatch(main,/These resources compare the route without asserting that every linked scheme is open/,
+    path+' repeated generic copy instead of a useful answer');
+  const canonical=html.match(/rel="canonical" href="([^"]+)"/)?.[1];
+  assert.ok(canonical,path+' missing canonical');
+  assert.ok(sitemap.includes('<loc>'+canonical+'</loc><lastmod>2026-11-16</lastmod>'),
+    path+' lastmod must match the substantive change');
+  assert.match(html,/name="robots" content="index,follow"/);
+  assert.equal((html.match(/adsbygoogle\.js\?client=ca-pub-1916126969266611/g)||[]).length,1,
+    path+' must use one publisher script');
+  for(const match of main.matchAll(/href="\/blog\/([^/]+)\//g)){
+    assert.ok(!excludedSlugs.has(match[1]),path+' promotes noindex draft '+match[1]);
+  }
+ }
+});
