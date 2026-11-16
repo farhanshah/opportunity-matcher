@@ -105,3 +105,36 @@ The new guide was linked from the public blog index, the technology and remote i
 - `/blog/remote-cybersecurity-internships/`: URL unknown to Google at inspection time, expected for a just-published page.
 
 **Measurement rule:** compare subsequent 28-day equivalent Search Console periods, query/page pairs, and URL Inspection status without promising immediate crawl or ranking. Confirm Google has recrawled an existing article before attributing changes to the new content.
+
+## Remote design and data science content sprint: 16 November 2026
+
+### US keyword evidence (OpenSEO)
+These values are country-specific estimates, not guarantees and not to be summed as unique traffic:
+
+| Query | Estimated monthly searches | Difficulty | Intended page |
+|---|---:|---:|---|
+| graphic design internships remote | 480 | 0 | /blog/remote-graphic-design-internships/ |
+| remote graphic design internships | 260 | 0 | Same page, variant not a duplicate article |
+| data science internships remote | 210 | 0 | /blog/remote-data-science-internships/ |
+| remote data science internships | 110 | 0 | Same page, variant not a duplicate article |
+
+The OpenSEO SERP snapshots for these keywords were dominated by broad job boards (ZipRecruiter, Indeed, Glassdoor, Jooble, Handshake), with occasional employer pages, paid placement sellers and Reddit discussions. This makes source-backed comparisons worth testing, but does **not** establish that the top results have weak domain authority or guarantee OppMatcher ranks above them. No authoritative domain-rating measurement was performed.
+
+### Original content published
+1. `/blog/remote-graphic-design-internships/`: 1,336-word practical guide; primary employers [ACLU spring 2027](https://job-boards.greenhouse.io/acluinternships/jobs/8919464002), [Pacvue](https://job-boards.greenhouse.io/pacvue/jobs/6261128004), and [GigFinesse spring 2027](https://job-boards.greenhouse.io/gigfinesse/jobs/4725799006). Distinguishes US-based/US-remote arrangements and paid versus credit-only arrangements. Includes an original portfolio diagram, comparison table, three-project portfolio sample, FAQs and application checklist.
+2. `/blog/remote-data-science-internships/`: 1,436-word practical guide; official [Amgen undergraduate internship R-255704](https://careers.amgen.com/en/job/washington-d-c/undergrad-intern-data-scientist-amgen-s-technology-and-medical-organizations-summer-2027/87/100494061088), [Stryker R572731](https://careers.stryker.com/data-science-intern-remote/job/FCFB9F72FB31AE2D62E4D399306A99B6), [Amplify 2027 data analytics](https://jobs.ashbyhq.com/amplify/7b859cc1-1354-43c5-bbd4-0571e85f7c51), and [Simbe Robotics](https://jobs.lever.co/SimbeRobotics/96ee45fb-f094-4751-a43d-3e376f32667f). Differentiates data analytics from data science and engineering; clarifies requirements including the US work-location and sponsorship restrictions. Includes an original decision diagram, comparison table, project portfolio and FAQs.
+
+Both articles are editorial comparison guides, **not** new entries in the exact-vacancy database. Employer status may change. Do not mark any cited role OPEN without the backend's current evidence and date checks. Both pages are `index,follow` with one AdSense loader, structured Article metadata, original SVG explanatory figures with alt text and canonical URLs.
+
+### Discovery, submission and verification
+- Cross-linked both guides from `/blog/`, `/internships/tech/`, `/internships/remote/` and `/blog/remote-internships-international-students/`.
+- Added both URLs to `sitemap.xml` with truthful publication lastmod `2026-11-16`.
+- [GitHub SEO sitemap/publisher checks](https://github.com/farhanshah/opportunity-matcher/actions/runs/43939259339) **passed** for `ac2f494b4090a8fedbca3ba26f41c1000564885e`.
+- [GitHub public content quality checks](https://github.com/farhanshah/opportunity-matcher/actions/runs/43939259183) **passed** for that same commit.
+- Vercel deployment `dpl_8wA1eGYxDrgCRFCmb7PXJRCQnFKj` **READY** at production SHA `ac2f494b4090a8fedbca3ba26f41c1000564885e`, with alias `oppmatcher.tech` and no alias error.
+- IndexNow accepted 6 changed URLs (the two guides, blog index, two topic hubs and the pre-existing international-student guide). **Google does not use IndexNow.**
+- Google Search Console inspection immediately after publication reported `URL is unknown to Google` for both new pages. This is not proof of exclusion; check crawl status again during subsequent reviews.
+- Do not treat earlier failures during partial sitemap edits as failures of the final commit; the two final SEO workflows are green. Do not claim separate real-browser QA passed unless it is confirmed on the exact final commit.
+
+### Follow-up
+At the next weekly review, compare the two exact page URLs in Search Console and only then revise titles, FAQs or section answers. Check that Google has crawled before judging results. Keep monthly keyword estimates separate from actual impressions/clicks and avoid duplicate content for reversed-word keyword variants.
