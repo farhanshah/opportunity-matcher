@@ -69,7 +69,7 @@ for(const width of [360,390,768,1280,1440]){
   const badge=channels(visual.kickerBackground);
   const alphaParts=(visual.kickerBackground.match(/[0-9.]+/g)||[]).map(Number);
   const alpha=alphaParts.length>=4?alphaParts[3]:1;
-  const stopColors=(visual.heroBackgroundImage.match(/rgba?\\([^)]*\\)/g)||[])
+  const stopColors=(visual.heroBackgroundImage.match(/rgba?\([^)]*\)/g)||[])
     .map(channels).filter(Boolean);
   const fallback=channels(visual.heroBackgroundColor);
   const candidateStops=stopColors.length?stopColors:(fallback?[fallback]:[]);
