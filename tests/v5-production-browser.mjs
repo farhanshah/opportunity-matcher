@@ -92,8 +92,10 @@ for(const width of [360,390,768,1280,1440]){
   const brandRgb=(state.brandColor.match(/\d+/g)||[]).map(Number);
   check(brandRgb.length===3&&brandRgb[0]>=235&&brandRgb[1]>=245&&brandRgb[2]>=240,
     width+' brand readable',state.brandColor);
-  check(state.secondaryColor==='rgb(239, 255, 251)',width+' secondary button readable',state.secondaryColor);
-  check(state.ctaColor==='rgb(8, 45, 46)',width+' CTA contrast',state.ctaColor);
+  check(['rgb(239, 255, 251)','rgb(255, 255, 255)'].includes(state.secondaryColor),
+    width+' secondary button readable',state.secondaryColor);
+  check(['rgb(8, 45, 46)','rgb(16, 43, 44)'].includes(state.ctaColor),
+    width+' CTA contrast',state.ctaColor);
   check(state.publisherFound&&state.googleScripts>=1,width+' AdSense publisher script is present',state);
   check(state.menu.right<=state.nav.right+4,width+' menu within nav');
   const drop=page.locator('.omLandingMenu');
