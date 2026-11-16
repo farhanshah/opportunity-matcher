@@ -56,7 +56,7 @@ test('public homepage is painted before account and tracker modules finish booti
   assert.ok(reveal > 0 && awaitAll > reveal,
     'first public paint must not wait for the workspace script waterfall');
   assert.match(js, /const isPublicHome=location\.pathname==='\/'/);
-  assert.match(js, /earlyOpenOnboard=\(\.\.\.args\)=>\{queuedOnboard\.push\(args\)\}/);
+  assert.match(js, /earlyOpenOnboard=\(\.\.\.args\)=>\{queuedOnboard\.push\(args\);startPublicWorkspace\('passport'\)\}/);
   assert.match(js, /window\.openOnboard\(\.\.\.queuedOnboard\[queuedOnboard\.length-1\]\)/);
 });
 
@@ -115,4 +115,37 @@ test('script evaluations stay sequential, with a normal timeout fallback', () =>
   assert.ok(execute>=0&&yieldLater>execute);
   assert.match(js,/new Promise\(resolve=>setTimeout\(resolve,0\)\)/);
   assert.match(js,/if\(isPublicHome&&i\+1<files\.length/);
+});
+
+
+test('public homepage does not start the whole workspace until intent or settle', () => {
+  const js=read('app-v07.js');
+  assert.match(js,/publicBootGate=new Promise\(resolve=>/);
+  assert.match(js,/await publicBootGate/);
+  assert.match(js,/window\.OpportunityStartWorkspace=startPublicWorkspace/);
+  assert.match(js,/startPublicWorkspace\('featured'\)/);
+  assert.match(js,/startPublicWorkspace\('passport'\)/);
+  assert.match(js,/setTimeout\(\(\)=>startPublicWorkspace\('fallback'\),9500\)/);
+  assert.match(js,/document\.addEventListener\('click',guardEarlyPassportClick,true\)/);
+});
+
+test('public Sign in is available without waiting for Neon Auth and is rebound securely', () => {
+  const html=read('index.html');
+  assert.match(html,/<button id="cloudLandingAuth" class="cloudNavAuth" type="button" onclick="window\.OpportunityStartWorkspace\?\.\('signin'\)">Sign in<\/button>/);
+  const cloud=read('app-cloud-v13.js');
+  assert.match(cloud,/let b=document\.getElementById\('cloudLandingAuth'\)/);
+  assert.match(cloud,/b\.onclick=\(\)=>openAuth\(\)/);
+  assert.match(cloud,/window\.dispatchEvent\(new Event\('opportunity:cloudready'\)\)/);
+  assert.match(read('app-v07.js'),/if\(pendingSignIn\)window\.OpportunityCloud\?\.openAuth\?\.\(\)/);
+});
+
+test('public counts use live endpoints and cannot fabricate a missing count', () => {
+  const html=read('index.html');
+  assert.match(html,/<script src="\/public-home-lite\.js\?v=1" defer><\/script>/);
+  const publicJs=read('public-home-lite.js');
+  for(const endpoint of ['/api/health','/api/source-listings?limit=72','/api/open-calls'])
+    assert.ok(publicJs.includes(endpoint),endpoint+' is not queried');
+  assert.match(publicJs,/if\(!\['string','number'\]\.includes\(typeof v\)/);
+  assert.doesNotMatch(publicJs,/Math\.random\(\)/);
+  assert.match(html,/ca-pub-1916126969266611/);
 });
