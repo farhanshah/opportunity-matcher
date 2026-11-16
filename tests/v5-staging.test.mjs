@@ -8,8 +8,12 @@ const onclick=s=>[...s.matchAll(/\bonclick="([^"]+)"/g)].map(x=>x[1]).sort();
 test('new navbar preserves actual application controls and routes',()=>{
  // The production homepage gained official calls and verified vacancies after
  // the staging preview. Keep all original controls and only allow these additions.
- const addedIds=['heroOpenCallsLabel','verified-openings','verifiedOpenTitle','verifiedOpenGrid'];
- assert.deepEqual(id(index).filter(value=>!addedIds.includes(value)),id(preview));
+ const addedIds=['heroOpenCallsLabel','verified-openings','verifiedOpenTitle','verifiedOpenGrid','omTrustTitle'];
+ // The old slideShell was replaced by an accessible seven-card gallery.
+ // Keep every original application control, while allowing additional presentation IDs.
+ const actualIds=new Set(id(index));
+ for(const value of id(preview).filter(value=>value!=='slideShell'))assert.ok(actualIds.has(value),'Lost original application control: '+value);
+ for(const value of ['ovStage','ovGlobe','ovPrev','ovNext','ovPause','ovTickerToggle'])assert.ok(actualIds.has(value),'Orbital control missing: '+value);
  for(const value of addedIds)assert.ok(id(index).includes(value),value+' missing from production');
  // The sample() preview action was replaced by a public browsing link.
  assert.deepEqual(onclick(index),onclick(preview).filter(value=>value!=='sample()'));

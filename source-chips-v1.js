@@ -57,7 +57,8 @@
   monitoring.className='omSourceMonitoring';
   monitoring.textContent='Loading official-page monitoring details…';
   pop.append(heading,kind,description,note,link,monitoring,closeButton);
-  document.body.appendChild(pop);
+  // Keep details in the document flow, inside their source strip. Never cover adjacent cards.
+  (strip.closest?.('.sourceMarquee') || strip.parentElement || document.body).appendChild(pop);
 
   let summaries=null;
   function sourceSummary(key){
@@ -99,18 +100,12 @@
   function scheduleClose(){clearHide();hideTimer=window.setTimeout(()=>{
     if(!pop.matches(':hover')&&!(active&&active.matches(':focus-visible')))close();
   },180)}
-  function position(chip){
-    const rect=chip.getBoundingClientRect?.()||{top:120,bottom:160,left:12,width:140};
-    const width=Math.min(320,Math.max(240,window.innerWidth-24));
-    const left=Math.max(12,Math.min(window.innerWidth-width-12,rect.left+rect.width/2-width/2));
-    pop.style.width=width+'px';
-    pop.style.left=left+'px';
-    pop.style.bottom='auto';
-    const height=Math.max(180,Number(pop.offsetHeight)||0);
-    const below=rect.bottom+12;
-    // Anchor to its source chip on phones too, instead of a persistent
-    // bottom sheet covering the following programme content.
-    pop.style.top=(below+height+12<=window.innerHeight?below:Math.max(12,rect.top-height-12))+'px';
+  function position(){
+    // Details are an expandable inline panel, not a floating overlay.
+    pop.style?.removeProperty?.('left');
+    pop.style?.removeProperty?.('top');
+    pop.style?.removeProperty?.('bottom');
+    pop.style?.removeProperty?.('width');
   }
   function open(chip){
     const info=SOURCES[chip.dataset.source];

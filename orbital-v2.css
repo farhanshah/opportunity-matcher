@@ -1,0 +1,524 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+/* Original Orbital Command 2.0 presentation. No ThreeUI Pro source or assets used. */
+html.omOrbitalV2{--ov-accent:#65f7d9;--ov-ink:#10333b;--ov-paper:#f0f8f5;--ov-border:#c7ddd8;--ov-display:'DM Sans',system-ui,sans-serif;--ov-text:'DM Sans',system-ui,sans-serif}
+html.omOrbitalV2 body{overflow-x:clip}
+html.omOrbitalV2 #landing .heroWrap{color:#f7fffd!important;background:radial-gradient(ellipse 70% 70% at 85% 35%,#145768 0%,#082d3d 48%,#04141e 88%)!important;isolation:isolate;overflow:hidden;min-height:0}
+html.omOrbitalV2 #landing .heroWrap:before{content:"";position:absolute;inset:-20% -5% 0 30%;height:auto;background:conic-gradient(from 95deg at 60% 45%,transparent,#19b9af43,transparent,#267dbd33,transparent);filter:blur(55px);opacity:.8;pointer-events:none;animation:ov-aura 27s linear infinite}
+html.omOrbitalV2 #landing .heroWrap:after{content:"";position:absolute;inset:0;background:linear-gradient(#75f7e309 1px,transparent 1px),linear-gradient(90deg,#75f7e309 1px,transparent 1px);background-size:75px 75px;mask-image:linear-gradient(transparent,#000 24%,#000 72%,transparent);pointer-events:none}
+html.omOrbitalV2 #landing .heroWrap>.nav{max-width:1440px;z-index:40;position:relative}
+html.omOrbitalV2 #landing .heroWrap>.nav .brandword,html.omOrbitalV2 #app .side .brandword{font-family:var(--ov-display);letter-spacing:-.045em}
+html.omOrbitalV2 #landing .heroWrap>.nav .btnPrimary{box-shadow:0 12px 28px #09b8a638}
+html.omOrbitalV2 #landing .hero{max-width:1440px;grid-template-columns:minmax(0,0.95fr) minmax(0,1.05fr);gap:clamp(24px,3.5vw,70px);padding:clamp(44px,5vw,92px) 26px clamp(54px,7vw,95px);min-height:min(760px,92svh)}
+html.omOrbitalV2 #landing .hero>div{min-width:0}
+html.omOrbitalV2 #landing .hero h1{font:800 clamp(45px,5.45vw,89px)/.99 var(--ov-display)!important;letter-spacing:-.083em!important;color:#f7fffd!important;max-width:780px;text-wrap:balance;position:relative}
+html.omOrbitalV2 #landing .hero h1 em{color:#7bf9db!important;font-style:normal;text-shadow:0 0 45px #3bffda33}
+html.omOrbitalV2 #landing .heroCopy{font-family:var(--ov-text);max-width:520px;color:#c5dfdc!important;line-height:1.68}
+html.omOrbitalV2 #landing .hero .kicker{color:#b8ffec!important;border-color:#71ffe843!important;background:#74fdda13!important}
+html.omOrbitalV2 #landing .heroActions{gap:10px}
+html.omOrbitalV2 #landing .heroActions .btn{min-height:48px;transition:transform .25s ease,box-shadow .25s ease}
+html.omOrbitalV2 #landing .heroActions .btn:hover{transform:translateY(-2px)}
+html.omOrbitalV2 #landing .microTrust{margin-top:28px;gap:25px;color:#adc8c9!important;display:flex!important}
+html.omOrbitalV2 #landing .microTrust strong{color:#ecfffb!important;font-family:var(--ov-display);font-size:20px}
+html.omOrbitalV2 #landing .heroVisual{position:relative;min-height:clamp(430px,44vw,620px)!important;width:100%;max-width:100%;overflow:visible}
+html.omOrbitalV2 #landing .ovStage{--ov-mx:0;--ov-my:0;position:absolute;inset:0;perspective:1400px;transform-style:preserve-3d;isolation:isolate;contain:layout;touch-action:pan-y}
+html.omOrbitalV2 #landing .ovStage:before{content:"";position:absolute;width:min(92%,520px);aspect-ratio:1;left:5%;top:4%;border:1px solid #a1ffeb5c;border-radius:50%;transform:rotate(-18deg) scaleX(.79);box-shadow:0 0 65px #35edd728,inset 0 0 80px #25ccb71c;animation:ov-ring 24s linear infinite;pointer-events:none}
+html.omOrbitalV2 #landing .ovStage:after{content:"";position:absolute;width:80%;height:65%;top:16%;left:10%;background:radial-gradient(ellipse,#42f9de3d,transparent 70%);filter:blur(40px);pointer-events:none}
+html.omOrbitalV2 #landing .ovOrbitRing{position:absolute;inset:15% 0 12%;border:1px dashed #a6fffa40;border-radius:50%;transform:rotateZ(28deg) rotateY(54deg);pointer-events:none;animation:ov-ring 37s linear infinite;z-index:1}
+html.omOrbitalV2 #landing .ovStage .ovCard{--shiftX:0%;--shiftY:0%;--z:0px;--yaw:0deg;--roll:0deg;--scale:1;position:absolute;left:15%;top:7%;width:69%;height:78%;min-width:0;overflow:hidden;border:1px solid #d7fffa5b;border-radius:clamp(18px,2.5vw,30px);background:#09232d;color:#f7fffd!important;text-decoration:none;box-shadow:0 35px 75px #0008,0 0 34px #28ffdf21;transform:translate3d(calc(var(--shiftX) + var(--ov-mx)*6px),calc(var(--shiftY) + var(--ov-my)*6px),var(--z)) rotateY(var(--yaw)) rotateZ(var(--roll)) scale(var(--scale));transition:transform .85s cubic-bezier(.2,.78,.12,1),opacity .75s,filter .75s;will-change:transform;pointer-events:none;isolation:isolate;z-index:2}
+html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="0"]{--shiftX:0%;--shiftY:0%;--z:110px;--yaw:0deg;--roll:-1deg;--scale:1;opacity:1;filter:none;pointer-events:auto;z-index:9}
+html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="1"]{--shiftX:49%;--shiftY:-9%;--z:-85px;--yaw:-25deg;--roll:8deg;--scale:.78;opacity:.86;filter:saturate(.88);pointer-events:auto;z-index:6}
+html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="-1"]{--shiftX:-51%;--shiftY:7%;--z:-85px;--yaw:25deg;--roll:-11deg;--scale:.75;opacity:.76;pointer-events:auto;z-index:7}
+html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="2"]{--shiftX:78%;--shiftY:-18%;--z:-210px;--yaw:-45deg;--roll:17deg;--scale:.55;opacity:.48;filter:saturate(.7) brightness(.7);z-index:4}
+html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="-2"]{--shiftX:-79%;--shiftY:12%;--z:-210px;--yaw:43deg;--roll:-15deg;--scale:.54;opacity:.48;filter:saturate(.7) brightness(.7);z-index:4}
+html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="3"],html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="-3"]{--shiftX:0%;--shiftY:-11%;--z:-280px;--scale:.46;opacity:0;visibility:hidden;z-index:1}
+html.omOrbitalV2 #landing .ovStage .ovCard img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.93);transition:transform 1.2s ease}
+html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="0"] img{animation:ov-image-breathe 9s ease-in-out infinite alternate}
+html.omOrbitalV2 #landing .ovStage .ovCard::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0017200c 10%,#00172009 34%,#00141ee9 100%);pointer-events:none}
+html.omOrbitalV2 #landing .ovCard .ovCardText{position:absolute;left:7%;right:7%;bottom:7%;z-index:3;display:flex;flex-direction:column;gap:7px;opacity:0;transition:opacity .35s}
+html.omOrbitalV2 #landing .ovCard[data-offset="0"] .ovCardText{opacity:1;transition-delay:.35s}
+html.omOrbitalV2 #landing .ovCard .ovCardText small{font:700 10px var(--ov-text);letter-spacing:.22em;color:#8effe4}
+html.omOrbitalV2 #landing .ovCard .ovCardText strong{font:700 clamp(25px,3vw,43px)/1.02 var(--ov-display);letter-spacing:-.065em}
+html.omOrbitalV2 #landing .ovCard .ovCardText span{font:500 12px/1.45 var(--ov-text);color:#daebe7}
+html.omOrbitalV2 #landing .ovStageControls{position:absolute;z-index:20;left:5%;right:5%;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:10px;pointer-events:none;color:#e3fffa}
+html.omOrbitalV2 #landing .ovStageControls .ovNumber{font:700 11px var(--ov-text);letter-spacing:.16em}
+html.omOrbitalV2 #landing .ovControlsGroup{display:flex;align-items:center;gap:10px;pointer-events:auto}
+html.omOrbitalV2 #landing .ovStageControls button{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#0b3b43b8;border:1px solid #97ffe47a;color:#eefffb;font-size:20px;cursor:pointer;backdrop-filter:blur(14px);transition:background .25s,transform .25s}
+html.omOrbitalV2 #landing .ovStageControls button:hover{background:#197769;transform:scale(1.06)}
+html.omOrbitalV2 #landing .ovStageControls button:focus-visible{outline:3px solid #d8fffd;outline-offset:3px}
+html.omOrbitalV2 #landing .ovStageControls .ovPaused{font:600 10px var(--ov-text);opacity:.78}
+html.omOrbitalV2 #landing .ovStageControls .ovPause{font-size:13px}
+html.omOrbitalV2 #landing .ovLightRail{position:absolute;left:0;top:34%;width:85%;height:1px;transform:rotate(-27deg);background:linear-gradient(90deg,transparent,#b0ffe8aa,transparent);pointer-events:none;opacity:.55}
+html.omOrbitalV2 #landing .ovStageLabel{position:absolute;z-index:16;right:3%;top:0;color:#bdfdf0;font:700 10px var(--ov-text);letter-spacing:.2em}
+html.omOrbitalV2 #landing .sourceMarquee{position:relative!important;z-index:12}
+html.omOrbitalV2 #landing .sourceMarquee .omSourcePopover{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:min(720px,calc(100% - 28px))!important;max-width:none!important;margin:0 auto 18px!important;box-shadow:0 20px 55px #0004}
+html.omOrbitalV2 #landing .sourceMarquee .omSourcePopover[hidden]{display:none!important}
+html.omOrbitalV2 #landing .omTrustHub{background:#eff8f5!important;color:#153b3a!important}
+html.omOrbitalV2 #landing .omTrustHub :is(h2,h3,.omTrustIntro,.omTrustCard strong){color:#143b39!important}
+html.omOrbitalV2 #landing .omTrustHub h2,html.omOrbitalV2 #landing .section h2,html.omOrbitalV2 #landing .omSeoExplore h2,html.omOrbitalV2 #landing .omProgrammeCrawl h2{font-family:var(--ov-display)!important;letter-spacing:-.057em!important;line-height:1.08!important;text-wrap:balance}
+html.omOrbitalV2 #landing .omTrustGrid{gap:15px}
+html.omOrbitalV2 #landing .omTrustCard{border-radius:20px;overflow:hidden;transition:transform .35s,box-shadow .35s}
+html.omOrbitalV2 #landing .omTrustCard:hover{transform:translateY(-5px);box-shadow:0 20px 45px #0c454322}
+html.omOrbitalV2 #landing .omSeoExplore{background:#ecf7f3!important;color:#123d39!important;padding-top:clamp(42px,5vw,85px)!important;padding-bottom:clamp(42px,5vw,85px)!important}
+html.omOrbitalV2 #landing .omSeoExplore :is(h2,h3,p){color:#123d39!important;opacity:1!important}
+html.omOrbitalV2 #landing .omSeoExplore a{color:#08685c!important}
+html.omOrbitalV2 #landing .omProgrammeCrawl .seoInline,html.omOrbitalV2 #landing .omSeoExplore .seoInline{display:flex!important;flex-wrap:wrap!important;gap:10px 12px!important;max-width:100%!important}
+html.omOrbitalV2 #landing .omProgrammeCrawl .seoInline a,html.omOrbitalV2 #landing .omSeoExplore .seoInline a{display:inline-flex!important;align-items:center;min-height:39px;padding:8px 12px;margin:0!important;border-radius:9px;border:1px solid #9bc9bf;background:#ffffff;color:#075f56!important;white-space:normal;line-height:1.3;text-decoration:none!important}
+html.omOrbitalV2 #landing .omSeoExplore .card{border-radius:20px;transition:transform .3s,box-shadow .3s}
+html.omOrbitalV2 #landing .omSeoExplore .card:hover{transform:translateY(-4px);box-shadow:0 19px 36px #092f2f16}
+html.omOrbitalV2 #landing .omSeoExplore .grid{gap:14px}
+html.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub,html.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore{background:#10282d!important;color:#e7fbf6!important}
+html.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub :is(h2,h3,.omTrustIntro,.omTrustCard strong),html.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore :is(h2,h3,p){color:#e8f8f3!important}
+html.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .card{background:#17383d!important;border-color:#39716a!important}
+html.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .card p{color:#b7d3cc!important}
+html.omOrbitalV2[data-om-theme="dark"] #landing .omProgrammeCrawl .seoInline a,html.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoInline a{background:#184047!important;color:#b6ffef!important;border-color:#3c7b70!important}
+html.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoRelated{background:#17373a!important;color:#e4f8f2!important;border-color:#3a766e}
+html.omOrbitalV2 #landing .ovWorldSection{position:relative;overflow:hidden;background:#061c27;color:#eefffb;padding:clamp(68px,8vw,122px) 24px;border-top:1px solid #145665}
+html.omOrbitalV2 #landing .ovWorldInner{max-width:1280px;margin:auto;display:grid;grid-template-columns:.88fr 1.12fr;gap:clamp(20px,5vw,75px);align-items:center}
+html.omOrbitalV2 #landing .ovEyebrow{color:#78f7dc;font:700 11px var(--ov-text);letter-spacing:.2em;text-transform:uppercase}
+html.omOrbitalV2 #landing .ovWorldCopy h2{font:700 clamp(38px,5vw,78px)/1.03 var(--ov-display);letter-spacing:-.069em;margin:22px 0}
+html.omOrbitalV2 #landing .ovWorldCopy p{font:400 16px/1.7 var(--ov-text);color:#b3d5d0;max-width:475px}
+html.omOrbitalV2 #landing .ovWorldLinks{display:flex;flex-wrap:wrap;gap:10px;margin-top:23px}
+html.omOrbitalV2 #landing .ovWorldLinks a{color:#d5fff3;border:1px solid #6bbaa8;background:#66e0ca13;padding:11px 14px;border-radius:100px;font:600 13px var(--ov-text);transition:background .25s,transform .25s}
+html.omOrbitalV2 #landing .ovWorldLinks a:hover{background:#0d635f;transform:translateY(-2px)}
+html.omOrbitalV2 #landing .ovGlobeWrap{min-width:0;aspect-ratio:1;max-width:570px;width:100%;justify-self:center;position:relative;isolation:isolate}
+html.omOrbitalV2 #landing .ovGlobeWrap canvas{width:100%;height:100%;display:block;touch-action:pan-y}
+html.omOrbitalV2 #landing .ovGlobeWrap:before{content:"";position:absolute;inset:16%;border-radius:50%;box-shadow:0 0 95px #30f1da28;pointer-events:none}
+html.omOrbitalV2 #landing .ovGlobeLabel{position:absolute;right:5%;bottom:8%;font:600 11px var(--ov-text);letter-spacing:.1em;color:#8ac4ba}
+html.omOrbitalV2 #landing .ovGlobalStat{display:flex;gap:35px;flex-wrap:wrap;margin-top:30px;font:600 12px var(--ov-text);color:#d9fff6}
+html.omOrbitalV2 #landing .ovGlobalStat span:before{content:"✦";color:#5af5da;margin-right:8px}
+html.omOrbitalV2 #app .side{background:radial-gradient(circle at 50% 1%,#174c50,#092830 55%,#071c24)!important;border-right:1px solid #6df6d230}
+html.omOrbitalV2 #app .side .navbtn{border-radius:14px!important;transition:background .25s,box-shadow .25s,color .25s!important}
+html.omOrbitalV2 #app .side .navbtn.active{background:linear-gradient(90deg,#0e8a7755,#53e3d410)!important;box-shadow:inset 3px 0 0 #5af5d4,0 0 20px #11efc01a!important}
+html.omOrbitalV2 #app .workspace{min-width:0!important;background:var(--om-bg,#f3f9f7)!important}
+html.omOrbitalV2 #app .appTop{min-width:0;position:relative;overflow:hidden;isolation:isolate;border-bottom:1px solid var(--om-line,#bbd6d0)}
+html.omOrbitalV2 #app .appTop:after{content:"";position:absolute;right:6%;top:-80px;width:260px;height:185px;border:1px solid #35cfb74b;transform:rotate(-23deg);border-radius:50%;pointer-events:none;box-shadow:0 0 30px #35dcb917;z-index:-1}
+html.omOrbitalV2 #app .appTop h2,html.omOrbitalV2 #app .appBody h2,html.omOrbitalV2 #app .appBody h3{font-family:var(--ov-display)!important;letter-spacing:-.047em}
+html.omOrbitalV2 #app .appBody,html.omOrbitalV2 #app .appTop{min-width:0}
+html.omOrbitalV2 #app .appBody>section:not(.hide){animation:ov-view-in .42s cubic-bezier(.2,.7,.2,1)}
+html.omOrbitalV2 #app .appBody :is(.card,.dashPanel,.boardCard,.savedTile,.focusCard,.metric){max-width:100%;min-width:0;transition:border-color .25s,box-shadow .25s}
+html.omOrbitalV2 #app .appBody :is(.card,.dashPanel,.boardCard,.savedTile,.focusCard,.metric):hover{box-shadow:0 14px 36px #0d8c7715}
+html.omOrbitalV2[data-om-theme="dark"] #app .workspace{background:var(--om-bg,#10272c)!important}
+.ovScrollProgress{position:fixed;inset:0 auto auto 0;width:100%;height:3px;transform:scaleX(0);transform-origin:left;background:linear-gradient(90deg,#59ffd9,#8ee8ff);box-shadow:0 0 14px #35fcd7;z-index:12000;pointer-events:none}
+.ovTopicPhoto{width:100%;height:clamp(220px,25vw,380px);object-fit:cover;border-radius:18px;display:block}
+.ovTopicFigure{margin:18px 0 28px;overflow:hidden;border-radius:20px;position:relative;background:#0b2d35;box-shadow:0 18px 40px #112b3438}
+.ovTopicFigure figcaption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,#02161fcf);font:500 11px var(--ov-text);color:#dcfff4;padding:28px 16px 15px}
+.ovTopicFigure a{color:#d0fff0;text-decoration:underline}
+@keyframes ov-aura{to{transform:rotate(360deg)}}
+@keyframes ov-ring{to{rotate:360deg}}
+@keyframes ov-image-breathe{to{transform:scale(1.055)}}
+@keyframes ov-view-in{from{opacity:.85;transform:translateY(7px);filter:blur(2px)}to{opacity:1;transform:none;filter:none}}
+@media(min-width:1480px){
+ html.omTurquoisePreview.omOrbitalV2 #landing .heroWrap>.nav>.navlinks{display:flex!important;position:static!important;opacity:1!important;transform:none!important;background:transparent!important;border:0!important;box-shadow:none!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;flex-wrap:nowrap!important;gap:clamp(10px,1vw,18px)!important;padding:0!important;width:auto!important;max-width:none!important}
+ html.omTurquoisePreview.omOrbitalV2 #landing .heroWrap>.nav>.navlinks a{display:inline-flex!important;align-items:center!important;width:auto!important;min-width:0!important;height:auto!important;padding:7px 0!important;white-space:nowrap!important;font-size:12px!important;border:0!important;background:none!important}
+ html.omTurquoisePreview.omOrbitalV2 #landing .heroWrap>.nav>.omLandingMenu{display:none!important}
+}
+@media(max-width:1050px){
+ html.omOrbitalV2 #landing .hero{grid-template-columns:1fr!important;min-height:0}
+ html.omOrbitalV2 #landing .heroVisual{height:580px!important;min-height:580px!important;max-width:710px;margin:0 auto}
+ html.omOrbitalV2 #landing .ovWorldInner{grid-template-columns:1fr}
+ html.omOrbitalV2 #landing .ovGlobeWrap{max-width:480px}
+}
+@media(max-width:650px){
+ html.omOrbitalV2 #landing .hero{padding:30px 16px 70px;gap:12px}
+ html.omOrbitalV2 #landing .hero h1{font-size:clamp(41px,11vw,59px)!important;line-height:1.02!important}
+ html.omOrbitalV2 #landing .heroCopy{font-size:14px!important}
+ html.omOrbitalV2 #landing .heroVisual{height:440px!important;min-height:440px!important;max-width:100%;margin-top:20px}
+ html.omOrbitalV2 #landing .ovStage .ovCard{width:76%;left:12%;height:72%;top:10%;border-radius:18px}
+ html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="1"]{--shiftX:31%;--scale:.73}
+ html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="-1"]{--shiftX:-31%;--scale:.73}
+ html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="2"],html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="-2"]{opacity:0;pointer-events:none}
+ html.omOrbitalV2 #landing .ovStage .ovCardText strong{font-size:25px}
+ html.omOrbitalV2 #landing .ovStageControls{left:12px;right:12px}
+ html.omOrbitalV2 #landing .ovStageControls button{width:41px;height:41px}
+ html.omOrbitalV2 #landing .ovStageLabel{right:12px}
+ html.omOrbitalV2 #landing .omTrustHub h2,html.omOrbitalV2 #landing .omSeoExplore h2{font-size:clamp(26px,7vw,39px)!important}
+ html.omOrbitalV2 #landing .ovWorldSection{padding:70px 17px}
+ html.omOrbitalV2 #landing .ovGlobalStat{gap:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ html.omOrbitalV2 #landing .heroWrap:before,html.omOrbitalV2 #landing .ovStage:before,html.omOrbitalV2 #landing .ovOrbitRing,html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="0"] img,html.omOrbitalV2 #app .appBody>section:not(.hide){animation:none!important}
+ html.omOrbitalV2 #landing .ovStage .ovCard,html.omOrbitalV2 #landing .ovStageControls button,html.omOrbitalV2 #landing .omTrustCard,html.omOrbitalV2 #landing .omSeoExplore .card{transition:none!important}
+}
+
+
+/* A workspace-first motion system: the command deck never replaces a real form or data view. */
+html.omOrbitalV2 #app .ovMissionDeck{--ov-dx:0;--ov-dy:0;position:relative;display:flex;align-items:center;justify-content:space-between;min-width:0;gap:22px;min-height:218px;margin:0 0 26px;padding:clamp(20px,3vw,34px);border:1px solid #3bdacb66;border-radius:24px;color:#edfffa;background:radial-gradient(ellipse at 83% 40%,#1b6269 0,#0a3846 44%,#061e29 86%);overflow:hidden;isolation:isolate;box-shadow:0 25px 65px #0a525527}
+html.omOrbitalV2 #app .ovMissionDeck::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(#b2ffee0b 1px,transparent 1px),linear-gradient(90deg,#b2ffee0b 1px,transparent 1px);background-size:48px 48px;opacity:.45;z-index:-1}
+html.omOrbitalV2 #app .ovDeckCopy{position:relative;z-index:3;flex:1 1 600px;min-width:0;max-width:750px}
+html.omOrbitalV2 #app .ovDeckEyebrow{font:700 10px var(--ov-text);letter-spacing:.18em;color:#a3f8e3;display:flex;align-items:center;gap:8px}
+html.omOrbitalV2 #app .ovDeckPulse{width:7px;height:7px;border-radius:50%;background:#67f7d8;box-shadow:0 0 0 5px #5ff4d91a}
+html.omOrbitalV2 #app .ovDeckCopy h2{font:700 clamp(24px,3.2vw,40px)/1.08 var(--ov-display)!important;letter-spacing:-.055em;color:#eafffb!important;margin:12px 0}
+html.omOrbitalV2 #app .ovDeckCopy h2 em{color:#6dffdc;font-style:normal}
+html.omOrbitalV2 #app .ovDeckCopy p{font:400 13px/1.55 var(--ov-text)!important;color:#bfddd9!important;max-width:535px;margin:0 0 18px}
+html.omOrbitalV2 #app .ovDeckActions{display:flex;gap:8px;flex-wrap:wrap}
+html.omOrbitalV2 #app .ovDeckActions button{display:inline-flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;padding:8px 13px;color:#eafffb;background:#c4ffed10;border:1px solid #93ffdc63;border-radius:11px;cursor:pointer;font:700 12px var(--ov-text);transition:background .2s,transform .2s}
+html.omOrbitalV2 #app .ovDeckActions button:hover,html.omOrbitalV2 #app .ovDeckActions button.active{background:#69f6d3!important;color:#073b3c!important;border-color:#a7ffef}
+html.omOrbitalV2 #app .ovDeckActions button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+html.omOrbitalV2 #app .ovDeckVisual{position:relative;flex:0 0 clamp(130px,17vw,210px);aspect-ratio:1;transform:translate(calc(var(--ov-dx)*6px),calc(var(--ov-dy)*6px));transition:transform .2s ease}
+html.omOrbitalV2 #app .ovDeckDisc{position:absolute;inset:8%;border:1px solid #7dffde8c;border-radius:50%;box-shadow:inset 0 0 30px #5df4dd15,0 0 22px #40ffdc17}
+html.omOrbitalV2 #app .ovDeckDisc1{transform:rotate(-30deg) scaleX(.6);animation:ov-deck-turn 16s linear infinite}
+html.omOrbitalV2 #app .ovDeckDisc2{transform:rotate(42deg) scaleX(.62);animation:ov-deck-turn 22s linear infinite reverse}
+html.omOrbitalV2 #app .ovDeckDisc3{inset:25%;border-style:dashed;animation:ov-deck-turn 27s linear infinite}
+html.omOrbitalV2 #app .ovDeckCore{position:absolute;inset:37%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 20% 20%,#d0fff4,#59d9d4 30%,#19596b 75%);color:#013f46;font:800 16px var(--ov-display);box-shadow:0 0 38px #63ffdb8c}
+html.omOrbitalV2 #app .ovDeckCore span{font:800 9px var(--ov-text);position:absolute;right:14%;top:20%}
+html.omOrbitalV2 #app .ovDeckSatellite{position:absolute;width:8px;height:8px;border-radius:50%;background:#b2ffe5;box-shadow:0 0 15px #8dfdd4;left:15%;top:33%}
+html.omOrbitalV2 #app .ovDeckSatellite2{left:79%;top:69%;background:#8dddff}
+@keyframes ov-deck-turn{to{rotate:360deg}}
+@media(max-width:700px){html.omOrbitalV2 #app .ovMissionDeck{min-height:0;padding:20px 17px;border-radius:17px}html.omOrbitalV2 #app .ovDeckVisual{position:absolute;right:-40px;top:-30px;width:170px;opacity:.25}html.omOrbitalV2 #app .ovDeckCopy{max-width:100%}html.omOrbitalV2 #app .ovDeckCopy p{max-width:95%}html.omOrbitalV2 #app .ovDeckActions{gap:6px}html.omOrbitalV2 #app .ovDeckActions button{font-size:11px;min-height:37px;padding:7px 10px}}
+@media(prefers-reduced-motion:reduce){html.omOrbitalV2 #app .ovDeckDisc{animation:none!important}html.omOrbitalV2 #app .ovDeckVisual{transition:none!important}}
+
+
+/* 2026-11-16 screen-recording fixes.
+ * Deliberately outrank the old global navigation/theme rules by scoping both root classes.
+ * No changes to app state or provider evidence. */
+html.omTurquoisePreview.omOrbitalV2 #landing :is(h1,h2,h3,h4),
+html.omTurquoisePreview.omOrbitalV2 #app :is(h1,h2,h3,h4) {
+  font-family:'DM Sans',system-ui,sans-serif!important;
+  letter-spacing:-.034em!important;
+  font-weight:700!important;
+  text-wrap:balance;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .hero h1 {
+  letter-spacing:-.05em!important;
+  line-height:1.025!important;
+  font-weight:700!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldCopy h2 {
+  font-size:clamp(35px,4.6vw,65px)!important;
+  letter-spacing:-.04em!important;
+  line-height:1.08!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omTrustHub h2,
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore h2 {
+  letter-spacing:-.033em!important;
+  font-weight:700!important;
+  line-height:1.16!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore h2{font-size:clamp(30px,3.15vw,45px)!important}
+html.omTurquoisePreview.omOrbitalV2 #landing .omTrustHub .omTrustCard,
+html.omTurquoisePreview.omOrbitalV2 #landing .omTrustHub .omTrustReviewed{
+  overflow-wrap:anywhere;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustEyebrow,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustNote strong{color:#97f9de!important}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustIntro,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustNote{color:#c6e5de!important}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustCard{
+  background:#18373c!important;border-color:#3e7771!important;color:#edfdf8!important;
+  box-shadow:0 15px 32px #031b1c3d;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustCard strong{
+  color:#f0fffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustCard span{
+  color:#c4e4de!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustCard em{
+  color:#88f9df!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustReviewed{
+  background:#1b3d41!important;border-color:#39756e!important;color:#ebfff8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustReviewed strong{
+  color:#e9fff8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustReviewed a{
+  color:#9dfbe5!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub :is(.omTrustCard,.omTrustReviewed) a:focus-visible{
+  outline:2px solid #b7ffeb;outline-offset:2px;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore:not(.omProgrammeCrawl){
+  padding:clamp(34px,4vw,58px) 20px 30px!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore.omProgrammeCrawl{
+  padding:36px 20px clamp(42px,5vw,68px)!important;
+  border-top:1px solid #4c8f8250;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .grid .card{
+  min-width:0;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .grid .card h3,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .grid .card h3 a{
+  color:#a7ffe8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .grid .card p{
+  color:#c6e9e1!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="light"] #landing .omSeoExplore .grid .card h3 a{color:#126159!important}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion{
+  margin:28px 0 0!important;padding:22px!important;border-radius:17px!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr);gap:14px;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>strong{
+  display:block;font-family:var(--ov-text);font-size:17px;line-height:1.3;letter-spacing:-.015em;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a{
+  display:flex;align-items:center;min-width:0;min-height:46px;padding:10px 12px;
+  border:1px solid #b4dcd2;border-radius:10px;background:#ffffff;
+  color:#08665b!important;text-decoration:none!important;font-family:var(--ov-text);
+  font-size:13px;line-height:1.3;font-weight:650;overflow-wrap:anywhere;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a:hover{
+  border-color:#19a893;background:#ecfffa;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a:focus-visible{
+  outline:2px solid #33c6b4;outline-offset:2px;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoRelated.omSeoExpansion{
+  background:#1a3a40!important;color:#e8fff9!important;border-color:#427d74!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoRelated.omSeoExpansion>strong{
+  color:#e9fff9!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a{
+  color:#acffea!important;background:#234c50!important;border-color:#4f847a!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a:hover{
+  background:#295e5f!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .inline a{max-width:100%}
+/* Continuous official provider ticker with inline source details. */
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker{
+  background:#071e29!important;color:#e8fff9!important;
+  border-color:#26796c!important;overflow:visible!important;max-width:100%!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack{
+  box-sizing:border-box;width:100%!important;max-width:1450px!important;
+  min-width:0!important;margin:0 auto!important;display:flex!important;
+  flex-wrap:nowrap!important;gap:18px!important;align-items:center!important;
+  padding:12px clamp(12px,3vw,30px)!important;overflow:visible!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack>.ovTickerTitle{
+  flex:0 0 auto!important;color:#e9fff9!important;letter-spacing:.03em;
+  font-family:var(--ov-text);font-size:12px!important;white-space:nowrap!important;
+  margin:0!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .ovTickerTitle span{
+  color:#6ef6d8!important;font-size:11px!important;animation:ov-ticker-pulse 2.4s ease-in-out infinite alternate;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerWindow{
+  flex:1 1 auto;min-width:0;overflow:hidden;position:relative;
+  mask-image:linear-gradient(to right,transparent 0,#000 3%,#000 97%,transparent 100%);
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerRail{
+  display:flex;width:max-content;min-width:0;
+  animation:ov-ticker-roll 36s linear infinite;
+  will-change:transform;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerGroup{
+  display:flex;align-items:center;gap:12px;flex:0 0 auto;padding-right:12px;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerGroup .omSourceChip{
+  appearance:none;-webkit-appearance:none;
+  display:inline-flex;align-items:center;gap:8px;
+  flex:0 0 auto;white-space:nowrap;min-height:40px;
+  padding:8px 15px;border:1px solid #61bba98c;border-radius:100px;
+  background:#0b3740;color:#c7fff1;
+  font:650 12px var(--ov-text);cursor:pointer;
+  transition:background .2s,border-color .2s;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerGroup .omSourceChip>span{
+  color:#89ffe8!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerGroup .omSourceChip:is(:hover,:focus-visible,[aria-expanded="true"]){
+  background:#166459;color:#ffffff;border-color:#7bffe0;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker:is(:hover,:focus-within) .ovTickerRail,
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker.ovTickerPaused .ovTickerRail,
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker:has(.omSourcePopover:not([hidden])) .ovTickerRail{
+  animation-play-state:paused;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerToggle{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  flex:0 0 auto;min-height:40px;padding:8px 11px;border:1px solid #64bbaa;
+  border-radius:100px;background:#164550;color:#c9fff2;
+  font:650 11px var(--ov-text);cursor:pointer;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerToggle:is(:focus-visible,:hover){
+  outline:2px solid #b6fff1;outline-offset:2px;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .omSourcePopover{
+  max-width:min(720px,calc(100% - 30px))!important;
+  color:#effffa!important;background:#10343b!important;
+  border-color:#6bd3c1!important;
+}
+@keyframes ov-ticker-roll{to{transform:translateX(-50%)}}
+@keyframes ov-ticker-pulse{to{opacity:.4}}
+@media(max-width:760px){
+  html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack{gap:9px!important;padding:10px 12px!important}
+  html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack>.ovTickerTitle{font-size:10px!important;max-width:90px!important;white-space:normal!important;line-height:1.25}
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerToggle{min-height:39px;padding:7px 9px}
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerToggle span{display:none}
+  html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:430px){
+  html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav{grid-template-columns:1fr!important}
+  html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack>.ovTickerTitle{max-width:75px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerRail,
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerTitle span{animation:none!important}
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerWindow{overflow-x:auto}
+}
+
+
+/* Theme regression repair, 16 Nov 2026, from Light/Dark recording.
+   Dark showcase sections must retain white text in EVERY resolved theme;
+   the lower public-site sections must also follow the resolved theme. */
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="light"] #landing .ovWorldSection,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .ovWorldSection{
+  background:#061c27!important;color:#ecfffa!important;color-scheme:dark;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection .ovWorldCopy h2,
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection #ovWorldTitle {
+  color:#f3fffb!important;
+  -webkit-text-fill-color:#f3fffb!important;
+  opacity:1!important;
+  visibility:visible!important;
+  text-shadow:0 2px 28px rgba(0,0,0,.18);
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection .ovWorldCopy p{
+  color:#c6e8e2!important;opacity:1!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection .ovEyebrow,
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection .ovGlobeLabel{
+  color:#90ffde!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldLinks a,
+html.omTurquoisePreview.omOrbitalV2 #landing .ovGlobalStat{
+  color:#e0fff6!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing{
+  background:#0d2329!important;color:#e8f9f5!important;color-scheme:dark;
+}
+/* Entire lower homepage follows Dark, instead of suddenly switching back to pale. */
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #how {
+  background:#0d2329!important;color:#e9fbf6!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing :is(#difference,#how) :is(h2,h3,.sectionHead h2){
+  color:#f0fffb!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing :is(#difference,#how) :is(.sectionLead,.eyebrow){
+  color:#b4dfd4!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing :is(#difference,#how) :is(.feature p,.step p){
+  color:#c6e0db!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature{
+  background:#1b3a40!important;border-color:#3e6f6b!important;color:#edfffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature :is(h3,.featureNum){
+  color:#edfffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature .matchMock{
+  background:#edf9f5!important;color:#173f3b!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature .matchMock *{
+  color:inherit;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.matchFeature .matchMock .mockTitle{
+  color:#1b4d46!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.passportFeature{
+  background:linear-gradient(160deg,#097a76,#0a585f)!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.passportFeature :is(h3,p,.featureNum){
+  color:#f1fffb!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #difference .feature.workspaceFeature{
+  background:linear-gradient(155deg,#101e29,#11262d)!important;border-color:#31545a!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #how .step{
+  background:#18383d!important;border-color:#376e6b!important;color:#e9fbf6!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #how .step .stepNo{
+  color:#82edd8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings{
+  background:#122b30!important;color:#f0fff9!important;
+  border-block:1px solid #3b756e!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings :is(h2,h3){
+  color:#edfffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings :is(.verifiedOpenHead p,.verifiedOpenCard p){
+  color:#c1e0d9!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings :is(.verifiedOpenCard,.verifiedEmpty){
+  background:#1a383e!important;border-color:#47736f!important;color:#eafff8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings .verifiedOpenCard h3 a{
+  color:#f0fffb!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings :is(.verifiedSeeAll,.verifiedOpenLink,.verifiedOpenTag){
+  color:#83f7dc!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings .verifiedDeadline{
+  color:#b2ffe7!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #verified-openings .verifiedRestriction{
+  color:#ffcf9b!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities{
+  background:#10272c!important;color:#eefdf7!important;border-color:#3b6561!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities :is(h2,h3,.liveHeader .eyebrow){
+  color:#f0fffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities .liveCard{
+  background:linear-gradient(165deg,#183840,#132d35)!important;
+  color:#eafbf5!important;border-color:#3c696a!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities .liveCard h3{
+  color:#f0fffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities :is(.liveCard p,.provider,.liveReason,.liveBottom,.liveBadge,.liveHeader p){
+  color:#c2e3db!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #live-opportunities :is(.textBtn,.liveCard a){
+  color:#9cffea!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides{
+  background:#0b2029!important;color:#eafff7!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides :is(h2,h3){
+  color:#f1fffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides .guideCard{
+  background:#16313a!important;color:#eafff7!important;border-color:#406869!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides .guideCard p{
+  color:#c1e1dc!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing #guides .guideCard b{
+  color:#93fce3!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .footer{
+  background:#0a1c24!important;color:#c5e2de!important;border-color:#37615c!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .footer a{
+  color:#bcfbe8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .footer .brandword{
+  color:#f1fffb!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing a:focus-visible,
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldLinks a:focus-visible{
+  outline:2px solid #80ffe6;outline-offset:3px;
+}
+/* Fixed dark backgrounds are not allowed to inherit a light-theme headline. */
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="light"] #landing #difference,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="light"] #landing #how{
+  color:#163c3c!important;
+}
+@media(prefers-reduced-motion:reduce){
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldSection *{
+    text-shadow:none;
+  }
+}

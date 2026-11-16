@@ -33,7 +33,10 @@ test('Sensitive private admin and application-preparation views have no ad netwo
 });
 test('Production navbar uses accessible Explore dropdown without changing SPA controls',()=>{
  const html=get('index.html'),old=get('nav-contrast-preview-v5.html');
- assert.deepEqual(ids(html).filter(id=>!['heroOpenCallsLabel','verified-openings','verifiedOpenTitle','verifiedOpenGrid','omTrustTitle'].includes(id)),ids(old));
+ // Preserve the actual SPA controls, but accept new public gallery/globe IDs and the intentional removal of slideShell.
+ const actualIds=new Set(ids(html));
+ for(const value of ids(old).filter(value=>value!=='slideShell'))assert.ok(actualIds.has(value),'Lost original application control: '+value);
+ for(const value of ['ovStage','ovGlobe','ovPrev','ovNext','ovPause','ovTickerToggle'])assert.ok(actualIds.has(value),'Orbital control missing: '+value);
  assert.ok(ids(html).includes('verifiedOpenGrid'));
  assert.ok(html.includes('home-openings-v1.js'));
  assert.ok(html.includes('home-openings-v1.css'));
