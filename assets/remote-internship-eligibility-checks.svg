@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="382" viewBox="0 0 960 382" role="img" aria-labelledby="title desc">
+<title id="title">Four checks before applying for an international remote internship</title><desc id="desc">Starting from an official vacancy, check where you may work, your eligibility and permission, stipend and schedule, then application instructions.</desc>
+<rect width="960" height="382" rx="28" fill="#0c2830"/>
+<text x="48" y="61" fill="#d1fff5" font-family="Arial,sans-serif" font-size="27" font-weight="700">REMOTE INTERNSHIP: CHECK THE ACTUAL VACANCY</text>
+<text x="48" y="91" fill="#9cc9c2" font-family="Arial,sans-serif" font-size="17">A “remote” label does not answer these four questions.</text>
+<g font-family="Arial,sans-serif">
+<rect x="42" y="130" width="202" height="176" rx="19" fill="#124d51" stroke="#6ae5cc" stroke-width="2"/>
+<rect x="266" y="130" width="202" height="176" rx="19" fill="#124d51" stroke="#6ae5cc" stroke-width="2"/>
+<rect x="490" y="130" width="202" height="176" rx="19" fill="#124d51" stroke="#6ae5cc" stroke-width="2"/>
+<rect x="714" y="130" width="202" height="176" rx="19" fill="#124d51" stroke="#6ae5cc" stroke-width="2"/>
+<g fill="#80f2d7" font-size="25" font-weight="700"><text x="61" y="169">01</text><text x="285" y="169">02</text><text x="509" y="169">03</text><text x="733" y="169">04</text></g>
+<g fill="#ffffff" font-size="20" font-weight="700"><text x="61" y="205">Location</text><text x="285" y="205">Permission</text><text x="509" y="205">Practical terms</text><text x="733" y="205">Official apply</text></g>
+<g fill="#d0e9e5" font-size="15"><text x="61" y="233">Countries allowed</text><text x="61" y="254">Time zone</text><text x="61" y="275">Duty-station rules</text><text x="285" y="233">Student status</text><text x="285" y="254">Work authorisation</text><text x="285" y="275">University credit</text><text x="509" y="233">Stipend and taxes</text><text x="509" y="254">Hours, equipment</text><text x="509" y="275">Named supervisor</text><text x="733" y="233">Provider portal</text><text x="733" y="254">Actual deadline</text><text x="733" y="275">Confirmation</text></g>
+</g><text x="48" y="348" fill="#8cbfba" font-family="Arial,sans-serif" font-size="15">OppMatcher editorial checklist  •  Rules differ by vacancy and place of work</text></svg>
