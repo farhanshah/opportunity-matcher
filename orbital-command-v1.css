@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+/* Orbital Command v1: additive design layer, existing theme system stays authoritative. */
+:root{--orbital-glow:#55ead7;--orbital-display:'Syne','Manrope',sans-serif;--orbital-body:'DM Sans',system-ui,sans-serif}
+html{scroll-padding-top:5rem}
+html.omTurquoisePreview #landing .heroWrap{background:radial-gradient(ellipse 65% 75% at 85% 37%,#135564 0%,#072b39 44%,#071a25 76%,#041018 100%)!important;isolation:isolate}
+html.omTurquoisePreview #landing .heroWrap:before{background:conic-gradient(from 110deg at 64% 37%,#051d2800,#15bcbb43,#051d2800,#4bd8ff26,#051d2800)!important;inset:-23% -8% -17% 20%!important;width:auto!important;height:auto!important;opacity:.8;filter:blur(28px);animation:orbital-aura 16s linear infinite;pointer-events:none}
+html.omTurquoisePreview #landing .heroWrap:after{content:"";position:absolute;inset:0;background-image:linear-gradient(#b9fdf708 1px,transparent 1px),linear-gradient(90deg,#b9fdf708 1px,transparent 1px);background-size:70px 70px;opacity:.36;pointer-events:none}
+html.omTurquoisePreview #landing .hero h1{font-family:var(--orbital-display)!important;letter-spacing:-.075em!important;font-weight:700!important;line-height:.99!important;font-size:clamp(42px,4.8vw,75px)!important;text-wrap:balance}
+html.omTurquoisePreview #landing .hero h1 em{font-weight:800;text-shadow:0 0 35px #48eccf48}
+html.omTurquoisePreview #landing .heroCopy,html.omTurquoisePreview #landing .heroActions,html.omTurquoisePreview #landing .microTrust{font-family:var(--orbital-body)}
+html.omTurquoisePreview #landing .slideShell{border-radius:28px!important;border:1px solid #a6ffee6b!important;box-shadow:0 35px 105px #0009,0 0 65px #25e1d51a!important;isolation:isolate;transition:box-shadow .5s ease}
+html.omTurquoisePreview #landing .slideShell::before{content:"";position:absolute;right:22px;top:25px;width:122px;height:122px;border:1px solid #b3fff583;border-radius:50%;background:repeating-radial-gradient(circle,#28dec915 0 1px,transparent 1px 19px);box-shadow:inset 0 0 30px #40ffcc20,0 0 35px #3fffe627;z-index:3;pointer-events:none;animation:orbital-spin 24s linear infinite}
+html.omTurquoisePreview #landing .slideShell::after{content:"";position:absolute;right:58px;top:61px;width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#e9fff8,#67dfd5 25%,#167385 56%,#102838 85%);z-index:3;box-shadow:0 0 23px #4fffe68c;pointer-events:none;animation:orbital-breathe 6s ease-in-out infinite}
+html.omTurquoisePreview #landing .slide.active{animation:orbital-photo-drift 13s ease-in-out infinite alternate!important}
+html.omTurquoisePreview #landing .slideInfo h3{font-family:var(--orbital-display);letter-spacing:-.065em;font-weight:700;text-wrap:balance}
+html.omTurquoisePreview #landing .slide.active .slideInfo>div:first-child{animation:orbital-caption .85s cubic-bezier(.16,1,.3,1) both}
+html.omTurquoisePreview #landing .slide:after{background:linear-gradient(180deg,#00131812 15%,#02151c24 44%,#020f1af2 100%);pointer-events:none}
+html.omTurquoisePreview #landing .slideInfo{bottom:30px}
+html.omTurquoisePreview #landing .slideCounter{max-width:150px;flex-wrap:wrap;justify-content:flex-end}
+html.omTurquoisePreview #landing .slideCounter .dot{width:14px;height:4px}
+html.omTurquoisePreview #landing .slideCounter .dot.active i{background:#65fbe2;animation:progress 6.5s linear forwards}
+html.omTurquoisePreview #landing .orbital-slide-controls{position:absolute;left:24px;top:24px;z-index:12;display:flex;align-items:center;gap:8px;color:#fff}
+html.omTurquoisePreview #landing .orbital-slide-controls button{width:34px;height:34px;border:1px solid #ffffff6b;background:#08282cc2;border-radius:50%;color:#fff;display:grid;place-items:center;backdrop-filter:blur(12px);font-size:15px;transition:background .2s,border-color .2s}
+html.omTurquoisePreview #landing .orbital-slide-controls button:hover,html.omTurquoisePreview #landing .orbital-slide-controls button:focus-visible{background:#15766b;border-color:#9dffe9}
+html.omTurquoisePreview #landing .orbital-slide-count{font:700 10px var(--orbital-body);letter-spacing:.12em;margin-left:3px}
+html.omTurquoisePreview #landing .featureGrid .feature,html.omTurquoisePreview #landing .guideGrid .guideCard,html.omTurquoisePreview #landing .omTrustCard{transition:box-shadow .35s ease,border-color .35s ease,transform .35s ease}
+@media(hover:hover) and (pointer:fine){html.omTurquoisePreview #landing .featureGrid .feature:hover,html.omTurquoisePreview #landing .guideGrid .guideCard:hover,html.omTurquoisePreview #landing .omTrustCard:hover{transform:translateY(-4px);box-shadow:0 22px 45px #082c3418;border-color:#56d9c477}}
+html.omTurquoisePreview #landing .section h2,html.omTurquoisePreview #landing .omTrustHub h2,html.omTurquoisePreview #landing .cta h2{font-family:var(--orbital-display);letter-spacing:-.057em;text-wrap:balance}
+html.omTurquoisePreview #app .appTop h2,html.omTurquoisePreview #app .appBody h2,html.omTurquoisePreview #app .appBody h3,html.omTurquoisePreview #app .side .brandword{font-family:var(--orbital-display)!important;letter-spacing:-.052em}
+html.omTurquoisePreview #app .appTop{isolation:isolate;position:relative}
+html.omTurquoisePreview #app .appTop::before{content:"";position:absolute;right:17%;top:0;width:175px;height:80px;border-radius:50%;background:radial-gradient(ellipse,#58e8d527,transparent 75%);pointer-events:none;z-index:-1}
+html.omTurquoisePreview #app .navbtn{transition:background .25s,border-color .25s,box-shadow .25s!important}
+html.omTurquoisePreview #app .navbtn.active{box-shadow:inset 3px 0 0 #6be7d4,0 0 24px #2de6c319!important}
+html.omTurquoisePreview #app .appBody>section:not(.hide){animation:orbital-workspace-enter .45s cubic-bezier(.16,1,.3,1)}
+html.omTurquoisePreview #app .appBody .card,html.omTurquoisePreview #app .appBody .dashPanel,html.omTurquoisePreview #app .appBody .focusCard{transition:box-shadow .3s,border-color .3s;max-width:100%;min-width:0}
+html.omTurquoisePreview #app .appBody .card:hover,html.omTurquoisePreview #app .appBody .dashPanel:hover,html.omTurquoisePreview #app .appBody .focusCard:hover{box-shadow:0 12px 30px #21a99c19}
+html.omTurquoisePreview #app .workspace,html.omTurquoisePreview #app .appBody,html.omTurquoisePreview #app .appTop{min-width:0}
+html.omTurquoisePreview #app .appBody img{max-width:100%;height:auto}
+.orbital-progress{position:fixed;z-index:1002;top:0;left:0;width:100%;height:2px;pointer-events:none;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,#41ffd7,#b5fff0);box-shadow:0 0 10px #27ebd9}
+.orbital-topic-photo{margin:22px 0 28px;border-radius:18px;overflow:hidden;position:relative;background:#0b323a;box-shadow:0 18px 50px #001f2630}
+.orbital-topic-photo img{width:100%;height:clamp(180px,25vw,330px);object-fit:cover;display:block;filter:saturate(.9);transition:transform 1.2s ease}
+.orbital-topic-photo:hover img{transform:scale(1.025)}
+.orbital-topic-photo figcaption{position:absolute;bottom:0;left:0;right:0;padding:30px 18px 14px;color:white;font:600 11px var(--orbital-body);background:linear-gradient(transparent,#00151cca)}
+.orbital-topic-photo figcaption a{color:#c7fff0;text-decoration:underline;text-underline-offset:2px}
+body:has(.orbital-topic-photo) h1,body:has(.orbital-topic-photo) h2{font-family:var(--orbital-display);letter-spacing:-.055em}
+body:has(.orbital-topic-photo) .orbital-topic-photo{max-width:100%}
+@keyframes orbital-aura{50%{transform:rotate(180deg)}to{transform:rotate(360deg)}}
+@keyframes orbital-spin{to{transform:rotate(360deg)}}
+@keyframes orbital-breathe{50%{filter:brightness(1.25);transform:scale(.92)}}
+@keyframes orbital-photo-drift{from{transform:scale(1.015) translate3d(0,0,0)}to{transform:scale(1.065) translate3d(-.65%,.4%,0)}}
+@keyframes orbital-caption{from{opacity:0;transform:translateY(18px);filter:blur(6px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes orbital-workspace-enter{from{opacity:.9;filter:blur(2px);transform:translateY(5px)}to{opacity:1;filter:blur(0);transform:none}}
+@media(max-width:1050px){html.omTurquoisePreview #landing .heroVisual{max-width:100%;min-width:0}html.omTurquoisePreview #landing .slideShell::before{width:90px;height:90px}html.omTurquoisePreview #landing .slideShell::after{width:37px;height:37px;right:49px;top:52px}}
+@media(max-width:700px){html.omTurquoisePreview #landing .hero h1{font-size:clamp(39px,10vw,53px)!important;line-height:1.02!important}html.omTurquoisePreview #landing .slideShell{border-radius:19px!important}html.omTurquoisePreview #landing .slideInfo{left:18px;right:18px;bottom:18px;gap:8px}html.omTurquoisePreview #landing .slideInfo h3{font-size:clamp(23px,7vw,31px)}html.omTurquoisePreview #landing .slideCounter{max-width:80px}html.omTurquoisePreview #landing .slideCounter .dot{width:10px}html.omTurquoisePreview #landing .orbital-slide-controls{left:13px;top:13px}html.omTurquoisePreview #landing .slideShell::before{right:14px;top:13px;width:70px;height:70px}html.omTurquoisePreview #landing .slideShell::after{right:36px;top:35px;width:27px;height:27px}html.omTurquoisePreview #app .appTop h2{font-size:clamp(19px,5vw,29px)}.orbital-topic-photo{border-radius:12px}.orbital-topic-photo img{height:195px}}
+@media(prefers-reduced-motion:reduce){html.omTurquoisePreview #landing .heroWrap:before,html.omTurquoisePreview #landing .slideShell::before,html.omTurquoisePreview #landing .slideShell::after,html.omTurquoisePreview #landing .slide.active,html.omTurquoisePreview #landing .slide.active .slideInfo>div:first-child,html.omTurquoisePreview #app .appBody>section:not(.hide){animation:none!important}html.omTurquoisePreview #landing .featureGrid .feature,html.omTurquoisePreview #landing .guideGrid .guideCard,.orbital-topic-photo img{transition:none!important;transform:none!important}}
