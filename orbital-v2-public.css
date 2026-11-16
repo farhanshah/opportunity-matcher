@@ -1,0 +1,25 @@
+/* Shared editorial styling for public information pages. This does not modify SEO markup, theme state, or opportunity evidence. */
+body:has(> main > nav.crumb),body:has(>main>nav.crumb){font-family:'Space Grotesk',system-ui,Arial,sans-serif!important;background:#edf7f3!important;color:#183c3a!important}
+body:has(> main > nav.crumb) :is(h1,h2,h3),body:has(>main>nav.crumb) :is(h1,h2,h3){font-family:'Syne',system-ui,sans-serif!important;letter-spacing:-.045em!important;line-height:1.15;text-wrap:balance}
+body:has(>main>nav.crumb) header,body:has(>main>nav.crumb) footer{background:#071f2a!important;color:#eafff9!important}
+body:has(>main>nav.crumb) header a,body:has(>main>nav.crumb) footer a{color:#eafff9!important}
+body:has(>main>nav.crumb) main{max-width:1220px!important}
+body:has(>main>nav.crumb) main>.hero{background:radial-gradient(ellipse at 83% 20%,#1a6970,#092f40 55%,#061e2a 100%)!important;border:1px solid #78ffe44c;border-radius:25px;position:relative;overflow:hidden;isolation:isolate;padding:clamp(30px,5vw,65px)!important}
+body:has(>main>nav.crumb) main>.hero:after{content:"";position:absolute;right:-30px;top:-50px;width:250px;height:250px;border:1px solid #b9ffe14e;border-radius:50%;pointer-events:none;transform:rotate(25deg) scaleX(.7)}
+body:has(>main>nav.crumb) main>.hero :is(h1,p){position:relative;z-index:2;color:#eefffb!important;max-width:850px}
+body:has(>main>nav.crumb) main>.hero h1{font-size:clamp(34px,5vw,60px)!important;letter-spacing:-.067em!important}
+body:has(>main>nav.crumb) .card{border-radius:18px!important;box-shadow:0 14px 32px #0834390b;transition:box-shadow .3s,transform .3s}
+@media(hover:hover) and (pointer:fine){body:has(>main>nav.crumb) .card:hover{box-shadow:0 18px 40px #08343924;transform:translateY(-3px)}}
+body:has(>main>nav.crumb) :is(.inline,.seoInline,.related nav,.seoRelated nav){display:flex!important;flex-wrap:wrap!important;gap:10px 12px!important}
+body:has(>main>nav.crumb) .note{border-radius:15px}
+body:has(>main>nav.crumb) a:focus-visible{outline:3px solid #12bea8;outline-offset:3px}
+.ovTopicFigure{max-width:100%;overflow:hidden;position:relative;border-radius:21px;margin:22px 0 30px;box-shadow:0 18px 48px #081e2825;background:#08202d}
+.ovTopicFigure img{display:block;width:100%;height:clamp(210px,28vw,350px);object-fit:cover;filter:saturate(.88)}
+.ovTopicFigure figcaption{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,#06151bdc);padding:30px 20px 16px;color:#e8fff9;font:500 11px/1.5 'Space Grotesk',sans-serif}
+.ovTopicFigure figcaption a{color:#b8fff0!important;text-decoration:underline}
+body:has(.blogMain) :is(h1,h2,h3),body:has(.blogHero) :is(h1,h2,h3){font-family:'Syne',system-ui,sans-serif!important;letter-spacing:-.047em!important}
+body:has(.blogMain) .blogNav,body:has(.blogHero) .blogNav{isolation:isolate}
+body:has(.blogMain) :is(.blogHero,.blogCard){border-radius:18px}
+body:has(.blogMain) a:focus-visible{outline:3px solid #5bd5ca;outline-offset:3px}
+@media(max-width:640px){body:has(>main>nav.crumb) main>.hero{padding:25px 20px!important}.ovTopicFigure{border-radius:14px}.ovTopicFigure img{height:230px}}
+@media(prefers-reduced-motion:reduce){body:has(>main>nav.crumb) .card{transition:none!important;transform:none!important}}
