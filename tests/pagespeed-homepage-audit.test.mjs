@@ -48,3 +48,14 @@ test('AdSense ownership is unchanged on the homepage', () => {
   assert.match(html, /name="google-adsense-account" content="ca-pub-1916126969266611"/);
   assert.match(html, /pagead\/js\/adsbygoogle\.js\?client=ca-pub-1916126969266611/);
 });
+
+test('public homepage is painted before account and tracker modules finish booting', () => {
+  const js = read('app-v07.js');
+  const reveal = js.indexOf("document.documentElement.classList.add('omBootReady')");
+  const awaitAll = js.indexOf('await Promise.all(files.map');
+  assert.ok(reveal > 0 && awaitAll > reveal,
+    'first public paint must not wait for the workspace script waterfall');
+  assert.match(js, /const isPublicHome=location\.pathname==='\/'/);
+  assert.match(js, /earlyOpenOnboard=\(\.\.\.args\)=>\{queuedOnboard\.push\(args\)\}/);
+  assert.match(js, /window\.openOnboard\(\.\.\.queuedOnboard\[queuedOnboard\.length-1\]\)/);
+});
