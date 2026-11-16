@@ -1148,3 +1148,12 @@ html.omTurquoisePreview #landing .footer .footerLinks span{
   gap:10px 15px!important;
  }
 }
+
+/* Lighthouse contrast: this stylesheet is dynamically moved to the end of <head>. */
+html.omOrbitalV2.omTurquoisePreview #landing .heroWrap>.nav .brandword,
+html.omOrbitalV2.omTurquoisePreview #landing .footer .brandword{color:#f5fffc!important;opacity:1!important}
+html.omOrbitalV2.omTurquoisePreview #landing .heroWrap>.nav .brandword small,
+html.omOrbitalV2.omTurquoisePreview #landing .footer .brandword small{color:#c6f6e7!important;opacity:1!important;font-size:11px!important;line-height:1.45!important;letter-spacing:.09em!important}
+html.omOrbitalV2.omTurquoisePreview #landing .footer{color:#e5faf2!important}
+html.omOrbitalV2.omTurquoisePreview #landing .footer .footerLinks span{color:#daf7ed!important;opacity:1!important}
+html.omOrbitalV2.omTurquoisePreview #landing .footer .footerLinks a{color:#caffed!important}

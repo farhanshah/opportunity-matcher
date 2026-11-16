@@ -47,6 +47,9 @@
   link.className='omSourceOfficialLink';
   link.target='_blank';
   link.rel='noopener noreferrer';
+  // A real href must exist before interaction so search engines can crawl it.
+  // The selected source replaces this initial destination when the panel opens.
+  link.href=SOURCES.chevening.url;
   link.textContent='Visit official source ↗';
   const closeButton=document.createElement('button');
   closeButton.type='button';

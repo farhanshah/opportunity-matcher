@@ -43,6 +43,8 @@ for(const width of [360,390,768,1280,1440]){
    const rgb=s=>getComputedStyle(document.querySelector(s)).color;
    return {kicker:rgb('#landing .heroWrap .hero .kicker'),
     kickerBackground:getComputedStyle(document.querySelector('#landing .heroWrap .hero .kicker')).backgroundColor,
+    heroBackgroundImage:getComputedStyle(document.querySelector('#landing .heroWrap')).backgroundImage,
+    heroBackgroundColor:getComputedStyle(document.querySelector('#landing .heroWrap')).backgroundColor,
     cards:['passportFeature','matchFeature','workspaceFeature'].map(cls=>({
       cls,header:rect('#difference .'+cls+' h3'),
       demo:rect('#difference .'+cls+' .'+({passportFeature:'passportMock',matchFeature:'matchMock',workspaceFeature:'trackerMock'}[cls]))
@@ -56,10 +58,32 @@ for(const width of [360,390,768,1280,1440]){
    const channels=parts.map(c=>{c/=255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4});
    return channels[0]*.2126+channels[1]*.7152+channels[2]*.0722;
   };
-  const fg=luminance(visual.kicker),bg=luminance(visual.kickerBackground);
-  const badgeContrast=(Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05);
-  check(badgeContrast>=4.5,width+' homepage badge readable',
-   {foreground:visual.kicker,background:visual.kickerBackground,contrast:badgeContrast});
+  // The badge uses a translucent mint fill on the dark Orbital gradient.
+  // Comparing its raw rgba() channels as an opaque background gives a false 1:1
+  // contrast failure. Composite it against every gradient stop and test the
+  // least favorable effective background color instead.
+  const channels=value=>{
+    const nums=(String(value).match(/[0-9.]+/g)||[]).map(Number);
+    return nums.length>=3?nums.slice(0,3):null;
+  };
+  const badge=channels(visual.kickerBackground);
+  const alphaParts=(visual.kickerBackground.match(/[0-9.]+/g)||[]).map(Number);
+  const alpha=alphaParts.length>=4?alphaParts[3]:1;
+  const stopColors=(visual.heroBackgroundImage.match(/rgba?\([^)]*\)/g)||[])
+    .map(channels).filter(Boolean);
+  const fallback=channels(visual.heroBackgroundColor);
+  const candidateStops=stopColors.length?stopColors:(fallback?[fallback]:[]);
+  const fg=luminance(visual.kicker);
+  const contrasts=candidateStops.map(stop=>{
+    const effective=stop.map((v,i)=>v*(1-alpha)+(badge?.[i]??v)*alpha);
+    const bg=luminance('rgb('+effective.join(',')+')');
+    return (Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05);
+  });
+  const badgeContrast=contrasts.length?Math.min(...contrasts):NaN;
+  check(Number.isFinite(badgeContrast)&&badgeContrast>=4.5,
+    width+' homepage badge readable',
+    {foreground:visual.kicker,badgeFill:visual.kickerBackground,
+     heroGradient:visual.heroBackgroundImage,contrast:badgeContrast});
   for(const card of visual.cards)
    check(card.header&&card.demo&&card.demo.top>=card.header.bottom+4,
      width+' '+card.cls+' demo does not overlap heading',card);

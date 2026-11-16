@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+/* Fonts are already requested by the homepage's stylesheet link. */
 /* Original Orbital Command 2.0 presentation. No ThreeUI Pro source or assets used. */
 html.omOrbitalV2{--ov-accent:#65f7d9;--ov-ink:#10333b;--ov-paper:#f0f8f5;--ov-border:#c7ddd8;--ov-display:'DM Sans',system-ui,sans-serif;--ov-text:'DM Sans',system-ui,sans-serif}
 html.omOrbitalV2 body{overflow-x:clip}
@@ -522,3 +522,13 @@ html.omTurquoisePreview.omOrbitalV2[data-om-theme="light"] #landing #how{
     text-shadow:none;
   }
 }
+
+/* PageSpeed accessibility: preserve contrast in the always-dark landing header/footer.
+   This is scoped to the public landing surface, never the light workspace. */
+html.omOrbitalV2 #landing .heroWrap>.nav .brandword,
+html.omOrbitalV2 #landing .footer .brandword{color:#f5fffc!important;opacity:1!important}
+html.omOrbitalV2 #landing .heroWrap>.nav .brandword small,
+html.omOrbitalV2 #landing .footer .brandword small{color:#c6f6e7!important;opacity:1!important;font-size:11px!important;line-height:1.45!important;letter-spacing:.09em!important}
+html.omOrbitalV2 #landing .footer{color:#e5faf2!important}
+html.omOrbitalV2 #landing .footer .footerLinks span{color:#daf7ed!important;opacity:1!important}
+html.omOrbitalV2 #landing .footer .footerLinks a{color:#caffed!important}

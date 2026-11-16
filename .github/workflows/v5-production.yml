@@ -5,6 +5,10 @@ on:
       - 'index.html'
       - 'app-v07.js'
       - 'integration-shell-v5.js'
+      - 'source-chips-v1.js'
+      - 'app-v92-readability.js'
+      - 'orbital-v2.css'
+      - 'tests/pagespeed-homepage-audit.test.mjs'
       - 'site-nav-contrast-v5.css'
       - 'tests/v5-production.test.mjs'
       - 'tests/v5-production-browser.mjs'
@@ -23,6 +27,10 @@ on:
       - 'site-aux-nav-v5.js'
       - 'secondary-turquoise-v5.css'
       - 'integration-shell-v5.js'
+      - 'source-chips-v1.js'
+      - 'app-v92-readability.js'
+      - 'orbital-v2.css'
+      - 'tests/pagespeed-homepage-audit.test.mjs'
       - 'tests/v5-production.test.mjs'
       - 'tests/v5-production-browser.mjs'
       - '.github/workflows/v5-production.yml'
@@ -37,6 +45,10 @@ jobs:
         with:
           node-version: '24'
       - run: node --check integration-shell-v5.js
+      - run: node --check app-v07.js
+      - run: node --check source-chips-v1.js
+      - run: node --check app-v92-readability.js
+      - run: node --test tests/pagespeed-homepage-audit.test.mjs
       - run: node --check site-aux-nav-v5.js
       - run: node --test tests/v5-production.test.mjs
   real-browser:

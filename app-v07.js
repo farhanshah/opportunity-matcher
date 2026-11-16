@@ -51,6 +51,22 @@
   criticalCss('/theme-v2.css','data-om-theme-css');
   criticalCss('/hotfix-v133.css','data-om-hotfix-v133');
 
+  // The public landing is already a complete, crawlable page. Do not hold it behind
+  // the full workspace startup splash while every account/tracker module loads.
+  // Keep account-related callback routes on the original guarded boot path.
+  const isPublicHome=location.pathname==='/' && !/[?&](?:token|code|state|linkedin_connect|error)=/i.test(location.search);
+  const queuedOnboard=[];
+  let earlyOpenOnboard=null;
+  if(isPublicHome){
+    // Inline homepage CTAs must still work if clicked during the workspace fetch.
+    earlyOpenOnboard=(...args)=>{queuedOnboard.push(args)};
+    window.openOnboard=earlyOpenOnboard;
+    requestAnimationFrame(()=>{
+      document.documentElement.classList.add('omBootReady');
+      document.documentElement.dataset.omPublicFirstPaint='true';
+    });
+  }
+
   const started=performance.now();
   const sources=await Promise.all(files.map(async src=>{
     const url=`${src}?build=${BUILD}`;
@@ -63,6 +79,10 @@
     const s=document.createElement('script');
     s.textContent=`${sources[i]}\n//# sourceURL=${files[i]}?build=${BUILD}`;
     document.body.appendChild(s);
+  }
+  // Account gate is now attached; replay at most the most recent pre-boot CTA.
+  if(earlyOpenOnboard&&queuedOnboard.length&&window.openOnboard!==earlyOpenOnboard){
+    window.openOnboard(...queuedOnboard[queuedOnboard.length-1]);
   }
   document.documentElement.dataset.omBootMs=String(Math.round(performance.now()-started));
 })().catch(err=>{
