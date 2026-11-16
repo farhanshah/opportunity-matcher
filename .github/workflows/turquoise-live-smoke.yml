@@ -10,7 +10,8 @@ on:
   workflow_dispatch:
 jobs:
   public-browser:
-    runs-on: ubuntu-latest
+    # Playwright 1.56.1 needs an Ubuntu version it supports.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
