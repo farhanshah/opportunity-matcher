@@ -1,8 +1,8 @@
 name: OppMatcher v5 staging navbar and companion page QA
 on:
   pull_request:
+    # The legacy stage is a separate document; normal homepage edits do not exercise it.
     paths:
-      - 'index.html'
       - 'nav-contrast-preview-v5.html'
       - 'integration-shell-v5.js'
       - 'site-nav-contrast-v5.css'

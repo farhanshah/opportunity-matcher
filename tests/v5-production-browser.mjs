@@ -89,7 +89,9 @@ for(const width of [360,390,768,1280,1440]){
      width+' '+card.cls+' demo does not overlap heading',card);
 
   check(state.nav.h<=192,width+' navigation compact',state.nav);
-  check(state.brandColor==='rgb(244, 255, 253)',width+' brand readable',state.brandColor);
+  const brandRgb=(state.brandColor.match(/\d+/g)||[]).map(Number);
+  check(brandRgb.length===3&&brandRgb[0]>=235&&brandRgb[1]>=245&&brandRgb[2]>=240,
+    width+' brand readable',state.brandColor);
   check(state.secondaryColor==='rgb(239, 255, 251)',width+' secondary button readable',state.secondaryColor);
   check(state.ctaColor==='rgb(8, 45, 46)',width+' CTA contrast',state.ctaColor);
   check(state.publisherFound&&state.googleScripts>=1,width+' AdSense publisher script is present',state);

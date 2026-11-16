@@ -59,3 +59,48 @@ test('public homepage is painted before account and tracker modules finish booti
   assert.match(js, /earlyOpenOnboard=\(\.\.\.args\)=>\{queuedOnboard\.push\(args\)\}/);
   assert.match(js, /window\.openOnboard\(\.\.\.queuedOnboard\[queuedOnboard\.length-1\]\)/);
 });
+
+test('non-essential homepage CSS is deferred without losing no-script fallbacks', () => {
+  const html=read('index.html');
+  for(const name of ['public-v264.css','homepage-trust-v1.css?v=1','seo-clusters.css']) {
+    const tag=`<link rel="stylesheet" href="/${name}" media="print" onload="this.media='all'">`;
+    const fallback=`<noscript><link rel="stylesheet" href="/${name}"></noscript>`;
+    assert.ok(html.includes(tag), name+' is still render blocking');
+    assert.ok(html.includes(fallback), name+' must work without JavaScript');
+  }
+});
+test('carousel gives priority only to the hero image and uses smaller source quality', () => {
+  const html=read('index.html');
+  const images=[...html.matchAll(/<img\b[^>]*src="https:\/\/images\.unsplash\.com\/[^"]+"[^>]*>/g)].map(m=>m[0]);
+  assert.equal(images.length,7);
+  assert.equal(images.filter(x=>x.includes('fetchpriority="high"')).length,1);
+  assert.equal(images.filter(x=>x.includes('fetchpriority="low"')).length,6);
+  for(const tag of images)assert.doesNotMatch(tag,/q=80/);
+});
+
+test('public workspace background fetches are low priority and its execution yields', () => {
+  const js=read('app-v07.js');
+  assert.match(js,/priority:isPublicHome\?'low':'auto'/);
+  assert.match(js,/cache:'default'/);
+  assert.match(js,/if\(isPublicHome&&\(i\+1\)%5===0\)/);
+  assert.match(js,/requestAnimationFrame\(\(\)=>setTimeout\(resolve,0\)\)/);
+  assert.match(js,/for\(let i=0;i<files.length;i\+\+\)/);
+});
+
+test('Passport clicks cannot bypass the account gate during yielded boot', () => {
+  const js=read('app-v07.js');
+  assert.match(js,/document\.addEventListener\('click',guardEarlyPassportClick,true\)/);
+  assert.match(js,/event\.stopImmediatePropagation\(\)/);
+  assert.match(js,/document\.removeEventListener\('click',guardEarlyPassportClick,true\)/);
+  assert.ok(js.indexOf('bootstrapComplete=true')>js.indexOf('document.body.appendChild(s)'));
+});
+
+test('auth return routes preserve immediate boot and no workspace module is omitted', () => {
+  const js=read('app-v07.js');
+  assert.ok(js.includes("const isPublicHome=location.pathname==='/' && !/[?&](?:token|code|state|linkedin_connect|error)=/i.test(location.search);"));
+  const start=js.indexOf('const files=['),end=js.indexOf('  ];',start);
+  assert.ok(start>=0&&end>start);
+  const manifest=js.slice(start,end);
+  assert.ok((manifest.match(/'\/app-[^']+\.js'/g)||[]).length>=95,'workspace manifest unexpectedly shortened');
+  assert.ok(manifest.includes("'/app-account-gate-v1.js'"),'account gate must remain the final loader module');
+});

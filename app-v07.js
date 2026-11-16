@@ -57,7 +57,20 @@
   const isPublicHome=location.pathname==='/' && !/[?&](?:token|code|state|linkedin_connect|error)=/i.test(location.search);
   const queuedOnboard=[];
   let earlyOpenOnboard=null;
+  let bootstrapComplete=false;
+  // Preserve the account gate even while the legacy scripts are yielded across
+  // tasks. The raw onboarding function exists before its auth wrapper does.
+  const guardEarlyPassportClick=event=>{
+    if(bootstrapComplete||!(event.target instanceof Element))return;
+    const button=event.target.closest('#landing button[onclick*="openOnboard"], #landing .heroActions .btnPrimary, #landing .nav > .btnPrimary');
+    if(!button)return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    queuedOnboard.length=0;
+    queuedOnboard.push([]);
+  };
   if(isPublicHome){
+    document.addEventListener('click',guardEarlyPassportClick,true);
     // Inline homepage CTAs must still work if clicked during the workspace fetch.
     earlyOpenOnboard=(...args)=>{queuedOnboard.push(args)};
     window.openOnboard=earlyOpenOnboard;
@@ -68,9 +81,14 @@
   }
 
   const started=performance.now();
+  // Let the public hero paint before starting low-priority workspace network work.
+  // Auth callbacks and private workspace routes still boot immediately.
+  if(isPublicHome){
+    await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
+  }
   const sources=await Promise.all(files.map(async src=>{
     const url=`${src}?build=${BUILD}`;
-    const r=await fetch(url,{cache:'no-cache',credentials:'same-origin'});
+    const r=await fetch(url,{cache:'default',credentials:'same-origin',priority:isPublicHome?'low':'auto'});
     if(!r.ok)throw new Error(`Failed to load ${src} (HTTP ${r.status})`);
     return r.text();
   }));
@@ -79,8 +97,15 @@
     const s=document.createElement('script');
     s.textContent=`${sources[i]}\n//# sourceURL=${files[i]}?build=${BUILD}`;
     document.body.appendChild(s);
+    // Keep each public-home execution task short enough to yield to painting
+    // and input. Script order is unchanged; non-public routes remain atomic.
+    if(isPublicHome&&(i+1)%5===0){
+      await new Promise(resolve=>setTimeout(resolve,0));
+    }
   }
   // Account gate is now attached; replay at most the most recent pre-boot CTA.
+  bootstrapComplete=true;
+  if(isPublicHome)document.removeEventListener('click',guardEarlyPassportClick,true);
   if(earlyOpenOnboard&&queuedOnboard.length&&window.openOnboard!==earlyOpenOnboard){
     window.openOnboard(...queuedOnboard[queuedOnboard.length-1]);
   }
