@@ -107,10 +107,10 @@ html.omOrbitalV2[data-om-theme="dark"] #app .workspace{background:var(--om-bg,#1
 @keyframes ov-ring{to{rotate:360deg}}
 @keyframes ov-image-breathe{to{transform:scale(1.055)}}
 @keyframes ov-view-in{from{opacity:.85;transform:translateY(7px);filter:blur(2px)}to{opacity:1;transform:none;filter:none}}
-@media(min-width:1360px){
- html.omOrbitalV2 #landing .heroWrap>.nav>.navlinks{display:flex!important;position:static!important;opacity:1!important;transform:none!important;background:transparent!important;border:0!important;box-shadow:none!important;gap:clamp(10px,1.25vw,23px)!important;padding:0!important;width:auto!important;max-width:none!important}
- html.omOrbitalV2 #landing .heroWrap>.nav>.navlinks a{padding:7px 0!important;white-space:nowrap!important}
- html.omOrbitalV2 #landing .heroWrap>.nav>.omLandingMenu{display:none!important}
+@media(min-width:1480px){
+ html.omTurquoisePreview.omOrbitalV2 #landing .heroWrap>.nav>.navlinks{display:flex!important;position:static!important;opacity:1!important;transform:none!important;background:transparent!important;border:0!important;box-shadow:none!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;flex-wrap:nowrap!important;gap:clamp(10px,1vw,18px)!important;padding:0!important;width:auto!important;max-width:none!important}
+ html.omTurquoisePreview.omOrbitalV2 #landing .heroWrap>.nav>.navlinks a{display:inline-flex!important;align-items:center!important;width:auto!important;min-width:0!important;height:auto!important;padding:7px 0!important;white-space:nowrap!important;font-size:12px!important;border:0!important;background:none!important}
+ html.omTurquoisePreview.omOrbitalV2 #landing .heroWrap>.nav>.omLandingMenu{display:none!important}
 }
 @media(max-width:1050px){
  html.omOrbitalV2 #landing .hero{grid-template-columns:1fr!important;min-height:0}
