@@ -203,3 +203,32 @@ test('every indexable static public HTML page carries exactly one AdSense loader
  assert.equal(readFileSync(new URL('../ads.txt',import.meta.url),'utf8').trim(),
   'google.com, pub-1916126969266611, DIRECT, f08c47fec0942fa0');
 });
+
+
+test('AdSense quality priority pages explain the decision, not just a templated list',()=>{
+ const pages=[
+  ['scholarships/index.html', 'Choose a scholarship by its application route'],
+  ['internships/index.html', 'Choose the right internship listing'],
+  ['fellowships/index.html', 'What kind of fellowship matches your background?'],
+  ['exchange-programs/index.html', 'Compare exchange formats before applying'],
+  ['programmes/index.html', 'Choose your application route, not just a famous programme'],
+  ['blog/scholarship-motivation-letter-sample/index.html', 'Worked example: turn a vague motivation into verifiable evidence'],
+  ['blog/scholarship-recommendation-letter-sample/index.html', 'What makes a recommendation useful?'],
+  ['blog/scholarship-scams-how-to-verify/index.html', 'Two example offers: how the evidence differs']
+ ];
+ const sitemap=get('sitemap.xml');
+ for(const [file,marker] of pages){
+   const html=get(file);
+   const main=html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1]||'';
+   const words=main.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/\s+/).length;
+   assert.ok(words>=375,file+' lost its practical content');
+   assert.ok(main.includes(marker),file+' lost its distinct comparison or worked example');
+   assert.ok((main.match(/<table\b/g)||[]).length>=1,file+' missing detailed comparison');
+   assert.ok((main.match(/href="\/(?:blog|tools|latest|programmes|scholarships|internships|fellowships|exchange-programs)/g)||[]).length>=3,file+' lost useful next steps');
+   assert.match(html,/rel="canonical" href="https:\/\/oppmatcher\.tech\//i,file+' missing canonical');
+   assert.match(html,/name=["']robots["']\s+content=["']index,follow["']/i,file+' blocked from index');
+   const canonical=html.match(/rel="canonical" href="([^"]+)"/i)?.[1];
+   assert.ok(sitemap.includes('<loc>'+canonical+'</loc><lastmod>2026-11-16</lastmod>'),file+' sitemap lastmod did not follow the real edit');
+ }
+ assert.doesNotMatch(get('programmes/index.html'),/Provider application status must be checked directly/);
+});
