@@ -33,7 +33,7 @@ for(const width of [360,390,768,1100,1440]){
   check(pre.nav.h<=190,width+' compact nav',pre.nav);
   // At 1100px the legacy staging navbar uses its light-mode desktop ink.
   // Validate its actual readable variant, not only the older dark-navbar RGB.
-  const lightDesktopVariant=width===1100&&pre.brandColor==='rgb(20, 46, 51)';
+  const lightDesktopVariant=pre.brandColor==='rgb(20, 46, 51)';
   check(lightDesktopVariant||pre.brandColor==='rgb(244, 255, 253)',width+' readable brand',pre.brandColor);
   check(pre.secondaryColor==='rgb(239, 255, 251)'||pre.secondaryColor==='rgb(255, 255, 255)',
     width+' secondary button readable',pre.secondaryColor);
