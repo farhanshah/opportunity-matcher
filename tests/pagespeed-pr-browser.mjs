@@ -52,7 +52,22 @@ try{
   }));
   if(!ok.authGate||!ok.workspace||!ok.publicPaint||!ok.onboardHidden)
     throw Error('PR boot failed its account/workspace contract: '+JSON.stringify(ok));
-  console.log('PASS public paint before full module load; early click guarded; account gate and workspace boot healthy');
+  // Regression reported by live v5 QA: at 1440 the tracker demo floated
+  // above its own heading instead of following the description.
+  await page.setViewportSize({width:1440,height:900});
+  const layout=await page.evaluate(()=>{
+    const card=document.querySelector('#landing #difference .workspaceFeature');
+    const heading=card?.querySelector('h3');
+    const demo=card?.querySelector('.trackerMock');
+    const h=heading?.getBoundingClientRect(),d=demo?.getBoundingClientRect();
+    return {headingBottom:h?.bottom,demoTop:d?.top,
+      position:demo?getComputedStyle(demo).position:null,
+      cardHeight:card?.getBoundingClientRect().height};
+  });
+  if(!Number.isFinite(layout.headingBottom)||!Number.isFinite(layout.demoTop)||
+     layout.demoTop<layout.headingBottom+4)
+    throw Error('Desktop application demo overlaps heading: '+JSON.stringify(layout));
+  console.log('PASS public paint, account gate and desktop feature layout',layout);
   await page.close();
 }finally{
   await browser.close();

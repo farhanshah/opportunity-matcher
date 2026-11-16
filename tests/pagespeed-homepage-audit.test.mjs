@@ -82,7 +82,9 @@ test('public workspace background fetches are low priority and its execution yie
   const js=read('app-v07.js');
   assert.match(js,/priority:isPublicHome\?'low':'auto'/);
   assert.match(js,/cache:'default'/);
-  assert.match(js,/if\(isPublicHome&&\(i\+1\)%5===0\)/);
+  assert.match(js,/\(i\+1\)%3===0\|\|performance\.now\(\)-taskStarted>=12/);
+  assert.match(js,/typeof window\.scheduler\?\.yield==='function'/);
+  assert.match(js,/await yieldToMain\(\)/);
   assert.match(js,/requestAnimationFrame\(\(\)=>setTimeout\(resolve,0\)\)/);
   assert.match(js,/for\(let i=0;i<files.length;i\+\+\)/);
 });
@@ -103,4 +105,14 @@ test('auth return routes preserve immediate boot and no workspace module is omit
   const manifest=js.slice(start,end);
   assert.ok((manifest.match(/'\/app-[^']+\.js'/g)||[]).length>=95,'workspace manifest unexpectedly shortened');
   assert.ok(manifest.includes("'/app-account-gate-v1.js'"),'account gate must remain the final loader module');
+});
+
+test('script evaluations stay sequential, with a normal timeout fallback', () => {
+  const js=read('app-v07.js');
+  assert.match(js,/for\(let i=0;i<files\.length;i\+\+\)/);
+  const execute=js.indexOf('document.body.appendChild(s)',js.indexOf('const yieldToMain'));
+  const yieldLater=js.indexOf('await yieldToMain()',execute);
+  assert.ok(execute>=0&&yieldLater>execute);
+  assert.match(js,/new Promise\(resolve=>setTimeout\(resolve,0\)\)/);
+  assert.match(js,/if\(isPublicHome&&i\+1<files\.length/);
 });

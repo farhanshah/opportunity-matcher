@@ -1157,3 +1157,14 @@ html.omOrbitalV2.omTurquoisePreview #landing .footer .brandword small{color:#c6f
 html.omOrbitalV2.omTurquoisePreview #landing .footer{color:#e5faf2!important}
 html.omOrbitalV2.omTurquoisePreview #landing .footer .footerLinks span{color:#daf7ed!important;opacity:1!important}
 html.omOrbitalV2.omTurquoisePreview #landing .footer .footerLinks a{color:#caffed!important}
+
+/* Desktop feature-grid spacing: keep the application pipeline demo below its
+   heading and description, even at 1440px / with longer translated copy. */
+@media (min-width:1101px){
+  html.omTurquoisePreview #landing #difference .feature.workspaceFeature{
+    min-height:690px!important;
+  }
+  html.omTurquoisePreview #landing #difference .feature.workspaceFeature .trackerMock{
+    margin-top:24px!important;
+  }
+}

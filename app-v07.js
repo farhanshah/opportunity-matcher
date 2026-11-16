@@ -93,14 +93,22 @@
     return r.text();
   }));
 
+  // Yield when script evaluation consumes a small frame budget, rather than
+  // waiting for five modules regardless of their runtime cost. A maximum
+  // of three modules per task also protects against several small modules
+  // combining into one long task. Keep all modules in their original order.
+  const yieldToMain=()=>typeof window.scheduler?.yield==='function'
+    ?window.scheduler.yield()
+    :new Promise(resolve=>setTimeout(resolve,0));
+  let taskStarted=performance.now();
   for(let i=0;i<files.length;i++){
     const s=document.createElement('script');
     s.textContent=`${sources[i]}\n//# sourceURL=${files[i]}?build=${BUILD}`;
     document.body.appendChild(s);
-    // Keep each public-home execution task short enough to yield to painting
-    // and input. Script order is unchanged; non-public routes remain atomic.
-    if(isPublicHome&&(i+1)%5===0){
-      await new Promise(resolve=>setTimeout(resolve,0));
+    if(isPublicHome&&i+1<files.length&&
+      ((i+1)%3===0||performance.now()-taskStarted>=12)){
+      await yieldToMain();
+      taskStarted=performance.now();
     }
   }
   // Account gate is now attached; replay at most the most recent pre-boot CTA.
