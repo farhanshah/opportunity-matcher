@@ -139,3 +139,30 @@ html.omOrbitalV2[data-om-theme="dark"] #app .workspace{background:var(--om-bg,#1
  html.omOrbitalV2 #landing .heroWrap:before,html.omOrbitalV2 #landing .ovStage:before,html.omOrbitalV2 #landing .ovOrbitRing,html.omOrbitalV2 #landing .ovStage .ovCard[data-offset="0"] img,html.omOrbitalV2 #app .appBody>section:not(.hide){animation:none!important}
  html.omOrbitalV2 #landing .ovStage .ovCard,html.omOrbitalV2 #landing .ovStageControls button,html.omOrbitalV2 #landing .omTrustCard,html.omOrbitalV2 #landing .omSeoExplore .card{transition:none!important}
 }
+
+
+/* A workspace-first motion system: the command deck never replaces a real form or data view. */
+html.omOrbitalV2 #app .ovMissionDeck{--ov-dx:0;--ov-dy:0;position:relative;display:flex;align-items:center;justify-content:space-between;min-width:0;gap:22px;min-height:218px;margin:0 0 26px;padding:clamp(20px,3vw,34px);border:1px solid #3bdacb66;border-radius:24px;color:#edfffa;background:radial-gradient(ellipse at 83% 40%,#1b6269 0,#0a3846 44%,#061e29 86%);overflow:hidden;isolation:isolate;box-shadow:0 25px 65px #0a525527}
+html.omOrbitalV2 #app .ovMissionDeck::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(#b2ffee0b 1px,transparent 1px),linear-gradient(90deg,#b2ffee0b 1px,transparent 1px);background-size:48px 48px;opacity:.45;z-index:-1}
+html.omOrbitalV2 #app .ovDeckCopy{position:relative;z-index:3;flex:1 1 600px;min-width:0;max-width:750px}
+html.omOrbitalV2 #app .ovDeckEyebrow{font:700 10px var(--ov-text);letter-spacing:.18em;color:#a3f8e3;display:flex;align-items:center;gap:8px}
+html.omOrbitalV2 #app .ovDeckPulse{width:7px;height:7px;border-radius:50%;background:#67f7d8;box-shadow:0 0 0 5px #5ff4d91a}
+html.omOrbitalV2 #app .ovDeckCopy h2{font:700 clamp(24px,3.2vw,40px)/1.08 var(--ov-display)!important;letter-spacing:-.055em;color:#eafffb!important;margin:12px 0}
+html.omOrbitalV2 #app .ovDeckCopy h2 em{color:#6dffdc;font-style:normal}
+html.omOrbitalV2 #app .ovDeckCopy p{font:400 13px/1.55 var(--ov-text)!important;color:#bfddd9!important;max-width:535px;margin:0 0 18px}
+html.omOrbitalV2 #app .ovDeckActions{display:flex;gap:8px;flex-wrap:wrap}
+html.omOrbitalV2 #app .ovDeckActions button{display:inline-flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;padding:8px 13px;color:#eafffb;background:#c4ffed10;border:1px solid #93ffdc63;border-radius:11px;cursor:pointer;font:700 12px var(--ov-text);transition:background .2s,transform .2s}
+html.omOrbitalV2 #app .ovDeckActions button:hover,html.omOrbitalV2 #app .ovDeckActions button.active{background:#69f6d3!important;color:#073b3c!important;border-color:#a7ffef}
+html.omOrbitalV2 #app .ovDeckActions button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+html.omOrbitalV2 #app .ovDeckVisual{position:relative;flex:0 0 clamp(130px,17vw,210px);aspect-ratio:1;transform:translate(calc(var(--ov-dx)*6px),calc(var(--ov-dy)*6px));transition:transform .2s ease}
+html.omOrbitalV2 #app .ovDeckDisc{position:absolute;inset:8%;border:1px solid #7dffde8c;border-radius:50%;box-shadow:inset 0 0 30px #5df4dd15,0 0 22px #40ffdc17}
+html.omOrbitalV2 #app .ovDeckDisc1{transform:rotate(-30deg) scaleX(.6);animation:ov-deck-turn 16s linear infinite}
+html.omOrbitalV2 #app .ovDeckDisc2{transform:rotate(42deg) scaleX(.62);animation:ov-deck-turn 22s linear infinite reverse}
+html.omOrbitalV2 #app .ovDeckDisc3{inset:25%;border-style:dashed;animation:ov-deck-turn 27s linear infinite}
+html.omOrbitalV2 #app .ovDeckCore{position:absolute;inset:37%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 20% 20%,#d0fff4,#59d9d4 30%,#19596b 75%);color:#013f46;font:800 16px var(--ov-display);box-shadow:0 0 38px #63ffdb8c}
+html.omOrbitalV2 #app .ovDeckCore span{font:800 9px var(--ov-text);position:absolute;right:14%;top:20%}
+html.omOrbitalV2 #app .ovDeckSatellite{position:absolute;width:8px;height:8px;border-radius:50%;background:#b2ffe5;box-shadow:0 0 15px #8dfdd4;left:15%;top:33%}
+html.omOrbitalV2 #app .ovDeckSatellite2{left:79%;top:69%;background:#8dddff}
+@keyframes ov-deck-turn{to{rotate:360deg}}
+@media(max-width:700px){html.omOrbitalV2 #app .ovMissionDeck{min-height:0;padding:20px 17px;border-radius:17px}html.omOrbitalV2 #app .ovDeckVisual{position:absolute;right:-40px;top:-30px;width:170px;opacity:.25}html.omOrbitalV2 #app .ovDeckCopy{max-width:100%}html.omOrbitalV2 #app .ovDeckCopy p{max-width:95%}html.omOrbitalV2 #app .ovDeckActions{gap:6px}html.omOrbitalV2 #app .ovDeckActions button{font-size:11px;min-height:37px;padding:7px 10px}}
+@media(prefers-reduced-motion:reduce){html.omOrbitalV2 #app .ovDeckDisc{animation:none!important}html.omOrbitalV2 #app .ovDeckVisual{transition:none!important}}
