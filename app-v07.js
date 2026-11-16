@@ -58,6 +58,41 @@
   const queuedOnboard=[];
   let earlyOpenOnboard=null;
   let bootstrapComplete=false;
+  let startPublicWorkspace=()=>{};
+  let publicBootGate=Promise.resolve();
+  let pendingSignIn=false;
+  if(isPublicHome){
+    // The public page, verified vacancies and official links are useful without
+    // a 111-module account application. Start it on real intent, scrolling to
+    // the legacy featured catalogue, or after the visitor has settled.
+    publicBootGate=new Promise(resolve=>{
+      let started=false;
+      startPublicWorkspace=(intent='')=>{
+        if(intent==='signin')pendingSignIn=true;
+        if(started)return;
+        started=true;
+        resolve();
+      };
+    });
+    window.OpportunityStartWorkspace=startPublicWorkspace;
+    const onLoad=()=>setTimeout(()=>startPublicWorkspace('settled'),4500);
+    if(document.readyState==='complete')onLoad();
+    else window.addEventListener('load',onLoad,{once:true});
+    setTimeout(()=>startPublicWorkspace('fallback'),9500);
+    const featured=document.getElementById('featuredGrid');
+    if(featured&&'IntersectionObserver' in window){
+      const observer=new IntersectionObserver(entries=>{
+        if(entries.some(entry=>entry.isIntersecting)){
+          startPublicWorkspace('featured');
+          observer.disconnect();
+        }
+      },{rootMargin:'700px 0px'});
+      observer.observe(featured);
+    }
+    window.addEventListener('opportunity:cloudready',()=>{
+      if(pendingSignIn)window.OpportunityCloud?.openAuth?.();
+    },{once:true});
+  }
   // Preserve the account gate even while the legacy scripts are yielded across
   // tasks. The raw onboarding function exists before its auth wrapper does.
   const guardEarlyPassportClick=event=>{
@@ -68,11 +103,12 @@
     event.stopImmediatePropagation();
     queuedOnboard.length=0;
     queuedOnboard.push([]);
+    startPublicWorkspace('passport');
   };
   if(isPublicHome){
     document.addEventListener('click',guardEarlyPassportClick,true);
     // Inline homepage CTAs must still work if clicked during the workspace fetch.
-    earlyOpenOnboard=(...args)=>{queuedOnboard.push(args)};
+    earlyOpenOnboard=(...args)=>{queuedOnboard.push(args);startPublicWorkspace('passport')};
     window.openOnboard=earlyOpenOnboard;
     requestAnimationFrame(()=>{
       document.documentElement.classList.add('omBootReady');
@@ -85,6 +121,7 @@
   // Auth callbacks and private workspace routes still boot immediately.
   if(isPublicHome){
     await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
+    await publicBootGate;
   }
   const sources=await Promise.all(files.map(async src=>{
     const url=`${src}?build=${BUILD}`;
