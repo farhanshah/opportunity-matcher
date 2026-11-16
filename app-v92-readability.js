@@ -42,7 +42,8 @@
   `;
   document.head.appendChild(style);
 
-  const roots=()=>['landing','app','prepModal','detail','onboard'].map(id=>document.getElementById(id)).filter(Boolean);
+  // Public landing typography is covered by CSS. Avoid layout reads on its entire DOM at boot.
+  const roots=()=>['app','prepModal','detail','onboard'].map(id=>document.getElementById(id)).filter(el=>el&&!el.classList.contains('hide'));
   const excluded=el=>el.matches?.('script,style,svg,path,circle,rect,line,polyline,polygon,.dot,.pulse,.progressRail,.checkProgress,.prepProgress,.passportPercent,.skeleton')||el.closest?.('svg');
   function hasOwnText(el){return [...el.childNodes].some(n=>n.nodeType===Node.TEXT_NODE&&String(n.textContent||'').trim())}
   function apply(el){
@@ -56,9 +57,19 @@
   function refresh(){roots().forEach(scan)}
   let timer=null;
   const obs=new MutationObserver(records=>{
-    clearTimeout(timer);timer=setTimeout(()=>{for(const r of records)for(const n of r.addedNodes)if(n instanceof Element)scan(n)},80)
+    const relevant=records.filter(r=>
+      (r.type==='attributes'&&['app','prepModal','detail','onboard'].includes(r.target.id))||
+      (r.type==='childList'&&r.target.closest?.('#app,#prepModal,#detail,#onboard')));
+    if(!relevant.length)return;
+    clearTimeout(timer);
+    timer=setTimeout(()=>{
+      if(relevant.some(r=>r.type==='attributes'))refresh();
+      for(const r of relevant)for(const n of r.addedNodes){
+        if(n instanceof Element&&!n.closest?.('.hide'))scan(n);
+      }
+    },80);
   });
-  obs.observe(document.body,{subtree:true,childList:true});
+  obs.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
   window.addEventListener('resize',()=>{clearTimeout(timer);timer=setTimeout(refresh,120)});
   setTimeout(refresh,80);setTimeout(refresh,900);
   window.OpportunityReadability={refresh};
