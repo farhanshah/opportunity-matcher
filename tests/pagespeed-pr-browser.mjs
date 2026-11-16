@@ -40,7 +40,7 @@ try{
   await page.waitForFunction(()=>document.documentElement.dataset.omPublicFirstPaint==='true',{timeout:12000});
   if(await page.evaluate(()=>Boolean(document.documentElement.dataset.omBootMs)))
     throw Error('Workspace finished before the intentionally delayed module, cannot test early interaction');
-  await page.locator('#landing .heroActions .btnPrimary').click({timeout:10000});
+  await page.locator('#landing .heroActions .btnPrimary').first().click({timeout:10000});
   const onboardVisible=await page.locator('#onboard').evaluate(el=>!el.classList.contains('hide'));
   if(onboardVisible)throw Error('Public CTA exposed raw onboarding before auth gate');
   await page.waitForFunction(()=>Boolean(document.documentElement.dataset.omBootMs),{timeout:35000});
