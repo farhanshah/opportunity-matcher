@@ -41,3 +41,33 @@ Additional recording evidence:
 - Inspect remaining render-blocking CSS, third-party AdSense/Neon code and image-host latency. Third-party cache TTLs are not controlled by OppMatcher.
 - The legacy `tests/v5-staging-browser.mjs` suite targets `https://oppmatcher.tech/nav-contrast-preview-v5.html` directly and recorded six failures at 1100px. This tests an older staging page, not the PR preview, so do not represent it as an E2E result of this change.
 - AdSense approval remains subject to Google's complete site/content/policy review. Publisher code is intentionally unchanged.
+
+## Second Lighthouse screenshots, 21:42 GMT on 16 November 2026
+
+After the first PageSpeed release (PR #10), the user provided fresh mobile and desktop results:
+
+| Metric | Mobile | Desktop |
+| --- | ---: | ---: |
+| Performance | 42 | 47 |
+| Accessibility | 100 | 100 |
+| Best Practices | 100 | 100 |
+| SEO | 100 | 100 |
+| FCP | 3.2 s | 0.7 s |
+| LCP | 9.3 s | 2.5 s |
+| TBT | 910 ms | 1,810 ms |
+| CLS | 0.01 | 0.006 |
+| Speed Index | 7.0 s | 4.8 s |
+
+This confirms gains in accessibility, SEO, and modest improvements in LCP/TBT, but **performance remains unacceptable on mobile**. Screenshots are a single Lighthouse run, not field user metrics.
+
+### PR #11: follow-up critical rendering path
+
+- Start public-home workspace fetches after first paint and mark the network priority low; preserve direct private-route behavior.
+- Break the 100+ classic-script execution loop into five-script tasks only on the public homepage, maintaining execution order.
+- Capture early Passport clicks until the account gate installs, preventing a pre-auth onboarding flash.
+- Defer three below-the-fold CSS resources, each retaining no-JavaScript fallback.
+- Lower six secondary carousel image priorities and reduce provider image q from 80 to 70.
+- Added a checked-out-branch Playwright smoke testing actual early paint, click guard, and account gate, not merely the live production site.
+- Corrected stale exact-RGB browser assertion in v5 public QA; stopped unrelated changes to `index.html` from triggering obsolete standalone staging-page QA.
+
+No post-PR #11 Lighthouse score should be stated until deployment and new PageSpeed measurements.
