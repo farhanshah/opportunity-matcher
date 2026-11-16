@@ -53,3 +53,16 @@ body:has(.orbital-topic-photo) .orbital-topic-photo{max-width:100%}
 @media(max-width:1050px){html.omTurquoisePreview #landing .heroVisual{max-width:100%;min-width:0}html.omTurquoisePreview #landing .slideShell::before{width:90px;height:90px}html.omTurquoisePreview #landing .slideShell::after{width:37px;height:37px;right:49px;top:52px}}
 @media(max-width:700px){html.omTurquoisePreview #landing .hero h1{font-size:clamp(39px,10vw,53px)!important;line-height:1.02!important}html.omTurquoisePreview #landing .slideShell{border-radius:19px!important}html.omTurquoisePreview #landing .slideInfo{left:18px;right:18px;bottom:18px;gap:8px}html.omTurquoisePreview #landing .slideInfo h3{font-size:clamp(23px,7vw,31px)}html.omTurquoisePreview #landing .slideCounter{max-width:80px}html.omTurquoisePreview #landing .slideCounter .dot{width:10px}html.omTurquoisePreview #landing .orbital-slide-controls{left:13px;top:13px}html.omTurquoisePreview #landing .slideShell::before{right:14px;top:13px;width:70px;height:70px}html.omTurquoisePreview #landing .slideShell::after{right:36px;top:35px;width:27px;height:27px}html.omTurquoisePreview #app .appTop h2{font-size:clamp(19px,5vw,29px)}.orbital-topic-photo{border-radius:12px}.orbital-topic-photo img{height:195px}}
 @media(prefers-reduced-motion:reduce){html.omTurquoisePreview #landing .heroWrap:before,html.omTurquoisePreview #landing .slideShell::before,html.omTurquoisePreview #landing .slideShell::after,html.omTurquoisePreview #landing .slide.active,html.omTurquoisePreview #landing .slide.active .slideInfo>div:first-child,html.omTurquoisePreview #app .appBody>section:not(.hide){animation:none!important}html.omTurquoisePreview #landing .featureGrid .feature,html.omTurquoisePreview #landing .guideGrid .guideCard,.orbital-topic-photo img{transition:none!important;transform:none!important}}
+
+/* Shared public-page typography. No replacement of theme backgrounds or foreground colors. */
+html:not(.omTurquoisePreview) body{font-family:var(--orbital-body)}
+html:not(.omTurquoisePreview) h1,
+html:not(.omTurquoisePreview) h2,
+html:not(.omTurquoisePreview) header strong{font-family:var(--orbital-display);letter-spacing:-.045em;text-wrap:balance}
+html:not(.omTurquoisePreview) a:focus-visible,
+html:not(.omTurquoisePreview) button:focus-visible{outline:2px solid #0abfae;outline-offset:3px}
+@supports(animation-timeline:view()){
+  html:not(.omTurquoisePreview) main>section:not([hidden]){animation:orbital-public-rise linear both;animation-timeline:view();animation-range:entry 0% entry 45%}
+}
+@keyframes orbital-public-rise{from{filter:blur(2px);opacity:.9;transform:translateY(9px)}to{filter:blur(0);opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){html:not(.omTurquoisePreview) main>section:not([hidden]){animation:none!important}}
