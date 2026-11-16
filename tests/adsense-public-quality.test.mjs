@@ -232,3 +232,45 @@ test('AdSense quality priority pages explain the decision, not just a templated 
  }
  assert.doesNotMatch(get('programmes/index.html'),/Provider application status must be checked directly/);
 });
+
+
+test('expanded source-backed programme and planning pages retain actual decision tools',()=>{
+ const focus=[
+   ['deadlines/index.html','Build a deadline record from official evidence'],
+   ['scholarships/countries/index.html','Study destination and applicant nationality are separate questions'],
+   ['programmes/adb-internship-programme/index.html','What the ADB Internship Program actually requires'],
+   ['programmes/newton-international-fellowship/index.html','Newton International Fellowships: eligibility that matters'],
+   ['internships/remote/index.html','Remote does not automatically mean international'],
+   ['exchange-programs/summer-schools/index.html','What will the summer school actually give you?']
+ ];
+ const sitemap=get('sitemap.xml');
+ for(const [path,heading] of focus){
+   const html=get(path);
+   const main=html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1]||'';
+   const words=main.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().split(/\s+/).length;
+   assert.ok(words>=420,path+' must give real programme-specific guidance');
+   assert.ok(main.includes(heading),path+' lost its distinct content');
+   assert.ok(main.includes('<table'),path+' must retain a practical decision comparison');
+   assert.match(html,/name="robots" content="index,follow"/);
+   const canonical=html.match(/rel="canonical" href="([^"]+)"/)?.[1];
+   assert.ok(canonical,path+' missing canonical');
+   assert.ok(sitemap.includes('<loc>'+canonical+'</loc><lastmod>2026-11-16</lastmod>'),
+     path+' sitemap must keep a truthful modification date');
+   assert.equal((html.match(/adsbygoogle\.js\?client=ca-pub-1916126969266611/g)||[]).length,1,
+     path+' must have one publisher script');
+ }
+ const deadlines=get('deadlines/index.html');
+ const scripts=[...deadlines.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]);
+ assert.equal(scripts.length,1,'Deadline form has one browser-only script');
+ new Function(scripts[0]);
+ for(const formField of ['deadlineWorksheet','deadlineName','deadlineSource','deadlineDate',
+   'deadlineTime','deadlineZone','deadlineOther','deadlineRecord','copyDeadline']){
+   assert.ok(deadlines.includes('id="'+formField+'"'),'Missing deadline input '+formField);
+ }
+ assert.doesNotMatch(scripts[0],/\b(?:fetch\s*\(|XMLHttpRequest|localStorage|sessionStorage)\b/,
+   'Deadline planner must not transmit or retain personal application data');
+ assert.match(get('programmes/adb-internship-programme/index.html'),
+   /https:\/\/www\.adb\.org\/work-with-us\/careers\/internship-program/);
+ assert.match(get('programmes/newton-international-fellowship/index.html'),
+   /https:\/\/www\.royalsociety\.org\/grants\/newton-international\//);
+});
