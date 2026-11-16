@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 /* Shared editorial styling for public information pages. This does not modify SEO markup, theme state, or opportunity evidence. */
 body:has(> main > nav.crumb),body:has(>main>nav.crumb){font-family:'DM Sans',system-ui,Arial,sans-serif!important;background:#edf7f3!important;color:#183c3a!important}
 body:has(> main > nav.crumb) :is(h1,h2,h3),body:has(>main>nav.crumb) :is(h1,h2,h3){font-family:'DM Sans',system-ui,sans-serif!important;letter-spacing:-.045em!important;line-height:1.15;text-wrap:balance}
