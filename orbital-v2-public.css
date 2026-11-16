@@ -1,6 +1,6 @@
 /* Shared editorial styling for public information pages. This does not modify SEO markup, theme state, or opportunity evidence. */
 body:has(> main > nav.crumb),body:has(>main>nav.crumb){font-family:'Space Grotesk',system-ui,Arial,sans-serif!important;background:#edf7f3!important;color:#183c3a!important}
-body:has(> main > nav.crumb) :is(h1,h2,h3),body:has(>main>nav.crumb) :is(h1,h2,h3){font-family:'Syne',system-ui,sans-serif!important;letter-spacing:-.045em!important;line-height:1.15;text-wrap:balance}
+body:has(> main > nav.crumb) :is(h1,h2,h3),body:has(>main>nav.crumb) :is(h1,h2,h3){font-family:'Space Grotesk',system-ui,sans-serif!important;letter-spacing:-.045em!important;line-height:1.15;text-wrap:balance}
 body:has(>main>nav.crumb) header,body:has(>main>nav.crumb) footer{background:#071f2a!important;color:#eafff9!important}
 body:has(>main>nav.crumb) header a,body:has(>main>nav.crumb) footer a{color:#eafff9!important}
 body:has(>main>nav.crumb) main{max-width:1220px!important}
@@ -17,7 +17,7 @@ body:has(>main>nav.crumb) a:focus-visible{outline:3px solid #12bea8;outline-offs
 .ovTopicFigure img{display:block;width:100%;height:clamp(210px,28vw,350px);object-fit:cover;filter:saturate(.88)}
 .ovTopicFigure figcaption{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,#06151bdc);padding:30px 20px 16px;color:#e8fff9;font:500 11px/1.5 'Space Grotesk',sans-serif}
 .ovTopicFigure figcaption a{color:#b8fff0!important;text-decoration:underline}
-body:has(.blogMain) :is(h1,h2,h3),body:has(.blogHero) :is(h1,h2,h3){font-family:'Syne',system-ui,sans-serif!important;letter-spacing:-.047em!important}
+body:has(.blogMain) :is(h1,h2,h3),body:has(.blogHero) :is(h1,h2,h3){font-family:'Space Grotesk',system-ui,sans-serif!important;letter-spacing:-.047em!important}
 body:has(.blogMain) .blogNav,body:has(.blogHero) .blogNav{isolation:isolate}
 body:has(.blogMain) :is(.blogHero,.blogCard){border-radius:18px}
 body:has(.blogMain) a:focus-visible{outline:3px solid #5bd5ca;outline-offset:3px}
