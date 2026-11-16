@@ -12,8 +12,11 @@ const server=createServer(async(req,res)=>{
   try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname)}
   catch{res.writeHead(400).end();return}
   if(pathname.startsWith('/api/')){
+    const response=pathname==='/api/health'
+      ?{ok:true,opportunities:12,monitored_sources:9}
+      :{ok:true,count:0,monitored_sources:0,opportunities:[],data:[],records:[],calls:[],listings:[],sources:{}};
     res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'})
-      .end(JSON.stringify({ok:true,count:0,monitored_sources:0,opportunities:[],data:[],records:[],calls:[],listings:[],sources:{}}));
+      .end(JSON.stringify(response));
     return;
   }
   if(pathname==='/'||['/discover','/saved','/tracker','/dashboard'].includes(pathname))pathname='/index.html';
@@ -38,8 +41,11 @@ try{
   const response=await page.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:15000});
   if(response?.status()!==200)throw Error('Public homepage did not load');
   await page.waitForFunction(()=>document.documentElement.dataset.omPublicFirstPaint==='true',{timeout:12000});
-  if(await page.evaluate(()=>Boolean(document.documentElement.dataset.omBootMs)))
-    throw Error('Workspace finished before the intentionally delayed module, cannot test early interaction');
+  await page.waitForFunction(()=>document.getElementById('statOpps')?.textContent==='12'&&
+    document.getElementById('statSources')?.textContent==='9',{timeout:7000});
+  await page.waitForTimeout(900);
+  if(await page.evaluate(()=>Boolean(document.documentElement.dataset.omBootMs)||typeof window.setView==='function'))
+    throw Error('Full workspace started before any public intent');
   await page.locator('#landing .heroActions .btnPrimary').first().click({timeout:10000});
   const onboardVisible=await page.locator('#onboard').evaluate(el=>!el.classList.contains('hide'));
   if(onboardVisible)throw Error('Public CTA exposed raw onboarding before auth gate');
@@ -69,6 +75,27 @@ try{
     throw Error('Desktop application demo overlaps heading: '+JSON.stringify(layout));
   console.log('PASS public paint, account gate and desktop feature layout',layout);
   await page.close();
+
+  // Sign in is available even before the CDN-hosted auth bundle is fetched.
+  const signin=await browser.newPage({viewport:{width:390,height:844}});
+  await signin.route('**/*',async route=>{
+    const url=new URL(route.request().url());
+    if(url.hostname!=='127.0.0.1'){await route.abort();return}
+    await route.continue();
+  });
+  await signin.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:15000});
+  await signin.locator('#cloudLandingAuth').click({timeout:10000});
+  await signin.waitForFunction(()=>Boolean(document.documentElement.dataset.omBootMs),{timeout:35000});
+  const signInIntent=await signin.evaluate(()=>{
+    let calls=0;
+    window.OpportunityCloud={openAuth:()=>{calls++}};
+    window.dispatchEvent(new Event('opportunity:cloudready'));
+    return {calls,buttonCount:document.querySelectorAll('#cloudLandingAuth').length};
+  });
+  if(signInIntent.calls!==1||signInIntent.buttonCount!==1)
+    throw Error('Public sign-in did not reach one secure cloud handler: '+JSON.stringify(signInIntent));
+  console.log('PASS lightweight sign-in initiates account workspace without duplicate buttons');
+  await signin.close();
 }finally{
   await browser.close();
   await new Promise((resolve,reject)=>server.close(error=>error?reject(error):resolve()));
