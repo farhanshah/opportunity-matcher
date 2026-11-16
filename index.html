@@ -64,6 +64,7 @@ html:not(.omBootReady) body:before,html:not(.omBootReady) body:after{display:non
         <span class="brandword">OppMatcher<small>global matcher</small></span>
       </a>
       <div class="navlinks"><a href="/scholarships/">Scholarships</a><a href="/internships/">Internships</a><a href="/fellowships/">Fellowships</a><a href="/exchange-programs/">Exchange</a><a href="/latest">Latest</a><a href="/blog/">Guides</a><a href="/tools/application-readiness">Checklist</a><a href="/how-it-works/">How it works</a></div>
+      <button id="cloudLandingAuth" class="cloudNavAuth" type="button" onclick="window.OpportunityStartWorkspace?.('signin')">Sign in</button>
       <button class="btn btnPrimary" onclick="openOnboard()">Build Passport <span>↗</span></button>
     </nav>
     <div class="hero">
@@ -223,6 +224,7 @@ html:not(.omBootReady) body:before,html:not(.omBootReady) body:after{display:non
 <div id="detail" class="modal hide"><div class="modalBox"><button class="closeX" onclick="closeDetail()">×</button><div id="detailInner"></div></div></div>
 <link rel="stylesheet" href="/home-openings-v1.css?v=1">
 <script src="/home-openings-v1.js?v=1" defer></script>
+<script src="/public-home-lite.js?v=1" defer></script>
 <script src="/app-v07.js?v=20261102" defer></script>
 <script src="/integration-shell-v5.js?v=7" defer></script>
 <script src="/source-chips-v1.js?v=2" defer></script>
