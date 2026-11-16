@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap');
 /* Original Orbital Command 2.0 presentation. No ThreeUI Pro source or assets used. */
-html.omOrbitalV2{--ov-accent:#65f7d9;--ov-ink:#10333b;--ov-paper:#f0f8f5;--ov-border:#c7ddd8;--ov-display:'Syne','Manrope',sans-serif;--ov-text:'Space Grotesk','DM Sans',sans-serif}
+html.omOrbitalV2{--ov-accent:#65f7d9;--ov-ink:#10333b;--ov-paper:#f0f8f5;--ov-border:#c7ddd8;--ov-display:'Space Grotesk','DM Sans',sans-serif;--ov-text:'Space Grotesk','DM Sans',sans-serif}
 html.omOrbitalV2 body{overflow-x:clip}
 html.omOrbitalV2 #landing .heroWrap{color:#f7fffd!important;background:radial-gradient(ellipse 70% 70% at 85% 35%,#145768 0%,#082d3d 48%,#04141e 88%)!important;isolation:isolate;overflow:hidden;min-height:0}
 html.omOrbitalV2 #landing .heroWrap:before{content:"";position:absolute;inset:-20% -5% 0 30%;height:auto;background:conic-gradient(from 95deg at 60% 45%,transparent,#19b9af43,transparent,#267dbd33,transparent);filter:blur(55px);opacity:.8;pointer-events:none;animation:ov-aura 27s linear infinite}
@@ -166,3 +166,201 @@ html.omOrbitalV2 #app .ovDeckSatellite2{left:79%;top:69%;background:#8dddff}
 @keyframes ov-deck-turn{to{rotate:360deg}}
 @media(max-width:700px){html.omOrbitalV2 #app .ovMissionDeck{min-height:0;padding:20px 17px;border-radius:17px}html.omOrbitalV2 #app .ovDeckVisual{position:absolute;right:-40px;top:-30px;width:170px;opacity:.25}html.omOrbitalV2 #app .ovDeckCopy{max-width:100%}html.omOrbitalV2 #app .ovDeckCopy p{max-width:95%}html.omOrbitalV2 #app .ovDeckActions{gap:6px}html.omOrbitalV2 #app .ovDeckActions button{font-size:11px;min-height:37px;padding:7px 10px}}
 @media(prefers-reduced-motion:reduce){html.omOrbitalV2 #app .ovDeckDisc{animation:none!important}html.omOrbitalV2 #app .ovDeckVisual{transition:none!important}}
+
+
+/* 2026-11-16 screen-recording fixes.
+ * Deliberately outrank the old global navigation/theme rules by scoping both root classes.
+ * No changes to app state or provider evidence. */
+html.omTurquoisePreview.omOrbitalV2 #landing :is(h1,h2,h3,h4),
+html.omTurquoisePreview.omOrbitalV2 #app :is(h1,h2,h3,h4) {
+  font-family:'Space Grotesk','DM Sans',sans-serif!important;
+  letter-spacing:-.034em!important;
+  font-weight:700!important;
+  text-wrap:balance;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .hero h1 {
+  letter-spacing:-.05em!important;
+  line-height:1.025!important;
+  font-weight:700!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovWorldCopy h2 {
+  font-size:clamp(35px,4.6vw,65px)!important;
+  letter-spacing:-.04em!important;
+  line-height:1.08!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omTrustHub h2,
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore h2 {
+  letter-spacing:-.033em!important;
+  font-weight:700!important;
+  line-height:1.16!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore h2{font-size:clamp(30px,3.15vw,45px)!important}
+html.omTurquoisePreview.omOrbitalV2 #landing .omTrustHub .omTrustCard,
+html.omTurquoisePreview.omOrbitalV2 #landing .omTrustHub .omTrustReviewed{
+  overflow-wrap:anywhere;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustEyebrow,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustNote strong{color:#97f9de!important}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustIntro,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustNote{color:#c6e5de!important}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustCard{
+  background:#18373c!important;border-color:#3e7771!important;color:#edfdf8!important;
+  box-shadow:0 15px 32px #031b1c3d;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustCard strong{
+  color:#f0fffa!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustCard span{
+  color:#c4e4de!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustCard em{
+  color:#88f9df!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustReviewed{
+  background:#1b3d41!important;border-color:#39756e!important;color:#ebfff8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustReviewed strong{
+  color:#e9fff8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub .omTrustReviewed a{
+  color:#9dfbe5!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omTrustHub :is(.omTrustCard,.omTrustReviewed) a:focus-visible{
+  outline:2px solid #b7ffeb;outline-offset:2px;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore:not(.omProgrammeCrawl){
+  padding:clamp(34px,4vw,58px) 20px 30px!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore.omProgrammeCrawl{
+  padding:36px 20px clamp(42px,5vw,68px)!important;
+  border-top:1px solid #4c8f8250;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .grid .card{
+  min-width:0;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .grid .card h3,
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .grid .card h3 a{
+  color:#a7ffe8!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .grid .card p{
+  color:#c6e9e1!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="light"] #landing .omSeoExplore .grid .card h3 a{color:#126159!important}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion{
+  margin:28px 0 0!important;padding:22px!important;border-radius:17px!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr);gap:14px;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>strong{
+  display:block;font-family:var(--ov-text);font-size:17px;line-height:1.3;letter-spacing:-.015em;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a{
+  display:flex;align-items:center;min-width:0;min-height:46px;padding:10px 12px;
+  border:1px solid #b4dcd2;border-radius:10px;background:#ffffff;
+  color:#08665b!important;text-decoration:none!important;font-family:var(--ov-text);
+  font-size:13px;line-height:1.3;font-weight:650;overflow-wrap:anywhere;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a:hover{
+  border-color:#19a893;background:#ecfffa;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a:focus-visible{
+  outline:2px solid #33c6b4;outline-offset:2px;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoRelated.omSeoExpansion{
+  background:#1a3a40!important;color:#e8fff9!important;border-color:#427d74!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoRelated.omSeoExpansion>strong{
+  color:#e9fff9!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a{
+  color:#acffea!important;background:#234c50!important;border-color:#4f847a!important;
+}
+html.omTurquoisePreview.omOrbitalV2[data-om-theme="dark"] #landing .omSeoExplore .seoRelated.omSeoExpansion>nav a:hover{
+  background:#295e5f!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .inline a{max-width:100%}
+/* Continuous official provider ticker with inline source details. */
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker{
+  background:#071e29!important;color:#e8fff9!important;
+  border-color:#26796c!important;overflow:visible!important;max-width:100%!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack{
+  box-sizing:border-box;width:100%!important;max-width:1450px!important;
+  min-width:0!important;margin:0 auto!important;display:flex!important;
+  flex-wrap:nowrap!important;gap:18px!important;align-items:center!important;
+  padding:12px clamp(12px,3vw,30px)!important;overflow:visible!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack>.ovTickerTitle{
+  flex:0 0 auto!important;color:#e9fff9!important;letter-spacing:.03em;
+  font-family:var(--ov-text);font-size:12px!important;white-space:nowrap!important;
+  margin:0!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .ovTickerTitle span{
+  color:#6ef6d8!important;font-size:11px!important;animation:ov-ticker-pulse 2.4s ease-in-out infinite alternate;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerWindow{
+  flex:1 1 auto;min-width:0;overflow:hidden;position:relative;
+  mask-image:linear-gradient(to right,transparent 0,#000 3%,#000 97%,transparent 100%);
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerRail{
+  display:flex;width:max-content;min-width:0;
+  animation:ov-ticker-roll 36s linear infinite;
+  will-change:transform;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerGroup{
+  display:flex;align-items:center;gap:12px;flex:0 0 auto;padding-right:12px;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerGroup .omSourceChip{
+  appearance:none;-webkit-appearance:none;
+  display:inline-flex;align-items:center;gap:8px;
+  flex:0 0 auto;white-space:nowrap;min-height:40px;
+  padding:8px 15px;border:1px solid #61bba98c;border-radius:100px;
+  background:#0b3740;color:#c7fff1;
+  font:650 12px var(--ov-text);cursor:pointer;
+  transition:background .2s,border-color .2s;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerGroup .omSourceChip>span{
+  color:#89ffe8!important;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerGroup .omSourceChip:is(:hover,:focus-visible,[aria-expanded="true"]){
+  background:#166459;color:#ffffff;border-color:#7bffe0;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker:is(:hover,:focus-within) .ovTickerRail,
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker.ovTickerPaused .ovTickerRail,
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker:has(.omSourcePopover:not([hidden])) .ovTickerRail{
+  animation-play-state:paused;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerToggle{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  flex:0 0 auto;min-height:40px;padding:8px 11px;border:1px solid #64bbaa;
+  border-radius:100px;background:#164550;color:#c9fff2;
+  font:650 11px var(--ov-text);cursor:pointer;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerToggle:is(:focus-visible,:hover){
+  outline:2px solid #b6fff1;outline-offset:2px;
+}
+html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .omSourcePopover{
+  max-width:min(720px,calc(100% - 30px))!important;
+  color:#effffa!important;background:#10343b!important;
+  border-color:#6bd3c1!important;
+}
+@keyframes ov-ticker-roll{to{transform:translateX(-50%)}}
+@keyframes ov-ticker-pulse{to{opacity:.4}}
+@media(max-width:760px){
+  html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack{gap:9px!important;padding:10px 12px!important}
+  html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack>.ovTickerTitle{font-size:10px!important;max-width:90px!important;white-space:normal!important;line-height:1.25}
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerToggle{min-height:39px;padding:7px 9px}
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerToggle span{display:none}
+  html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:430px){
+  html.omTurquoisePreview.omOrbitalV2 #landing .omSeoExplore .seoRelated.omSeoExpansion>nav{grid-template-columns:1fr!important}
+  html.omTurquoisePreview.omOrbitalV2 #landing .sourceMarquee.ovTicker .sourceTrack>.ovTickerTitle{max-width:75px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerRail,
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerTitle span{animation:none!important}
+  html.omTurquoisePreview.omOrbitalV2 #landing .ovTickerWindow{overflow-x:auto}
+}
