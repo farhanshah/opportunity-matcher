@@ -58,7 +58,7 @@
   monitoring.textContent='Loading official-page monitoring details…';
   pop.append(heading,kind,description,note,link,monitoring,closeButton);
   // Keep details in the document flow, inside their source strip. Never cover adjacent cards.
-  (strip.closest('.sourceMarquee')||strip.parentElement).appendChild(pop);
+  (strip.closest?.('.sourceMarquee') || strip.parentElement || document.body).appendChild(pop);
 
   let summaries=null;
   function sourceSummary(key){
@@ -102,10 +102,10 @@
   },180)}
   function position(){
     // Details are an expandable inline panel, not a floating overlay.
-    pop.style.removeProperty('left');
-    pop.style.removeProperty('top');
-    pop.style.removeProperty('bottom');
-    pop.style.removeProperty('width');
+    pop.style?.removeProperty?.('left');
+    pop.style?.removeProperty?.('top');
+    pop.style?.removeProperty?.('bottom');
+    pop.style?.removeProperty?.('width');
   }
   function open(chip){
     const info=SOURCES[chip.dataset.source];
