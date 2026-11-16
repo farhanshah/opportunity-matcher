@@ -41,7 +41,7 @@ test('private operations can track worldwide searches without promoting unverifi
  const html=load('admin.html');
  assert.ok(api.includes('FROM opportunity_web_search_runs ORDER BY started_at DESC'));
  assert.ok(api.includes('FROM opportunity_web_leads'));
- assert.ok(api.includes('if (!authorised(req)) return res.status(401)'));
+ assert.ok(api.includes('if (!authorisedAdmin(req)) return res.status(401)'));
  assert.ok(html.includes('worldwideSearchStatus'));
 });
 

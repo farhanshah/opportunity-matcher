@@ -122,7 +122,7 @@ async function processSource(sql, source) {
     const errorText=String(error.message || error).slice(0,1000);
     const httpCode=/^HTTP (\d{3})$/.exec(errorText)?.[1];
     await sql`UPDATE monitored_sources SET last_checked_at=${checkedAt}, last_http_status=${httpCode ? Number(httpCode) : null}, last_error=${errorText}, updated_at=now() WHERE id=${source.id}`;
-    return { source: source.source_key, result: 'error', error: error.message };
+    return { source: source.source_key, result: 'error', error: 'Official source check failed' };
   }
 }
 
@@ -184,7 +184,7 @@ export default async function handler(req, res) {
     const sql = db();
     const [sourceBatch, exactIngest] = await Promise.all([
       runDueSourceChecks(sql),
-      ingestExactVacancies(sql, req).catch(error => ([{ provider: 'INGESTION', status: 'degraded', exact: 0, authoritative: false, error: error.message }]))
+      ingestExactVacancies(sql, req).catch(() => ([{ provider: 'INGESTION', status: 'degraded', exact: 0, authoritative: false, error: 'Exact vacancy ingestion unavailable' }]))
     ]);
     const { results, due_selected } = sourceBatch;
 
@@ -213,6 +213,7 @@ export default async function handler(req, res) {
       ran_at: new Date().toISOString()
     });
   } catch (error) {
-    return res.status(500).json({ ok: false, error: error.message });
+    console.error('Scheduled source monitor failed');
+    return res.status(503).json({ ok: false, error: 'Source monitor temporarily unavailable' });
   }
 }

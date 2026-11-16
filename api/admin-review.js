@@ -1,10 +1,7 @@
 import { db } from '../lib/db.js';
+import { authorisedAdmin } from '../lib/operations-auth.js';
 
-function authorised(req) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  return req.headers.authorization === `Bearer ${secret}`;
-}
+
 
 const ACTIONS = {
   approve: 'approved',
@@ -14,7 +11,7 @@ const ACTIONS = {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!authorised(req)) return res.status(401).json({ error: 'Unauthorized' });
+  if (!authorisedAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
 
   res.setHeader('Cache-Control', 'no-store, max-age=0');
 
@@ -25,7 +22,8 @@ export default async function handler(req, res) {
     const note = String(body.note || '').trim().slice(0, 2000);
     const status = ACTIONS[action];
 
-    if (!id || !status) return res.status(400).json({ error: 'Valid change id and action are required' });
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) || !status)
+      return res.status(400).json({ error: 'Valid change id and action are required' });
 
     const sql = db();
     const reviewedAt = action === 'investigate' ? null : new Date().toISOString();
@@ -41,7 +39,7 @@ export default async function handler(req, res) {
     if (!rows.length) return res.status(404).json({ error: 'Change not found' });
     return res.status(200).json({ ok: true, change: rows[0] });
   } catch (error) {
-    console.error('Admin review API failed', error);
-    return res.status(500).json({ ok: false, error: error.message });
+    console.error('Admin review API failed');
+    return res.status(503).json({ ok: false, error: 'Review service temporarily unavailable' });
   }
 }

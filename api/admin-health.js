@@ -1,16 +1,13 @@
 import { db } from '../lib/db.js';
+import { authorisedAdmin } from '../lib/operations-auth.js';
 import {isProgrammePage} from '../lib/source-listings.js';
 import { getRecoveryLink } from '../lib/official-recovery-links.js';
 
-function authorised(req) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  return req.headers.authorization === `Bearer ${secret}`;
-}
+
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
-  if (!authorised(req)) return res.status(401).json({ error: 'Unauthorized' });
+  if (!authorisedAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
 
   res.setHeader('Cache-Control', 'no-store, max-age=0');
 
@@ -286,7 +283,7 @@ export default async function handler(req, res) {
       changes
     });
   } catch (error) {
-    console.error('Admin health API failed', error);
-    return res.status(500).json({ ok: false, error: error.message });
+    console.error('Admin health API failed');
+    return res.status(503).json({ ok: false, error: 'Operations data temporarily unavailable' });
   }
 }

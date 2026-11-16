@@ -128,7 +128,7 @@ async function emailSubmit(){
       if(typeof client.auth.sendVerificationEmail==='function'){
         try{
           unwrap(await client.auth.sendVerificationEmail({email,callbackURL:window.location.origin+'/'}));
-        }catch(e){console.warn('Email verification message could not be requested',e)}
+        }catch(e){console.warn('Email verification request unavailable')}
       }
     }
     await refreshSession(true);
@@ -181,7 +181,7 @@ async function linkedinBearer(){
       jwt=typeof result==='string'?result:
         (result?.data?.token||result?.token||result?.data?.access_token||null);
     }catch(e){
-      console.warn('Optional account JWT unavailable',String(e?.message||e).slice(0,100));
+      console.warn('Optional account JWT unavailable');
     }
   }
   if(!jwt)jwt=session?.access_token||session?.session?.access_token;
@@ -378,7 +378,7 @@ async function bootstrapCloud(user){
     if(rows?.length){postSignInRow=rows[0];passportId=rows[0].id;await loadCloudState(rows[0]);toast('Workspace restored','Your cloud Passport, shortlist and tracker are loaded on this device.')}
     else{const local=state.getProfile();const created=await query(client.from('user_passports').insert(profileInsertPayload(local,user)).select('*'));if(!created?.length)throw new Error('Could not create your cloud Passport.');passportId=created[0].id;postSignInRow=created[0];await importLocalChildren();toast('Browser workspace imported','Your existing Passport, saves and tracker are now attached to your account.')}
     ready=true;sessionState='signedin';updateAccountUI();setCloudStatus('Cloud synced','ok');state.render();renderAuth();void triggerWelcomeOnAuthenticatedSignIn();void refreshLinkedInStatus(user);showPostSignInOnboarding(user,postSignInRow||{});
-  }catch(e){console.error('Cloud bootstrap failed',e);setCloudStatus('Sync issue','error');toast('Cloud sync needs attention',e.message||'Please try signing in again.')}
+  }catch(e){console.error('Cloud bootstrap failed');setCloudStatus('Sync issue','error');toast('Cloud sync needs attention','Please try signing in again.')}
 }
 async function loadCloudState(passportRow){
   const list=await waitForOpportunityIds();const uuidToExternal=new Map(list.filter(o=>o.Database_ID).map(o=>[String(o.Database_ID),o.Opportunity_ID]));
@@ -399,7 +399,7 @@ async function replaceChildren(){
 async function performSync(){
   if(!session?.user||!passportId||!ready)return;if(syncing){pending=true;return}syncing=true;setCloudStatus('Syncing…','syncing');
   try{await query(client.from('user_passports').update(profileUpdatePayload(state.getProfile())).eq('id',passportId));await replaceChildren();setCloudStatus('Cloud synced','ok')}
-  catch(e){console.error('Cloud sync failed',e);setCloudStatus('Sync issue','error')}
+  catch(e){console.error('Cloud sync failed');setCloudStatus('Sync issue','error')}
   finally{syncing=false;if(pending){pending=false;performSync()}}
 }
 function scheduleSync(){if(!session?.user||!ready)return;clearTimeout(syncTimer);syncTimer=setTimeout(performSync,700)}
@@ -433,13 +433,13 @@ async function refreshSession(bootstrap=false){
       return session;
     }catch(e){
       lastError=e;
-      console.warn(`Session check failed (attempt ${attempt+1}/4)`,e);
+      console.warn(`Session check failed (attempt ${attempt+1}/4)`);
       if(attempt<3){setCloudStatus('Reconnecting…','syncing');await sleep(350*(attempt+1));}
     }
   }
   sessionState='error';
   updateAccountUI();
-  console.warn('Session restore unavailable after retries',lastError);
+  console.warn('Session restore unavailable after retries');
   toast('Cloud reconnect needed','Your browser workspace is safe. Select Reconnect to try again.');
   return null;
 }

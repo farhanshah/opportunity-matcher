@@ -10,11 +10,13 @@ test('public JSON endpoints do not reveal database error text',()=>{
   }
 });
 test('operations, monitoring, provider admission and LinkedIn endpoints are protected',()=>{
- for(const path of ['api/admin-health.js','api/reverify.js','api/verify-worldwide.js',
+ for(const path of ['api/reverify.js','api/verify-worldwide.js',
    'api/worldwide-discover.js','api/expand-providers.js','api/automation-health-watch.js']){
    assert.match(read(path),/CRON_SECRET/,'missing cron gate in '+path);
    assert.match(read(path),/authorization/,'missing authorization in '+path);
  }
+ assert.match(read('api/admin-health.js'),/authorisedAdmin/);
+ assert.match(read('api/admin-review.js'),/authorisedAdmin/);
  const linkedin=read('api/linkedin-callback.js');
  assert.match(linkedin,/state_hash/);
  assert.match(linkedin,/cookie_hash/);
