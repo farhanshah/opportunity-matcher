@@ -97,6 +97,17 @@
     }),{rootMargin:'0px 0px -36px 0px',threshold:.08});
     observed.forEach(el=>reveal.observe(el));
   }
+  // Live provider marquee: user can pause motion without affecting source data or click handlers.
+  const ticker=document.querySelector('#landing .sourceMarquee.ovTicker');
+  const tickerToggle=document.getElementById('ovTickerToggle');
+  if(ticker&&tickerToggle){
+    tickerToggle.addEventListener('click',()=>{
+      const stopped=ticker.classList.toggle('ovTickerPaused');
+      tickerToggle.setAttribute('aria-pressed',String(stopped));
+      tickerToggle.setAttribute('aria-label',stopped?'Resume moving source names':'Pause moving source names');
+      tickerToggle.innerHTML=stopped?'▶ <span>Play</span>':'Ⅱ <span>Pause</span>';
+    });
+  }
   // A canvas globe makes a useful destination illustration without claiming real-time availability.
   const canvas=document.getElementById('ovGlobe');
   if(canvas){
