@@ -36,8 +36,14 @@ function mountUI(){
   const avatar=document.querySelector('.topRight .avatar');
   if(avatar){avatar.id='cloudAccountEntry';avatar.onclick=()=>sessionState==='error'?refreshSession(true):openAuth();}
   const nav=document.querySelector('.landing .nav');
-  if(nav&&!document.getElementById('cloudLandingAuth')){
-    const primary=nav.querySelector('.btnPrimary');const b=document.createElement('button');b.id='cloudLandingAuth';b.className='cloudNavAuth';b.textContent='Sign in';b.onclick=()=>openAuth();if(primary)nav.insertBefore(b,primary);else nav.appendChild(b);
+  if(nav){
+    let b=document.getElementById('cloudLandingAuth');
+    if(!b){
+      const primary=nav.querySelector('.btnPrimary');b=document.createElement('button');b.id='cloudLandingAuth';b.className='cloudNavAuth';b.textContent='Sign in';
+      if(primary)nav.insertBefore(b,primary);else nav.appendChild(b);
+    }
+    // Replace the lightweight loading handler once Neon Auth is available.
+    b.onclick=()=>openAuth();
   }
   updateAccountUI();
 }
@@ -447,6 +453,7 @@ async function refreshSession(bootstrap=false){
 window.OpportunityCloud={openAuth,closeAuth,setMode,emailSubmit,google,social,linkedinAccount,refreshLinkedIn,signOut,syncNow,completePassport:openProfileSettings,verifyEmail:requestEmailVerification,retrySession:()=>refreshSession(true),isSignedIn:()=>Boolean(session?.user),isAccountReady:()=>Boolean(session?.user&&ready)};
 window.addEventListener('opportunity:statechange',scheduleSync);
 mountUI();
+window.dispatchEvent(new Event('opportunity:cloudready'));
 void refreshSocialProviders();
 await refreshSession(true);
 let linkedResult=new URLSearchParams(window.location.search).get('linkedin_connect');
