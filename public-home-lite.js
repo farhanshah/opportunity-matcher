@@ -8,7 +8,11 @@
     const element=get(id);
     if(element&&['…','—',''].includes(element.textContent.trim()))element.textContent=value;
   };
-  const count=v=>Number.isSafeInteger(Number(v))&&Number(v)>=0?String(Number(v)):null;
+  const count=v=>{
+    if(!['string','number'].includes(typeof v)||String(v).trim()==='')return null;
+    const n=Number(v);
+    return Number.isSafeInteger(n)&&n>=0?String(n):null;
+  };
   async function json(url){
     const response=await fetch(url,{headers:{Accept:'application/json'},cache:'no-store'});
     if(!response.ok)throw Error('Public endpoint unavailable');
