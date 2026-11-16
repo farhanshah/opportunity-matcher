@@ -532,3 +532,16 @@ html.omOrbitalV2 #landing .footer .brandword small{color:#c6f6e7!important;opaci
 html.omOrbitalV2 #landing .footer{color:#e5faf2!important}
 html.omOrbitalV2 #landing .footer .footerLinks span{color:#daf7ed!important;opacity:1!important}
 html.omOrbitalV2 #landing .footer .footerLinks a{color:#caffed!important}
+
+/* The public Sign in CTA must be styled before the heavy cloud stylesheet loads.
+   Neon Auth replaces its click handler after account initialization. */
+html.omOrbitalV2 #landing #cloudLandingAuth{
+  appearance:none;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.07);color:#f7fffd;
+  border-radius:999px;padding:12px 17px;
+  font:850 12px/1.25 'DM Sans',system-ui,sans-serif;
+  cursor:pointer;white-space:nowrap;
+}
+html.omOrbitalV2 #landing #cloudLandingAuth:focus-visible{
+  outline:2px solid #72f7d9;outline-offset:3px;
+}
