@@ -29,9 +29,11 @@ test('historical catalogue remains distinct from exact current vacancies',()=>{
  assert.match(freshness,/What does source monitoring check/);
  assert.doesNotMatch(boot,/INSERT INTO opportunities|UPDATE opportunities/);
 });
-test('official source popovers open near selected chip, close explicitly and handle live page-monitor data safely',()=>{
+test('official source details expand in document flow without covering content, close explicitly and handle live page-monitor data safely',()=>{
  const js=read('source-chips-v1.js'),css=read('site-nav-contrast-v5.css');
- assert.match(js,/getBoundingClientRect/);
+ assert.match(js,/strip\.closest\?\.\('\.sourceMarquee'\)/);
+ assert.doesNotMatch(js,/getBoundingClientRect/);
+ assert.match(js,/pop\.hidden=false/);
  assert.match(js,/omSourceClose/);
  assert.match(js,/api\/source-highlights/);
  assert.match(js,/Last successful check:/);
