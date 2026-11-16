@@ -57,3 +57,51 @@ For **remote public health internships**, OpenSEO's blended Google SERP returned
 7. Compare the same query-page data after 28–60 days. A page appearing in Search Console with impressions does not mean it is indexed for every keyword or moving up because of a single edit.
 
 **Monitoring:** A separate weekly SEO Review automation is configured in ChatGPT for Monday mornings, Europe/London; it supplements the existing daily discovery reporting and should not change vacancy verification rules.
+
+## Evening sprint: 16 November 2026 (19:00 UK)
+
+### Search Console priorities
+The connected Search Console query/page report (Web, 17 October to 13 November, finalised) identified a page with sustained impressions but no clicks:
+
+| Query | Page | Impressions | Average position | Clicks |
+|---|---|---:|---:|---:|
+| erasmus course catalogue 2026 | /blog/erasmus-mundus-course-catalogue-guide/ | 50 | 51.4 | 0 |
+| erasmus mundus catalogue | same page | 15 | 50.9 | 0 |
+| scholarship eligibility requirements | /blog/scholarship-eligibility-checklist/ | 16 | 18.4 | 0 |
+
+**Action:** substantively expanded the existing Erasmus catalogue guide rather than creating a conflicting 2026/2027 copy. The title now targets Erasmus Mundus Catalogue 2027. Added EACEA filter explanations, a comparison table, a 2027 application-cycle note, and a custom flowchart. The European Commission's [16 July 2026 announcement](https://erasmus-plus.ec.europa.eu/whats-new/news/87-projects-selected-under-erasmus-mundus-in-latest-call-for-proposals) distinguishes **37 new EMJMs** from **50 Design Measures**; do not call all 87 student scholarship opportunities. The [EACEA catalogue](https://www.eacea.ec.europa.eu/scholarships/erasmus-mundus-catalogue_en) says a listed programme may have no scholarships in the current cycle.
+
+### New low-KD content
+OpenSEO United States (English) estimates:
+
+| Target phrase | Searches/month (estimated) | Keyword difficulty | Coverage |
+|---|---:|---:|---|
+| cyber security internships remote | 720 | 0 | /blog/remote-cybersecurity-internships/ |
+| remote cybersecurity internships | 260 | 0 | Same article; avoid variant duplication |
+| graphic design internships remote | 480 | 0 | Research queued, not published |
+| data science internships remote | 210 | 0 | Research queued, not published |
+
+Published a 1,447-word 2027 guide sourced to the original employer notices:
+- [CrowdStrike UK incident response R30403](https://crowdstrike.wd5.myworkdayjobs.com/crowdstrikecareers/job/United-Kingdom---London/Incident-Response-Internship---Professional-Services---Summer-2027--Remote--UK-_R30403)
+- [CrowdStrike UK red team R30404](https://crowdstrike.wd5.myworkdayjobs.com/crowdstrikecareers/job/United-Kingdom---London/Professional-Services-Red-Team-Intern---Summer-2027--Remote--GBR-_R30404)
+- [KnowBe4 US-remote compliance internship](https://job-boards.greenhouse.io/knowbe4/jobs/8926721002)
+- [FTI Consulting UK hybrid cybersecurity internship JR260836](https://fticonsulting.wd108.myworkdayjobs.com/en-US/FTIConsultingCareers/job/XMLNAME-2027-Summer-Internship--Cybersecurity_JR260836)
+
+The page distinguishes real remote restrictions (e.g., UK right-to-work), student-stage rules, and job versus job-simulation evidence. **Do not report the dated employer examples as currently open without an exact source recheck.**
+
+The new guide was linked from the public blog index, the technology and remote internship hubs, and the general international-student remote guide. Two original diagrams were added. The updated sitemap records **2026-11-16** for the Erasmus article and the new cybersecurity guide.
+
+### Actual checks and indexing
+- [SEO sitemap coverage workflow](https://github.com/farhanshah/opportunity-matcher/actions/runs/43936740304): passed on commit `170de299dc9eb290d1e431b85d17c5e7fda6ae77`.
+- [Public content quality workflow](https://github.com/farhanshah/opportunity-matcher/actions/runs/43936740299): passed on same commit.
+- Vercel production deployment `dpl_3QSybmw4gn13Mq14dmiQygGAUVcT` reported **READY** for that same commit and had `oppmatcher.tech` among aliases with no alias error.
+- GitHub's separate v5 browser QA surfaced **two homepage card-demo/header overlaps at 1280px** on an earlier run. These are unrelated to the SEO articles and need follow-up in homepage UI testing. Do not claim all browser QA passed.
+- Browser-based direct fetch from a separate web reader could not access the site's routes; Vercel deployment metadata is the basis for the deployment confirmation, **not** a visual audit of live HTML.
+
+**Search Console URL Inspection results on 16 November:**
+- `/blog/erasmus-mundus-course-catalogue-guide/`: submitted and indexed, last Google crawl **2026-10-24**. This predates today's content revision.
+- `/blog/scholarship-eligibility-checklist/`: submitted and indexed, last crawl **2026-10-16**.
+- `/blog/remote-public-health-internships/`: discovered, currently not indexed.
+- `/blog/remote-cybersecurity-internships/`: URL unknown to Google at inspection time, expected for a just-published page.
+
+**Measurement rule:** compare subsequent 28-day equivalent Search Console periods, query/page pairs, and URL Inspection status without promising immediate crawl or ranking. Confirm Google has recrawled an existing article before attributing changes to the new content.
