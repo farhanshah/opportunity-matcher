@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap');
 /* Original Orbital Command 2.0 presentation. No ThreeUI Pro source or assets used. */
-html.omOrbitalV2{--ov-accent:#65f7d9;--ov-ink:#10333b;--ov-paper:#f0f8f5;--ov-border:#c7ddd8;--ov-display:'Space Grotesk','DM Sans',sans-serif;--ov-text:'Space Grotesk','DM Sans',sans-serif}
+html.omOrbitalV2{--ov-accent:#65f7d9;--ov-ink:#10333b;--ov-paper:#f0f8f5;--ov-border:#c7ddd8;--ov-display:'DM Sans',system-ui,sans-serif;--ov-text:'DM Sans',system-ui,sans-serif}
 html.omOrbitalV2 body{overflow-x:clip}
 html.omOrbitalV2 #landing .heroWrap{color:#f7fffd!important;background:radial-gradient(ellipse 70% 70% at 85% 35%,#145768 0%,#082d3d 48%,#04141e 88%)!important;isolation:isolate;overflow:hidden;min-height:0}
 html.omOrbitalV2 #landing .heroWrap:before{content:"";position:absolute;inset:-20% -5% 0 30%;height:auto;background:conic-gradient(from 95deg at 60% 45%,transparent,#19b9af43,transparent,#267dbd33,transparent);filter:blur(55px);opacity:.8;pointer-events:none;animation:ov-aura 27s linear infinite}
@@ -173,7 +173,7 @@ html.omOrbitalV2 #app .ovDeckSatellite2{left:79%;top:69%;background:#8dddff}
  * No changes to app state or provider evidence. */
 html.omTurquoisePreview.omOrbitalV2 #landing :is(h1,h2,h3,h4),
 html.omTurquoisePreview.omOrbitalV2 #app :is(h1,h2,h3,h4) {
-  font-family:'Space Grotesk','DM Sans',sans-serif!important;
+  font-family:'DM Sans',system-ui,sans-serif!important;
   letter-spacing:-.034em!important;
   font-weight:700!important;
   text-wrap:balance;
