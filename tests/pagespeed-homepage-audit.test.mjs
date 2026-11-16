@@ -94,3 +94,13 @@ test('Passport clicks cannot bypass the account gate during yielded boot', () =>
   assert.match(js,/document\.removeEventListener\('click',guardEarlyPassportClick,true\)/);
   assert.ok(js.indexOf('bootstrapComplete=true')>js.indexOf('document.body.appendChild(s)'));
 });
+
+test('auth return routes preserve immediate boot and no workspace module is omitted', () => {
+  const js=read('app-v07.js');
+  assert.ok(js.includes("const isPublicHome=location.pathname==='/' && !/[?&](?:token|code|state|linkedin_connect|error)=/i.test(location.search);"));
+  const start=js.indexOf('const files=['),end=js.indexOf('  ];',start);
+  assert.ok(start>=0&&end>start);
+  const manifest=js.slice(start,end);
+  assert.ok((manifest.match(/'\/app-[^']+\.js'/g)||[]).length>=95,'workspace manifest unexpectedly shortened');
+  assert.ok(manifest.includes("'/app-account-gate-v1.js'"),'account gate must remain the final loader module');
+});
