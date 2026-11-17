@@ -16,6 +16,9 @@
     "api/undp-openings.js": {
       "maxDuration": 40
     },
+    "api/unicef-openings.js": {
+      "maxDuration": 45
+    },
     "api/wfp-openings.js": {
       "maxDuration": 45
     },
