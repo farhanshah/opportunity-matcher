@@ -116,3 +116,18 @@ test('MOPGA portal explicitly confirms exact local time and independent applicat
  assert.match(worker,/last_attempted_at/);
  assert.match(worker,/closing_at=EXCLUDED[.]closing_at/);
 });
+
+
+test('scheduled official call verifier uses bounded parallel reads and isolated failure reporting',()=>{
+ const code=readFileSync(new URL('../api/recheck-open-calls.js',import.meta.url),'utf8');
+ assert.match(code,/Math\.min\(3,OFFICIAL_OPEN_CALLS\.length\)/);
+ assert.match(code,/AbortSignal\.timeout\(11000\)/);
+ assert.match(code,/const worker=async\(\)=>/);
+ assert.match(code,/Promise\.all\(Array\.from/);
+ assert.match(code,/results\[index\]=await checkOneCall\(sql,call\)/);
+ assert.match(code,/status:'check_failed'/);
+ assert.match(code,/failures===OFFICIAL_OPEN_CALLS\.length/);
+ assert.match(code,/last_checked_at/);
+ assert.match(code,/open_cached/);
+ assert.doesNotMatch(code,/for\(const call of OFFICIAL_OPEN_CALLS\)/);
+});
