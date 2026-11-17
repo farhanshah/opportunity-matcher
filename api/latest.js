@@ -40,7 +40,7 @@ function group(rows,heading){
   (x.restriction?'<p class="small"><strong>Posting restriction: '+esc(x.restriction)+'</strong></p>':'')+
   (x.location?'<p class="small">Location: '+esc(x.location)+'</p>':'')+
   (x.level===2&&x.requirements_note?'<p class="small"><strong>Provider eligibility:</strong> '+esc(x.requirements_note)+'</p>':'')+
-  (x.deadline_at?'<p class="small">Recorded deadline: <strong>'+esc(date(x.deadline_at))+'</strong> (confirm local closing time)</p>':'')+
+  (x.deadline_at?'<p class="small">Recorded deadline: <strong>'+esc(x.official_deadline_local||date(x.deadline_at))+'</strong> '+(x.official_deadline_local?'(official local time)':'(confirm local closing time)')+'</p>':'')+
   (x.level===1&&x.stated_closing_date?'<p class="small">Official page states a closing date: <strong>'+esc(x.stated_closing_date)+'</strong> (opening status not confirmed; check provider timezone)</p>':'')+
   '<p class="small">Source checked: '+esc(date(x.checked_at))+
     (x.first_seen_at?' · First recorded: '+esc(date(x.first_seen_at)):'')+'</p>'+
@@ -87,7 +87,8 @@ export default async function handler(req,res){
   const sql=db();
   const [vacancies,calls,sources]=await Promise.all([
    sql`SELECT provider,provider_job_id,title,opportunity_type,location,source_url,status,
-     verification_level,status_verified,deadline_at,last_verified_at,first_seen_at
+     verification_level,status_verified,deadline_at,last_verified_at,first_seen_at,
+     facts->>'official_deadline_local' AS official_deadline_local
      FROM exact_vacancies WHERE status='open' AND status_verified=true
        AND verification_level='exact' AND deadline_at>now()
        AND last_verified_at>=now()-interval '7 days'
