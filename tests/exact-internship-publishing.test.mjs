@@ -193,3 +193,17 @@ test('UNICEF new careers pagination and expiring exact seeds cannot bypass verif
  assert.deepEqual(cards.map(x=>x.url),[job]);
  assert.equal(modernExactEvidence('<main><h2>Internship roster</h2><p>596751</p><p>Closing at: 20 Nov 2026 - 23:55 PKT</p></main>',job,new Date('2026-11-17T06:00:00Z')),null);
 });
+
+
+test('degraded exact internship feeds are reported unavailable, not counted as successful provider sources',()=>{
+ const code=readFileSync(new URL('../api/discover-exact-internships.js',import.meta.url),'utf8');
+ assert.match(code,/verification_health/);
+ assert.match(code,/\['degraded','empty','unreadable'\]/);
+ assert.match(code,/provider adapter lacks current verifiable jobs/);
+ assert.match(code,/Promise\.allSettled/);
+ const adapter=readFileSync(new URL('../api/unicef-openings.js',import.meta.url),'utf8');
+ assert.match(adapter,/candidate_diagnostics/);
+ assert.match(adapter,/exact_page_evidence_missing/);
+ assert.match(adapter,/provider_fetch_error/);
+ assert.doesNotMatch(adapter,/candidate_diagnostics:.*detail_text/);
+});
