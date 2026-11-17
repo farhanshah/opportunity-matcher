@@ -110,3 +110,44 @@ test('UNICEF official internship fallback keeps deadlines within each individual
  assert.ok(code.includes('https://jobs.unicef.org/en-us/filter/?work-type=internship'));
  assert.ok(code.includes('All UNICEF internship boards were unreadable'));
 });
+
+
+test('modern UNICEF career portal requires per-job ID, internship type and current deadline',async()=>{
+ const {modernBoardCandidates,modernExactEvidence}=await import('../api/unicef-openings.js');
+ const source='https://jobs.unicef.org/jobs/search';
+ const url='https://jobs.unicef.org/jobs/junior-archivist-internship-6-months-dfam-nyhq-on-site-united-states-new-york';
+ const board='<a href="/jobs/finance-manager-paris">Read more</a>'+
+   '<a href="/jobs/junior-archivist-internship-6-months-dfam-nyhq-on-site-united-states-new-york">Read more</a>'+
+   '<a href="https://jobs.unicef.org.evil.org/jobs/malicious-internship">Read more</a>';
+ const c=modernBoardCandidates(board,source);
+ assert.deepEqual(c.map(x=>x.url),[url]);
+ const html='<html><h1>Junior Archivist, Internship, 6 months, DFAM, NYHQ (on-site)</h1>'+
+  '<p>596913</p><p>United States, New York</p><p>Internship</p>'+
+  '<p>Closing at: 30 Nov 2026 - 23:55 EST</p>'+
+  '<p>Applications are for an exact UNICEF internship role.</p></html>';
+ const exact=modernExactEvidence(html,url,new Date('2026-11-17T05:00:00Z'));
+ assert.equal(exact?.job_id,'596913');
+ assert.equal(exact?.deadline,'2026-11-30');
+ const record={title:exact.title,url,job_id:exact.job_id,deadline:exact.deadline,source:'UNICEF',
+  status_verified:true,verification_level:'exact',status_source:'unicef-new-exact-job-page',
+  detail_evidence_quality:'high'};
+ const published=verifiedInternship(record,'UNICEF',new Date('2026-11-17T05:00:00Z'));
+ assert.equal(published?.evidence.official_job_id,'596913');
+ assert.equal(published?.evidence.matching_approved,false);
+ for(const modified of [
+  html.replace('596913','no job identifier'),
+  html.replace('30 Nov 2026','30 Oct 2026'),
+  html.replace('Closing at:','Listed on:'),
+  html.replaceAll('Internship','Consultancy')
+ ])assert.equal(modernExactEvidence(modified,url,new Date('2026-11-17T05:00:00Z')),null);
+ for(const modified of [
+  {...record,detail_evidence_quality:'low'},
+  {...record,status_source:'board-only'},
+  {...record,job_id:''},
+  {...record,url:'https://jobs.unicef.org.evil.org/jobs/junior-archivist-internship-6-months'},
+  {...record,url:'https://jobs.unicef.org/jobs/search'}
+ ])assert.equal(verifiedInternship(modified,'UNICEF',new Date('2026-11-17T05:00:00Z')),null);
+ const adapter=readFileSync(new URL('../api/unicef-openings.js',import.meta.url),'utf8');
+ assert.match(adapter,/https:\/\/jobs\.unicef\.org\/jobs\/search/);
+ assert.match(adapter,/verifyModern\(c\)/);
+});
