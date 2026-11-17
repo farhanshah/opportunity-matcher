@@ -7,20 +7,34 @@ function sample(c){
  const date=day(c);
  const status=c.url.includes('campusfrance.org')
   ?'MOPGA 2027: Visiting Fellowship Program for Early Career Researchers. 15 September 2026: Applications open. 15 December 2026: Application deadline. Applicants must hold a doctoral degree defended between December 2021 and December 2026. Be exclusively of foreign nationality (all nationalities are eligible except French nationality). Not be residing and professionally active in France. Not have previously received a MOPGA fellowship.'
-  :c.url.includes('chevening.org')?'Open for applications until '+date+' at 12:00 (UTC). Applications are open.':'Status: Open Deadline: '+date;
+  :c.url.includes('cscuk.fcdo.gov.uk')
+   ?'Commonwealth Shared Scholarships for the 2027/28 academic year will open on Tuesday 10 November 2026. The closing date for applications is 16:00 GMT on Tuesday 8 December 2026. Applicants must be permanently resident in an eligible Commonwealth country. Candidates must apply to study an approved Master’s course at a participating UK university.'
+   :c.url.includes('ethz.ch')
+   ?'Excellence Scholarship & Opportunity Programme (ESOP). The next application window is open Nov, 1 - Nov, 30 2026, 11.59h, MEZ. Very good result in Bachelor’s degree programme (top 10%). ESOP applications are supplied via eApply. If you are already enrolled in a Master’s degree programme at ETH Zurich, or hold a Master degree, you are not eligible for ESOP.'
+   :c.url.includes('chevening.org')?'Open for applications until '+date+' at 12:00 (UTC). Applications are open.':'Status: Open Deadline: '+date;
  return '<html><main><h1>'+c.title+'</h1><p>'+status+'</p><p>Eligibility rules: '+
   c.countries.join(', ')+'</p><p>'+
   'The official programme has detailed restrictions. All applicants should check the source for the requirements, academic background, route, supporting documents and terms. '.repeat(6)+
   '</p></main></html>';
 }
 test('all reviewed official open calls require exact provider status and date and auto-expire',()=>{
- assert.equal(OFFICIAL_OPEN_CALLS.length,9);
+ assert.equal(OFFICIAL_OPEN_CALLS.length,11);
  for(const c of OFFICIAL_OPEN_CALLS){
   const html=sample(c);
-  assert.equal(officialPageSaysOpen(html,c,new Date('2026-10-22T14:00:00Z')),true,c.slug);
+  assert.equal(officialPageSaysOpen(html,c,new Date('2026-11-17T08:00:00Z')),true,c.slug);
   assert.equal(officialPageSaysOpen(html,c,new Date(c.deadline)),false,c.slug);
-  assert.equal(officialPageSaysOpen(html.replace(day(c),'1 October 2026'),c,new Date('2026-10-22T14:00:00Z')),false,c.slug);
-  if(c.url.includes('campusfrance.org')){
+  const wrongDate=c.url.includes('cscuk.fcdo.gov.uk')
+   ?html.replace('8 December 2026','8 December 2025')
+   :c.url.includes('ethz.ch')?html.replace('Nov, 30 2026','Nov, 30 2025')
+   :html.replace(day(c),'1 October 2026');
+  assert.equal(officialPageSaysOpen(wrongDate,c,new Date('2026-11-17T08:00:00Z')),false,c.slug);
+  if(c.url.includes('cscuk.fcdo.gov.uk')){
+   assert.equal(officialPageSaysOpen(html.replace('permanently resident','temporarily visiting'),c,new Date('2026-11-17T08:00:00Z')),false);
+   assert.equal(officialPageSaysOpen(html,{...c,url:'https://example.invalid/shared/'},new Date('2026-11-17T08:00:00Z')),false);
+  }else if(c.url.includes('ethz.ch')){
+   assert.equal(officialPageSaysOpen(html.replace('top 10%','top 50%'),c,new Date('2026-11-17T08:00:00Z')),false);
+   assert.equal(officialPageSaysOpen(html,{...c,url:'https://example.invalid/scholarship/'},new Date('2026-11-17T08:00:00Z')),false);
+  }else if(c.url.includes('campusfrance.org')){
    assert.equal(officialPageSaysOpen(html.replace('15 September 2026: Applications open','15 September 2026: Applications closed'),c,new Date('2026-11-17T04:00:00Z')),false);
    assert.equal(officialPageSaysOpen(html.replace('except French nationality','including French nationality'),c,new Date('2026-11-17T04:00:00Z')),false);
    assert.equal(officialPageSaysOpen(html.replace('December 2021 and December 2026','December 2017 and December 2020'),c,new Date('2026-11-17T04:00:00Z')),false);
