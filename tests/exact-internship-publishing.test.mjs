@@ -121,12 +121,13 @@ test('modern UNICEF career portal requires per-job ID, internship type and curre
    '<a href="https://jobs.unicef.org.evil.org/jobs/malicious-internship">Read more</a>';
  const c=modernBoardCandidates(board,source);
  assert.deepEqual(c.map(x=>x.url),[url]);
- const html='<html><h1>Junior Archivist, Internship, 6 months, DFAM, NYHQ (on-site)</h1>'+
+ const html='<html><h1>UNICEF Careers</h1><h3>Junior Archivist, Internship, 6 months, DFAM, NYHQ (on-site)</h3>'+
   '<p>596913</p><p>United States, New York</p><p>Internship</p>'+
   '<p>Closing at: 30 Nov 2026 - 23:55 EST</p>'+
   '<p>Applications are for an exact UNICEF internship role.</p></html>';
  const exact=modernExactEvidence(html,url,new Date('2026-11-17T05:00:00Z'));
  assert.equal(exact?.job_id,'596913');
+ assert.equal(modernExactEvidence(html,url.replace('junior-archivist','secret-archivist'),new Date('2026-11-17T05:00:00Z')),null);
  assert.equal(exact?.deadline,'2026-11-30');
  const record={title:exact.title,url,job_id:exact.job_id,deadline:exact.deadline,source:'UNICEF',
   status_verified:true,verification_level:'exact',status_source:'unicef-new-exact-job-page',
