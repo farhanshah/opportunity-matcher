@@ -22,6 +22,28 @@ test('five exact official vacancy feeds may create source-only active internship
   assert.match(result.evidence_hash,/^[a-f0-9]{64}$/);
  }
 });
+test('French UNDP internship programme with exact Oracle job ID is accepted only after exact verification',()=>{
+ const actual={
+  title:'Programme de Stages du PNUD Djibouti',
+  url:'https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/35803',
+  deadline:'2027-07-30',status_verified:true,verification_level:'exact',
+  source:'UNDP',job_id:'35803',location:'Djibouti, Djibouti',
+  detail_evidence_quality:'high'
+ };
+ const checked=new Date('2026-11-17T06:00:00Z');
+ const published=verifiedInternship(actual,'UNDP',checked);
+ assert.equal(published?.evidence.official_job_id,'35803');
+ assert.equal(published?.evidence.matching_approved,false);
+ for(const change of [
+  {...actual,status_verified:false},
+  {...actual,verification_level:'source_only'},
+  {...actual,title:'Programme de Stages'},
+  {...actual,title:'Stage 2: Operations'},
+  {...actual,url:'https://malicious.example/hcmUI/CandidateExperience/en/sites/CX_1/job/35803'},
+  {...actual,deadline:'2026-11-16'}
+ ])assert.equal(verifiedInternship(change,'UNDP',checked),null);
+});
+
 test('not-current, non-exact, misattributed and substituted URLs cannot publish',()=>{
  for(const x of examples){
   const base={title:x.title,url:x.url,deadline:'2026-11-25',
