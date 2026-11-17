@@ -6,6 +6,11 @@ import {liveCountries,countrySlug,COUNTRY_NAMES} from '../lib/country-opportunit
 const BASE='https://oppmatcher.tech';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const day=value=>{const d=new Date(value);return Number.isFinite(d.getTime())?d.toISOString().slice(0,10):''};
+const deadlineLabel=row=>{
+ const local=String(row?.raw_payload?.official_deadline_local||'').trim();
+ return /^\d{1,2} [A-Za-z]+ 20\d{2}, \d{2}:\d{2} (?:EST|CAT|HKT|UTC[+-]\d{1,2})$/.test(local)
+   ?local:day(row?.deadline_at);
+};
 const slug=row=>String(row.provider||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'-'+String(row.provider_job_id||'');
 const path=row=>'/opportunities/'+slug(row);
 function safeSource(raw){
@@ -28,7 +33,8 @@ async function getRows(){
            closed_at, first_seen_at,
            jsonb_build_object('detail_evidence_quality',raw_payload->>'detail_evidence_quality',
              'minimum_education',raw_payload->>'minimum_education',
-             'required_language',raw_payload->>'required_language') AS raw_payload
+             'required_language',raw_payload->>'required_language',
+             'official_deadline_local',facts->>'official_deadline_local') AS raw_payload
     FROM exact_vacancies
     WHERE status='open' AND status_verified=true AND verification_level='exact'
       AND deadline_at>now() AND source_url IS NOT NULL
@@ -45,7 +51,8 @@ async function getHistoricalRow(id){
       closed_at,first_seen_at,
       jsonb_build_object('detail_evidence_quality',raw_payload->>'detail_evidence_quality',
         'minimum_education',raw_payload->>'minimum_education',
-        'required_language',raw_payload->>'required_language') AS raw_payload
+        'required_language',raw_payload->>'required_language',
+             'official_deadline_local',facts->>'official_deadline_local') AS raw_payload
     FROM exact_vacancies
     WHERE provider_job_id=${jobId}
       AND (status_verified=true OR verification_level='exact')
@@ -102,7 +109,7 @@ function directory(rows, category=''){
       '<a href="/opportunities/'+esc(key)+'">'+esc(label)+' ('+counts[key]+')</a>').join('')+'</nav>';
   const cards=relevant.map(row=>'<article class="card"><p class="tag">'+esc(row.provider)+' · '+esc(row.opportunity_type||'Opportunity')+'</p>'+
     '<h2><a href="'+esc(path(row))+'">'+esc(row.title)+'</a></h2>'+
-    '<p>'+esc(row.location||'See provider')+' · Deadline: '+esc(day(row.deadline_at))+'</p>'+
+    '<p>'+esc(row.location||'See provider')+' · Deadline: '+esc(deadlineLabel(row))+'</p>'+
     (restrictionFromTitle(row.title)?'<p><strong>Eligibility restriction: '+esc(restrictionFromTitle(row.title))+'</strong></p>':'')+
     '<p>Official vacancy last checked: '+esc(day(row.last_verified_at))+'</p>'+
     '<a href="'+esc(path(row))+'">See posting facts and official source →</a></article>').join('');
@@ -146,7 +153,7 @@ function detail(row){
     '<dt>Opportunity type</dt><dd>'+esc(row.opportunity_type||'Not stated')+'</dd>'+
     '<dt>Location</dt><dd>'+esc(row.location||'Check official notice')+'</dd>'+
     (row.work_mode?'<dt>Work arrangement on record</dt><dd>'+esc(row.work_mode)+'</dd>':'')+
-    '<dt>Recorded deadline (UTC date; check provider time zone)</dt><dd>'+esc(day(row.deadline_at)||'Not established')+'</dd>'+
+    '<dt>Recorded deadline (official local time when available)</dt><dd>'+esc(deadlineLabel(row)||'Not established')+'</dd>'+
     '<dt>Last successful exact-posting check</dt><dd>'+esc(day(row.last_verified_at)||'Not recorded')+'</dd>'+
     evidence+'</dl>'+source+'</section>'+
     '<h2>Eligibility requirements</h2>'+
@@ -173,7 +180,7 @@ function locationDirectory(rows,selected=''){
  const cards=(!isIndex&&match?match.records:[]).map(row=>
   '<article class="card"><p class="tag">'+esc(row.provider)+' · '+esc(row.opportunity_type||'Opportunity')+'</p>'+
   '<h2><a href="'+esc(path(row))+'">'+esc(row.title)+'</a></h2>'+
-  '<p>Official recorded location: '+esc(row.location)+'<br>Advertised deadline: '+esc(day(row.deadline_at))+'</p>'+
+  '<p>Official recorded location: '+esc(row.location)+'<br>Advertised deadline: '+esc(deadlineLabel(row))+'</p>'+
   (restrictionFromTitle(row.title)?'<p><strong>Restriction in title: '+esc(restrictionFromTitle(row.title))+'</strong></p>':'')+
   '<p>Last verified: '+esc(day(row.last_verified_at))+'</p>'+
   '<a href="'+esc(path(row))+'">Official vacancy record ↗</a></article>').join('');
