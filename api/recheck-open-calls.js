@@ -7,7 +7,7 @@ async function fetchProvider(url){
   const r=await fetch(current,{redirect:'manual',signal:AbortSignal.timeout(10000),headers:{Accept:'text/html','User-Agent':'OppMatcher-Official-Call-Status/1.0'}});
   if([301,302,303,307,308].includes(r.status)){
    const next=new URL(r.headers.get('location')||'',current);
-   if(next.protocol!=='https:'||!['www.chevening.org','royalsociety.org','www.royalsociety.org'].includes(next.hostname))throw Error('Provider redirect outside trusted domain');
+   if(next.protocol!=='https:'||!['www.chevening.org','royalsociety.org','www.royalsociety.org','www.campusfrance.org'].includes(next.hostname))throw Error('Provider redirect outside trusted domain');
    current=next.href;continue;
   }
   if(!r.ok)throw Error('Provider HTTP '+r.status);
@@ -43,7 +43,7 @@ export default async function handler(req,res){
      // Newly identified, specifically reviewed official calls are inserted
      // only after a fresh HTTP 200 provider page confirms status and deadline.
      // No search snippet, archived notice or unreviewed source is published.
-     const provider=call.url.includes('chevening.org')?'Chevening':'Royal Society';
+     const provider=call.provider||(call.url.includes('chevening.org')?'Chevening':'Royal Society');
      await sql`
        INSERT INTO official_open_calls(slug,title,provider,source_url,status,closing_at,
          eligible_countries,requirements_note,last_checked_at,evidence)
