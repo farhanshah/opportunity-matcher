@@ -106,19 +106,40 @@ export function modernExactEvidence(html,url,now=new Date()){
     /\b(?:applications? (?:are|is) closed|no longer accepting applications|vacancy is closed|position has been filled)\b/i.test(card))return null;
  return{job_id:id,title,deadline,location:(card.match(/(?:United States, New York|Eswatini|Tajikistan|China|United Kingdom)/i)||[])[0]||''};
 }
-async function verifyModern(c){
+async function verifyModern(c,diagnostics=[]){
+ const log=(reason,more={})=>diagnostics.push({
+  // Provider-issued slug only, not applicant data or page contents.
+  candidate:String(c.id||'').slice(0,100),reason,...more
+ });
  try{
   const page=await fetchHtml(c.url,18000),initial=new URL(c.url),final=new URL(page.url);
   if(final.protocol!=='https:'||final.hostname!=='jobs.unicef.org'||
-     final.pathname.replace(/\/$/,'')!==initial.pathname.replace(/\/$/,''))return null;
-  const exact=modernExactEvidence(page.html,page.url);if(!exact)return null;
+     final.pathname.replace(/\/$/,'')!==initial.pathname.replace(/\/$/,'')){
+    log('unexpected_provider_redirect');return null;
+  }
+  const exact=modernExactEvidence(page.html,page.url);
+  if(!exact){
+    log('exact_page_evidence_missing',{
+      page_bytes:page.html.length,
+      heading_count:(page.html.match(/<h[1-4]\\b/gi)||[]).length,
+      has_job_id:/\\b\\d{6}\\b/.test(page.html),
+      has_closing_label:/Closing at\\s*:/i.test(page.html),
+      has_internship_title:/internship/i.test(page.html)
+    });
+    return null;
+  }
   return{title:exact.title,url:final.origin+final.pathname.replace(/\/$/,''),
     job_id:exact.job_id,deadline:exact.deadline,location:exact.location,
     source:'UNICEF',provider:'UNICEF',status_verified:true,verification_level:'exact',
     status_source:'unicef-new-exact-job-page',detail_evidence_quality:'high',
     detail_scope:'unicef-new-exact-job-page',quality:'status-verified-vacancy',
     detail_text:text(page.html).slice(0,18000)};
- }catch{return null}
+ }catch(err){
+  const msg=String(err?.message||err);
+  log(/HTTP \\d{3}/.test(msg)?'provider_http_error':/abort|timeout/i.test(msg)?'provider_timeout':'provider_fetch_error',
+    {http_status:(msg.match(/HTTP (\\d{3})/)||[])[1]||null});
+  return null;
+ }
 }
 
 async function collectCandidates(){
@@ -145,7 +166,7 @@ async function collectCandidates(){
   return{candidates:merged,fetches};
 }
 async function fetchExact(c){const parts=jobParts(c.url);if(!parts)return null;const slug=parts.slug?`/${parts.slug}`:'';const urls=[c.url,`https://jobs.unicef.org/cw/en-us/job/${parts.id}${slug}`,`https://jobs.unicef.org/mob/cw/en-us/job/${parts.id}${slug}`];let lastErr=null;for(const url of [...new Set(urls)]){for(let attempt=0;attempt<2;attempt++){try{const f=await fetchHtml(url,attempt?18000:12000),returned=jobParts(f.url);if(returned?.id===c.id)return f}catch(e){lastErr=e}}}if(lastErr)throw lastErr;return null}
-async function verify(c){if(c?.origin==='modern-board')return verifyModern(c);const exactParts=jobParts(c.url);if(!exactParts)return null;try{const f=await fetchExact(c);if(f){const returned=jobParts(f.url);if(!returned||returned.id!==c.id)return null;const plain=text(f.html),deadline=deadlineFrom(plain)||c.deadline,title=titleFrom(f.html,c.title),contract=(plain.match(/Contract type\s*:?\s*(.{2,50}?)(?=Duty Station|Level|Location|Categories|$)/i)||[])[1]?.trim()||'';const explicit=/applications? (?:are|is) (?:now )?closed|no longer accepting applications|vacancy is closed|position has been filled/i.test(plain);const internEvidence=/\bintern(?:ship)?\b/i.test(`${title} ${contract}`)||/\bInternship\b/i.test(plain.slice(0,5000));if(explicit||!deadline||deadline<today()||!internEvidence)return null;return{title,url:f.url,location:locationFrom(plain)||c.location||'',deadline,source:'UNICEF',provider:'UNICEF',quality:'status-verified-vacancy',evidence_scope:'unicef-exact-job-page',status_verified:true,status_source:'unicef-exact-job-page',verification_level:'exact',detail_text:plain.slice(0,18000),detail_evidence_quality:'high',detail_scope:'unicef-exact-job-page'}}}catch{}
+async function verify(c,diagnostics=[]){if(c?.origin==='modern-board')return verifyModern(c,diagnostics);const exactParts=jobParts(c.url);if(!exactParts)return null;try{const f=await fetchExact(c);if(f){const returned=jobParts(f.url);if(!returned||returned.id!==c.id)return null;const plain=text(f.html),deadline=deadlineFrom(plain)||c.deadline,title=titleFrom(f.html,c.title),contract=(plain.match(/Contract type\s*:?\s*(.{2,50}?)(?=Duty Station|Level|Location|Categories|$)/i)||[])[1]?.trim()||'';const explicit=/applications? (?:are|is) (?:now )?closed|no longer accepting applications|vacancy is closed|position has been filled/i.test(plain);const internEvidence=/\bintern(?:ship)?\b/i.test(`${title} ${contract}`)||/\bInternship\b/i.test(plain.slice(0,5000));if(explicit||!deadline||deadline<today()||!internEvidence)return null;return{title,url:f.url,location:locationFrom(plain)||c.location||'',deadline,source:'UNICEF',provider:'UNICEF',quality:'status-verified-vacancy',evidence_scope:'unicef-exact-job-page',status_verified:true,status_source:'unicef-exact-job-page',verification_level:'exact',detail_text:plain.slice(0,18000),detail_evidence_quality:'high',detail_scope:'unicef-exact-job-page'}}}catch{}
   if(c.deadline&&c.deadline>=today()&&jobParts(c.url)?.id===c.id&&/\bintern|young professionals|practica profesional/i.test(`${c.title} ${c.board_context}`)){return{title:c.title,url:c.url,location:c.location||'',deadline:c.deadline,source:'UNICEF',provider:'UNICEF',quality:'status-verified-vacancy',evidence_scope:'unicef-official-internship-filtered-board-row',status_verified:true,status_source:'unicef-official-internship-filtered-board-row',verification_level:'exact',detail_text:c.board_context||'',detail_evidence_quality:'medium',detail_scope:'unicef-official-internship-filtered-board-row'}}
   return null}
-export default async function handler(req,res){if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});res.setHeader('Cache-Control','no-store');try{const {candidates,fetches}=await collectCandidates(),checked=await Promise.all(candidates.map(verify)),openings=checked.filter(Boolean);const verification_health=openings.length?'healthy':(candidates.length?'degraded':'empty');return res.status(200).json({ok:true,provider:'UNICEF',board_url:BOARDS[0],board_urls:BOARDS,fetched_at:new Date().toISOString(),candidate_count:candidates.length,exact_verified_count:openings.length,openings,adapter_state:'dedicated-exact-multiboard-v3',withheld_unverifiable:openings.length<candidates.length,verification_health,board_fetches:fetches})}catch(e){return res.status(200).json({ok:true,provider:'UNICEF',board_url:BOARDS[0],board_urls:BOARDS,fetched_at:new Date().toISOString(),candidate_count:0,exact_verified_count:0,openings:[],adapter_state:'dedicated-exact-multiboard-v3',verification_health:'degraded',fetch_error:e.message})}}
+export default async function handler(req,res){if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});res.setHeader('Cache-Control','no-store');try{const {candidates,fetches}=await collectCandidates(),diagnostics=[],checked=await Promise.all(candidates.map(c=>verify(c,diagnostics))),openings=checked.filter(Boolean);const verification_health=openings.length?'healthy':(candidates.length?'degraded':'empty');return res.status(200).json({ok:true,provider:'UNICEF',board_url:BOARDS[0],board_urls:BOARDS,fetched_at:new Date().toISOString(),candidate_count:candidates.length,exact_verified_count:openings.length,openings,adapter_state:'dedicated-exact-multiboard-v3',withheld_unverifiable:openings.length<candidates.length,verification_health,board_fetches:fetches,candidate_diagnostics:diagnostics.slice(0,20)})}catch(e){return res.status(200).json({ok:true,provider:'UNICEF',board_url:BOARDS[0],board_urls:BOARDS,fetched_at:new Date().toISOString(),candidate_count:0,exact_verified_count:0,openings:[],adapter_state:'dedicated-exact-multiboard-v3',verification_health:'degraded',fetch_error:e.message})}}
