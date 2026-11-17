@@ -121,9 +121,9 @@ async function verifyModern(c,diagnostics=[]){
   if(!exact){
     log('exact_page_evidence_missing',{
       page_bytes:page.html.length,
-      heading_count:(page.html.match(/<h[1-4]\\b/gi)||[]).length,
-      has_job_id:/\\b\\d{6}\\b/.test(page.html),
-      has_closing_label:/Closing at\\s*:/i.test(page.html),
+      heading_count:(page.html.match(/<h[1-4]\b/gi)||[]).length,
+      has_job_id:/\b\d{6}\b/.test(page.html),
+      has_closing_label:/Closing at\s*:/i.test(page.html),
       has_internship_title:/internship/i.test(page.html)
     });
     return null;
@@ -136,8 +136,8 @@ async function verifyModern(c,diagnostics=[]){
     detail_text:text(page.html).slice(0,18000)};
  }catch(err){
   const msg=String(err?.message||err);
-  log(/HTTP \\d{3}/.test(msg)?'provider_http_error':/abort|timeout/i.test(msg)?'provider_timeout':'provider_fetch_error',
-    {http_status:(msg.match(/HTTP (\\d{3})/)||[])[1]||null});
+  log(/HTTP \d{3}/.test(msg)?'provider_http_error':/abort|timeout/i.test(msg)?'provider_timeout':'provider_fetch_error',
+    {http_status:(msg.match(/HTTP (\d{3})/)||[])[1]||null});
   return null;
  }
 }
