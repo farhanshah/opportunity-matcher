@@ -37,6 +37,8 @@ test('rejects expired vacancy, stale calls and untrustworthy provider links',()=
 test('classification supports opportunity interests without guessing eligibility',()=>{
  assert.equal(categoryOf('2027 World Scholarship'),'scholarships');
  assert.equal(categoryOf('Management Internship'),'internships');
+ assert.equal(categoryOf('Programme de Stages du PNUD Djibouti','official internship vacancy'),'internships');
+ assert.equal(categoryOf('Programme de Stages du PNUD Djibouti','job roster'),'other');
  assert.equal(categoryOf('Early Career Fellowship'),'fellowships');
  assert.equal(categoryOf('Official Training Grant'),'grants');
 });
