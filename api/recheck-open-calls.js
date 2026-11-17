@@ -7,7 +7,7 @@ async function fetchProvider(url){
   const r=await fetch(current,{redirect:'manual',signal:AbortSignal.timeout(10000),headers:{Accept:'text/html','User-Agent':'OppMatcher-Official-Call-Status/1.0'}});
   if([301,302,303,307,308].includes(r.status)){
    const next=new URL(r.headers.get('location')||'',current);
-   if(next.protocol!=='https:'||!['www.chevening.org','royalsociety.org','www.royalsociety.org','www.campusfrance.org','campusfrance.smapply.io'].includes(next.hostname))throw Error('Provider redirect outside trusted domain');
+   if(next.protocol!=='https:'||!['www.chevening.org','royalsociety.org','www.royalsociety.org','www.campusfrance.org','campusfrance.smapply.io','cscuk.fcdo.gov.uk','ethz.ch','www.ethz.ch'].includes(next.hostname))throw Error('Provider redirect outside trusted domain');
    current=next.href;continue;
   }
   if(!r.ok)throw Error('Provider HTTP '+r.status);
