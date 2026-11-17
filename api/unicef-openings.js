@@ -67,8 +67,16 @@ export function modernExactEvidence(html,url,now=new Date()){
  let u;try{u=new URL(url)}catch{return null}
  if(u.protocol!=='https:'||u.hostname!=='jobs.unicef.org'||u.username||u.password||
   !/^\/jobs\/[a-z0-9][a-z0-9-]{9,220}\/?$/i.test(u.pathname))return null;
- const title=titleFrom(html,'');
- if(title.length<15||title.length>230||!/\b(?:intern|internship|stagiaire|trainee)\b/i.test(title))return null;
+ const slugWords=new Set(u.pathname.split('/').pop().toLowerCase().split('-').filter(w=>w.length>=4));
+ const titles=[...String(html||'').matchAll(/<h[1-4]\b[^>]*>([\s\S]{0,800}?)<\/h[1-4]>/gi)]
+  .map(m=>text(m[1])).filter(x=>x.length>=15&&x.length<=230&&/\b(?:intern|internship|stagiaire|trainee)\b/i.test(x));
+ // The headline must match the *requested* UNICEF job slug, even when
+ // the career portal uses an H3 and an unrelated H1 elsewhere on the page.
+ const title=titles.find(value=>{
+   const words=new Set(value.toLowerCase().replace(/[^a-z0-9]+/g,' ').split(/\s+/).filter(w=>w.length>=4));
+   return [...words].filter(w=>slugWords.has(w)).length>=2;
+ })||'';
+ if(!title)return null;
  const plain=text(html),position=plain.toLowerCase().indexOf(title.toLowerCase());
  if(position<0)return null;
  const card=plain.slice(position,position+1500);
