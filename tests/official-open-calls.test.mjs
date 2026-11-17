@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {OFFICIAL_OPEN_CALLS,officialPageSaysOpen} from '../lib/official-open-calls.js';
+import {OFFICIAL_OPEN_CALLS,officialPageSaysOpen,officialMopgaPortalSaysOpen} from '../lib/official-open-calls.js';
 const day=c=>new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(c.deadline));
 function sample(c){
  const date=day(c);
@@ -61,7 +61,7 @@ test('scheduled official call publisher inserts only freshly confirmed open call
 test('MOPGA is restricted to the current Campus France programme page, with its PhD and nationality exclusions',()=>{
  const call=OFFICIAL_OPEN_CALLS.find(x=>x.slug==='campus-france-mopga-2027');
  assert.equal(call.url,'https://www.campusfrance.org/en/mopga-2027');
- assert.equal(call.deadline,'2026-12-15T00:00:00Z');
+ assert.equal(call.deadline,'2026-12-15T22:59:00Z');
  assert.match(call.requirement,/non-French/);
  assert.match(call.requirement,/not be residing and professionally active in France/);
  assert.match(call.requirement,/not a masters or PhD studentship/);
@@ -69,11 +69,34 @@ test('MOPGA is restricted to the current Campus France programme page, with its 
  assert.equal(officialPageSaysOpen(html,call,new Date('2026-11-17T04:00:00Z')),true);
  assert.equal(officialPageSaysOpen(html,call,new Date('2026-09-14T23:00:00Z')),false);
  assert.equal(officialPageSaysOpen(html+'<p>Applications are closed</p>',call,new Date('2026-11-17T04:00:00Z')),false);
- assert.equal(officialPageSaysOpen(html,call,new Date('2026-12-15T00:00:00Z')),false);
+ assert.equal(officialPageSaysOpen(html,call,new Date('2026-12-15T22:59:00Z')),false);
  const stale=html.replace('15 December 2026: Application deadline','15 December 2025: Application deadline');
  assert.equal(officialPageSaysOpen(stale,call,new Date('2026-11-17T04:00:00Z')),false);
  assert.equal(officialPageSaysOpen(html,{...call,url:'https://scholarship-aggregator.example/en/mopga-2027'},new Date('2026-11-17T04:00:00Z')),false);
  const worker=readFileSync(new URL('../api/recheck-open-calls.js',import.meta.url),'utf8');
  assert.match(worker,/www[.]campusfrance[.]org/);
  assert.match(worker,/call[.]provider/);
+});
+
+test('MOPGA portal explicitly confirms exact local time and independent application status',()=>{
+ const c=OFFICIAL_OPEN_CALLS.find(x=>x.slug==='campus-france-mopga-2027');
+ const sample='<main><h1>MOPGA 2027: Visiting Fellowship Program for Early Career Researchers</h1>'+
+  '<p>Official programme: www.campusfrance.org/en/mopga-2027</p>'+
+  '<p>Opens 15 Sep 2026 06:00 (CEST)</p>'+
+  '<p>Deadline 15 Dec 2026 23:59 (CET)</p>'+
+  '<p>Read the official Campus France programme details before applying. '.repeat(7)+'</p></main>';
+ assert.equal(officialMopgaPortalSaysOpen(sample,c,new Date('2026-11-17T05:00:00Z')),true);
+ for(const bad of [
+  sample.replace('23:59','22:59'),
+  sample.replace('www.campusfrance.org/en/mopga-2027','aggregator.example/fake'),
+  sample.replace('15 Sep 2026','15 Sep 2025'),
+  sample+'<p>Applications are closed</p>'
+ ])assert.equal(officialMopgaPortalSaysOpen(bad,c,new Date('2026-11-17T05:00:00Z')),false);
+ assert.equal(officialMopgaPortalSaysOpen(sample,c,new Date('2026-12-15T22:59:00Z')),false);
+ assert.equal(officialMopgaPortalSaysOpen(sample,{...c,portal_url:'https://fake.invalid/'},new Date('2026-11-17T05:00:00Z')),false);
+ const worker=readFileSync(new URL('../api/recheck-open-calls.js',import.meta.url),'utf8');
+ assert.match(worker,/officialMopgaPortalSaysOpen/);
+ assert.match(worker,/open_cached/);
+ assert.match(worker,/last_attempted_at/);
+ assert.match(worker,/closing_at=EXCLUDED[.]closing_at/);
 });
