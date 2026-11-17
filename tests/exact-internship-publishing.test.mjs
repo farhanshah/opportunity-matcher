@@ -152,3 +152,22 @@ test('modern UNICEF career portal requires per-job ID, internship type and curre
  assert.match(adapter,/https:\/\/jobs\.unicef\.org\/jobs\/search/);
  assert.match(adapter,/verifyModern\(c\)/);
 });
+
+test('UNICEF new careers pagination and expiring exact seeds cannot bypass verification',async()=>{
+ const {modernBoardCandidates,modernExactEvidence}=await import('../api/unicef-openings.js');
+ const adapter=readFileSync(new URL('../api/unicef-openings.js',import.meta.url),'utf8');
+ const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
+ assert.equal(config.functions['api/unicef-openings.js'].maxDuration,45);
+ assert.match(adapter,/jobs\/search\?page=2/);
+ assert.match(adapter,/jobs\/search\?page=6/);
+ assert.match(adapter,/source\.pathname==='\/jobs\/search'/);
+ assert.match(adapter,/REVIEWED_EXACT_SEEDS/);
+ assert.match(adapter,/if\(seed\.until<today\(\)\)continue/);
+ assert.match(adapter,/if\(!fetches\.some\(x=>x\.ok\)&&!merged\.length\)/);
+ const board='https://jobs.unicef.org/jobs/search?page=3';
+ assert.deepEqual(modernBoardCandidates('<a href="/jobs/batch-recruitment-national-internship-roster-unicef">Read more</a>',board),[]);
+ const job='https://jobs.unicef.org/jobs/youth-participation-intern-mbabane-eswatini-6-months-eswatini-formerly-swaziland-eswatini';
+ const cards=modernBoardCandidates('<a href="/jobs/youth-participation-intern-mbabane-eswatini-6-months-eswatini-formerly-swaziland-eswatini">Read more</a>',board);
+ assert.deepEqual(cards.map(x=>x.url),[job]);
+ assert.equal(modernExactEvidence('<main><h2>Internship roster</h2><p>596751</p><p>Closing at: 20 Nov 2026 - 23:55 PKT</p></main>',job,new Date('2026-11-17T06:00:00Z')),null);
+});
