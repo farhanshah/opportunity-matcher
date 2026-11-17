@@ -67,6 +67,8 @@ test('MOPGA is restricted to the current Campus France programme page, with its 
  assert.match(call.requirement,/not a masters or PhD studentship/);
  const html=sample(call);
  assert.equal(officialPageSaysOpen(html,call,new Date('2026-11-17T04:00:00Z')),true);
+ assert.equal(officialPageSaysOpen(html,call,new Date('2026-09-14T23:00:00Z')),false);
+ assert.equal(officialPageSaysOpen(html+'<p>Applications are closed</p>',call,new Date('2026-11-17T04:00:00Z')),false);
  assert.equal(officialPageSaysOpen(html,call,new Date('2026-12-15T00:00:00Z')),false);
  const stale=html.replace('15 December 2026: Application deadline','15 December 2025: Application deadline');
  assert.equal(officialPageSaysOpen(stale,call,new Date('2026-11-17T04:00:00Z')),false);
