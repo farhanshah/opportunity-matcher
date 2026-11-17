@@ -11,7 +11,8 @@ async function fetchConfirmed(provider,path){
  if(body.length>2500000)throw Error(provider+' provider data too large');
  const data=JSON.parse(body);
  if(data.ok!==true||data.provider!==provider||data.adapter_state==='unreadable'||
-    data.fetch_error||!Array.isArray(data.openings))throw Error(provider+' provider adapter not currently readable');
+    data.fetch_error||['degraded','empty','unreadable'].includes(String(data.verification_health||'').toLowerCase())||
+    !Array.isArray(data.openings))throw Error(provider+' provider adapter lacks current verifiable jobs');
  const fetched=new Date(data.fetched_at);
  if(!Number.isFinite(fetched.getTime())||Math.abs(Date.now()-fetched.getTime())>15*60000)
   throw Error(provider+' provider observation is stale');
