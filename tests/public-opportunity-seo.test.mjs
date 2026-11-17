@@ -61,3 +61,19 @@ test('country-level SEO pages are indexed only when exact current vacancies exis
  assert.ok(source.includes("X-Robots-Tag','noindex"));
  assert.ok(source.includes('Location is not citizenship eligibility'));
 });
+
+test('provider-local closing times remain visible without changing UTC auto-expiry',()=>{
+ const publicApi=readFileSync(new URL('../api/public-opportunities.js',import.meta.url),'utf8');
+ const latest=readFileSync(new URL('../api/latest.js',import.meta.url),'utf8');
+ const directory=readFileSync(new URL('../lib/latest-directory.js',import.meta.url),'utf8');
+ assert.match(publicApi,/const deadlineLabel=row/);
+ assert.match(publicApi,/'official_deadline_local',facts->>'official_deadline_local'/);
+ assert.match(publicApi,/deadlineLabel\(row\)/);
+ assert.match(latest,/facts->>'official_deadline_local' AS official_deadline_local/);
+ assert.match(directory,/official_deadline_local:/);
+ assert.match(latest,/official local time/);
+ const exactUtc='2026-12-01T04:55:00Z';
+ const now=Date.parse('2026-11-17T06:00:00Z');
+ assert.equal(publishedState({...original,deadline_at:exactUtc,last_verified_at:'2026-11-17T05:00:00Z'},now),'open');
+ assert.equal(publishedState({...original,deadline_at:exactUtc,last_verified_at:'2026-11-17T05:00:00Z'},Date.parse(exactUtc)+1),'closed');
+});
