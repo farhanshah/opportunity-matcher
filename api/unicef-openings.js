@@ -74,7 +74,9 @@ export function modernExactEvidence(html,url,now=new Date()){
  // the career portal uses an H3 and an unrelated H1 elsewhere on the page.
  const title=titles.find(value=>{
    const words=new Set(value.toLowerCase().replace(/[^a-z0-9]+/g,' ').split(/\s+/).filter(w=>w.length>=4));
-   return [...words].filter(w=>slugWords.has(w)).length>=2;
+   const firstTwo=value.toLowerCase().replace(/[^a-z0-9]+/g,' ').split(/\s+/).filter(w=>w.length>=4).slice(0,2);
+   return firstTwo.length===2 && firstTwo.every(w=>slugWords.has(w)) &&
+      [...words].filter(w=>slugWords.has(w)).length>=2;
  })||'';
  if(!title)return null;
  const plain=text(html),position=plain.toLowerCase().indexOf(title.toLowerCase());
