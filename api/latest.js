@@ -39,6 +39,7 @@ function group(rows,heading){
   '<p>'+esc(note(x))+'</p>'+ 
   (x.restriction?'<p class="small"><strong>Posting restriction: '+esc(x.restriction)+'</strong></p>':'')+
   (x.location?'<p class="small">Location: '+esc(x.location)+'</p>':'')+
+  (x.level===2&&x.requirements_note?'<p class="small"><strong>Provider eligibility:</strong> '+esc(x.requirements_note)+'</p>':'')+
   (x.deadline_at?'<p class="small">Recorded deadline: <strong>'+esc(date(x.deadline_at))+'</strong> (confirm local closing time)</p>':'')+
   (x.level===1&&x.stated_closing_date?'<p class="small">Official page states a closing date: <strong>'+esc(x.stated_closing_date)+'</strong> (opening status not confirmed; check provider timezone)</p>':'')+
   '<p class="small">Source checked: '+esc(date(x.checked_at))+
@@ -91,7 +92,7 @@ export default async function handler(req,res){
        AND verification_level='exact' AND deadline_at>now()
        AND last_verified_at>=now()-interval '7 days'
      ORDER BY last_verified_at DESC LIMIT 150`,
-   sql`SELECT title,provider,source_url,status,closing_at,last_checked_at,created_at
+   sql`SELECT title,provider,source_url,status,closing_at,last_checked_at,created_at,requirements_note
      FROM official_open_calls WHERE status='open' AND closing_at>now()
        AND last_checked_at>=now()-interval '48 hours'
      ORDER BY last_checked_at DESC LIMIT 45`,

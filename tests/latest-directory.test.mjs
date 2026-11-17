@@ -121,3 +121,15 @@ test('candidate pool and official-only deadline are clearly distinguished from e
  assert.match(code,/opening status not confirmed/);
  assert.match(code,/declared_closing_date/);
 });
+
+test('official open calls show provider restrictions as a separate non-match claim',()=>{
+ const c={...call,requirements_note:'Only non-French nationals with an eligible PhD. France residence restriction applies.'};
+ const entries=preparedListings({calls:[c]},now);
+ assert.equal(entries.length,1);
+ assert.equal(entries[0].requirements_note,c.requirements_note);
+ assert.equal(entries[0].level,2);
+ assert.equal(entries[0].type,'Official call advertised open');
+ const code=readFileSync(new URL('../api/latest.js',import.meta.url),'utf8');
+ assert.match(code,/Provider eligibility:/);
+ assert.match(code,/requirements_note/);
+});
