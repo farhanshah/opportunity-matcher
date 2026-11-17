@@ -3,8 +3,10 @@ import {OFFICIAL_OPEN_CALLS,officialPageSaysOpen,officialMopgaPortalSaysOpen} fr
 const authorised=req=>Boolean(process.env.CRON_SECRET)&&req.headers.authorization==='Bearer '+process.env.CRON_SECRET;
 async function fetchProvider(url){
  let current=url;
+ // One timeout bounds all redirects together.
+ const signal=AbortSignal.timeout(11000);
  for(let i=0;i<3;i++){
-  const r=await fetch(current,{redirect:'manual',signal:AbortSignal.timeout(10000),headers:{Accept:'text/html','User-Agent':'OppMatcher-Official-Call-Status/1.0'}});
+  const r=await fetch(current,{redirect:'manual',signal,headers:{Accept:'text/html','User-Agent':'OppMatcher-Official-Call-Status/1.0'}});
   if([301,302,303,307,308].includes(r.status)){
    const next=new URL(r.headers.get('location')||'',current);
    if(next.protocol!=='https:'||!['www.chevening.org','royalsociety.org','www.royalsociety.org','www.campusfrance.org','campusfrance.smapply.io','cscuk.fcdo.gov.uk','ethz.ch','www.ethz.ch'].includes(next.hostname))throw Error('Provider redirect outside trusted domain');
@@ -17,15 +19,7 @@ async function fetchProvider(url){
  }
  throw Error('Too many provider redirects');
 }
-export default async function handler(req,res){
- res.setHeader('Cache-Control','no-store');
- if(req.method!=='GET')return res.status(405).json({ok:false,error:'Method not allowed'});
- if(!authorised(req))return res.status(401).json({ok:false,error:'Unauthorized'});
- try{
-  const sql=db();
-  let open=0,closed=0,needsRecheck=0;
-  const results=[];
-  for(const call of OFFICIAL_OPEN_CALLS){
+async function checkOneCall(sql,call){
    let status='needs_recheck';
    let reason='Provider response unavailable';
    let transportUnavailable=false,providerExplicitlyClosed=false,confirmationRoute='';
@@ -99,10 +93,36 @@ export default async function handler(req,res){
        WHERE slug=${call.slug}
      `;
    }
-   if(status==='open'||status==='open_cached')open++;else if(status==='closed')closed++;else needsRecheck++;
-   results.push({slug:call.slug,status,confirmation_route:confirmationRoute});
-  }
-  return res.status(200).json({ok:true,open,closed,needs_recheck:needsRecheck,results});
+   return {slug:call.slug,status,confirmation_route:confirmationRoute};
+}
+
+export default async function handler(req,res){
+ res.setHeader('Cache-Control','no-store');
+ if(req.method!=='GET')return res.status(405).json({ok:false,error:'Method not allowed'});
+ if(!authorised(req))return res.status(401).json({ok:false,error:'Unauthorized'});
+ try{
+  const sql=db();
+  // A bounded worker pool avoids exhausting a 60-second cron window
+  // while preventing an uncontrolled burst against official providers.
+  const results=new Array(OFFICIAL_OPEN_CALLS.length);
+  let cursor=0,failures=0;
+  const worker=async()=>{
+   while(cursor<OFFICIAL_OPEN_CALLS.length){
+    const index=cursor++,call=OFFICIAL_OPEN_CALLS[index];
+    try{results[index]=await checkOneCall(sql,call)}
+    catch(err){
+     failures++;
+     console.error('Official call check failed',call.slug,String(err?.message||err).slice(0,130));
+     results[index]={slug:call.slug,status:'check_failed',confirmation_route:''};
+    }
+   }
+  };
+  await Promise.all(Array.from({length:Math.min(3,OFFICIAL_OPEN_CALLS.length)},()=>worker()));
+  if(failures===OFFICIAL_OPEN_CALLS.length)throw Error('Every official call check failed');
+  const open=results.filter(x=>x.status==='open'||x.status==='open_cached').length;
+  const closed=results.filter(x=>x.status==='closed').length;
+  const needsRecheck=results.length-open-closed;
+  return res.status(200).json({ok:failures===0,open,closed,needs_recheck:needsRecheck,errors:failures,results});
  }catch(err){
   console.error('Official call update failed',String(err?.message||err).slice(0,130));
   return res.status(503).json({ok:false,error:'Official call verification unavailable'});
