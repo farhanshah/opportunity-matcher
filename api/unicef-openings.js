@@ -3,7 +3,23 @@ const BOARDS=[
   'https://jobs.unicef.org/en-us/search/?work-type=internship',
   // Official internship-filtered PageUp route, separate from legacy Search.
   'https://jobs.unicef.org/en-us/filter/?work-type=internship',
-  'https://jobs.unicef.org/jobs/search' // New UNICEF official career portal
+  'https://jobs.unicef.org/jobs/search', // New UNICEF official career portal
+  'https://jobs.unicef.org/jobs/search?page=2',
+  'https://jobs.unicef.org/jobs/search?page=3',
+  'https://jobs.unicef.org/jobs/search?page=4',
+  'https://jobs.unicef.org/jobs/search?page=5',
+  'https://jobs.unicef.org/jobs/search?page=6'
+];
+
+// Official, programme-specific job URLs reviewed on 17 November 2026.
+// These are DISCOVERY hints, not verified openings. A new exact HTTPS job
+// detail fetch, a six-digit job ID, a matching title and a current date are
+// still mandatory for status_verified=true. Expired seeds are skipped.
+const REVIEWED_EXACT_SEEDS=[
+ {url:'https://jobs.unicef.org/jobs/junior-archivist-internship-6-months-dfam-nyhq-on-site-united-states-new-york',until:'2026-11-30'},
+ {url:'https://jobs.unicef.org/jobs/youth-participation-intern-mbabane-eswatini-6-months-eswatini-formerly-swaziland-eswatini',until:'2026-11-26'},
+ {url:'https://jobs.unicef.org/jobs/communication-internship-unicef-china-for-chinese-nationals-only-6-months-on-site-china',until:'2026-11-29'},
+ {url:'https://jobs.unicef.org/jobs/internship-for-child-protection-programme-unicef-bhutan-4-months-open-for-current-final-year-students-of-jigme-singye-wangchuck-school-of-law-bhutan',until:'2026-11-18'}
 ];
 const decode=s=>String(s||'').replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#(\d+);/g,(_,n)=>String.fromCharCode(Number(n)));
 const text=s=>decode(String(s||'').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,' ').replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim());
@@ -55,7 +71,7 @@ export function modernBoardCandidates(html,base){
   let u;try{u=new URL(m[1],base)}catch{continue}
   if(u.protocol!=='https:'||u.hostname!=='jobs.unicef.org'||u.username||u.password)continue;
   const slug=u.pathname.match(/^\/jobs\/([a-z0-9][a-z0-9-]{9,220})\/?$/i)?.[1]||'';
-  if(!slug||!/\b(?:internship|intern|stagiaire|trainee)\b/i.test(slug.replace(/-/g,' ')))continue;
+  if(!slug||!/\b(?:internship|intern|stagiaire|trainee)\b/i.test(slug.replace(/-/g,' '))||/\b(?:roster|talent-pool|batch-recruitment|candidate-pool)\b/i.test(slug))continue;
   const url=u.origin+u.pathname.replace(/\/$/,'');
   if(seen.has(url))continue;seen.add(url);
   out.push({id:'modern:'+slug,url,title:text(m[2]),origin:'modern-board'});
@@ -78,7 +94,7 @@ export function modernExactEvidence(html,url,now=new Date()){
    return firstTwo.length===2 && firstTwo.every(w=>slugWords.has(w)) &&
       [...words].filter(w=>slugWords.has(w)).length>=2;
  })||'';
- if(!title)return null;
+ if(!title||/\b(?:roster|talent pool|candidate pool|batch recruitment)\b/i.test(title))return null;
  const plain=text(html),position=plain.toLowerCase().indexOf(title.toLowerCase());
  if(position<0)return null;
  const card=plain.slice(position,position+1500);
@@ -110,10 +126,22 @@ async function collectCandidates(){
   const merged=[],seen=new Set(),fetches=[];
   for(const r of results){
     if(r.status==='rejected'){fetches.push({ok:false,error:r.reason?.message||String(r.reason)});continue}
-    const rows=r.value.url.endsWith('/jobs/search')?modernBoardCandidates(r.value.html,r.value.final_url||r.value.url):boardCandidates(r.value.html,r.value.final_url||r.value.url);fetches.push({ok:true,url:r.value.url,candidates:rows.length});
+    const source=new URL(r.value.url);
+    const rows=source.hostname==='jobs.unicef.org'&&source.pathname==='/jobs/search'
+      ?modernBoardCandidates(r.value.html,r.value.final_url||r.value.url)
+      :boardCandidates(r.value.html,r.value.final_url||r.value.url);fetches.push({ok:true,url:r.value.url,candidates:rows.length});
     for(const c of rows)if(!seen.has(c.id)){seen.add(c.id);merged.push(c)}
   }
-  if(!fetches.some(x=>x.ok))throw new Error('All UNICEF internship boards were unreadable');
+  // A temporary block on listing pages must not hide directly readable,
+  // provider-verified postings. The verifier itself still fetches each
+  // known exact job before emitting an opening.
+  for(const seed of REVIEWED_EXACT_SEEDS){
+    if(seed.until<today())continue;
+    const slug=new URL(seed.url).pathname.split('/').pop();
+    const id='modern:'+slug;
+    if(!seen.has(id)){seen.add(id);merged.push({id,url:seed.url,title:slug.replace(/-/g,' '),origin:'modern-board'});}
+  }
+  if(!fetches.some(x=>x.ok)&&!merged.length)throw new Error('All UNICEF internship boards were unreadable');
   return{candidates:merged,fetches};
 }
 async function fetchExact(c){const parts=jobParts(c.url);if(!parts)return null;const slug=parts.slug?`/${parts.slug}`:'';const urls=[c.url,`https://jobs.unicef.org/cw/en-us/job/${parts.id}${slug}`,`https://jobs.unicef.org/mob/cw/en-us/job/${parts.id}${slug}`];let lastErr=null;for(const url of [...new Set(urls)]){for(let attempt=0;attempt<2;attempt++){try{const f=await fetchHtml(url,attempt?18000:12000),returned=jobParts(f.url);if(returned?.id===c.id)return f}catch(e){lastErr=e}}}if(lastErr)throw lastErr;return null}
