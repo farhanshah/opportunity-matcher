@@ -21,13 +21,15 @@ test('all reviewed official open calls require exact provider status and date an
  assert.equal(OFFICIAL_OPEN_CALLS.length,11);
  for(const c of OFFICIAL_OPEN_CALLS){
   const html=sample(c);
-  assert.equal(officialPageSaysOpen(html,c,new Date('2026-11-17T08:00:00Z')),true,c.slug);
+  const beforeDeadline=c.deadline<'2026-11-17T00:00:00Z'
+   ?new Date('2026-10-22T14:00:00Z'):new Date('2026-11-17T08:00:00Z');
+  assert.equal(officialPageSaysOpen(html,c,beforeDeadline),true,c.slug);
   assert.equal(officialPageSaysOpen(html,c,new Date(c.deadline)),false,c.slug);
   const wrongDate=c.url.includes('cscuk.fcdo.gov.uk')
    ?html.replace('8 December 2026','8 December 2025')
    :c.url.includes('ethz.ch')?html.replace('Nov, 30 2026','Nov, 30 2025')
    :html.replace(day(c),'1 October 2026');
-  assert.equal(officialPageSaysOpen(wrongDate,c,new Date('2026-11-17T08:00:00Z')),false,c.slug);
+  assert.equal(officialPageSaysOpen(wrongDate,c,beforeDeadline),false,c.slug);
   if(c.url.includes('cscuk.fcdo.gov.uk')){
    assert.equal(officialPageSaysOpen(html.replace('permanently resident','temporarily visiting'),c,new Date('2026-11-17T08:00:00Z')),false);
    assert.equal(officialPageSaysOpen(html,{...c,url:'https://example.invalid/shared/'},new Date('2026-11-17T08:00:00Z')),false);
