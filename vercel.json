@@ -90,6 +90,9 @@
     },
     "api/triage-nonmaterial.js": {
       "maxDuration": 30
+    },
+    "api/verify-dry-run.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
