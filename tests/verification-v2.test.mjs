@@ -148,3 +148,8 @@ test('records sent to review never carry a public status', () => {
   assert.equal(r.decision, 'NEEDS_REVIEW');
   assert.equal(r.record.status, '');
 });
+
+test('applicant-facing visiting fellowships that mention host organisations are not rejected', () => {
+  const r = verifyOfficialPage(page('Royal Society Wolfson Visiting Fellowship', `<p>Applicants must identify host organisations in the UK.</p>${ELIG}<p>Application deadline: 22 January 2027</p>`), URL_, 'X', NOW);
+  assert.equal(r.decision, 'VERIFIED_OPEN');
+});
