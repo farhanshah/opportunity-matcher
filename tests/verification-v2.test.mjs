@@ -117,3 +117,34 @@ test('a bare date next to a generic label needs an application cue before inferr
   const r = verifyOfficialPage(page('Research Fellowship', `${ELIG}<p>Programme closes on 30 June 2027 with a final report.</p>`), URL_, 'X', NOW);
   assert.equal(r.decision, 'NEEDS_REVIEW');
 });
+
+test('pages about a past cycle are never Open or Upcoming', () => {
+  const r = verifyOfficialPage(page('Türkiye Scholarships 2025: Deadline and Requirements', `${ELIG}<p>The scholarship typically opens in January.</p>`), URL_, 'X', NOW);
+  assert.doesNotMatch(r.decision, /^VERIFIED_/);
+});
+
+test('an "opens on" statement with a past date is not Upcoming', () => {
+  const r = verifyOfficialPage(page('Stipendium Hungaricum Scholarship', `${ELIG}<p>Registration is tentatively scheduled to open on December 8, 2025.</p>`), URL_, 'X', NOW);
+  assert.notEqual(r.decision, 'VERIFIED_UPCOMING');
+});
+
+test('"scheduled to open in early November 2026" is no longer upcoming on 19 Nov 2026', () => {
+  const r = verifyOfficialPage(page('Commonwealth Shared Scholarships', `${ELIG}<p>Applications are scheduled to open in early November 2026.</p>`), URL_, 'X', NOW);
+  assert.notEqual(r.decision, 'VERIFIED_UPCOMING');
+});
+
+test('pages for host universities are rejected', () => {
+  const r = verifyOfficialPage(page('Commonwealth Distance Learning Scholarships – university bidding', `${ELIG}<p>Deadline: 1 February 2027</p>`), URL_, 'X', NOW);
+  assert.equal(r.decision, 'REJECTED');
+});
+
+test('a generic title with a bare date goes to review', () => {
+  const r = verifyOfficialPage(page('Scholarships', `${ELIG}<p>2027-04-01</p>`), URL_, 'X', NOW);
+  assert.equal(r.decision, 'NEEDS_REVIEW');
+});
+
+test('records sent to review never carry a public status', () => {
+  const r = verifyOfficialPage(page('Türkiye Scholarships 2025', `${ELIG}<p>Applications will open in January 2027.</p>`), URL_, 'X', NOW);
+  assert.equal(r.decision, 'NEEDS_REVIEW');
+  assert.equal(r.record.status, '');
+});
