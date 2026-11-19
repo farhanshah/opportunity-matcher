@@ -68,5 +68,15 @@ export default async function handler(req, res) {
     })));
   }
   const tally = out.reduce((a, x) => (a[x.decision] = (a[x.decision] || 0) + 1, a), {});
+  if (req.query.view === 'summary') {
+    const reasonTally = {};
+    for (const x of out) if (!x.publishable) for (const r of x.reasons || []) reasonTally[r.slice(0, 70)] = (reasonTally[r.slice(0, 70)] || 0) + 1;
+    const pick = x => [x.ref, x.decision, x.status, x.deadline || x.open_date || '-', x.type, (x.title || '').slice(0, 70),
+      (x.nationality || []).join('/') || 'nat?', (x.restriction || '').slice(0, 90), x.stored_status ? 'was:' + x.stored_status + ' ' + (x.stored_close || '') : '',
+      (x.deadline_evidence || x.status_evidence || '').slice(0, 110)].join(' | ');
+    return res.status(200).json({ set, offset, count: out.length, tally, reasonTally,
+      publishable: out.filter(x => x.publishable).map(pick),
+      closed_or_rejected: out.filter(x => /CLOSED|REJECTED/.test(x.decision)).map(pick) });
+  }
   return res.status(200).json({ set, offset, limit, count: out.length, tally, results: out });
 }
