@@ -1,10 +1,7 @@
 import { db } from '../lib/db.js';
+import { adminAuthorised } from '../lib/admin-auth.js';
 
-function authorised(req) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
-  return req.headers.authorization === `Bearer ${secret}`;
-}
+const authorised = req => adminAuthorised(req);
 
 const ACTIONS = {
   approve: 'approved',
