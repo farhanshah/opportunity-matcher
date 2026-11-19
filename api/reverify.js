@@ -105,7 +105,10 @@ export default async function handler(req,res){
     // guessing the next cycle. Active country-specific routes are protected.
     const closed=await sql`
       UPDATE opportunities o SET status='Closed',updated_at=now()
-      WHERE o.status='Open' AND o.application_close_date < CURRENT_DATE
+      -- Any status that tells users applications are open or about to open
+      -- ("Open", "Opening Soon", "Open / Varies by Country") is false once
+      -- the recorded deadline has passed.
+      WHERE o.status ~* '^(open|opening soon)($|[^a-z])' AND o.application_close_date < CURRENT_DATE
         AND NOT EXISTS(
           SELECT 1 FROM opportunity_country_routes r
           WHERE r.opportunity_id=o.id AND r.is_active=true

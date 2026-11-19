@@ -33,3 +33,18 @@ test('catalogue only stamps verified status after programme and country route va
   assert.match(code,/country-specific application routes need direct evidence/);
   assert.match(code,/last_verified_at=now\(\),verification_confidence='high'/);
 });
+
+test('elapsed deadlines close every open-or-opening status, not only exact "Open"',()=>{
+  const code=read('api/reverify.js');
+  const m=code.match(/o\.status ~\* '([^']+)' AND o\.application_close_date < CURRENT_DATE/);
+  assert.ok(m,'auto-close must match statuses by case-insensitive pattern');
+  const pattern=new RegExp(m[1],'i');
+  for(const s of ['Open','Opening Soon','Open / Varies by Country','open'])
+    assert.ok(pattern.test(s),s+' must be closed once its deadline has passed');
+  for(const s of ['Closed','Expected to Reopen','Expected to Reopen / Intake-specific',
+    'Rolling / Vacancy-specific','Varies by Country/Programme','Opened elsewhere'])
+    assert.ok(!pattern.test(s),s+' must not be auto-closed by this rule');
+  // Postgres treats \b as backspace, so word boundaries must not be used.
+  assert.ok(!m[1].includes('\\b'));
+  assert.match(code,/r\.application_close_date>=CURRENT_DATE/,'active country routes stay protected');
+});
