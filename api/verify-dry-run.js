@@ -39,13 +39,13 @@ export default async function handler(req, res) {
   const sql = db();
   let rows;
   if (set === 'leads') rows = await sql`
-    SELECT 'lead-'||id AS ref, canonical_url AS url, title, source_provider AS provider, NULL AS stored_status, NULL::date AS stored_close
+    SELECT 'lead-'||id AS ref, canonical_url AS url, title, source_provider AS provider, NULL AS stored_status, NULL::date AS stored_close, NULL AS known_type
     FROM opportunity_web_leads WHERE verification_status='needs_evidence' ORDER BY id LIMIT ${limit} OFFSET ${offset}`;
   else if (set === 'candidates') rows = await sql`
-    SELECT 'cand-'||id AS ref, canonical_url AS url, title, provider, NULL AS stored_status, NULL::date AS stored_close
+    SELECT 'cand-'||id AS ref, canonical_url AS url, title, provider, NULL AS stored_status, NULL::date AS stored_close, NULL AS known_type
     FROM opportunity_discovery_candidates WHERE status='needs_evidence' ORDER BY id LIMIT ${limit} OFFSET ${offset}`;
   else if (set === 'catalogue') rows = await sql`
-    SELECT external_id AS ref, official_source_url AS url, title, provider, status AS stored_status, application_close_date AS stored_close
+    SELECT external_id AS ref, official_source_url AS url, title, provider, status AS stored_status, to_char(application_close_date,'YYYY-MM-DD') AS stored_close, opportunity_type AS known_type
     FROM opportunities WHERE coalesce(official_source_url,'')<>'' ORDER BY external_id LIMIT ${limit} OFFSET ${offset}`;
   else return res.status(400).json({ error: 'set must be leads, candidates or catalogue' });
 
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       const base = { ref: row.ref, url: row.url, stored_title: row.title, stored_status: row.stored_status, stored_close: row.stored_close };
       try {
         const page = await fetchOfficial(row.url);
-        const r = verifyOfficialPage(page.html, page.url, row.provider || '');
+        const r = verifyOfficialPage(page.html, page.url, row.provider || '', new Date(), { knownType: row.known_type || '' });
         return { ...base, decision: r.decision, publishable: r.publishable, title: r.record?.title || r.fields?.title,
           type: r.record?.type, status: r.record?.status, deadline: r.record?.deadline, open_date: r.record?.openDate,
           funding: r.record?.funding, nationality: r.record?.nationality, restriction: r.record?.nationality_restriction,

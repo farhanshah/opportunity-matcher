@@ -99,3 +99,21 @@ test('"next call will open on DATE" after a Deadline label is an opening date, n
   assert.equal(r.record.openDate, '2027-03-15');
   assert.equal(r.decision, 'EXPECTED_TO_REOPEN');
 });
+
+test('post-interview conditions are not application deadlines (no false Open)', () => {
+  const r = verifyOfficialPage(page('Application timeline', `${ELIG}<h3>Deadline</h3><p>If you are invited to interview and your interview is successful, you will be asked to submit your unconditional offer by 8 July 2027.</p>`), URL_, 'X', NOW, { knownType: 'Scholarship' });
+  assert.notEqual(r.decision, 'VERIFIED_OPEN');
+  assert.equal(r.record.deadline, '');
+});
+
+test('"will open on <past date> and close on <future date>" is Open now', () => {
+  const r = verifyOfficialPage(page('Global Leaders Fellowship', `${ELIG}<p>Applications for the 2027-2028 fellowship class will open on November 15, 2026 and close on January 9, 2027.</p>`), URL_, 'X', NOW);
+  assert.equal(r.decision, 'VERIFIED_OPEN');
+  assert.equal(r.record.deadline, '2027-01-09');
+  assert.equal(r.record.openDate, '2026-11-15');
+});
+
+test('a bare date next to a generic label needs an application cue before inferring Open', () => {
+  const r = verifyOfficialPage(page('Research Fellowship', `${ELIG}<p>Programme closes on 30 June 2027 with a final report.</p>`), URL_, 'X', NOW);
+  assert.equal(r.decision, 'NEEDS_REVIEW');
+});
