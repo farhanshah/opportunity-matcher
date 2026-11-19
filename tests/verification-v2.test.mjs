@@ -153,3 +153,8 @@ test('applicant-facing visiting fellowships that mention host organisations are 
   const r = verifyOfficialPage(page('Royal Society Wolfson Visiting Fellowship', `<p>Applicants must identify host organisations in the UK.</p>${ELIG}<p>Application deadline: 22 January 2027</p>`), URL_, 'X', NOW);
   assert.equal(r.decision, 'VERIFIED_OPEN');
 });
+
+test('schemes that institutions apply to (not students) are rejected', () => {
+  const r = verifyOfficialPage(page('Study in Canada Scholarships', `<p>The Study in Canada Scholarships offer Canadian post-secondary institutions the opportunity to apply for funding.</p>${ELIG}<p>Applications due: 30 September 2027</p>`), URL_, 'X', NOW);
+  assert.equal(r.decision, 'REJECTED');
+});
