@@ -92,3 +92,10 @@ test('consent and anti-bot pages are never evidence', () => {
   const r = verifyOfficialPage('<html><body><h1>Just a moment...</h1></body></html>', URL_, 'X', NOW);
   assert.equal(r.decision, 'NEEDS_REVIEW');
 });
+
+test('"next call will open on DATE" after a Deadline label is an opening date, not a deadline', () => {
+  const r = verifyOfficialPage(page('Humboldt Research Fellowship', `${ELIG}<h3>Deadline</h3><p>We have received the maximum number of applications for the current call. No new applications can be created at present. The next call will open on March 15, 2027.</p>`), URL_, 'X', NOW);
+  assert.equal(r.record.deadline, '');
+  assert.equal(r.record.openDate, '2027-03-15');
+  assert.equal(r.decision, 'EXPECTED_TO_REOPEN');
+});
