@@ -1,5 +1,5 @@
 import {db} from '../lib/db.js';
-import {trustedSourceForLead,WORLD_VERIFICATION_BATCH_SIZE} from '../lib/world-verification.js';
+import {trustedSourceForLead,siteNameFromPage,WORLD_VERIFICATION_BATCH_SIZE} from '../lib/world-verification.js';
 import {fetchOfficial,publish} from './discover.js';
 import {verifyAndPublish} from '../lib/verify-and-publish.js';
 import {storeSourceListing} from '../lib/source-listings.js';
@@ -94,6 +94,25 @@ export default async function handler(req,res){
                          OR l.canonical_url LIKE '%/news/'||(extract(year from now())::int-1)::text||'/%'))
                    )
                ))
+            -- Government, university, intergovernmental and registered-subdomain
+            -- hosts (lib/world-verification.js officialDomainClass) may fetch
+            -- official evidence. Aggregator and look-alike domains never match.
+            OR (l.verification_status='source_review'
+               AND l.verification_reason='Provider hostname is not in the official-source registry'
+               AND l.verification_attempts<4
+               AND lower(regexp_replace(split_part(l.canonical_url,'/',3),'^www[0-9]?[.]','')) !~
+                 '(^|[.-])(uat|cmsuat|stage|staging|dev|test|qa|preview|sandbox|cms|newsletter|salarycalculator|intranet|webmail|mail)([.-]|$)'
+               AND (lower(regexp_replace(split_part(l.canonical_url,'/',3),'^www[0-9]?[.]','')) ~
+                 '((^|[.])(gov|gouv|gob|go|govt|gv)[.][a-z]{2}$|[.]gov$|(^|[.])(gc[.]ca|europa[.]eu|admin[.]ch|bund[.]de|government[.]nl|regjeringen[.]no)$|[.]edu$|[.](edu|ac)[.][a-z]{2}$|[.]int$|(^|[.])(un|unicef|undp|unfpa|unhcr|unesco|wfp|unops|unido|ilo|fao|worldbank|imf|oecd|adb|afdb|iaea|unep|unwomen)[.]org$)'
+                 OR EXISTS (
+                   SELECT 1 FROM monitored_sources m WHERE m.is_active=true
+                     AND lower(split_part(m.source_url,'/',3)) !~
+                       '(^|[.])(smartrecruiters[.]com|myworkdayjobs[.]com|workday[.]com|greenhouse[.]io|lever[.]co|google[.]com|wordpress[.]com|blogspot[.]com|github[.]io|medium[.]com|wixsite[.]com|squarespace[.]com|notion[.]site)$'
+                     AND (lower(regexp_replace(split_part(l.canonical_url,'/',3),'^www[0-9]?[.]',''))=
+                         lower(regexp_replace(split_part(m.source_url,'/',3),'^www[0-9]?[.]',''))
+                       OR lower(regexp_replace(split_part(l.canonical_url,'/',3),'^www[0-9]?[.]','')) LIKE
+                         '%.'||lower(regexp_replace(split_part(m.source_url,'/',3),'^www[0-9]?[.]','')))
+                 )))
             -- If we later register a genuinely official source domain,
             -- allow old leads back into verification even after 4 failures.
             OR (l.verification_status='source_review'
@@ -147,6 +166,9 @@ export default async function handler(req,res){
         }else{
           // Search titles and snippets are never authoritative evidence.
           const page=await fetchOfficial(trust.url,trust.source.source_url);
+          // Domain-trusted providers take their name from the official page.
+          if(trust.source.derived&&!trust.source.provider)
+            trust.source={...trust.source,provider:siteNameFromPage(page.html,page.url)};
           const [existing]=await sql`
             SELECT id FROM opportunities
             WHERE regexp_replace(official_source_url,'/+$','')=${page.url.replace(/\/+$/,'')}
