@@ -1,7 +1,7 @@
 import {db} from '../lib/db.js';
-import {verifyCandidate} from '../lib/auto-discovery.js';
 import {trustedSourceForLead,WORLD_VERIFICATION_BATCH_SIZE} from '../lib/world-verification.js';
 import {fetchOfficial,publish} from './discover.js';
+import {verifyAndPublish} from '../lib/verify-and-publish.js';
 import {storeSourceListing} from '../lib/source-listings.js';
 
 const authorised=req=>Boolean(process.env.CRON_SECRET)&&
@@ -147,45 +147,44 @@ export default async function handler(req,res){
         }else{
           // Search titles and snippets are never authoritative evidence.
           const page=await fetchOfficial(trust.url,trust.source.source_url);
-          const checked=verifyCandidate(page.html,page.url,trust.source.provider);
-          evidence={...checked.evidence,registered_provider:trust.source.provider,
+          const [existing]=await sql`
+            SELECT id FROM opportunities
+            WHERE regexp_replace(official_source_url,'/+$','')=${page.url.replace(/\/+$/,'')}
+            LIMIT 1
+          `;
+          // Strict structured-data pages keep the original publication path;
+          // other programme pages are judged by the tiered v2 verifier.
+          const checked=await verifyAndPublish(sql,trust.source,page,publish);
+          evidence={...checked.verified.evidence,registered_provider:trust.source.provider,
             registered_source:trust.source.source_url};
-          if(!checked.verified){
-            status='needs_evidence';reason=checked.reasons.join('; ').slice(0,900);
-            // A real provider page may be source-confirmed even when its
-            // deadline/eligibility cannot be verified. Store it ONLY in the
-            // separate discovery tier, never as a matchable opportunity.
-            try{
-              const listing=await storeSourceListing(sql,lead,trust.source,page);
-              if(listing.isNew)summary.source_confirmed++;
-            }catch(listingError){
-              console.warn('Partial source listing unavailable',
-                String(listingError?.message||listingError).slice(0,100));
-            }
-          }else{
-            const [existing]=await sql`
-              SELECT id FROM opportunities
-              WHERE regexp_replace(official_source_url,'/+$','')=${page.url.replace(/\/+$/,'')}
-              LIMIT 1
-            `;
-            // An existing URL is not proof that the stored award is current.
-            // Reuse the strict publication path: it checks title, funding,
-            // type, nationalities and protected country-specific routes
-            // before updating an existing record's verified timestamp.
-            const outcome=await publish(sql,trust.source,page.url,checked);
-            if(outcome.status==='published'){
-              if(existing){
-                status='already_listed';reviewStatus='already_listed';
-                reason='Existing catalogue record safely refreshed from current official evidence';
-              }else{
-                status='published';reviewStatus='reviewed';
-                reason='New programme published with complete official evidence';
+          const outcome=checked.published;
+          if(!checked.publishable){
+            status=outcome.status==='rejected'?'rejected':'needs_evidence';
+            reason=String(checked.reasons||outcome.reason||'Insufficient official evidence').slice(0,900);
+            if(status==='rejected')reviewStatus='rejected';
+            else{
+              // A real provider page may be source-confirmed even when its
+              // deadline/eligibility cannot be verified. Store it ONLY in the
+              // separate discovery tier, never as a matchable opportunity.
+              try{
+                const listing=await storeSourceListing(sql,lead,trust.source,page);
+                if(listing.isNew)summary.source_confirmed++;
+              }catch(listingError){
+                console.warn('Partial source listing unavailable',
+                  String(listingError?.message||listingError).slice(0,100));
               }
-              publishedId=outcome.id;
-            }else{
-              status='needs_evidence';
-              reason=String(outcome.reason||'Publication conflict').slice(0,900);
             }
+          }else if(outcome.status==='published'&&!existing){
+            status='published';reviewStatus='reviewed';
+            reason='New programme published from current official evidence';
+            publishedId=outcome.id;
+          }else if(outcome.status==='published'||outcome.status==='existing'){
+            status='already_listed';reviewStatus='already_listed';
+            reason='Programme already in the catalogue';
+            publishedId=outcome.id;
+          }else{
+            status='needs_evidence';
+            reason=String(outcome.reason||'Publication conflict').slice(0,900);
           }
         }
       }catch(error){

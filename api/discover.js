@@ -3,6 +3,7 @@ import { canonicalUrl, officialHostMatches, findOfficialLinks, verifyCandidate, 
 import { resolveOfficialRedirect } from '../lib/verification-redirects.js';
 import {storeSourceListing} from '../lib/source-listings.js';
 import {eligibilityRecheckCompatible} from '../lib/verification-eligibility.js';
+import {verifyAndPublish as tieredVerifyAndPublish} from '../lib/verify-and-publish.js';
 
 const SOURCE_BATCH = 16;
 const LINKS_PER_SOURCE = 16;
@@ -267,9 +268,9 @@ async function scanSource(sql,source) {
           result.errors.push('Provider consent or access page, not programme evidence');
           continue;
         }
-        const verified=verifyCandidate(page.html,page.url,source.provider);
-        const published=await publish(sql,source,page.url,verified);
-        if(!verified.verified){
+        const checked=await tieredVerifyAndPublish(sql,source,page,publish);
+        const {verified,published}=checked;
+        if(!checked.publishable){
           try{
             const listing=await storeSourceListing(sql,{title:link.title},source,page);
             if(listing.isNew)result.source_confirmed++;
@@ -278,7 +279,7 @@ async function scanSource(sql,source) {
               String(partialError?.message||partialError).slice(0,100));
           }
         }
-        const reason=published.reason|| (published.status==='published' ? 'Verified on official provider page' : verified.reasons.join('; '));
+        const reason=published.reason|| (published.status==='published' ? 'Verified on official provider page' : checked.reasons);
         if(!published.candidateStored) {
           await saveCandidate(sql,source,page.url,link.title,verified,published.status,reason);
         }

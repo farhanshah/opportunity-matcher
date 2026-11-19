@@ -2,6 +2,8 @@ import { db } from '../lib/db.js';
 import { canonicalUrl, officialHostMatches, verifyCandidate } from '../lib/auto-discovery.js';
 import { resolveOfficialRedirect } from '../lib/verification-redirects.js';
 import {eligibilityRecheckCompatible} from '../lib/verification-eligibility.js';
+import {verifyOfficialPage} from '../lib/verification-v2.js';
+import {recheckUpdate,v2Evidence,v2Confidence} from '../lib/publish-v2.js';
 
 const BATCH = 12;
 const CONCURRENCY = 6;
@@ -36,15 +38,43 @@ async function getProviderHtml(raw) {
   throw Error('Too many provider redirects');
 }
 
+// Tiered re-check against the record's own official URL. Updates ONLY the
+// status, dates and verification timestamp; stored eligibility, nationality
+// rules and country routes are never overwritten from page text.
+async function applyTieredRecheck(sql,opp,page,v2){
+  const change=recheckUpdate(opp,v2);
+  if(!change)return {updated:false,outcome:'needs_evidence: '+[v2.decision,...(v2.reasons||[])].slice(0,4).join('; ')
+    +(/varies/i.test(opp.status||'')?' (country-varying record left unchanged)':'')};
+  const [routes]=await sql`
+    SELECT count(*)::int AS count FROM opportunity_country_routes
+    WHERE opportunity_id=${opp.id} AND is_active=true
+  `;
+  if(routes.count)return {updated:false,outcome:'needs_evidence: country-specific application routes need direct evidence'};
+  const evidence=v2Evidence(v2,page.url);
+  const [saved]=await sql`
+    UPDATE opportunities SET status=${change.status},
+      application_close_date=CASE WHEN ${Boolean(change.keepClose)}::boolean THEN application_close_date ELSE ${change.close}::date END,
+      application_open_date=CASE WHEN ${Boolean(change.keepClose)}::boolean THEN application_open_date ELSE coalesce(${change.open}::date,application_open_date) END,
+      expected_reopen_date=coalesce(${change.reopen||null}::date,expected_reopen_date),
+      last_verified_at=now(),verification_confidence=${v2Confidence(v2)},updated_at=now()
+    WHERE id=${opp.id} RETURNING id
+  `;
+  const quote=evidence.deadline_evidence||evidence.status_evidence||'';
+  return {updated:Boolean(saved),outcome:saved
+    ?'verified_current_cycle (v2 '+v2.decision+'): '+quote.slice(0,300)
+    :'needs_evidence: update failed'};
+}
+
 async function checkOne(sql,opp){
   let outcome='needs_evidence';
   let updated=false;
   try{
     const page=await getProviderHtml(opp.official_source_url);
-    const report=verifyCandidate(page.html,page.url,opp.provider);
+    const v2=verifyOfficialPage(page.html,page.url,opp.provider,new Date(),{knownType:opp.opportunity_type||''});
+    const report=v2.v1Full||verifyCandidate(page.html,page.url,opp.provider);
     const lower=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
     if(!report.verified){
-      outcome='needs_evidence: '+report.reasons.slice(0,4).join('; ');
+      ({outcome,updated}=await applyTieredRecheck(sql,opp,page,v2));
     } else if(lower(report.record.title)!==lower(opp.title)){
       outcome='needs_evidence: programme title mismatch';
     } else {
@@ -118,7 +148,7 @@ export default async function handler(req,res){
       RETURNING o.external_id
     `;
     const records=await sql`
-      SELECT id,external_id,title,provider,opportunity_type,funding_type,destination_country,official_source_url,eligible_nationalities,education_levels,fields_of_study
+      SELECT id,external_id,title,provider,status,opportunity_type,funding_type,destination_country,official_source_url,eligible_nationalities,education_levels,fields_of_study
       FROM opportunities WHERE official_source_url IS NOT NULL AND official_source_url<>''
         -- A host that is refusing or rate-limiting multiple verified monitors
         -- must not consume scarce re-verification slots either.

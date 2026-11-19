@@ -37,7 +37,12 @@ test('search outcomes saved with each pass for operations, without exposing secr
 test('published opportunities continue to require strict first-party evidence',()=>{
  const code=read('api/discover.js');
  assert.ok(code.includes('if(!result.verified)'));
- assert.ok(code.includes('verifyCandidate(page.html,page.url,source.provider)'));
+ // Tiered verification (lib/verify-and-publish.js): strict structured-data
+ // pages keep the original publish(); other pages need a v2 decision.
+ assert.ok(code.includes('tieredVerifyAndPublish(sql,source,page,publish)'));
+ const tiered=read('lib/verify-and-publish.js');
+ assert.ok(tiered.includes('if (v2.v1Full?.verified)'));
+ assert.ok(tiered.includes('if (v2.publishable)'));
  assert.ok(code.includes("officialHostMatches(next, authority)"));
  assert.ok(code.includes('resolveOfficialRedirect('));
  assert.ok(code.includes('return {status:\'needs_evidence\''));

@@ -36,8 +36,7 @@ test('automated verifier is bounded, atomic, and reuses official validation and 
   assert.equal(config.crons.find(x=>x.path==='/api/verify-worldwide').schedule,'15 1,5,8,11,14,17,20,23 * * *');
   for(const phrase of ['FOR UPDATE SKIP LOCKED','verification_attempts<4',
     'trustedSourceForLead(lead,sources)','fetchOfficial(trust.url,trust.source.source_url)',
-    'verifyCandidate(page.html,page.url,trust.source.provider)',
-    'publish(sql,trust.source,page.url,checked)',"l.review_status='unverified'"]){
+    'verifyAndPublish(sql,trust.source,page,publish)',"l.review_status='unverified'"]){
     assert.ok(api.includes(phrase),'Missing '+phrase);
   }
   // Previously rejected third-party URLs stay withheld. Only leads from an
@@ -156,5 +155,5 @@ test('newly accepted exact official detail routes can be requeued without bypass
    assert.ok(verifier.includes(host),host);
  assert.match(verifier,/EXISTS \(\s*SELECT 1 FROM monitored_sources m/);
  assert.ok(verifier.includes('trustedSourceForLead(lead,sources)'));
- assert.ok(verifier.includes('verifyCandidate(page.html,page.url,trust.source.provider)'));
+ assert.ok(verifier.includes('verifyAndPublish(sql,trust.source,page,publish)'));
 });
