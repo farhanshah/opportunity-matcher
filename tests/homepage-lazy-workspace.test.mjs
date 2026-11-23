@@ -10,7 +10,7 @@ test('public homepage paints immediately instead of behind the boot splash', () 
   const flag = head.indexOf("classList.add('omPublicPaint')");
   assert.ok(flag > 0, 'omPublicPaint flag missing');
   assert.ok(flag < head.indexOf('rel="stylesheet"'), 'flag must be set before stylesheets load');
-  assert.match(head, /\(\?:token\|code\|state\|linkedin_connect\|error\|classic\)=/, 'auth callbacks (and the ?classic=1 comparison URL) keep the splash');
+  assert.match(head, /\(\?:token\|code\|state\|linkedin_connect\|error\)=/, 'auth callbacks keep the splash');
   assert.match(head, /html\.omPublicPaint:not\(\.omBootReady\) body>#landing\{visibility:visible!important;opacity:1!important\}/);
 });
 
