@@ -33,6 +33,12 @@ test('a stored "Open" label with an elapsed deadline is shown as Deadline passed
   assert.equal(st.kind, 'closed');
 });
 
+test('elapsed deadlines are not presented as something to submit before', () => {
+  const h = text(renderProgramme({ ...base, application_close_date: '2026-11-20' }, [], NOW));
+  assert.doesNotMatch(h, /route before 20 November 2026/);
+  assert.doesNotMatch(renderProgramme(base, [], NOW), /\.\./);
+});
+
 test('stale records carry a last-confirmed warning; fresh ones do not', () => {
   assert.match(text(renderProgramme({ ...base, last_verified_at: '2026-08-19T00:00:00Z' }, [], NOW)), /last confirmed against the official source on 19 August 2026/);
   assert.doesNotMatch(renderProgramme(base, [], NOW), /class="warn"/);
@@ -58,7 +64,10 @@ test('page is indexable with canonical, FAQ and breadcrumb structured data and a
   assert.ok(html.includes('<link rel="canonical" href="https://oppmatcher.tech/opportunity/france-excellence-eiffel-scholarship-sch-020">'));
   assert.match(html, /"@type":"FAQPage"/);
   assert.match(html, /"@type":"BreadcrumbList"/);
-  assert.equal(metaTitle(base), 'France Excellence Eiffel Scholarship 2027 – Deadline & Eligibility');
+  // Years are never guessed from the deadline; an official name's own year is kept.
+  assert.equal(metaTitle(base), 'France Excellence Eiffel Scholarship: Deadline, Eligibility & How to Apply'.length <= 68 ? 'France Excellence Eiffel Scholarship: Deadline, Eligibility & How to Apply' : 'France Excellence Eiffel Scholarship – Deadline & Eligibility');
+  assert.match(metaTitle({ ...base, title: 'Commonwealth PhD Scholarships 2027/28' }), /2027\/28/);
+  assert.doesNotMatch(metaTitle({ ...base, title: 'Ibrahim Leadership Fellowships', application_close_date: '2026-11-20' }), /2026/);
   assert.ok(metaTitle(base).length <= 68);
 });
 
