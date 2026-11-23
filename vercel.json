@@ -195,6 +195,14 @@
       "destination": "/api/public-opportunities?format=sitemap"
     },
     {
+      "source": "/opportunity",
+      "destination": "/api/programme-page"
+    },
+    {
+      "source": "/opportunity/:slug",
+      "destination": "/api/programme-page?slug=:slug"
+    },
+    {
       "source": "/opportunities",
       "destination": "/api/public-opportunities"
     },

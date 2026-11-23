@@ -2,6 +2,7 @@
 import { db } from '../lib/db.js';
 import { publishedState, categoryType, narrowFacts, publicSlug, safePublicSource, restrictionFromTitle } from '../lib/public-opportunity-seo.js';
 import {liveCountries,countrySlug,COUNTRY_NAMES} from '../lib/country-opportunities.js';
+import {sitemapEntries} from '../lib/programme-pages.js';
 
 const BASE='https://oppmatcher.tech';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -95,7 +96,7 @@ function shell(title,description,url,body,index=true){
   '<link rel="icon" href="/brand-icon.svg" type="image/svg+xml">'+
   (index ? '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1916126969266611" crossorigin="anonymous"></script>' : '')+
   '<style>'+css+'</style></head><body>'+
-  '<header><a href="/"><strong>OppMatcher</strong></a><nav aria-label="Main navigation"><a href="/scholarships/">Scholarships</a><a href="/internships/">Internships</a><a href="/fellowships/">Fellowships</a><a href="/exchange-programs/">Exchange</a><a href="/">Home</a><a href="/opportunities">Verified opportunities</a><a href="/blog/">Guides</a><a href="/tools/application-readiness">Free checklist</a><a href="/about">About</a><a href="/contact">Contact</a></nav></header>'+
+  '<header><a href="/"><strong>OppMatcher</strong></a><nav aria-label="Main navigation"><a href="/scholarships/">Scholarships</a><a href="/internships/">Internships</a><a href="/fellowships/">Fellowships</a><a href="/exchange-programs/">Exchange</a><a href="/">Home</a><a href="/opportunity">All programmes</a><a href="/opportunities">Verified opportunities</a><a href="/blog/">Guides</a><a href="/tools/application-readiness">Free checklist</a><a href="/about">About</a><a href="/contact">Contact</a></nav></header>'+
   '<main>'+body+'</main><footer>© OppMatcher · Always check the latest official provider posting. <a href="/blog/methodology/">How we verify</a> · <a href="/tools/application-readiness">Free checklist</a> · <a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a></footer></body></html>';
 }
 function directory(rows, category=''){
@@ -142,7 +143,7 @@ function detail(row){
       :'This listing is awaiting a fresh provider check. It is not confirmed open and is not included in the live opportunities directory.';
   const sourceLabel=open?'Read full official posting and apply ↗':'View historical provider posting (may be unavailable) ↗';
   const source='<a class="'+(open?'button':'')+'" href="'+esc(safeSource(row.source_url))+'" target="_blank" rel="noopener noreferrer">'+sourceLabel+'</a>';
-  const body='<p class="tag"><a href="/opportunities">Verified opportunities</a> / <a href="/opportunities/'+esc(category)+'">'+esc(category)+'</a></p>'+
+  const body='<p class="tag"><a href="/opportunity">All programmes</a><a href="/opportunities">Verified opportunities</a> / <a href="/opportunities/'+esc(category)+'">'+esc(category)+'</a></p>'+
     '<p class="state '+className+'">'+heading+'</p><h1>'+esc(row.title)+'</h1>'+
     '<p class="lead">'+esc(row.opportunity_type||'Opportunity')+' listing from '+esc(row.provider)+
     '. These are recorded vacancy facts, with the official provider remaining the source of truth.</p>'+
@@ -204,7 +205,7 @@ function locationDirectory(rows,selected=''){
   isIndex?'/opportunities/countries':'/opportunities/country/'+selected,body,
   isIndex?countries.length>0:Boolean(match?.records.length));
 }
-function sitemap(rows){
+function sitemap(rows,programmes=[]){
   const categories=[...new Set(rows.map(categoryType))];
   const prefix='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+
     '<url><loc>'+BASE+'/opportunities</loc></url>\n'+
@@ -214,6 +215,8 @@ function sitemap(rows){
     (countries.length?'<url><loc>'+BASE+'/opportunities/countries</loc></url>\n':'')+
     countries.map(c=>'<url><loc>'+BASE+'/opportunities/country/'+esc(c.slug)+'</loc></url>\n').join('')+
     rows.map(row=>'<url><loc>'+esc(BASE+path(row))+'</loc><lastmod>'+esc(day(row.last_verified_at))+'</lastmod></url>\n').join('')+
+    // Every catalogue programme page (/opportunity/<slug>), lastmod = last verification/update.
+    sitemapEntries(programmes)+
     '</urlset>\n';
 }
 export default async function handler(req,res){
@@ -239,7 +242,9 @@ export default async function handler(req,res){
     if(format==='sitemap'){
       res.setHeader('Content-Type','application/xml; charset=utf-8');
       res.setHeader('Cache-Control','public, s-maxage=300, stale-while-revalidate=300');
-      return res.status(200).send(sitemap(rows));
+      const programmes=await db()`SELECT external_id,title,last_verified_at,updated_at FROM opportunities
+        WHERE coalesce(title,'')<>'' AND official_source_url ~ '^https://' ORDER BY external_id`;
+      return res.status(200).send(sitemap(rows,programmes));
     }
     res.setHeader('Content-Type','text/html; charset=utf-8');
     res.setHeader('Cache-Control','public, s-maxage=120, stale-while-revalidate=180');
@@ -257,7 +262,9 @@ export default async function handler(req,res){
     return res.status(200).send(directory(rows,category));
   }catch(e){
     console.error('Public SEO opportunity page unavailable',e?.message);
-    res.setHeader('Cache-Control','no-store');res.setHeader('X-Robots-Tag','noindex');
+    // Temporary outage: ask crawlers to retry; never send noindex, which
+    // de-indexes the pages (this happened during the 19-23 Nov 2026 outage).
+    res.setHeader('Cache-Control','no-store');res.setHeader('Retry-After','900');
     return res.status(503).send('Opportunity listings temporarily unavailable');
   }
 }
