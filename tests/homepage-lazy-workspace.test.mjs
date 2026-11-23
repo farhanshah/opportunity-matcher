@@ -39,3 +39,19 @@ test('hero entrance animation does not re-run after the landing has painted', ()
   const css = get('homepage-trust-v1.css');
   assert.match(css, /html\[data-om-public-first-paint="true"\] \.hero \.heroCopy[^{]*\{animation:none!important;opacity:1!important/);
 });
+
+test('fonts are self-hosted: no render-blocking Google Fonts request on public pages', () => {
+  for (const page of ['index.html', 'worldwide.html', 'orbital-v2-public.css', 'app-v94-theme-system.js'])
+    assert.ok(!/fonts\.(googleapis|gstatic)\.com/.test(get(page)), page + ' still loads Google Fonts');
+  const css = get('fonts/fonts-v5.css');
+  for (const f of ['manrope-latin-wght-v5', 'manrope-latin-ext-wght-v5', 'dm-sans-latin-wght-v5', 'dm-sans-latin-ext-wght-v5']) {
+    assert.ok(css.includes('/fonts/' + f + '.woff2'), f);
+    assert.ok(readFileSync(new URL('../fonts/' + f + '.woff2', import.meta.url)).length > 10000, f + ' missing');
+  }
+  assert.match(css, /font-weight:400 800;font-display:swap/);
+  const home = get('index.html');
+  assert.ok(home.includes('<link rel="preload" href="/fonts/manrope-latin-wght-v5.woff2" as="font" type="font/woff2" crossorigin>'));
+  const vercel = JSON.parse(get('vercel.json'));
+  const rule = vercel.headers.find(h => h.source === '/fonts/(.*)');
+  assert.ok(rule && rule.headers.some(h => /immutable/.test(h.value)), 'fonts must be cached long-term');
+});

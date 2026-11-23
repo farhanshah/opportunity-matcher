@@ -6,9 +6,7 @@
 
   function addFont(){
     if(document.querySelector('link[data-om-font]'))return;
-    const p1=document.createElement('link');p1.rel='preconnect';p1.href='https://fonts.googleapis.com';p1.dataset.omFont='preconnect';document.head.appendChild(p1);
-    const p2=document.createElement('link');p2.rel='preconnect';p2.href='https://fonts.gstatic.com';p2.crossOrigin='anonymous';p2.dataset.omFont='preconnect';document.head.appendChild(p2);
-    const font=document.createElement('link');font.rel='stylesheet';font.href='https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap';font.dataset.omFont='true';document.head.appendChild(font);
+    const font=document.createElement('link');font.rel='stylesheet';font.href='/fonts/fonts-v5.css';font.dataset.omFont='true';document.head.appendChild(font);
   }
 
   function addThemeCss(){
