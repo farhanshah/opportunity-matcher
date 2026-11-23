@@ -4,6 +4,8 @@
 <meta name="google-adsense-account" content="ca-pub-1916126969266611">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script>/* Public landing paints at once (no boot splash); auth callbacks keep the guarded splash. */if(!/[?&](?:token|code|state|linkedin_connect|error)=/i.test(location.search))document.documentElement.classList.add('omPublicPaint')</script>
+<style>html.omPublicPaint:not(.omBootReady) body{overflow:auto!important}html.omPublicPaint:not(.omBootReady) body>#landing{visibility:visible!important;opacity:1!important}html.omPublicPaint:not(.omBootReady) body:before,html.omPublicPaint:not(.omBootReady) body:after{display:none!important}</style>
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0d2c32">
 <meta name="application-name" content="OppMatcher">
@@ -37,6 +39,7 @@
 <link rel="stylesheet" href="/feature-polish-v08.css">
 <link rel="stylesheet" href="/public-v264.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="/public-v264.css"></noscript>
+<link rel="preconnect" href="https://images.unsplash.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -223,6 +226,7 @@ html:not(.omBootReady) body:before,html:not(.omBootReady) body:after{display:non
 <div id="detail" class="modal hide"><div class="modalBox"><button class="closeX" onclick="closeDetail()">×</button><div id="detailInner"></div></div></div>
 <link rel="stylesheet" href="/home-openings-v1.css?v=1">
 <script src="/home-openings-v1.js?v=1" defer></script>
+<script src="/home-stats-v1.js?v=1" defer></script>
 <script src="/app-v07.js?v=20261102" defer></script>
 <script src="/integration-shell-v5.js?v=7" defer></script>
 <script src="/source-chips-v1.js?v=2" defer></script>

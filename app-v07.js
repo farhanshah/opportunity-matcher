@@ -80,6 +80,21 @@
     });
   }
 
+  // First-time public visitors read the landing page; they do not need the
+  // ~110-module workspace (and its ~30 API calls) until they act. Start it on
+  // the first pointer, touch or key input. Returning users with saved
+  // Passport or tracker state, and pending prepare routes, still boot at once.
+  const hasWorkspaceState=(()=>{try{
+    return ['oppProfileV8','oppProfileV6','oppTracksV6','oppSavedV6','oppExactTracksV1']
+      .some(key=>localStorage.getItem(key))||Boolean(sessionStorage.getItem('opp_prepare_pending'));
+  }catch{return true}})();
+  if(isPublicHome&&!hasWorkspaceState){
+    await new Promise(resolve=>{
+      const events=['pointerdown','touchstart','keydown'];
+      const start=()=>{events.forEach(type=>window.removeEventListener(type,start,true));resolve()};
+      events.forEach(type=>window.addEventListener(type,start,{capture:true,passive:true}));
+    });
+  }
   const started=performance.now();
   // Let the public hero paint before starting low-priority workspace network work.
   // Auth callbacks and private workspace routes still boot immediately.

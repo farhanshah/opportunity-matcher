@@ -23,3 +23,6 @@
 
 /* Keep all Explore links reachable on phones with limited viewport height. */
 html.omTurquoisePreview #landing .heroWrap>.nav>.navlinks{max-height:min(70vh,540px)!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+
+/* The hero is already painted before the workspace loads: do not re-run its entrance animation (it blanked the hero mid-visit and delayed LCP). */
+html[data-om-public-first-paint="true"] .hero .kicker,html[data-om-public-first-paint="true"] .hero h1,html[data-om-public-first-paint="true"] .hero .heroCopy,html[data-om-public-first-paint="true"] .hero .heroActions,html[data-om-public-first-paint="true"] .hero .microTrust,html[data-om-public-first-paint="true"] .heroVisual{animation:none!important;opacity:1!important;transform:none!important}
