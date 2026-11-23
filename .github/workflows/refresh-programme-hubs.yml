@@ -1,0 +1,39 @@
+name: OppMatcher programme hub refresh
+# Daily: regenerate the "programmes tracked in this category" sections on the
+# static hub pages from the live catalogue (/api/programme-index) and bump the
+# sitemap lastmod of pages that changed. Commits only when something changed;
+# Vercel then deploys the commit. No secrets needed: the index is public.
+on:
+  schedule:
+    - cron: '40 7 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/refresh-programme-hubs.yml'
+concurrency:
+  group: oppmatcher-programme-hubs
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Fetch live catalogue and regenerate hub sections
+        run: node tools/refresh-programme-index.mjs https://oppmatcher.tech/api/programme-index
+      - name: Check generated pages
+        run: node --test tests/hub-programme-links.test.mjs tests/programme-pages.test.mjs tests/seo-sitemap-integrity.test.mjs
+      - name: Commit if anything changed
+        run: |
+          if git diff --quiet; then echo "No catalogue changes"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/programme-index.json sitemap.xml scholarships internships fellowships exchange-programs programmes
+          git commit -m "hubs: daily programme index refresh"
+          git push

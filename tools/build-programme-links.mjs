@@ -14,7 +14,7 @@ import { pathFor, esc } from '../lib/programme-pages.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const START = '<!-- programme-index:start -->', END = '<!-- programme-index:end -->';
-const rows = JSON.parse(readFileSync(join(root, 'data/programme-index.json'), 'utf8'));
+let rows = JSON.parse(readFileSync(join(root, 'data/programme-index.json'), 'utf8'));
 
 const text = r => [r.title, r.provider, r.destination_country, ...(r.education_levels || []), ...(r.fields_of_study || [])].join(' ');
 const dest = re => r => re.test(r.destination_country || '');
@@ -101,7 +101,18 @@ export function matchProgramme(slug) {
   return hits.sort((a, b) => (a.external_id.startsWith('AUTO-') ? 1 : 0) - (b.external_id.startsWith('AUTO-') ? 1 : 0))[0] || null;
 }
 
+// Sets <lastmod> to today for sitemap entries whose page content changed.
+export function bumpSitemap(files, today = new Date().toISOString().slice(0, 10)) {
+  const p = join(root, 'sitemap.xml');
+  const urls = new Set(files.map(f => 'https://oppmatcher.tech/' + f.replace(/index\.html$/, '')));
+  const xml = readFileSync(p, 'utf8');
+  const next = xml.replace(/<loc>([^<]+)<\/loc>(\s*)<lastmod>[^<]+<\/lastmod>/g,
+    (m, loc, gap) => urls.has(loc) ? `<loc>${loc}</loc>${gap}<lastmod>${today}</lastmod>` : m);
+  if (next !== xml) writeFileSync(p, next);
+}
+
 export function build({ write = true } = {}) {
+  rows = JSON.parse(readFileSync(join(root, 'data/programme-index.json'), 'utf8'));
   const report = [];
   for (const [file, rule] of Object.entries(HUBS)) {
     const p = join(root, file);
@@ -110,21 +121,22 @@ export function build({ write = true } = {}) {
     const html = readFileSync(p, 'utf8');
     const next = matches.length ? inject(html, hubSection(matches)) : html.replace(new RegExp(START + '[\\s\\S]*?' + END), '');
     if (write && next !== html) writeFileSync(p, next);
-    report.push([file, matches.length]);
+    report.push([file, matches.length, next !== html]);
   }
   for (const dir of readdirSync(join(root, 'programmes'), { withFileTypes: true }).filter(d => d.isDirectory())) {
     const p = join(root, 'programmes', dir.name, 'index.html');
     if (!existsSync(p)) continue;
     const html = readFileSync(p, 'utf8');
     const r = matchProgramme(dir.name);
-    if (!r) { report.push(['programmes/' + dir.name, 'no catalogue match']); continue; }
+    if (!r) { report.push(['programmes/' + dir.name + '/index.html', 'no catalogue match', false]); continue; }
     const block = START + `<aside class="note"><strong>Live status:</strong> current status, deadline and official source for ` +
       `<a href="${esc(pathFor(r))}">${esc(r.title)}</a> – re-checked against the provider.</aside>` + END;
     const next = html.includes(START) ? html.replace(new RegExp(START + '[\\s\\S]*?' + END), block)
       : /<\/h1>/.test(html) ? html.replace(/(<\/h1>(?:\s*<p[^>]*>[\s\S]*?<\/p>)?)/, '$1' + block) : html;
     if (write && next !== html) writeFileSync(p, next);
-    report.push(['programmes/' + dir.name, r.external_id + ' ' + r.title]);
+    report.push(['programmes/' + dir.name + '/index.html', r.external_id + ' ' + r.title, next !== html]);
   }
+  if (write) bumpSitemap(report.filter(x => x[2]).map(x => x[0]));
   return report;
 }
 

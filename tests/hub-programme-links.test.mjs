@@ -50,3 +50,19 @@ test('programme guides link only to the same programme', () => {
 test('homepage links to the programme hub', () => {
   assert.ok(readFileSync(join(root, 'index.html'), 'utf8').includes('href="/opportunity"'));
 });
+
+test('refresh refuses malformed or sharply shrunken catalogue responses', async () => {
+  const { validate } = await import('../tools/refresh-programme-index.mjs');
+  assert.throws(() => validate({ error: 'x' }, rows), /not an array/);
+  assert.throws(() => validate(rows.slice(0, 10), rows), /shrank/);
+  assert.throws(() => validate([...rows.slice(1), { external_id: 'bad id', title: '' }], rows), /malformed/);
+  assert.equal(validate(rows, rows).length, rows.length);
+});
+
+test('daily workflow refreshes from the public index and commits only on change', () => {
+  const wf = readFileSync(join(root, '.github/workflows/refresh-programme-hubs.yml'), 'utf8');
+  assert.match(wf, /cron: '40 7 \* \* \*'/);
+  assert.match(wf, /refresh-programme-index\.mjs https:\/\/oppmatcher\.tech\/api\/programme-index/);
+  assert.match(wf, /git diff --quiet/);
+  assert.doesNotMatch(wf, /secrets\./, 'needs no secrets');
+});
