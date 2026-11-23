@@ -12,13 +12,13 @@ test('risk summary separates missing legacy fingerprints and unmatched opportuni
  assert.ok(api.includes("status='pending_review'"));
  assert.ok(api.includes('if (!authorised(req)) return res.status(401)'));
 });
-test('admin offers read-only filters for high risk, evidence gaps and all groups',()=>{
+test('admin offers filters for high risk, evidence gaps and all page groups',()=>{
  const ui=read('admin-v1.js'),html=read('admin.html');
  for(const filter of ['high','gaps','all'])assert.ok(html.includes('data-filter="'+filter+'"'));
  assert.ok(ui.includes("reviewFilter:'high'"));
  assert.ok(ui.includes('selected.map(x=>'));
- assert.ok(ui.includes("x.status==='pending_review'&&x.risk_level==='high'"));
- assert.ok(ui.includes("original events"));
+ assert.ok(ui.includes("x.status==='pending_review'&&Number(x.high_events||0)>0"));
+ assert.ok(ui.includes("original alerts retained"));
 });
 test('review cards display group evidence quality rather than asserting eligibility changed',()=>{
  const ui=read('admin-v1.js');

@@ -1,5 +1,5 @@
 import { db } from '../lib/db.js';
-import { SOURCE_OPPORTUNITY_MAP, normalizeHtml, sha256, meaningfulChange, expectedContentPresent } from '../lib/monitor.js';
+import { SOURCE_OPPORTUNITY_MAP, normalizeHtml, sha256, meaningfulChange, expectedContentPresent, stableSignals } from '../lib/monitor.js';
 import { comparableSourceSignals } from '../lib/source-content.js';
 import { ingestExactVacancies } from '../lib/exact-ingest.js';
 import { hostBatches } from '../lib/monitor-batching.js';
@@ -90,7 +90,7 @@ async function processSource(sql, source) {
       // Changes with exactly the same extracted evidence should not create
       // fresh alerts on each subsequent provider scan.
       const fingerprint = sha256(JSON.stringify(
-        change.changed.map(key => [key, (signals[key] || []).map(s => String(s).trim()).sort()])
+        change.changed.map(key => [key, stableSignals(signals[key])])
       ));
       const [duplicate] = await sql`
         SELECT id FROM detected_changes

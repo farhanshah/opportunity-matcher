@@ -79,10 +79,8 @@ export default async function handler(req, res) {
           AND evidence_fingerprint IS NULL) AS high_risk_without_fingerprint,
         (SELECT count(*)::int FROM detected_changes WHERE status='pending_review' AND risk_level='high'
           AND opportunity_id IS NULL) AS high_risk_without_opportunity,
-        (SELECT count(*)::int FROM (
-          SELECT DISTINCT source_id, risk_level, change_type
-          FROM detected_changes WHERE status='pending_review'
-        ) grouped) AS pending_review_groups,
+        (SELECT count(DISTINCT source_id)::int
+          FROM detected_changes WHERE status='pending_review') AS pending_review_groups,
         (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='published') AS discovered_published,
         (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='needs_evidence') AS discovered_withheld,
         (SELECT count(*)::int FROM opportunity_discovery_candidates WHERE status='existing') AS discovered_existing,
@@ -206,38 +204,46 @@ export default async function handler(req, res) {
         o.external_id
     `;
 
-    // The review queue presents one recent representative per source, risk and
-    // change type. Every original event remains pending until reviewed individually.
+    // The review queue shows ONE card per monitored page: the newest pending
+    // alert, plus the net evidence across the whole pending window (the oldest
+    // pending alert's "before" snapshot vs the newest alert's "after" snapshot).
+    // A reviewer decides once for the page; every original event is retained
+    // and individually stamped (see api/admin-review.js group action).
     const changes = await sql`
-      WITH ranked AS (
-        SELECT c.id,
-          count(*) OVER (
-            PARTITION BY CASE WHEN c.status='pending_review'
-              THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
-              ELSE c.id::text END
-          )::int AS related_events,
-          count(*) FILTER (WHERE c.evidence_fingerprint IS NULL) OVER (
-            PARTITION BY CASE WHEN c.status='pending_review'
-              THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
-              ELSE c.id::text END
-          )::int AS legacy_unfingerprinted_events,
-          count(*) FILTER (WHERE c.opportunity_id IS NULL) OVER (
-            PARTITION BY CASE WHEN c.status='pending_review'
-              THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
-              ELSE c.id::text END
-          )::int AS events_without_opportunity,
-          row_number() OVER (
-            PARTITION BY CASE WHEN c.status='pending_review'
-              THEN c.source_id::text || '/' || c.risk_level || '/' || c.change_type
-              ELSE c.id::text END
-            ORDER BY c.detected_at DESC, c.id
-          ) AS group_rank
+      WITH pending AS (
+        SELECT c.*,
+          count(*) OVER w AS related_events,
+          count(*) FILTER (WHERE c.risk_level='high') OVER w AS high_events,
+          count(*) FILTER (WHERE c.evidence_fingerprint IS NULL) OVER w AS legacy_unfingerprinted_events,
+          count(*) FILTER (WHERE c.opportunity_id IS NULL) OVER w AS events_without_opportunity,
+          min(c.detected_at) OVER w AS first_detected_at,
+          max(c.detected_at) OVER w AS last_detected_at,
+          first_value(c.previous_snapshot_id) OVER (PARTITION BY c.source_id ORDER BY c.detected_at ASC, c.id) AS window_previous_snapshot_id,
+          row_number() OVER (PARTITION BY c.source_id ORDER BY c.detected_at DESC, c.id) AS group_rank
         FROM detected_changes c
+        WHERE c.status='pending_review'
+        WINDOW w AS (PARTITION BY c.source_id)
+      ), types AS (
+        SELECT source_id, string_agg(DISTINCT change_type, ', ' ORDER BY change_type) AS group_change_types
+        FROM detected_changes WHERE status='pending_review' GROUP BY source_id
+      ), recent AS (
+        SELECT c.*, 1::bigint AS related_events, (c.risk_level='high')::int::bigint AS high_events,
+          (c.evidence_fingerprint IS NULL)::int::bigint AS legacy_unfingerprinted_events,
+          (c.opportunity_id IS NULL)::int::bigint AS events_without_opportunity,
+          c.detected_at AS first_detected_at, c.detected_at AS last_detected_at,
+          c.previous_snapshot_id AS window_previous_snapshot_id, 1::bigint AS group_rank
+        FROM detected_changes c WHERE c.status<>'pending_review'
+        ORDER BY coalesce(c.reviewed_at,c.detected_at) DESC LIMIT 20
+      ), cards AS (
+        SELECT * FROM pending WHERE group_rank=1
+        UNION ALL SELECT * FROM recent
       )
       SELECT
-        c.id, c.change_type, c.risk_level, c.field_name, c.old_value, c.new_value,
+        c.id, c.source_id, c.change_type, c.risk_level, c.field_name, c.old_value, c.new_value,
         c.diff_summary, c.status, c.detected_at, c.reviewed_at, c.review_note,
-        ranked.related_events,ranked.legacy_unfingerprinted_events,ranked.events_without_opportunity,
+        c.related_events::int, c.high_events::int, c.legacy_unfingerprinted_events::int,
+        c.events_without_opportunity::int, c.first_detected_at, c.last_detected_at,
+        t.group_change_types,
         jsonb_build_object(
           'previous', jsonb_build_object(
             'dates', prev.extraction_payload->'dates',
@@ -252,18 +258,31 @@ export default async function handler(req, res) {
             'funding', curr.extraction_payload->'funding'->0
           )
         ) AS evidence_preview,
+        jsonb_build_object(
+          'dates', coalesce(wprev.extraction_payload->'dates','[]'::jsonb) IS DISTINCT FROM coalesce(curr.extraction_payload->'dates','[]'::jsonb),
+          'application', coalesce(wprev.extraction_payload->'application','[]'::jsonb) IS DISTINCT FROM coalesce(curr.extraction_payload->'application','[]'::jsonb),
+          'eligibility', coalesce(wprev.extraction_payload->'eligibility','[]'::jsonb) IS DISTINCT FROM coalesce(curr.extraction_payload->'eligibility','[]'::jsonb),
+          'funding', coalesce(wprev.extraction_payload->'funding','[]'::jsonb) IS DISTINCT FROM coalesce(curr.extraction_payload->'funding','[]'::jsonb)
+        ) AS net_changed,
+        jsonb_build_object(
+          'dates', wprev.extraction_payload->'dates',
+          'application', wprev.extraction_payload->'application'->0,
+          'eligibility', wprev.extraction_payload->'eligibility'->0,
+          'funding', wprev.extraction_payload->'funding'->0
+        ) AS window_previous,
         m.source_key, m.provider, m.source_url,
-        o.external_id AS opportunity_external_id, o.title AS opportunity_title
-      FROM ranked
-      JOIN detected_changes c ON c.id=ranked.id
+        o.external_id AS opportunity_external_id, o.title AS opportunity_title,
+        o.status AS opportunity_status, o.application_close_date AS opportunity_close_date
+      FROM cards c
+      LEFT JOIN types t ON t.source_id=c.source_id AND c.status='pending_review'
       JOIN monitored_sources m ON m.id=c.source_id
       LEFT JOIN opportunities o ON o.id=c.opportunity_id
       LEFT JOIN source_snapshots prev ON prev.id=c.previous_snapshot_id
       LEFT JOIN source_snapshots curr ON curr.id=c.current_snapshot_id
-      WHERE ranked.group_rank = 1
+      LEFT JOIN source_snapshots wprev ON wprev.id=c.window_previous_snapshot_id
       ORDER BY CASE WHEN c.status='pending_review' THEN 0 ELSE 1 END,
-               CASE WHEN c.risk_level='high' THEN 0 ELSE 1 END,
-               c.detected_at DESC
+               CASE WHEN c.high_events>0 THEN 0 ELSE 1 END,
+               c.related_events DESC, c.detected_at DESC
       LIMIT 100
     `;
 

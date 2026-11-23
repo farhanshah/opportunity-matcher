@@ -148,26 +148,60 @@
     const outstanding=Number(s.pending_review??0);
     const highRisk=Number(s.high_risk_pending??0);
     const summaryEl=$('reviewSummary');
-    if(summaryEl)summaryEl.textContent=outstanding+' historical events in '+grouped+' evidence groups · '+highRisk+' high-risk events. Automated publishing never uses unresolved page-change alerts.';
+    if(summaryEl)summaryEl.textContent=outstanding+' pending alerts on '+grouped+' monitored pages · '+highRisk+' high-risk. One decision per page clears all of its pending alerts; every original alert is kept with the decision note. Automated publishing never uses unresolved alerts.';
     $('riskLegacyCount').textContent=String(s.high_risk_without_fingerprint??'—')+' high-risk events without fingerprint';
     $('riskUnlinkedCount').textContent=String(s.high_risk_without_opportunity??'—')+' high-risk events without linked opportunity';
     const selected=list.filter(x=>state.reviewFilter==='all'
-      || state.reviewFilter==='high'&&x.status==='pending_review'&&x.risk_level==='high'
+      || state.reviewFilter==='high'&&x.status==='pending_review'&&Number(x.high_events||0)>0
       || state.reviewFilter==='gaps'&&x.status==='pending_review'&&
           (Number(x.legacy_unfingerprinted_events||0)>0 || Number(x.events_without_opportunity||0)>0));
-    $('reviewShowing').textContent=selected.length+' groups shown · original events retained';
+    $('reviewShowing').textContent=selected.length+' pages shown · original alerts retained';
     if(!selected.length){$('reviewQueue').innerHTML='<div class="emptyState"><strong>No alert groups match this filter.</strong><p>Try All groups to see other historical events.</p></div>';return}
+    const day=v=>v?new Date(v).toLocaleDateString(undefined,{day:'numeric',month:'short'}):'—';
     $('reviewQueue').innerHTML=selected.map(x=>{
       const title=x.opportunity_title||String(x.source_key||'Official provider').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-      return `<article class="reviewCard"><div><div class="reviewTop"><span class="reviewRisk ${esc(x.risk_level||'medium')}">${esc(x.risk_level||'review')}</span><span class="reviewDate">${ago(x.detected_at)} · ${esc(x.provider)}</span></div>
-        <h3>${esc(title)}</h3><p>${esc(x.diff_summary||x.change_type||'Source text changed')}</p>
-        <p class="reviewGroupHint">${Number(x.related_events||1)} related event(s) · ${Number(x.legacy_unfingerprinted_events||0)} without legacy fingerprint · ${Number(x.events_without_opportunity||0)} without direct opportunity link. Original event records are retained.</p>
+      const pending=x.status==='pending_review', n=Number(x.related_events||1);
+      const net=x.net_changed||{}, netFields=['dates','application','eligibility','funding'].filter(k=>net[k]);
+      const record=x.opportunity_external_id
+        ?`Published record <b>${esc(x.opportunity_external_id)}</b> · status ${esc(x.opportunity_status||'—')}${x.opportunity_close_date?' · deadline '+esc(String(x.opportunity_close_date).slice(0,10)):''}`
+        :'Not linked to a catalogue record (discovered source page)';
+      const groupLine=pending
+        ?`<p class="reviewGroupHint"><b>${n} alert${n===1?'':'s'}</b> on this page${Number(x.high_events||0)?` · ${Number(x.high_events)} high-risk`:''} · ${day(x.first_detected_at)} → ${day(x.last_detected_at)} · ${esc(x.group_change_types||x.change_type||'')}</p>
+           <p class="reviewGroupHint">${record}</p>
+           <p class="reviewGroupHint">Net change since the first alert: ${netFields.length?netFields.map(f=>`<span class="statusBadge">${esc(f)}</span>`).join(' '):'<span class="statusBadge">none detected</span>'}</p>`
+        :`<p class="reviewGroupHint">${esc(x.review_note||'')}</p>`;
+      const sample=pending?{...x,evidence_preview:{previous:x.window_previous||{},current:(x.evidence_preview||{}).current||{}},field_name:netFields.join(',')||x.field_name}:x;
+      const actions=pending
+        ?`<button class="approve" data-group-action="approve" data-source="${esc(x.source_id)}" data-through="${esc(x.last_detected_at||x.detected_at)}" data-count="${n}">Record still correct · clear ${n}</button>
+           <button data-group-action="ignore" data-source="${esc(x.source_id)}" data-through="${esc(x.last_detected_at||x.detected_at)}" data-count="${n}">Not relevant · ignore ${n}</button>`
+        :`<span class="statusBadge">${esc(x.status)}</span>`;
+      return `<article class="reviewCard"><div><div class="reviewTop"><span class="reviewRisk ${Number(x.high_events||0)?'high':esc(x.risk_level||'medium')}">${Number(x.high_events||0)?'high':esc(x.risk_level||'review')}</span><span class="reviewDate">${ago(x.detected_at)} · ${esc(x.provider)}</span></div>
+        <h3>${esc(title)}</h3>${groupLine}
         ${(Number(x.legacy_unfingerprinted_events||0)>0 || Number(x.events_without_opportunity||0)>0)?'<p class="reviewEvidenceWarning">Evidence gap: inspect this source manually. Do not infer a changed eligibility rule from navigation text or a missing fingerprint.</p>':''}
-        ${evidencePreview(x)}</div>
-        <div class="reviewActions"><span class="statusBadge">${x.status==='pending_review'?'Held for automatic verification':esc(x.status)}</span>
-          <a class="rowLink" href="${esc(x.source_url||'#')}" target="_blank" rel="noopener noreferrer" title="Official provider page">↗</a></div>
+        ${evidencePreview(sample)}</div>
+        <div class="reviewActions">${actions}
+          <a class="rowLink" href="${esc(x.source_url||'#')}" target="_blank" rel="noopener noreferrer" title="Open the official page to compare with the published record">↗</a></div>
       </article>`;
     }).join('');
+  }
+
+  // Two-click confirmation (no browser dialogs): first click arms, second applies.
+  async function groupReview(button){
+    if(button.dataset.armed!=='1'){
+      document.querySelectorAll('[data-group-action][data-armed="1"]').forEach(b=>{b.dataset.armed='';b.textContent=b.dataset.label});
+      button.dataset.label=button.textContent;button.dataset.armed='1';
+      button.textContent=`Confirm: ${button.dataset.groupAction==='approve'?'clear':'ignore'} ${button.dataset.count} alerts`;return;
+    }
+    button.disabled=true;
+    const action=button.dataset.groupAction;
+    const note=action==='approve'?'Reviewer compared the official page with the published record in the operations console; record still correct.':'Reviewer marked these page alerts as not relevant (page chrome / non-programme text).';
+    try{
+      const r=await fetch('/api/admin-review',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},
+        body:JSON.stringify({source_id:button.dataset.source,through:button.dataset.through,action,note})});
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok)throw new Error(j.error||`Review action returned ${r.status}`);
+      toast(`${j.updated} alert${j.updated===1?'':'s'} ${action==='approve'?'cleared':'ignored'}`);await load();
+    }catch(e){button.disabled=false;toast(e.message||'Review action failed')}
   }
 
   async function review(id,action){
@@ -193,5 +227,6 @@
       renderReviews();
     });
   }
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-group-action]');if(b)groupReview(b)});
   window.Ops={review};bind();if(state.secret){$('adminSecret').value=state.secret;load()}
 })();

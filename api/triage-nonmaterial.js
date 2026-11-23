@@ -1,4 +1,13 @@
 import {db} from '../lib/db.js';
+import {meaningfulChange} from '../lib/monitor.js';
+
+export const COUNTER_ONLY_NOTE='Automatic evidence triage: the only difference between the paired official snapshots is a page view/visitor counter. Dates, application, eligibility and funding text are otherwise identical. Snapshots retained. No programme freshness or eligibility verified.';
+
+// Pure decision used by the second triage pass (exported for tests).
+export function counterOnlyDifference(previous,current){
+  if(!previous||!current)return false;
+  return meaningfulChange(previous,current)===null;
+}
 const authorized=req=>Boolean(process.env.CRON_SECRET)&&req.headers.authorization==='Bearer '+process.env.CRON_SECRET;
 export default async function handler(req,res){
  res.setHeader('Cache-Control','no-store');
@@ -41,7 +50,24 @@ export default async function handler(req,res){
     FROM proven WHERE d.id=proven.id AND d.status='pending_review'
     RETURNING d.id,d.risk_level
   `;
-  return res.status(200).json({ok:true,resolved:decisions.length,
+  // Second pass: alerts whose before/after extracted signals differ only by a
+  // page counter. Decided in JS with the monitor's own comparison so the rule
+  // cannot drift from how alerts are raised.
+  const candidates=await sql`
+    SELECT d.id,d.risk_level,before.extraction_payload AS previous,after.extraction_payload AS current
+    FROM detected_changes d
+    JOIN source_snapshots before ON before.id=d.previous_snapshot_id AND before.source_id=d.source_id
+    JOIN source_snapshots after ON after.id=d.current_snapshot_id AND after.source_id=d.source_id
+    WHERE d.status='pending_review'
+      AND before.http_status BETWEEN 200 AND 299 AND after.http_status BETWEEN 200 AND 299
+    ORDER BY d.detected_at ASC LIMIT 400`;
+  const counterIds=candidates.filter(c=>counterOnlyDifference(c.previous,c.current)).map(c=>c.id);
+  const counterDecisions=counterIds.length?await sql`
+    UPDATE detected_changes SET status='resolved_nonmaterial',reviewed_at=now(),review_note=${COUNTER_ONLY_NOTE}
+    WHERE id = ANY(${counterIds}::uuid[]) AND status='pending_review'
+    RETURNING id,risk_level`:[];
+  decisions.push(...counterDecisions);
+  return res.status(200).json({ok:true,resolved:decisions.length,counter_only:counterDecisions.length,
     high_risk_cleared:decisions.filter(x=>x.risk_level==='high').length,
     policy:'Strict equal programme body and material facts only. Uncertain changes remain pending.'});
  }catch(error){
