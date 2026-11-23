@@ -138,3 +138,70 @@ Both articles are editorial comparison guides, **not** new entries in the exact-
 
 ### Follow-up
 At the next weekly review, compare the two exact page URLs in Search Console and only then revise titles, FAQs or section answers. Check that Google has crawled before judging results. Keep monthly keyword estimates separate from actual impressions/clicks and avoid duplicate content for reversed-word keyword variants.
+
+
+## Weekly search review: 23 November 2026
+
+### Search Console final data
+Connected property: `sc-domain:oppmatcher.tech`.
+
+- Current final 28 days: **24 Oct–20 Nov 2026**, **1,827 impressions**, **12 clicks**, about **0.66% CTR**.
+- The requested preceding 28-day window, **26 Sep–23 Oct**, contains only 10 days with reported rows in the connected property (14–23 Oct); those rows total **163 impressions and 4 clicks**. GSC returned no rows for 26 Sep–13 Oct, so this is **not a valid full 28-day comparison** and is recorded as incomplete.
+- Dated repo baseline from the previous SEO work: **17 Oct–13 Nov 2026**, 1,303 impressions and 13 clicks. It overlaps the current period, so it is a historical baseline, not a clean control period.
+- Versus that dated baseline, current impressions are **+40.2%** (1,827 vs 1,303) while clicks are **-7.7%** (12 vs 13). Current CTR is lower, about 0.66% vs 1.00%.
+- Current page-level coverage: 77 pages with Search Console rows. This is performance data, not proof that 77 pages are indexed.
+
+### Highest-value query/page pairs in the current period
+| Query | Page | Impressions | Clicks | Position |
+|---|---|---:|---:|---:|
+| scholarship eligibility requirements | /blog/scholarship-eligibility-checklist/ | 11 | 0 | 18.5 |
+| research fellowship | /blog/research-fellowships-uk-funding-guide/ | 7 | 0 | 19.0 |
+| msca mobility rule | /blog/msca-postdoctoral-mobility-rules/ | 6 | 0 | 9.7 |
+| knight hennessy application | /blog/knight-hennessy-scholars-application/ | 4 | 0 | 12.3 |
+| oecd application status | /blog/oecd-internship-programme-guide/ | 3 | 0 | 8.0 |
+| scholarship eligibility | /blog/scholarship-eligibility-checklist/ | 3 | 0 | 11.3 |
+| graduate assistantship or fellowship | /blog/us-graduate-assistantship-vs-fellowship/ | 2 | 0 | 19.5 |
+| mext university route | /blog/mext-japan-scholarships-embassy-route/ | 2 | 0 | 5.0 |
+| how to apply for mext scholarship undergraduate | /blog/mext-japan-scholarships-embassy-route/ | 2 | 0 | 5.5 |
+| internship application via the undp vacancy | /blog/undp-internships-application-guide/ | 2 | 0 | 10.0 |
+| scholarship documents | /blog/scholarship-application-documents/ | 2 | 0 | 5.5 |
+
+### Page-level priority
+- `/blog/scholarship-application-documents/`: **160 impressions, 1 click, position 8.7**.
+- `/blog/scholarship-eligibility-checklist/`: **228 impressions, 1 click, position 22.3**. The page is high-demand but outside the requested 5–20 page band overall; query-level terms are entering page 1.
+- `/blog/msca-postdoctoral-mobility-rules/`: **111 impressions, 0 clicks, position 9.7**.
+- `/blog/oecd-internship-programme-guide/`: **91 impressions, 0 clicks, position 14.0**.
+- `/blog/un-internship-application-checklist/`: **77 impressions, 0 clicks, position 7.7**.
+- `/blog/daad-vs-university-scholarship-germany/`: **48 impressions, 0 clicks, position 17.4**.
+- `/blog/research-fellowships-uk-funding-guide/`: **13 impressions, 0 clicks, position 20.8**.
+
+### Keyword metrics and competitor evidence
+Fresh OpenSEO metrics for the core terms:
+- `scholarship eligibility requirements`: US volume **30**, KD **18**.
+- `scholarship documents required`: US volume **10**, KD **2**.
+- `un internship application`: US volume **140**, KD **14**, navigational intent.
+- `daad scholarship germany eligibility`: US volume **10**, KD **unknown**.
+- `msca mobility rule`: US volume **10**, KD **unknown**.
+- `oecd internship application`: US volume **10**, KD **unknown**.
+
+OpenSEO SERPs were checked for scholarship eligibility/documents and DAAD eligibility, plus the programme-specific queries. Results include broad informational publishers, forums and third-party scholarship/job sites alongside official provider pages. No domain-rating claim was made because no paid Ahrefs/SEMrush measurement was used.
+
+### Content changes published
+Existing pages were improved instead of creating duplicates:
+1. `/blog/scholarship-application-documents/` — updated Chevening stage-specific document evidence, added a stage-by-stage checklist and original SVG decision aid, updated dateModified to 2026-11-23.
+2. `/blog/msca-postdoctoral-mobility-rules/` — added original mobility decision aid and refreshed 2026/2027 call-status and nationality wording from European Commission guidance.
+3. `/blog/oecd-internship-programme-guide/` — added original eligibility visual, clarified official vacancy/application route and distinguished the Trento Centre's current no-open-call statement from the broader OECD internship programme.
+4. `/blog/un-internship-application-checklist/` — replaced the editorial-review warning with a clear UN Secretariat scope, added original checklist visual and separated Secretariat terms from other UN entities.
+5. `/blog/daad-vs-university-scholarship-germany/` — added original funding-route visual and a provider-backed explanation that DAAD eligibility is programme-specific.
+
+Sitemap `lastmod` was updated to **2026-11-23** for these five substantive page changes.
+
+### Official sources used
+- Chevening application guidance and references.
+- European Commission / MSCA Postdoctoral Fellowships 2026–2027 work programme and current fellowship guidance.
+- OECD internship FAQ and current internship pages.
+- UN Careers and UN Secretariat applicant guide.
+- DAAD official scholarship overview.
+
+### QA status
+Automated/public release checks and production deployment must be verified after the final GitHub commit chain. No ranking guarantee is made. No new vacancy was marked open by this editorial work.
