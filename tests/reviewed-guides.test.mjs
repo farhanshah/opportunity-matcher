@@ -9,6 +9,21 @@ export const REVIEWED = [
   'commonwealth-scholarship-nominating-agency',
   'daad-vs-university-scholarship-germany',
   'fully-funded-vs-partially-funded-scholarships',
+  'international-internship-work-visa-requirements',
+  'paid-vs-unpaid-internships-abroad',
+  'internships-without-experience-portfolio',
+  'university-placement-year-internship-credit',
+  'statement-of-purpose-vs-personal-statement',
+  'scholarship-essay-common-mistakes',
+  'scholarship-cv-format-for-students',
+  'scholarship-recommendation-letter-request',
+  'research-proposal-for-scholarship-guide',
+  'phd-fellowship-vs-research-grant',
+  'us-graduate-assistantship-vs-fellowship',
+  'scholarship-country-eligibility-matching',
+  'undergraduate-scholarships-abroad-checklist',
+  'masters-scholarships-international-students-guide',
+  'scholarships-students-with-disabilities',
 ];
 
 const get = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8');

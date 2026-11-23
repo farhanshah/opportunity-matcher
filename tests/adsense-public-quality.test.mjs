@@ -207,7 +207,7 @@ test('every indexable static public HTML page carries exactly one AdSense loader
  inspect(root);
  assert.ok(checked>=100,'Expected the current public pages to be covered');
  // Design previews and admin pages stay noindex and ad-free; reviewed guides are re-indexed as they are rewritten.
- assert.ok(excluded>=10,'Expected design previews and admin pages to stay noindex and ad-free');
+ assert.ok(excluded>=4,'Expected the design-preview pages to stay noindex and ad-free');
  const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');
  assert.match(home,/<meta name="google-adsense-account" content="ca-pub-1916126969266611">/);
  assert.equal(readFileSync(new URL('../ads.txt',import.meta.url),'utf8').trim(),
