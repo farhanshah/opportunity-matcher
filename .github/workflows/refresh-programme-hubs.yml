@@ -28,7 +28,7 @@ jobs:
       - name: Fetch live catalogue and regenerate hub sections
         run: node tools/refresh-programme-index.mjs https://oppmatcher.tech/api/programme-index
       - name: Check generated pages
-        run: node --test tests/hub-programme-links.test.mjs tests/programme-pages.test.mjs tests/seo-sitemap-integrity.test.mjs
+        run: node --test tests/hub-programme-links.test.mjs tests/programme-pages.test.mjs tests/seo-sitemap-integrity.test.mjs tests/adsense-public-quality.test.mjs
       - name: Commit if anything changed
         run: |
           if git diff --quiet; then echo "No catalogue changes"; exit 0; fi

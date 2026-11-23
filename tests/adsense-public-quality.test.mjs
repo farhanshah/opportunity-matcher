@@ -1,6 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
+
+// A page's sitemap lastmod must reflect its last real edit: on or after the
+// substantive rewrite (16 Nov 2026) and never in the future. Later genuine
+// edits (e.g. the daily programme-index refresh) legitimately move it forward.
+const lastmodFollowsEdit=(sitemap,canonical,since='2026-11-16')=>{
+  const m=sitemap.match(new RegExp('<loc>'+canonical.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'</loc>\\s*<lastmod>(\\d{4}-\\d{2}-\\d{2})</lastmod>'));
+  return Boolean(m)&&m[1]>=since&&m[1]<=new Date().toISOString().slice(0,10);
+};
+
 const get=path=>readFileSync(new URL('../'+path, import.meta.url),'utf8');
 
 test('public About, Contact and worksheet routes are configured',()=>{
@@ -228,7 +237,7 @@ test('AdSense quality priority pages explain the decision, not just a templated 
    assert.match(html,/rel="canonical" href="https:\/\/oppmatcher\.tech\//i,file+' missing canonical');
    assert.match(html,/name=["']robots["']\s+content=["']index,follow["']/i,file+' blocked from index');
    const canonical=html.match(/rel="canonical" href="([^"]+)"/i)?.[1];
-   assert.ok(sitemap.includes('<loc>'+canonical+'</loc><lastmod>2026-11-16</lastmod>'),file+' sitemap lastmod did not follow the real edit');
+   assert.ok(lastmodFollowsEdit(sitemap,canonical),file+' sitemap lastmod did not follow the real edit');
  }
  assert.doesNotMatch(get('programmes/index.html'),/Provider application status must be checked directly/);
 });
@@ -254,7 +263,7 @@ test('expanded source-backed programme and planning pages retain actual decision
    assert.match(html,/name="robots" content="index,follow"/);
    const canonical=html.match(/rel="canonical" href="([^"]+)"/)?.[1];
    assert.ok(canonical,path+' missing canonical');
-   assert.ok(sitemap.includes('<loc>'+canonical+'</loc><lastmod>2026-11-16</lastmod>'),
+   assert.ok(lastmodFollowsEdit(sitemap,canonical),
      path+' sitemap must keep a truthful modification date');
    assert.equal((html.match(/adsbygoogle\.js\?client=ca-pub-1916126969266611/g)||[]).length,1,
      path+' must have one publisher script');
@@ -313,7 +322,7 @@ test('ten category hubs provide distinct evidence-based comparisons and avoid ex
     path+' repeated generic copy instead of a useful answer');
   const canonical=html.match(/rel="canonical" href="([^"]+)"/)?.[1];
   assert.ok(canonical,path+' missing canonical');
-  assert.ok(sitemap.includes('<loc>'+canonical+'</loc><lastmod>2026-11-16</lastmod>'),
+  assert.ok(lastmodFollowsEdit(sitemap,canonical),
     path+' lastmod must match the substantive change');
   assert.match(html,/name="robots" content="index,follow"/);
   assert.equal((html.match(/adsbygoogle\.js\?client=ca-pub-1916126969266611/g)||[]).length,1,
