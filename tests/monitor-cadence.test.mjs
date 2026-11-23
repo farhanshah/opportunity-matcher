@@ -9,7 +9,12 @@ test('primary ingest remains daily and source-only cron provides four UTC checks
   assert.equal(cron('/api/monitor-sources').schedule,'0 5,11,17,23 * * *');
   assert.equal(config.crons.filter(x=>x.path==='/api/monitor-sources').length,1);
   assert.equal(cron('/api/reverify').schedule,'0 */2 * * *');
-  assert.equal(cron('/api/welcome-email').schedule,'*/5 * * * *');
+  // Hourly, aligned with re-verification, so the database can scale to zero
+  // between runs (a 5-minute job kept Neon awake 24/7 and exhausted its quota).
+  assert.equal(cron('/api/welcome-email').schedule,'0 * * * *');
+  for(const job of config.crons)
+    assert.ok(!/^\*(\/[1-9])? /.test(job.schedule)&&!/^\*\/1[0-4] /.test(job.schedule),
+      job.path+' runs more often than every 15 minutes');
 });
 test('source-only monitor keeps bounded batches, request auth, and no second vacancy ingestion',()=>{
   const source=get('api/monitor-sources.js');

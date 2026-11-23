@@ -282,7 +282,7 @@
     },
     {
       "path": "/api/welcome-email",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 * * * *"
     },
     {
       "path": "/api/worldwide-discover",
