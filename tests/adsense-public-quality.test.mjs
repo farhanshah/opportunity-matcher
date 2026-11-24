@@ -11,6 +11,9 @@ const lastmodFollowsEdit=(sitemap,canonical,since='2026-11-16')=>{
 };
 
 const get=path=>readFileSync(new URL('../'+path, import.meta.url),'utf8');
+// Ad placement policy (tools/apply-ad-policy.mjs): thin pages stay indexed but carry no ads.
+const AD_POLICY=JSON.parse(get('data/ad-free-pages.json'));
+const AD_FREE=new Set(AD_POLICY.pages.map(p=>p.path));
 
 test('public About, Contact and worksheet routes are configured',()=>{
  const config=JSON.parse(get('vercel.json'));
@@ -76,18 +79,20 @@ test('homepage offers visible paths to useful pages without login or reliance on
  assert.ok(home.includes('<noscript><style>'), 'No non-JavaScript fallback on homepage');
  assert.ok(get('site-aux-nav-v5.js').includes('Free checklist'));
 });
-test('AdSense uses one shared root ads.txt and matching publisher snippets on public destinations',()=>{
+test('AdSense uses one shared root ads.txt and matching publisher snippets on substantial public destinations',()=>{
  const ads=get('ads.txt').trim();
  assert.equal(ads,'google.com, pub-1916126969266611, DIRECT, f08c47fec0942fa0');
- for(const file of ['index.html','about.html','contact.html','privacy.html','worldwide.html','blog/index.html','tools/application-readiness.html',
+ for(const file of ['index.html','privacy.html','blog/index.html',
  'blog/chevening-scholarship-application-guide/index.html',
  'blog/unicef-internships-application-guide/index.html',
  'blog/unesco-internship-programme-guide/index.html']){
    assert.ok(get(file).includes('ca-pub-1916126969266611'),file+' missing publisher script');
  }
- for(const file of ['api/public-opportunities.js','api/latest.js']){
-   assert.ok(get(file).includes('ca-pub-1916126969266611'),file+' missing dynamic page script');
- }
+ // Thin utility pages and generated record/listing pages are not ad inventory.
+ for(const file of ['about.html','contact.html','worldwide.html','tools/application-readiness.html'])
+   assert.ok(AD_FREE.has(file)&&!get(file).includes('adsbygoogle.js'),file+' should be ad-free under the thin-page policy');
+ for(const file of ['api/public-opportunities.js','api/latest.js','lib/programme-pages.js'])
+   assert.ok(!get(file).includes('adsbygoogle.js'),file+' generated pages must not load AdSense');
  // Private tracker preparation and admin pages are not general ad inventory.
 });
 
@@ -99,7 +104,8 @@ test('expanded high-value guides retain indexability and official source referen
   assert.ok((text.match(/<table/g)||[]).length>=1,name+' missing comparison');
   assert.ok((text.match(/href="https:\/\//g)||[]).length>=2,name+' missing direct official references');
   assert.match(html,/name="robots" content="index,follow"/);
-  assert.match(html,/"dateModified":"2026-11-03"/);
+  const modified=html.match(/"dateModified":"(\d{4}-\d{2}-\d{2})"/)?.[1]||'';
+  assert.ok(modified>='2026-11-03',name+' dateModified went backwards from its 3 Nov expansion');
  }
 });
 
@@ -132,7 +138,7 @@ test('public blog and sitemap promote only reviewed, indexable article destinati
  assert.ok(methodology.includes('href="#method-current"'));
  assert.ok(methodology.includes('last successful check must also be within'));
  const listing=get('api/public-opportunities.js');
- assert.ok(listing.includes("(index ? '<script async"),'Adsense code should be conditional on indexable vacancy status');
+ assert.ok(!listing.includes('adsbygoogle.js'),'Generated vacancy pages carry no AdSense (thin-page policy)');
 });
 
 test('six additional applicant guides have substantial examples and dated source evidence',()=>{
@@ -161,8 +167,8 @@ test('every public blog article has correct publisher script and sitemap matches
   const html=get(path);
   const url='https://oppmatcher.tech/blog/'+dir.name+'/';
   const excluded=/name="robots"\s+content="noindex(?:,follow)?"/i.test(html);
-  const hasAd=html.includes('ca-pub-1916126969266611');
-  assert.equal(hasAd,!excluded,path+' should only serve AdSense on reviewed/indexable guides');
+  const hasAd=html.includes('adsbygoogle.js?client=ca-pub-1916126969266611');
+  assert.equal(hasAd,!excluded&&!AD_FREE.has(path),path+' should only serve AdSense on reviewed, substantial guides');
   assert.equal(sitemap.includes('<loc>'+url+'</loc>'),!excluded,path+' sitemap should reflect robots status');
   if(excluded){
     assert.ok(html.includes('<b>Editorial review</b>'),path+' missing editorial notice');
@@ -196,6 +202,9 @@ test('every indexable static public HTML page carries exactly one AdSense loader
    if(noindex){
     assert.equal(allSnippets.length,0,name+' is an excluded editorial page and should stay ad-free');
     excluded++;
+   }else if(AD_FREE.has(name)){
+    assert.equal(allSnippets.length,0,name+' is on the thin-page ad-free list and must not load AdSense');
+    excluded++;
    }else{
     assert.equal(snippets.length,1,name+' must have one approved AdSense loader inside <head>');
     assert.equal(allSnippets.length,1,name+' must not load AdSense more than once');
@@ -205,7 +214,7 @@ test('every indexable static public HTML page carries exactly one AdSense loader
   }
  }
  inspect(root);
- assert.ok(checked>=100,'Expected the current public pages to be covered');
+ assert.ok(checked>=60,'Expected the substantial public pages to carry ads');
  // Design previews and admin pages stay noindex and ad-free; reviewed guides are re-indexed as they are rewritten.
  assert.ok(excluded>=4,'Expected the design-preview pages to stay noindex and ad-free');
  const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');

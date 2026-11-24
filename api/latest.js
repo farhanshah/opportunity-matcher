@@ -74,7 +74,6 @@ function render(rows,category,q){
   '<title>'+title+' | OppMatcher</title><meta name="robots" content="'+(filtered?'noindex,follow':'index,follow')+'">'+
   '<meta name="description" content="'+esc(meta)+'"><link rel="canonical" href="'+canonical+'">'+
   '<link rel="icon" type="image/svg+xml" href="/brand-icon.svg">'+
-  '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1916126969266611" crossorigin="anonymous"></script>'+
   '<style>'+css+'</style></head><body>'+
   '<header><a href="/"><strong>OppMatcher</strong></a><nav><a href="/scholarships/">Scholarships</a><a href="/internships/">Internships</a><a href="/fellowships/">Fellowships</a><a href="/exchange-programs/">Exchange</a><a href="/">Home</a><a href="/worldwide">Worldwide</a><a href="/opportunities">Verified postings</a><a href="/blog/">Guides</a><a href="/tools/application-readiness">Free checklist</a><a href="/about">About</a><a href="/contact">Contact</a></nav></header>'+
   '<main><nav aria-label="Breadcrumb"><a href="/">Home</a> › <a href="/latest">Latest</a> › '+esc(cats[category])+'</nav>'+body+'</main><footer>OppMatcher · <a href="/blog/methodology/">Verification policy</a> · <a href="/tools/application-readiness">Free checklist</a> · <a href="/about">About</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a></footer></body></html>';

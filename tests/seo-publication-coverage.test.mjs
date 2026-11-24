@@ -7,6 +7,7 @@ const get=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const folders=readdirSync(new URL('../blog/',import.meta.url)).filter(x=>x!=='index.html'&&statSync(new URL('../blog/'+x,import.meta.url)).isDirectory());
 const sitemap=get('sitemap.xml'),index=get('blog/index.html'),robots=get('robots.txt');
 const ADS='ca-pub-1916126969266611';
+const AD_FREE=new Set(JSON.parse(get('data/ad-free-pages.json')).pages.map(p=>p.path));
 test('editorial guides have consistent robots, canonical, sitemap, and AdSense configuration',()=>{
  assert.ok(folders.length>=55,'Expected existing scholarship and internship guides');
  const locs=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(x=>x[1]);
@@ -20,7 +21,7 @@ test('editorial guides have consistent robots, canonical, sitemap, and AdSense c
   assert.equal(sitemap.includes('<loc>'+url+'</loc>'),!excluded,path+' sitemap and robots disagree');
   assert.ok(html.includes('rel="canonical" href="'+url+'"'),path+' missing canonical');
   assert.ok(html.includes('name="description"'),path+' missing description');
-  assert.equal(adLoaders,excluded?0:1,path+' AdSense loader count');
+  assert.equal(adLoaders,excluded||AD_FREE.has(path)?0:1,path+' AdSense loader count');
   assert.match(html,/<script type="application\/ld\+json">/,path+' missing structured data');
  }
  for(const slug of ['latest','worldwide','opportunities'])assert.ok(sitemap.includes('<loc>https://oppmatcher.tech/'+slug+'</loc>'),slug+' missing sitemap');
@@ -28,12 +29,13 @@ test('editorial guides have consistent robots, canonical, sitemap, and AdSense c
  assert.match(robots,/Sitemap: https:\/\/oppmatcher.tech\/opportunities-sitemap.xml/);
 });
 test('existing public pages keep required AdSense publisher identification',()=>{
- for(const page of ['index.html','blog/index.html','privacy.html','worldwide.html']){
+ for(const page of ['index.html','blog/index.html','privacy.html']){
   const html=get(page),head=html.slice(0,html.indexOf('</head>'));
   assert.equal((head.match(/adsbygoogle\.js\?client=ca-pub-1916126969266611/g)||[]).length,1,page+' AdSense loader missing or duplicated');
  }
- assert.ok(get('api/latest.js').includes(ADS));
- assert.ok(get('api/public-opportunities.js').includes('adsbygoogle.js')||get('api/public-opportunities.js').includes(ADS),'SEO opportunity pages must include publisher integration');
+ assert.ok(AD_FREE.has('worldwide.html'),'thin worldwide hub stays ad-free until expanded');
+ for(const f of ['api/latest.js','api/public-opportunities.js','lib/programme-pages.js'])
+  assert.ok(!get(f).includes('adsbygoogle.js'),f+' generated pages must not load AdSense');
 });
 
 test('scholarship pillar explains funding comparison and links to exact provider guides',()=>{
