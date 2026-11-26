@@ -111,8 +111,27 @@ export function bumpSitemap(files, today = new Date().toISOString().slice(0, 10)
   if (next !== xml) writeFileSync(p, next);
 }
 
+// Hub cards are for students, so leave out records that would mislead or
+// repeat: re-listings of national schemes by South Africa's DHET portal
+// (written for South African applicants), generic university funding
+// pages, deadline-list pages, and duplicate titles (curated records win).
+const HIDE_PROVIDER = /internationalscholarships\.dhet\.gov\.za/i;
+const HIDE_TITLE = /^(?:scholarships?(?: and funding| for international students)?|scholarships and fellowships)$|\bscholarship deadlines?\b/i;
+const titleKey = t => String(t || '').toLowerCase().replace(/&#0?39;|&apos;/g, "'").replace(/\b(?:the|scheme|programme|program)\b/g, ' ')
+  .replace(/\b20\d\d(?:\s*[\/–-]\s*(?:20)?\d\d)?\b/g, ' ').replace(/[^a-z0-9]+/g, ' ').replace(/\bs\b/g, ' ').replace(/\b([a-z]{4,})s\b/g, '$1').replace(/\s+/g, ' ').trim();
+export function hubRows(list) {
+  const kept = new Map();
+  const rank = r => (String(r.external_id).startsWith('AUTO-') ? 1 : 0);
+  for (const r of [...list].sort((a, b) => rank(a) - rank(b) || a.external_id.localeCompare(b.external_id))) {
+    if (HIDE_PROVIDER.test(r.provider || '') || HIDE_TITLE.test((r.title || '').trim())) continue;
+    const key = titleKey(r.title);
+    if (!kept.has(key)) kept.set(key, r);
+  }
+  return [...kept.values()];
+}
+
 export function build({ write = true } = {}) {
-  rows = JSON.parse(readFileSync(join(root, 'data/programme-index.json'), 'utf8'));
+  rows = hubRows(JSON.parse(readFileSync(join(root, 'data/programme-index.json'), 'utf8')));
   const report = [];
   for (const [file, rule] of Object.entries(HUBS)) {
     const p = join(root, file);
