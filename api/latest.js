@@ -106,8 +106,15 @@ export default async function handler(req,res){
        AND verified_page_at>=now()-interval '30 days'
      ORDER BY verified_page_at DESC LIMIT 150`
   ]);
-  const rows=preparedListings({vacancies,calls,sources:sources.filter(x=>
-   x.opportunity_kind==='US federal grant'||isProgrammePage(x.title,x.canonical_url))});
+  // Federal grants for institutions (programme administration, training
+  // grants, cooperative agreements) are not opportunities for individuals.
+  const institutional=/\b(?:administration grant|selection grant|cooperative agreement|institutional|training grant|\(t\d{2}\)|parent t\d{2}|scholarship and fellowship support|s-stem|education innovation)\b|selection\s*$/i;
+  const seen=new Set();
+  const rows=preparedListings({vacancies,calls,sources:sources.filter(x=>{
+   if(x.opportunity_kind==='US federal grant'?institutional.test(x.title||''):!isProgrammePage(x.title,x.canonical_url))return false;
+   x.provider=String(x.provider||'').replace(/\s*·\s*[^·\n]*\n\s*Grantor\s*$/i,'').trim();
+   const key=decodeEntities(x.title).toLowerCase().replace(/\W+/g,' ').trim()+'|'+x.provider.toLowerCase();
+   if(seen.has(key))return false;seen.add(key);return true})});
   res.setHeader('Content-Type','text/html; charset=utf-8');
   res.setHeader('Cache-Control','public, s-maxage=120, stale-while-revalidate=300');
   return res.status(200).send(render(rows,category,q));
