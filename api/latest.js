@@ -2,7 +2,8 @@ import {db} from '../lib/db.js';
 import {preparedListings} from '../lib/latest-directory.js';
 import {isProgrammePage} from '../lib/source-listings.js';
 const BASE='https://oppmatcher.tech';
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const decodeEntities = v => String(v ?? '').replace(/&(?:#(\d{1,7})|#x([0-9a-f]{1,6})|(amp|quot|apos|lt|gt|nbsp));/gi, (m, d, h, n) => d ? String.fromCodePoint(+d) : h ? String.fromCodePoint(parseInt(h, 16)) : ({ amp: '&', quot: '"', apos: "'", lt: '<', gt: '>', nbsp: ' ' })[n.toLowerCase()]);
+const esc=v=>decodeEntities(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const date=v=>{const d=new Date(v);return Number.isFinite(d.getTime())?
  new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(d):''};
 const cats={all:'All opportunities',scholarships:'Scholarships',internships:'Internships',fellowships:'Fellowships',grants:'Grants and awards',other:'Other programmes'};
