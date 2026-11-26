@@ -74,7 +74,8 @@ const facts = r => [r.provider, r.funding_type && !/see official/i.test(r.fundin
 
 export function hubSection(matches) {
   const kinds = [...new Set(matches.map(r => typeWord[r.opportunity_type] || 'programmes'))];
-  const noun = kinds.length === 1 ? kinds[0] : 'programmes';
+  const plural = kinds.length === 1 ? kinds[0] : 'programmes';
+  const noun = matches.length === 1 ? plural.replace(/s$/, '') : plural;
   return START + `<section class="programmeIndex"><h2>${matches.length} ${noun} tracked in this category</h2>` +
     `<p>Each one links to its own page with the current status, deadline, eligibility and the official source, re-checked against the provider.</p>` +
     `<div class="grid">${matches.map(r => `<article class="card"><h3><a href="${esc(pathFor(r))}">${esc(r.title)}</a></h3><p>${esc(facts(r))}</p></article>`).join('')}</div>` +

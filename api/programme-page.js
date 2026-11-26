@@ -1,6 +1,7 @@
 // Public, indexable programme pages: /opportunity and /opportunity/<slug>.
 import { db } from '../lib/db.js';
 import { renderProgramme, renderHub, externalIdFromSlug, slugFor, pathFor } from '../lib/programme-pages.js';
+import { withChrome } from '../lib/site-chrome.js';
 
 async function rows(sql) {
   return sql`
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     // CDN keeps serving the last good copy for a day if the database is briefly unavailable.
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
-    if (!slug) return res.status(200).send(renderHub(all));
+    if (!slug) return res.status(200).send(withChrome(renderHub(all), 'opportunity/'));
     const id = externalIdFromSlug(slug);
     const row = id && all.find(r => r.external_id === id);
     if (!row) { res.setHeader('X-Robots-Tag', 'noindex'); return res.status(404).send('Programme not found'); }
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
     const related = all.filter(r => r !== row && r.opportunity_type === row.opportunity_type)
       .sort((a, b) => (a.destination_country === row.destination_country ? 0 : 1) - (b.destination_country === row.destination_country ? 0 : 1))
       .slice(0, 6);
-    return res.status(200).send(renderProgramme(row, related));
+    return res.status(200).send(withChrome(renderProgramme(row, related), 'opportunity/'));
   } catch (e) {
     console.error('Programme page unavailable', e?.message);
     // Temporary outage: tell crawlers to come back, never to de-index.

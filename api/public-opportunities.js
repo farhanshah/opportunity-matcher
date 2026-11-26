@@ -3,6 +3,7 @@ import { db } from '../lib/db.js';
 import { publishedState, categoryType, narrowFacts, publicSlug, safePublicSource, restrictionFromTitle } from '../lib/public-opportunity-seo.js';
 import {liveCountries,countrySlug,COUNTRY_NAMES} from '../lib/country-opportunities.js';
 import {sitemapEntries} from '../lib/programme-pages.js';
+import {withChrome} from '../lib/site-chrome.js';
 
 const BASE='https://oppmatcher.tech';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -232,7 +233,7 @@ export default async function handler(req,res){
       const row=await getHistoricalRow(id);
       if(!row){res.setHeader('X-Robots-Tag','noindex');return res.status(404).send('No published opportunity record found')}
       if(publishedState(row)!=='open')res.setHeader('X-Robots-Tag','noindex');
-      return res.status(200).send(detail(row));
+      return res.status(200).send(withChrome(detail(row),'opportunities/'));
     }
     if(category&&!['internships','fellowships','scholarships','other'].includes(category)){
       res.setHeader('X-Robots-Tag','noindex');return res.status(404).send('Category not found');
@@ -255,10 +256,10 @@ export default async function handler(req,res){
       const countryMatches=liveCountries(rows);
       if(!countryMatches.length || (country&&!countryMatches.some(c=>c.slug===country)))
         res.setHeader('X-Robots-Tag','noindex');
-      return res.status(200).send(locationDirectory(rows,country));
+      return res.status(200).send(withChrome(locationDirectory(rows,country),'opportunities/'));
     }
     if(category&&!rows.some(row=>categoryType(row)===category))res.setHeader('X-Robots-Tag','noindex');
-    return res.status(200).send(directory(rows,category));
+    return res.status(200).send(withChrome(directory(rows,category),'opportunities/'));
   }catch(e){
     console.error('Public SEO opportunity page unavailable',e?.message);
     // Temporary outage: ask crawlers to retry; never send noindex, which

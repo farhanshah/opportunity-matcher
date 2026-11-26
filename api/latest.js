@@ -1,6 +1,7 @@
 import {db} from '../lib/db.js';
 import {preparedListings} from '../lib/latest-directory.js';
 import {isProgrammePage} from '../lib/source-listings.js';
+import {withChrome} from '../lib/site-chrome.js';
 const BASE='https://oppmatcher.tech';
 const decodeEntities = v => String(v ?? '').replace(/&(?:#(\d{1,7})|#x([0-9a-f]{1,6})|(amp|quot|apos|lt|gt|nbsp));/gi, (m, d, h, n) => d ? String.fromCodePoint(+d) : h ? String.fromCodePoint(parseInt(h, 16)) : ({ amp: '&', quot: '"', apos: "'", lt: '<', gt: '>', nbsp: ' ' })[n.toLowerCase()]);
 const esc=v=>decodeEntities(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -117,7 +118,7 @@ export default async function handler(req,res){
    if(seen.has(key))return false;seen.add(key);return true})});
   res.setHeader('Content-Type','text/html; charset=utf-8');
   res.setHeader('Cache-Control','public, s-maxage=120, stale-while-revalidate=300');
-  return res.status(200).send(render(rows,category,q));
+  return res.status(200).send(withChrome(render(rows,category,q),'latest'));
  }catch(error){
   console.error('Latest directory unavailable',String(error?.message||error).slice(0,130));
   res.setHeader('Cache-Control','no-store');res.setHeader('X-Robots-Tag','noindex');
