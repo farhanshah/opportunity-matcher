@@ -11,6 +11,17 @@
   "restricted": true
  },
  {
+  "external_id": "AUTO-013D2802ECCF032C",
+  "title": "UCL EPSRC Doctoral Landscape Award (UELA) Studentships",
+  "provider": "University College London",
+  "opportunity_type": "Scholarship",
+  "destination_country": "United Kingdom",
+  "funding_type": "Fully Funded",
+  "education_levels": [],
+  "fields_of_study": [],
+  "restricted": false
+ },
+ {
   "external_id": "AUTO-01683C485548AE43",
   "title": "INTERNSHIP: Division of Internal Oversight Services",
   "provider": "UNESCO",
@@ -319,6 +330,17 @@
   "restricted": false
  },
  {
+  "external_id": "AUTO-97F1D415B510A4D4",
+  "title": "CHINA: Chinese Government Scholarship 2027/2028",
+  "provider": "internationalscholarships.dhet.gov.za",
+  "opportunity_type": "Scholarship",
+  "destination_country": "South Africa",
+  "funding_type": "Funding Available",
+  "education_levels": [],
+  "fields_of_study": [],
+  "restricted": false
+ },
+ {
   "external_id": "AUTO-981DFC38BACABEA9",
   "title": "NASA Internship Programs",
   "provider": "NASA",
@@ -374,12 +396,34 @@
   "restricted": false
  },
  {
+  "external_id": "AUTO-B20CD77B5D11551F",
+  "title": "SWITZERLAND: Swiss Government Excellence Scholarships 2027 – 2028",
+  "provider": "internationalscholarships.dhet.gov.za",
+  "opportunity_type": "Scholarship",
+  "destination_country": "South Africa",
+  "funding_type": "Funding Available",
+  "education_levels": [],
+  "fields_of_study": [],
+  "restricted": false
+ },
+ {
   "external_id": "AUTO-B2B9B7767D001D89",
   "title": "Scholarships for international students",
   "provider": "Maastricht University",
   "opportunity_type": "Scholarship",
   "destination_country": "Netherlands",
   "funding_type": "See official page",
+  "education_levels": [],
+  "fields_of_study": [],
+  "restricted": false
+ },
+ {
+  "external_id": "AUTO-B84E8E6FE611ADCC",
+  "title": "4-year fully funded PhD Studentship: Nonequilibrium spintronics for future AI hardware",
+  "provider": "University College London",
+  "opportunity_type": "Scholarship",
+  "destination_country": "United Kingdom",
+  "funding_type": "Fully Funded",
   "education_levels": [],
   "fields_of_study": [],
   "restricted": false
