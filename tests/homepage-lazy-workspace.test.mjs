@@ -55,3 +55,10 @@ test('fonts are self-hosted: no render-blocking Google Fonts request on public p
   const rule = vercel.headers.find(h => h.source === '/fonts/(.*)');
   assert.ok(rule && rule.headers.some(h => /immutable/.test(h.value)), 'fonts must be cached long-term');
 });
+
+test('scroll-reveal sections become visible without waiting for the workspace boot', () => {
+  const stats = readFileSync(new URL('../home-stats-v1.js', import.meta.url), 'utf8');
+  assert.match(stats, /querySelectorAll\('\.reveal:not\(\.in\)'\)/, 'home-stats must reveal .reveal sections itself');
+  assert.match(stats, /classList\.add\('in'\)/);
+  assert.match(stats, /IntersectionObserver' in window\)\)\{els\.forEach\(e=>e\.classList\.add\('in'\)\)/, 'no-IO fallback must show everything');
+});
