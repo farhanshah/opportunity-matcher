@@ -158,6 +158,11 @@ export default async function handler(req,res){
             AND lower(split_part(blocked.source_url,'/',3))=lower(split_part(official_source_url,'/',3))
           GROUP BY lower(split_part(blocked.source_url,'/',3))
           HAVING count(*) FILTER (WHERE blocked.last_http_status=429 AND blocked.last_checked_at > now()-interval '2 days') >= 1
+             -- Sites that have refused every automated request for 30 days are
+             -- checked by a person (admin "Manual checks"); retrying only
+             -- overwrites the manual verification note with "HTTP 403".
+             OR (count(*) FILTER (WHERE blocked.last_http_status IN (403,429)) >= 1
+                 AND max(coalesce(blocked.last_success_at,'epoch'::timestamptz)) < now()-interval '30 days')
              OR count(*) FILTER (WHERE blocked.last_http_status=403 AND blocked.last_checked_at > now()-interval '7 days') >= 2
              OR count(*) FILTER (WHERE blocked.last_http_status=503 AND blocked.last_checked_at > now()-interval '24 hours') >= 3
         )

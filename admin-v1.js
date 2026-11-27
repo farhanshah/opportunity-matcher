@@ -2,7 +2,7 @@
   const $=id=>document.getElementById(id);
   const esc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   const state={secret:sessionStorage.getItem('oppAdminSecret')||'',data:null,sourceFilter:'all',partialFilter:'all',reviewFilter:'high'};
-  const TITLES={overview:['Freshness overview','Monitor coverage, rule depth and anything that needs a human decision.'],sources:['Official-source monitors','Inspect every monitored source, its latest success and any fetch issue.'],reviews:['Source evidence alerts','Automated source checks hold any change that lacks confirmed provider evidence.'],partials:['Partially normalized records','See exactly which records are waiting on cycle evidence, route logic or provider-specific detail.']};
+  const TITLES={overview:['Freshness overview','Monitor coverage, rule depth and anything that needs a human decision.'],sources:['Official-source monitors','Inspect every monitored source, its latest success and any fetch issue.'],reviews:['Source evidence alerts','Automated source checks hold any change that lacks confirmed provider evidence.'],partials:['Partially normalized records','See exactly which records are waiting on cycle evidence, route logic or provider-specific detail.'],manual:['Manual checks','Programmes a person has to verify against the official page.']};
 
   const fmtTime=v=>{if(!v)return'Never';const d=new Date(v);if(Number.isNaN(d.getTime()))return'—';return d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})};
   const ago=v=>{if(!v)return'Never';const d=new Date(v).getTime();if(!Number.isFinite(d))return'—';const m=Math.max(0,Math.round((Date.now()-d)/60000));if(m<2)return'just now';if(m<60)return`${m}m ago`;const h=Math.round(m/60);if(h<36)return`${h}h ago`;return`${Math.round(h/24)}d ago`};
@@ -26,7 +26,7 @@
     }finally{$('refreshBtn').disabled=false;$('refreshBtn').textContent='Refresh data'}
   }
 
-  function renderAll(){if(!state.data)return;renderSummary();renderSources();renderPartials();renderReviews();renderPulse()}
+  function renderAll(){if(!state.data)return;renderSummary();renderSources();renderPartials();renderManual();renderReviews();renderPulse()}
   function renderSummary(){
     const s=state.data.summary||{};const pct=s.total_opportunities?Math.round((s.normalized_opportunities/s.total_opportunities)*100):0;
     $('coveragePct').textContent=pct+'%';$('coverageRing').style.setProperty('--p',pct);
@@ -204,6 +204,29 @@
     }catch(e){button.disabled=false;toast(e.message||'Review action failed')}
   }
 
+
+  function renderManual(){
+    const all=state.data.manual_checks||[];const f=state.manualFilter||'blocked';
+    const el=$('navManualCount');if(el)el.textContent=String(all.filter(x=>x.source_blocked).length||all.length);
+    const q=String($('manualSearch')?.value||'').trim().toLowerCase();
+    let rows=all.filter(x=>f==='all'||(f==='blocked'?x.source_blocked:!x.source_blocked));
+    if(q)rows=rows.filter(x=>`${x.title} ${x.provider} ${x.external_id}`.toLowerCase().includes(q));
+    const d=v=>v?new Date(v).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'never';
+    const manual=x=>/^manual_verified/.test(x.last_recheck_outcome||'')?String(x.last_recheck_outcome).replace(/^manual_verified_[0-9-]+:\s*/,''):'';
+    $('manualRows').innerHTML=rows.length?rows.map(x=>`<div class="tableRow manualGrid"><div class="partialIdentity"><b>${esc(x.title)}${x.source_blocked?'<em class="blockedTag">site blocks checks</em>':''}</b><span>${esc(x.external_id)} · ${esc(x.provider)}</span>${manual(x)?`<span class="tableSub">Last manual note: ${esc(manual(x))}</span>`:''}</div><div><span class="statusBadge">${esc(x.status||'—')}</span></div><div class="tableMeta">${d(x.last_verified_at)}</div><div class="tableMeta">${Number(x.rule_count||0)+Number(x.route_count||0)?d(x.rules_checked_at):'no rules'}<span class="tableSub">${Number(x.rule_count||0)} rules · ${Number(x.route_count||0)} routes</span></div><div>${Number(x.rule_count||0)+Number(x.route_count||0)?`<button class="manualConfirm" type="button" data-confirm-rules="${esc(x.id)}">Rules still correct</button>`:''}</div><a class="rowLink" href="${esc(x.official_source_url||'#')}" ${x.official_source_url?'target="_blank" rel="noopener"':''} title="Open the official page">↗</a></div>`).join(''):`<div class="emptyState"><strong>Nothing needs a manual check in this view.</strong><p>Try another filter.</p></div>`;
+  }
+  async function confirmRules(button){
+    if(button.dataset.armed!=='1'){
+      document.querySelectorAll('[data-confirm-rules][data-armed="1"]').forEach(b=>{b.dataset.armed='';b.textContent='Rules still correct'});
+      button.dataset.armed='1';button.textContent='Confirm: checked today';return;
+    }
+    button.disabled=true;
+    try{
+      const r=await fetch('/api/admin-review',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({action:'confirm_rules',opportunity_id:button.dataset.confirmRules})});
+      const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||`Confirm returned ${r.status}`);
+      toast(`Confirmed ${j.rules} rule${j.rules===1?'':'s'} and ${j.routes} route${j.routes===1?'':'s'}`);await load();
+    }catch(e){button.disabled=false;toast(e.message||'Confirm failed')}
+  }
   async function review(id,action){
     let note='';if(action==='approve')note='Reviewed in Opportunity operations console.';if(action==='ignore')note='Ignored in Opportunity operations console.';if(action==='investigate')note='Kept pending for further investigation.';
     try{const r=await fetch('/api/admin-review',{method:'POST',headers:{...authHeaders(),'Content-Type':'application/json'},body:JSON.stringify({id,action,note})});if(!r.ok)throw new Error(`Review action returned ${r.status}`);toast(action==='approve'?'Review approved':action==='ignore'?'Change ignored':'Kept in review');await load()}catch(e){toast(e.message||'Review action failed')}
@@ -216,6 +239,8 @@
     $('refreshBtn').onclick=load;$('lockBtn').onclick=()=>{sessionStorage.removeItem('oppAdminSecret');state.secret='';state.data=null;$('adminSecret').value='';$('console').classList.add('hidden');$('lockScreen').classList.remove('hidden')};
     document.querySelectorAll('.opsNavBtn').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>setView(b.dataset.jump));
     $('sourceSearch').addEventListener('input',renderSources);$('partialSearch').addEventListener('input',renderPartials);
+    $('manualSearch').addEventListener('input',renderManual);
+    document.querySelectorAll('#manualFilters button').forEach(b=>b.onclick=()=>{state.manualFilter=b.dataset.filter;document.querySelectorAll('#manualFilters button').forEach(x=>x.classList.toggle('active',x===b));renderManual()});
     document.querySelectorAll('#sourceFilters button').forEach(b=>b.onclick=()=>{state.sourceFilter=b.dataset.filter;document.querySelectorAll('#sourceFilters button').forEach(x=>x.classList.toggle('active',x===b));renderSources()});
     document.querySelectorAll('#partialFilters button').forEach(b=>b.onclick=()=>{state.partialFilter=b.dataset.filter;document.querySelectorAll('#partialFilters button').forEach(x=>x.classList.toggle('active',x===b));renderPartials()});
     document.querySelectorAll('#reviewFilters button').forEach(b=>b.onclick=()=>{
@@ -227,6 +252,6 @@
       renderReviews();
     });
   }
-  document.addEventListener('click',e=>{const b=e.target.closest('[data-group-action]');if(b)groupReview(b)});
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-group-action]');if(b)groupReview(b);const c=e.target.closest('[data-confirm-rules]');if(c)confirmRules(c)});
   window.Ops={review};bind();if(state.secret){$('adminSecret').value=state.secret;load()}
 })();

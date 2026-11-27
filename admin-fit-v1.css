@@ -109,3 +109,10 @@ html.omSecondary[data-page="admin"] .segmented button{flex:0 0 auto}
  html.omSecondary[data-page="admin"] .opsNav{gap:5px}
  html.omSecondary[data-page="admin"] .opsNavBtn{min-height:41px}
 }
+.manualGrid{grid-template-columns:minmax(220px,2fr) 150px 110px 110px 150px 28px;gap:12px}
+.manualGrid .tableSub{max-width:240px}
+.manualConfirm{height:32px;border-radius:9px;border:1px solid var(--line2);background:#121720;color:var(--text);font-size:9px;font-weight:750;padding:0 10px;cursor:pointer}
+.manualConfirm[data-armed="1"]{background:var(--lime);color:#11140c;border-color:transparent}
+.manualConfirm:disabled{opacity:.5;cursor:default}
+.blockedTag{font-style:normal;display:inline-block;margin-left:6px;font-size:8px;color:var(--red);border:1px solid rgba(255,111,120,.2);border-radius:999px;padding:2px 6px;vertical-align:middle}
+@media(max-width:900px){.tableHead.manualGrid,.tableRow.manualGrid{min-width:820px}}

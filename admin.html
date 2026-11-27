@@ -12,7 +12,7 @@
   <meta name="robots" content="noindex,nofollow">
   <link rel="stylesheet" href="/admin-v1.css">
 <link rel="stylesheet" href="/secondary-turquoise-v5.css?v=5">
-<link rel="stylesheet" href="/admin-fit-v1.css?v=1">
+<link rel="stylesheet" href="/admin-fit-v1.css?v=2">
 </head>
 <body>
   <div id="lockScreen" class="lockScreen">
@@ -36,6 +36,7 @@
         <button class="opsNavBtn" data-view="sources"><span>◉</span>Sources <em id="navSourceCount">—</em></button>
         <button class="opsNavBtn" data-view="reviews"><span>◇</span>Source alerts <em id="navReviewCount">0</em></button>
         <button class="opsNavBtn" data-view="partials"><span>◐</span>Partial records <em id="navPartialCount">—</em></button>
+        <button class="opsNavBtn" data-view="manual"><span>✓</span>Manual checks <em id="navManualCount">—</em></button>
       </nav>
       <div class="sideStatus">
         <span class="statusDot"></span>
@@ -148,10 +149,15 @@
         <div class="toolbar"><div class="searchBox">⌕<input id="partialSearch" placeholder="Search opportunity or provider"></div><div class="segmented" id="partialFilters"><button class="active" data-filter="all">All partial</button><button data-filter="uncertain">Cycle uncertainty</button><button data-filter="route">Route-specific</button><button data-filter="confirmed">Confirmed-only</button></div></div>
         <div class="panel tablePanel"><div class="tableHead partialsGrid"><span>Opportunity</span><span>Status</span><span>Rules</span><span>Uncertain</span><span>Route</span><span></span></div><div id="partialRows"></div></div>
       </section>
+      <section id="view-manual" class="view">
+        <div class="reviewIntro"><div><span class="panelEyebrow">Human verification</span><h2>Checks only a person can do.</h2><p>Some official sites refuse automated checks, and stored eligibility rules are never re-read from page text. Open the official page, compare it with the record, then confirm. Confirming stamps the rules and country routes as checked today; it changes nothing else.</p></div></div>
+        <div class="toolbar"><div class="searchBox">⌕<input id="manualSearch" placeholder="Search opportunity or provider"></div><div class="segmented" id="manualFilters"><button class="active" data-filter="blocked">Site blocks checks</button><button data-filter="rules">Rules overdue</button><button data-filter="all">All</button></div></div>
+        <div class="panel tablePanel"><div class="tableHead manualGrid"><span>Opportunity</span><span>Status</span><span>Record checked</span><span>Rules checked</span><span></span><span></span></div><div id="manualRows"></div></div>
+      </section>
     </main>
   </div>
 
   <div id="toast" class="toast"></div>
-  <script src="/admin-v1.js?v=299"></script>
+  <script src="/admin-v1.js?v=300"></script>
 </body>
 </html>

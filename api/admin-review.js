@@ -28,6 +28,19 @@ export default async function handler(req, res) {
     const sql = db();
     const reviewedAt = action === 'investigate' ? null : new Date().toISOString();
 
+    // A person checked the official page and confirms the stored eligibility
+    // rules and country routes are still right: stamp them as verified now.
+    // Nothing else about the record changes.
+    if (action === 'confirm_rules') {
+      const opportunityId = String(body.opportunity_id || '');
+      if (!UUID.test(opportunityId)) return res.status(400).json({ error: 'Valid opportunity_id is required' });
+      const [opp] = await sql`SELECT id FROM opportunities WHERE id=${opportunityId}`;
+      if (!opp) return res.status(404).json({ error: 'Opportunity not found' });
+      const rules = await sql`UPDATE opportunity_eligibility_rules SET last_verified_at=now() WHERE opportunity_id=${opportunityId} RETURNING id`;
+      const routes = await sql`UPDATE opportunity_country_routes SET last_verified_at=now() WHERE opportunity_id=${opportunityId} AND is_active=true RETURNING id`;
+      return res.status(200).json({ ok: true, rules: rules.length, routes: routes.length });
+    }
+
     // Group decision: every pending alert for one monitored page, up to the
     // newest alert the reviewer was shown (alerts arriving later stay pending).
     if (sourceId) {

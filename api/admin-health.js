@@ -204,6 +204,33 @@ export default async function handler(req, res) {
         o.external_id
     `;
 
+    // Programmes a person has to check: the official site refuses automated
+    // requests (403/429 with no success in 30 days), or the stored eligibility
+    // rules / country routes have not been confirmed for 90 days.
+    const manualChecks = await sql`
+      WITH blocked AS (
+        SELECT lower(split_part(source_url,'/',3)) AS host
+        FROM monitored_sources WHERE is_active=true AND last_http_status IN (403,429)
+        GROUP BY 1
+        HAVING max(coalesce(last_success_at,'epoch'::timestamptz)) < now()-interval '30 days'
+      )
+      SELECT o.id, o.external_id, o.title, o.provider, o.status, o.official_source_url,
+        o.last_verified_at, o.last_recheck_outcome,
+        (b.host IS NOT NULL) AS source_blocked,
+        (SELECT count(*)::int FROM opportunity_eligibility_rules r WHERE r.opportunity_id=o.id) AS rule_count,
+        (SELECT count(*)::int FROM opportunity_country_routes c WHERE c.opportunity_id=o.id AND c.is_active) AS route_count,
+        least(
+          (SELECT min(r.last_verified_at) FROM opportunity_eligibility_rules r WHERE r.opportunity_id=o.id),
+          (SELECT min(c.last_verified_at) FROM opportunity_country_routes c WHERE c.opportunity_id=o.id AND c.is_active)
+        ) AS rules_checked_at
+      FROM opportunities o
+      LEFT JOIN blocked b ON b.host=lower(split_part(o.official_source_url,'/',3))
+      WHERE b.host IS NOT NULL
+         OR EXISTS (SELECT 1 FROM opportunity_eligibility_rules r WHERE r.opportunity_id=o.id AND (r.last_verified_at IS NULL OR r.last_verified_at < now()-interval '90 days'))
+         OR EXISTS (SELECT 1 FROM opportunity_country_routes c WHERE c.opportunity_id=o.id AND c.is_active AND (c.last_verified_at IS NULL OR c.last_verified_at < now()-interval '90 days'))
+      ORDER BY (b.host IS NOT NULL) DESC, o.last_verified_at NULLS FIRST, o.external_id
+    `;
+
     // The review queue shows ONE card per monitored page: the newest pending
     // alert, plus the net evidence across the whole pending window (the oldest
     // pending alert's "before" snapshot vs the newest alert's "after" snapshot).
@@ -299,6 +326,7 @@ export default async function handler(req, res) {
         recovery_url: source.last_error ? getRecoveryLink(source.source_key) : null
       })),
       partials,
+      manual_checks: manualChecks,
       changes
     });
   } catch (error) {
