@@ -132,6 +132,17 @@
   "restricted": true
  },
  {
+  "external_id": "AUTO-2C8EF573A574C03B",
+  "title": "Undergraduate Scholarships",
+  "provider": "United Arab Emirates University (UAEU)",
+  "opportunity_type": "Scholarship",
+  "destination_country": null,
+  "funding_type": "Funding Available",
+  "education_levels": [],
+  "fields_of_study": [],
+  "restricted": false
+ },
+ {
   "external_id": "AUTO-35B9B587B6CDD34D",
   "title": "INTERNSHIP: Communications and Public Engagement",
   "provider": "UNESCO",
@@ -171,6 +182,17 @@
   "opportunity_type": "Scholarship",
   "destination_country": null,
   "funding_type": "Funding Available",
+  "education_levels": [],
+  "fields_of_study": [],
+  "restricted": false
+ },
+ {
+  "external_id": "AUTO-4FB57529F707F3A0",
+  "title": "British Academy International Fellowships",
+  "provider": "humanities.ox.ac.uk",
+  "opportunity_type": "Fellowship",
+  "destination_country": "United Kingdom",
+  "funding_type": "See official page",
   "education_levels": [],
   "fields_of_study": [],
   "restricted": false
